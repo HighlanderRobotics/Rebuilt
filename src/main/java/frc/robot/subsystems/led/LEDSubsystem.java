@@ -15,7 +15,7 @@ import frc.robot.Superstructure;
 import org.littletonrobotics.junction.Logger;
 
 public class LEDSubsystem extends SubsystemBase {
-  public static final int LED_LENGTH = 0; // TODO tbd
+  public static final int LED_LENGTH = 1; // TODO tbd
   public static final int LED_ID = 0;
 
   public static final Color PURPLE = new Color("#A000D0");
