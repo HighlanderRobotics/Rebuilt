@@ -3,6 +3,7 @@ package frc.robot.utils;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -53,6 +54,24 @@ public class AutoAim {
     VY_CONTROLLER.reset(robotPose.getY(), robotVelocityFieldRelative.vyMetersPerSecond);
     HEADING_CONTROLLER.reset(
         robotPose.getRotation().getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
+  }
+
+  public static void resetHeadingController(
+      Rotation2d robotHeading, ChassisSpeeds robotVelocityFieldRelative) {
+    HEADING_CONTROLLER.reset(
+        robotHeading.getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
+  }
+
+  /**
+   * Use PID to calculate the velocity required to align the robot heading to the target heading
+   *
+   * @param robotHeading
+   * @param targetHeading
+   * @return the calculated velocity
+   */
+  public static double calculateRotationVelocity(
+      Rotation2d robotHeading, Rotation2d targetHeading) {
+    return HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
   }
 
   public static ChassisSpeeds calculateSpeeds(Pose2d robotPose, Pose2d target) {

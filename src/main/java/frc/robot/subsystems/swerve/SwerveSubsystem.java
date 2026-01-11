@@ -9,6 +9,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -43,11 +44,13 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Samples;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.AutoAim;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -508,6 +511,31 @@ public class SwerveSubsystem extends SubsystemBase {
     return translateToPose(intermediate)
         .until(() -> isInAutoAimTolerance(intermediate.get()))
         .andThen(translateToPose(target));
+  }
+
+  private Command alignToHeading(
+      Supplier<Rotation2d> target, DoubleSupplier xVel, DoubleSupplier yVel) {
+    return Commands.runOnce(
+            () -> AutoAim.resetHeadingController(getRotation(), getVelocityFieldRelative()))
+        .andThen(
+            driveClosedLoopFieldRelative(
+                () ->
+                    new ChassisSpeeds(
+                        xVel.getAsDouble(),
+                        yVel.getAsDouble(),
+                        AutoAim.calculateRotationVelocity(getRotation(), target.get()))));
+  }
+
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return alignToHeading(
+        () -> {
+          Translation2d robotHubVec =
+              FieldUtils.getCurrentHubPos().minus(getPose().getTranslation());
+          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+        },
+        xVel,
+        yVel);
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {
