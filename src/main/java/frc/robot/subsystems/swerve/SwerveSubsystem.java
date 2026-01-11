@@ -134,10 +134,22 @@ public class SwerveSubsystem extends SubsystemBase {
       //         .toArray(Camera[]::new);
       cameras =
           new Camera[] {
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[0], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[1], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[2], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[3], this::getPose3d))
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[0],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()))),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[1],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()))),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[2],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()))),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[3],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())))
           };
     } else {
       // Add real modules
