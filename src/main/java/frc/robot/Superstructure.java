@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.RoutingSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -48,6 +49,7 @@ public class Superstructure {
   private Timer stateTimer = new Timer();
 
   private final SwerveSubsystem swerve;
+  private final RoutingSubsystem routing;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -79,9 +81,11 @@ public class Superstructure {
   /** Creates a new Superstructure. */
   public Superstructure(
       SwerveSubsystem swerve,
+      RoutingSubsystem routing,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
+    this.routing = routing;
     this.driver = driver;
     this.operator = operator;
 
@@ -92,12 +96,33 @@ public class Superstructure {
   }
 
   private void addTriggers() {
+    // TODO: THESE BINDINGS WILL LIKELY CHANGE. SHOULD HAVE A FULL MEETING TO DISCUSS
     scoreReq =
         driver
             .rightTrigger()
-            .negate()
             .and(DriverStation::isTeleop)
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
+
+    intakeReq =
+      driver
+        .leftTrigger()
+        .and(DriverStation::isTeleop)
+        .or(Autos.autoIntakeReq);
+    
+    feedReq =
+      driver
+        .rightBumper()
+        .and(DriverStation::isTeleop)
+        .or(Autos.autoFeedReq);
+    
+    continuousReq =
+      operator.rightTrigger();
+    
+    antiJamReq = driver.a().or(operator.a());
+
+    isFull = new Trigger(routing::isFull);
+
+    isEmpty = new Trigger(routing::isEmpty);
   }
 
   private void addTransitions() {
