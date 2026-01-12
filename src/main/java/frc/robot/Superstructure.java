@@ -21,7 +21,14 @@ public class Superstructure {
    * screenshots of the robot in each state. There are also named positions in cad for each state.
    */
   public enum SuperState {
-    IDLE();
+    IDLE(),
+    INTAKE(),
+    READY(),
+    FEED(),
+    FEED_FLOW(),
+    SCORE(),
+    SCORE_FLOW(),
+    SPIT();
     public final Trigger trigger;
 
     private SuperState() {
@@ -45,11 +52,26 @@ public class Superstructure {
   private final CommandXboxControllerSubsystem operator;
 
   // Declare triggers
-  @AutoLogOutput(key = "Superstructure/Pre Score Request")
-  public Trigger preScoreReq;
-
   @AutoLogOutput(key = "Superstructure/Score Request")
-  public Trigger scoreReq;
+  private Trigger scoreReq;
+
+  @AutoLogOutput(key = "Superstructure/Intake Request")
+  private Trigger intakeReq;
+
+  @AutoLogOutput(key = "Superstructure/Feed Request")
+  private Trigger feedReq;
+
+  @AutoLogOutput(key = "Superstructre/Continuous Request")
+  private Trigger continuousReq;
+
+  @AutoLogOutput(key = "Superstructre/Anti Jam Req")
+  private Trigger antiJamReq;
+
+  @AutoLogOutput(key = "Superstructure/Is Full")
+  private Trigger isFull;
+
+  @AutoLogOutput(key = "Superstructure/Is Empty")
+  private Trigger isEmpty;
 
   // @AutoLogOutput(key = "Superstructure/At Extension?")
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
@@ -70,9 +92,77 @@ public class Superstructure {
   }
 
   private void addTriggers() {
-    preScoreReq = driver.rightTrigger().or(Autos.autoPreScoreReq);
+    scoreReq =
+        driver
+            .rightTrigger()
+            .negate()
+            .and(DriverStation::isTeleop)
+            .or(Autos.autoScoreReq); // Maybe should include if its our turn?
+  }
 
-    scoreReq = driver.rightTrigger().negate().and(DriverStation::isTeleop).or(Autos.autoScoreReq);
+  private void addTransitions() {
+    bindTransition(SuperState.IDLE, SuperState.INTAKE, intakeReq);
+
+    bindTransition(SuperState.INTAKE, SuperState.READY, intakeReq.negate().or(isFull));
+
+    bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
+
+    bindTransition(SuperState.READY, SuperState.FEED, feedReq.and(continuousReq.negate()));
+
+    bindTransition(SuperState.FEED, SuperState.READY, feedReq.negate().and(isEmpty.negate()));
+
+    bindTransition(
+        SuperState.FEED,
+        SuperState.IDLE,
+        isEmpty.and(
+            feedReq.negate())); // This is the condition in the graph. Should it just transition
+    // automatically when empty?
+
+    bindTransition(SuperState.READY, SuperState.SCORE, scoreReq.and(continuousReq.negate()));
+
+    bindTransition(SuperState.SCORE, SuperState.READY, scoreReq.negate().and(isEmpty.negate()));
+
+    bindTransition(SuperState.SCORE, SuperState.IDLE, scoreReq.negate().and(isEmpty));
+
+    // FEED_FLOW transitions
+    {
+      bindTransition(SuperState.IDLE, SuperState.FEED_FLOW, feedReq.and(continuousReq));
+
+      bindTransition(SuperState.INTAKE, SuperState.FEED_FLOW, feedReq.and(continuousReq));
+
+      bindTransition(SuperState.FEED, SuperState.FEED_FLOW, feedReq.and(continuousReq));
+      // Graph has no transition from READY to FEED_FLOW. I think the transition should be added
+      // though.
+
+      bindTransition(SuperState.FEED_FLOW, SuperState.FEED, feedReq.and(continuousReq.negate()));
+
+      bindTransition(
+          SuperState.FEED_FLOW, SuperState.READY, feedReq.negate().and(isEmpty.negate()));
+
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, feedReq.negate().and(isEmpty));
+    }
+
+    // SCORE_FLOW transitions
+    {
+      bindTransition(SuperState.IDLE, SuperState.SCORE_FLOW, scoreReq.and(continuousReq));
+
+      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, scoreReq.and(continuousReq));
+
+      bindTransition(SuperState.INTAKE, SuperState.SCORE_FLOW, scoreReq.and(continuousReq));
+      // Graph has no transition from READY to SCORE_FLOW. I think it should be added
+
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, scoreReq.negate().and(isEmpty));
+
+      bindTransition(
+          SuperState.SCORE_FLOW, SuperState.READY, scoreReq.negate().and(isEmpty.negate()));
+
+      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, scoreReq.and(continuousReq.negate()));
+    }
+
+    // Transition from any state to SPIT for anti jamming
+    antiJamReq.onTrue(changeStateTo(SuperState.SPIT));
+
+    bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
   }
 
   public void periodic() {
@@ -129,8 +219,6 @@ public class Superstructure {
 
   // public Command transitionAfterZeroing() {
   //  }
-
-  private void addTransitions() {}
 
   /**
    * <b>Only for setting initial state at the beginning of auto</b>
