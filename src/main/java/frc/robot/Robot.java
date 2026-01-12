@@ -28,6 +28,11 @@ import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
+import frc.robot.subsystems.turret.PivotIOReal;
+import frc.robot.subsystems.turret.PivotIOSim;
+import frc.robot.subsystems.turret.ShooterIOReal;
+import frc.robot.subsystems.turret.ShooterIOSim;
+import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import java.util.Optional;
 import java.util.Set;
@@ -84,6 +89,11 @@ public class Robot extends LoggedRobot {
   // Subsystem initialization
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
+  private final TurretSubsystem turret =
+      new TurretSubsystem(
+          ROBOT_TYPE != RobotType.SIM ? ShooterIOReal.getShooterReal() : ShooterIOSim.getShooterSim(),
+          ROBOT_TYPE != RobotType.SIM ? PivotIOReal.getTurretPivotReal() : PivotIOSim.getTurretPivotSim(),
+          ROBOT_TYPE != RobotType.SIM ? PivotIOReal.getTurretHoodReal() : PivotIOSim.getTurretHoodSim());
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
@@ -128,7 +138,7 @@ public class Robot extends LoggedRobot {
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
     // Metadata about the current code running on the robot
-    Logger.recordMetadata("Codebase", "2026 Template");
+    Logger.recordMetadata("Codebase", "Rebuilt");
     Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
     Logger.recordMetadata("Robot Mode", ROBOT_TYPE.toString());
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -191,6 +201,8 @@ public class Robot extends LoggedRobot {
                         modifyJoystick(driver.getRightX())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                     .times(-1)));
+
+    turret.setDefaultCommand(turret.runStateCommand(null, null, null));
 
     addControllerBindings();
 
