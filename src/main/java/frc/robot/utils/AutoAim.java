@@ -71,7 +71,11 @@ public class AutoAim {
    */
   public static double calculateRotationVelocity(
       Rotation2d robotHeading, Rotation2d targetHeading) {
-    return HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
+    double omegaRadsPerSec =
+        HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
+    Logger.recordOutput(
+        "AutoAim/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
+    return omegaRadsPerSec;
   }
 
   public static ChassisSpeeds calculateSpeeds(Pose2d robotPose, Pose2d target) {
