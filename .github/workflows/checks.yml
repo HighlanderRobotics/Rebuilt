@@ -14,6 +14,7 @@ jobs:
 
     # Wpilib docker container
     # Latest as of 1/11/26
+    # Need to use a container without -py. The ones with -py don't have java installed
     container: wpilib/roborio-cross-ubuntu:2025-22.04
 
    # Steps represent a sequence of tasks that will be executed as part of the job
@@ -45,6 +46,7 @@ jobs:
 
     # Wpilib docker container
     # Latest as of 1/11/26
+    # Need to use a container without -py. The ones with -py don't have java installed
     container: wpilib/roborio-cross-ubuntu:2025-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
