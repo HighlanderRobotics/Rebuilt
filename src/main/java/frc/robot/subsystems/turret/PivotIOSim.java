@@ -117,7 +117,7 @@ public class PivotIOSim extends PivotIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
 
-    //TODO add actual motor ids
+    // TODO add actual motor ids
     return new PivotIOSim(0, Units.degreesToRadians(10), 1, 1, 1, config, 11, "Hood");
   }
 }

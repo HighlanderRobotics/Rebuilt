@@ -64,11 +64,10 @@ public class TurretSubsystem extends SubsystemBase {
     Transform3d turretToHub = hubPose.minus(turretPose);
     Rotation2d pivotTarget =
         Rotation2d.fromRadians(Math.atan2(turretToHub.getY(), turretToHub.getX()));
+    double distanceToHub = Math.hypot(turretToHub.getX(), turretToHub.getY());
     // magic function that calculates arctangent of z and the distance from turret to hub then the
     // parabola because :sparkle: kinematics
-    Rotation2d hoodTarget =
-        Rotation2d.fromRadians(
-            Math.atan2(Math.hypot(turretToHub.getX(), turretToHub.getY()), turretToHub.getZ()));
+    Rotation2d hoodTarget = Rotation2d.fromRadians(Math.atan2(turretToHub.getZ(), distanceToHub));
     return new Pose3d(
         robot3dposeSupplier.get().getTranslation().plus(new Translation3d(0, 0, 0.3)),
         new Rotation3d(0, (-1) * hoodTarget.getRadians(), pivotTarget.getRadians()));
