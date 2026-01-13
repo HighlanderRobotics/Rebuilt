@@ -70,6 +70,10 @@ public class TurretSubsystem extends SubsystemBase {
     Rotation2d hoodTarget = Rotation2d.fromRadians(Math.atan2(turretToHub.getZ(), distanceToHub));
     return new Pose3d(
         robot3dposeSupplier.get().getTranslation().plus(new Translation3d(0, 0, 0.3)),
-        new Rotation3d(0, (-1) * hoodTarget.getRadians(), pivotTarget.getRadians()));
+        robot3dposeSupplier
+            .get()
+            .getRotation()
+            .rotateBy(new Rotation3d(0, 0, pivotTarget.getRadians()))
+            .rotateBy(new Rotation3d(0, (-1) * hoodTarget.getRadians(), 0)));
   }
 }
