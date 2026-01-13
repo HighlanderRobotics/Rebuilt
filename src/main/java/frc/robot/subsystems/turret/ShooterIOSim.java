@@ -97,6 +97,7 @@ public class ShooterIOSim extends ShooterIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
 
-    return new ShooterIOSim(moi, gearing, 0, 1, 2, 3, config);
+    //TODO add actual motor ids
+    return new ShooterIOSim(moi, gearing, 12, 13, 14, 15, config);
   }
 }

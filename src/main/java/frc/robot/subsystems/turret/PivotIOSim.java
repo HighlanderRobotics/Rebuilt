@@ -92,7 +92,7 @@ public class PivotIOSim extends PivotIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
 
-    return new PivotIOSim((-1) * Math.PI / 2.0, Math.PI / 2.0, 1, 1, 1, config, 0, "Pivot");
+    return new PivotIOSim((-1) * Math.PI / 2.0, Math.PI / 2.0, 1, 1, 1, config, 10, "Pivot");
   }
 
   public static PivotIOSim getTurretHoodSim() {
@@ -117,6 +117,7 @@ public class PivotIOSim extends PivotIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
 
-    return new PivotIOSim(0, Units.degreesToRadians(10), 1, 1, 1, config, 1, "Hood");
+    //TODO add actual motor ids
+    return new PivotIOSim(0, Units.degreesToRadians(10), 1, 1, 1, config, 11, "Hood");
   }
 }
