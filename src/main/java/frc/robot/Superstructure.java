@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RoutingSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -22,14 +24,14 @@ public class Superstructure {
    * screenshots of the robot in each state. There are also named positions in cad for each state.
    */
   public enum SuperState {
-    IDLE(),
-    INTAKE(),
-    READY(),
-    FEED(),
-    FEED_FLOW(),
-    SCORE(),
-    SCORE_FLOW(),
-    SPIT();
+    IDLE,
+    INTAKE,
+    READY,
+    FEED,
+    FEED_FLOW,
+    SCORE,
+    SCORE_FLOW,
+    SPIT;
     public final Trigger trigger;
 
     private SuperState() {
@@ -50,6 +52,8 @@ public class Superstructure {
 
   private final SwerveSubsystem swerve;
   private final RoutingSubsystem routing;
+  private final IntakeSubsystem intake;
+  private final ShooterSubsystem shooter;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -82,10 +86,14 @@ public class Superstructure {
   public Superstructure(
       SwerveSubsystem swerve,
       RoutingSubsystem routing,
+      IntakeSubsystem intake,
+      ShooterSubsystem shooter,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
     this.routing = routing;
+    this.intake = intake;
+    this.shooter = shooter;
     this.driver = driver;
     this.operator = operator;
 
@@ -190,6 +198,24 @@ public class Superstructure {
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
   }
 
+  private void addCommands() {
+    bindCommands(SuperState.IDLE, intake.rest(), routing.rest(), shooter.rest()); // Maybe the routing should be indexing? 
+
+    bindCommands(SuperState.INTAKE, intake.intake(), routing.index(), shooter.rest());
+
+    bindCommands(SuperState.READY, intake.rest(), routing.index(), shooter.rest()); // Maybe index at slower speed?
+
+    bindCommands(SuperState.SCORE, intake.rest(), routing.index(), shooter.shoot());
+
+    bindCommands(SuperState.SCORE_FLOW, intake.intake(), routing.index(), shooter.shoot());
+
+    bindCommands(SuperState.FEED, intake.rest(), routing.index(), shooter.feed());
+
+    bindCommands(SuperState.FEED_FLOW, intake.intake(), routing.index(), shooter.feed());
+
+    bindCommands(SuperState.SPIT, intake.spit(), routing.reverseIndex(), shooter.shoot());
+  }
+
   public void periodic() {
     Logger.recordOutput("Superstructure/Superstructure State", state);
     Logger.recordOutput("Superstructure/State Timer", stateTimer.get());
@@ -220,6 +246,14 @@ public class Superstructure {
     trigger.and(start.getTrigger()).onTrue(Commands.parallel(changeStateTo(end), cmd));
   }
 
+  /**
+   * Runs the passed in command(s) in parallel when the superstructure is in the passed in state
+   * @param state
+   * @param commands
+   */
+  private void bindCommands(SuperState state, Command... commands) {
+    state.getTrigger().whileTrue(Commands.parallel(commands));
+  }
   // public boolean atExtension(SuperState state) {
   // }
 
