@@ -4,7 +4,12 @@
 
 package frc.robot.subsystems.turret;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
@@ -49,5 +54,23 @@ public class TurretSubsystem extends SubsystemBase {
     Logger.processInputs("Hood", hoodInputs);
     shooterIO.updateInputs(shooterInputs);
     Logger.processInputs("Shooter", shooterInputs);
+  }
+
+  public Pose3d getPose3d(Supplier<Pose3d> robot3dposeSupplier) {
+    Transform3d robotToTurret = new Transform3d(0, 0, 0.3, Rotation3d.kZero);
+    Pose3d hubPose = new Pose3d(4.6, 4.03, Units.inchesToMeters(72), Rotation3d.kZero);
+    Logger.recordOutput("Hub Pose", hubPose);
+    Pose3d turretPose = robot3dposeSupplier.get().transformBy(robotToTurret);
+    Transform3d turretToHub = hubPose.minus(turretPose);
+    Rotation2d pivotTarget =
+        Rotation2d.fromRadians(Math.atan2(turretToHub.getY(), turretToHub.getX()));
+    // magic function that calculates arctangent of z and the distance from turret to hub then the
+    // parabola because :sparkle: kinematics
+    Rotation2d hoodTarget =
+        Rotation2d.fromRadians(
+            Math.atan2(Math.hypot(turretToHub.getX(), turretToHub.getY()), turretToHub.getZ()));
+    return new Pose3d(
+        robot3dposeSupplier.get().getTranslation().plus(new Translation3d(0, 0, 0.3)),
+        new Rotation3d(0, (-1) * hoodTarget.getRadians(), pivotTarget.getRadians()));
   }
 }

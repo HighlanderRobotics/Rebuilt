@@ -91,9 +91,15 @@ public class Robot extends LoggedRobot {
   private final LEDSubsystem leds;
   private final TurretSubsystem turret =
       new TurretSubsystem(
-          ROBOT_TYPE != RobotType.SIM ? ShooterIOReal.getShooterReal() : ShooterIOSim.getShooterSim(),
-          ROBOT_TYPE != RobotType.SIM ? PivotIOReal.getTurretPivotReal() : PivotIOSim.getTurretPivotSim(),
-          ROBOT_TYPE != RobotType.SIM ? PivotIOReal.getTurretHoodReal() : PivotIOSim.getTurretHoodSim());
+          ROBOT_TYPE != RobotType.SIM
+              ? ShooterIOReal.getShooterReal()
+              : ShooterIOSim.getShooterSim(),
+          ROBOT_TYPE != RobotType.SIM
+              ? PivotIOReal.getTurretPivotReal()
+              : PivotIOSim.getTurretPivotSim(),
+          ROBOT_TYPE != RobotType.SIM
+              ? PivotIOReal.getTurretHoodReal()
+              : PivotIOSim.getTurretHoodSim());
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
@@ -202,7 +208,7 @@ public class Robot extends LoggedRobot {
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                     .times(-1)));
 
-    turret.setDefaultCommand(turret.runStateCommand(null, null, null));
+    // turret.setDefaultCommand(turret.runStateCommand(null, null, null));
 
     addControllerBindings();
 
