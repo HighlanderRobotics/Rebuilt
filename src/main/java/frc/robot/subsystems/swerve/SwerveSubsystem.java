@@ -344,13 +344,21 @@ public class SwerveSubsystem extends SubsystemBase {
       cameras[i].updateCamera(estimator);
       cameraPoses[i] = cameras[i].getPose();
     }
+    // only do all this logging stuff if we're not irl for performance
     if (Robot.ROBOT_TYPE != RobotType.REAL) {
       Logger.recordOutput("Vision/Camera Poses", cameraPoses);
       Pose3d[] arr = new Pose3d[cameras.length];
       for (int k = 0; k < cameras.length; k++) {
-        arr[k] =
-            new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
-                .transformBy(cameras[k].getCameraConstants().robotToCamera());
+        // honetsly not sure if this distinction is the way to go but
+        if (Robot.ROBOT_TYPE == RobotType.SIM)
+          // If we're in sim, use the maplesim pose to calculate vision
+          arr[k] =
+              new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
+                  .transformBy(cameras[k].getCameraConstants().robotToCamera());
+        else {
+          // if we're in replay, use whatever the pose was
+          arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
+        }
       }
       Logger.recordOutput("Vision/Camera Poses on Robot", arr);
     }

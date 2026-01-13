@@ -106,6 +106,9 @@ public class Robot extends LoggedRobot {
 
   // Logged mechanisms
 
+  // temporarily override map with empty map to avoid collisions swith reefscape elements
+  // unfortunately this also turns off collisions with walls but that's fine
+  // TODO update once rebuilt is added to maplesim
   private static class EvergreenArena extends SimulatedArena {
     protected EvergreenArena() {
       super(new FieldMap() {});
