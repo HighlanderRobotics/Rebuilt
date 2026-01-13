@@ -4,15 +4,11 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Meter;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -35,10 +31,6 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import java.util.Optional;
 import java.util.Set;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.COTS;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -88,30 +80,8 @@ public class Robot extends LoggedRobot {
 
   // Instantiate subsystems
 
-  // Maple Sim Stuff
-  private final DriveTrainSimulationConfig driveTrainSimConfig =
-      DriveTrainSimulationConfig.Default()
-          .withGyro(COTS.ofPigeon2())
-          .withSwerveModule(
-              COTS.ofMark4n(
-                  DCMotor.getKrakenX60Foc(1),
-                  DCMotor.getKrakenX60Foc(1),
-                  // Still not sure where the 1.5 came from
-                  1.5,
-                  // Running l2+ swerve modules
-                  2))
-          .withTrackLengthTrackWidth(
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthX()),
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthY()))
-          .withBumperSize(
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getBumperWidth()),
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getBumperLength()))
-          .withRobotMass(SwerveSubsystem.SWERVE_CONSTANTS.getMass());
-
-  private final SwerveDriveSimulation swerveSimulation =
-      new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
   // Subsystem initialization
-  private final SwerveSubsystem swerve = new SwerveSubsystem(swerveSimulation, canivore);
+  private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
@@ -192,10 +162,6 @@ public class Robot extends LoggedRobot {
 
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
-
-    if (ROBOT_TYPE == RobotType.SIM) {
-      SimulatedArena.getInstance().addDriveTrainSimulation(swerveSimulation);
-    }
 
     swerve.setDefaultCommand(
         swerve.driveOpenLoopFieldRelative(
@@ -373,20 +339,11 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationInit() {
     // Sets the odometry pose to start at the same place as maple sim pose
-    swerve.resetPose(swerveSimulation.getSimulatedDriveTrainPose());
+    swerve.resetMapleSimPose();
   }
 
   @Override
-  public void simulationPeriodic() {
-    // Update maple simulation
-    SimulatedArena.getInstance().simulationPeriodic();
-    // Log simulated pose
-    Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
-  }
-
-  public Pose2d getMapleSimPose() {
-    return swerveSimulation.getSimulatedDriveTrainPose();
-  }
+  public void simulationPeriodic() {}
 
   @Override
   public void disabledInit() {}
