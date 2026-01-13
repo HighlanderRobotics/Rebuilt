@@ -99,6 +99,7 @@ public class Superstructure {
 
     addTriggers();
     addTransitions();
+    addCommands();
 
     stateTimer.start();
   }
