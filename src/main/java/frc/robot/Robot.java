@@ -334,6 +334,8 @@ public class Robot extends LoggedRobot {
         && lowBatteryCycleCount >= lowBatteryMinCycleCount) {
       lowBatteryAlert.set(true);
     }
+
+    Logger.recordOutput("Turret pose", turret.getPose3d(() -> swerve.getMaplesimPose3d()));
   }
 
   @Override

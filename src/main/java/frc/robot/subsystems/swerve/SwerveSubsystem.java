@@ -685,4 +685,9 @@ public class SwerveSubsystem extends SubsystemBase {
     // Log simulated pose
     Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
   }
+
+  // You should probably not use this ever
+  public Pose3d getMaplesimPose3d() {
+    return new Pose3d(swerveSimulation.getSimulatedDriveTrainPose());
+  }
 }
