@@ -131,10 +131,22 @@ public class SwerveSubsystem extends SubsystemBase {
       //         .toArray(Camera[]::new);
       cameras =
           new Camera[] {
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[0], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[1], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[2], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[3], this::getPose3d))
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[0],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()))),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[1],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()))),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[2],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()))),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[3],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())))
           };
     } else {
       // Add real modules
@@ -303,7 +315,9 @@ public class SwerveSubsystem extends SubsystemBase {
     if (Robot.ROBOT_TYPE != RobotType.REAL) Logger.recordOutput("Vision/Camera Poses", cameraPoses);
     Pose3d[] arr = new Pose3d[cameras.length];
     for (int k = 0; k < cameras.length; k++) {
-      arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
+      // arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
+            arr[k] = ().transformBy(cameras[k].getCameraConstants().robotToCamera());
+
     }
     if (Robot.ROBOT_TYPE != RobotType.REAL)
       Logger.recordOutput("Vision/Camera Poses on Robot", arr);

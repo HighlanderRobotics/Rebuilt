@@ -384,6 +384,10 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
   }
 
+  public Pose2d getMapleSimPose() {
+    return swerveSimulation.getSimulatedDriveTrainPose();
+  }
+
   @Override
   public void disabledInit() {}
 
