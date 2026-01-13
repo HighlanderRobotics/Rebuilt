@@ -31,6 +31,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import java.util.Optional;
 import java.util.Set;
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -104,6 +105,19 @@ public class Robot extends LoggedRobot {
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
   // Logged mechanisms
+
+  private static class EvergreenArena extends SimulatedArena {
+    protected EvergreenArena() {
+      super(new FieldMap() {});
+    }
+
+    @Override
+    public void placeGamePiecesOnField() {}
+  }
+
+  static {
+    SimulatedArena.overrideInstance(new EvergreenArena());
+  }
 
   @SuppressWarnings("resource")
   public Robot() {
