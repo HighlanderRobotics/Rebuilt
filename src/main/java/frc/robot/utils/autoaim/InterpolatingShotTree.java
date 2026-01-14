@@ -1,11 +1,12 @@
 package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.TreeMap;
 
 public class InterpolatingShotTree {
-  private record ShotData(
+  public record ShotData(
       Rotation2d hoodRotation, double flywheelVelocityRotPerSec, double flightTimeSec) {}
 
   private final TreeMap<Double, ShotData> map = new TreeMap<>();
@@ -108,4 +109,8 @@ public class InterpolatingShotTree {
     }
     return queryToLower / upperToLower;
   }
+
+  public ShotData calculateShot(InterpolatingShotTree tree, Pose3d goal, Pose3d shooterPose) {        
+        return tree.get(Math.hypot(goal.getX() - shooterPose.getX(), goal.getY() - shooterPose.getY()));
+    }
 }
