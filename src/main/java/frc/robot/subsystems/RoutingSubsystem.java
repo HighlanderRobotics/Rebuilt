@@ -5,32 +5,32 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // TODO!!!
 public class RoutingSubsystem extends SubsystemBase {
-    
-    // TODO: BASE ON ACTUAL SENSOR READINGS
-    private boolean isFull;
-    private boolean isEmpty;
 
-    public boolean isFull() {
-        return isFull;
-    }
+  // TODO: BASE ON ACTUAL SENSOR READINGS
+  private boolean isFull;
+  private boolean isEmpty;
 
-    public boolean isEmpty() {
-        return isEmpty;
-    }
+  public boolean isFull() {
+    return isFull;
+  }
 
-    // TODO!!
-    public Command index() {
-        return this.run(() -> {});
-    }
+  public boolean isEmpty() {
+    return isEmpty;
+  }
 
-    // Can't call it idle bc idle is smthing else
-    public Command rest() {
-        // TODO
-        return idle();
-    }
+  // TODO!!
+  public Command index() {
+    return this.run(() -> {});
+  }
 
-    public Command reverseIndex() {
-        // TODO
-        return this.run(() -> {});
-    }
+  // Can't call it idle bc idle is smthing else
+  public Command rest() {
+    // TODO
+    return idle();
+  }
+
+  public Command reverseIndex() {
+    // TODO
+    return this.run(() -> {});
+  }
 }

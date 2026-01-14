@@ -43,9 +43,8 @@ public class Autos {
       new Trigger(() -> autoIntake).and(DriverStation::isAutonomous);
 
   @AutoLogOutput(key = "Superstructure/Auto Feed Request")
-  public static Trigger autoFeedReq =
-    new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
-  
+  public static Trigger autoFeedReq = new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
+
   public enum PathEndType {
     PLACEHOLDER;
   }

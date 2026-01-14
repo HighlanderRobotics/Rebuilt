@@ -112,21 +112,12 @@ public class Superstructure {
             .and(DriverStation::isTeleop)
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
 
-    intakeReq =
-      driver
-        .leftTrigger()
-        .and(DriverStation::isTeleop)
-        .or(Autos.autoIntakeReq);
-    
-    feedReq =
-      driver
-        .rightBumper()
-        .and(DriverStation::isTeleop)
-        .or(Autos.autoFeedReq);
-    
-    flowReq =
-      operator.rightTrigger();
-    
+    intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
+
+    feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
+
+    flowReq = operator.rightTrigger();
+
     antiJamReq = driver.a().or(operator.a());
 
     isFull = new Trigger(routing::isFull);
@@ -139,19 +130,16 @@ public class Superstructure {
 
     bindTransition(SuperState.INTAKE, SuperState.IDLE, intakeReq.negate().and(isEmpty));
 
-    bindTransition(SuperState.INTAKE, SuperState.READY, (intakeReq.negate().and(isEmpty.negate())).or(isFull));
+    bindTransition(
+        SuperState.INTAKE, SuperState.READY, (intakeReq.negate().and(isEmpty.negate())).or(isFull));
 
     bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
 
     bindTransition(SuperState.READY, SuperState.FEED, feedReq);
 
-    bindTransition(
-        SuperState.FEED,
-        SuperState.IDLE,
-        isEmpty); 
+    bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
 
     bindTransition(SuperState.READY, SuperState.SCORE, scoreReq);
-
 
     bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty);
 
@@ -162,7 +150,8 @@ public class Superstructure {
       // No so sure about the end condition here.
       bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate());
 
-      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have a fuel
+      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have
+      // a fuel
     }
 
     // SCORE_FLOW transitions
@@ -170,7 +159,8 @@ public class Superstructure {
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
       bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate());
-          // Maybe should be a transition from idle to flow as well? In case robot doesn't already have a fuel
+      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have
+      // a fuel
     }
 
     // Transition from any state to SPIT for anti jamming
@@ -180,11 +170,19 @@ public class Superstructure {
   }
 
   private void addCommands() {
-    bindCommands(SuperState.IDLE, intake.rest(), routing.rest(), shooter.rest()); // Maybe the routing should be indexing? 
+    bindCommands(
+        SuperState.IDLE,
+        intake.rest(),
+        routing.rest(),
+        shooter.rest()); // Maybe the routing should be indexing?
 
     bindCommands(SuperState.INTAKE, intake.intake(), routing.index(), shooter.rest());
 
-    bindCommands(SuperState.READY, intake.rest(), routing.index(), shooter.rest()); // Maybe index at slower speed?
+    bindCommands(
+        SuperState.READY,
+        intake.rest(),
+        routing.index(),
+        shooter.rest()); // Maybe index at slower speed?
 
     bindCommands(SuperState.SCORE, intake.rest(), routing.index(), shooter.shoot());
 
@@ -229,12 +227,14 @@ public class Superstructure {
 
   /**
    * Runs the passed in command(s) in parallel when the superstructure is in the passed in state
+   *
    * @param state
    * @param commands
    */
   private void bindCommands(SuperState state, Command... commands) {
     state.getTrigger().whileTrue(Commands.parallel(commands));
   }
+
   // public boolean atExtension(SuperState state) {
   // }
 
