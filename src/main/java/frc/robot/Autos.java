@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+//import frc.robot.Autos.PathEndType;
 import frc.robot.Robot.RobotType;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -23,39 +24,61 @@ public class Autos {
 
   // Declare triggers
   // mehhhhhhh
-  private static boolean autoPreScore;
+  private static boolean autoFeed;
+  private static boolean autoIntake;
   private static boolean autoScore;
-  private static boolean autoIntakeCoral;
+  private static boolean autoClimb;
 
   // private static boolean autoIntakeAlgae;
 
-  @AutoLogOutput(key = "Superstructure/Auto Pre Score Request")
-  public static Trigger autoPreScoreReq =
-      new Trigger(() -> autoPreScore).and(DriverStation::isAutonomous);
+  @AutoLogOutput(key = "Superstructure/Auto Feed Request")
+    public static Trigger autoFeedReq =
+        new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
 
-  @AutoLogOutput(key = "Superstructure/Auto Score Request")
-  public static Trigger autoScoreReq =
-      new Trigger(() -> autoScore).and(DriverStation::isAutonomous);
+    @AutoLogOutput(key = "Superstructure/Auto Intake Request")
+    public static Trigger autoIntakeReq =
+        new Trigger(() -> autoIntake).and(DriverStation::isAutonomous);
 
-  @AutoLogOutput(key = "Superstructure/Auto Coral Intake Request")
-  public static Trigger autoIntakeCoralReq =
-      new Trigger(() -> autoIntakeCoral).and(DriverStation::isAutonomous);
+    @AutoLogOutput(key = "Superstructure/Auto Score Request")
+    public static Trigger autoScoreReq =
+        new Trigger(() -> autoScore).and(DriverStation::isAutonomous);
 
-  public enum PathEndType {
-    PLACEHOLDER;
-  }
+    @AutoLogOutput(key = "Superstructure/Auto Climb Request")
+    public static Trigger autoClimbReq =
+        new Trigger(() -> autoClimb).and(DriverStation::isAutonomous);
+
+  public enum Action {
+        FEED,
+        INTAKE,
+        SCORE,
+        CLIMB;
+    }
 
   public enum Path {
-    PLACEHOLDER("placeholder", "placeholder", PathEndType.PLACEHOLDER);
+  //R/L for right and left. 
+//P for park 
+//C for climb. 
+//S for scoreing pos. 
+//F for feeding poses
+PLtoCL("PL", "CL", Action.CLIMB),
+PRtoCR("PR", "CR", Action.CLIMB),
+PLtoSL("PL", "CL", Action.SCORE),
+PRtoSR("PR", "CR", Action.SCORE),
+SLtoCL("SL", "CL", Action.CLIMB),
+SRtoCR("SR", "CR", Action.CLIMB),
+SLtoFL("SL", "FL", Action.FEED),
+SRtoFR("SR", "FR", Action.FEED),
+FRtoFL("FR", "FL", Action.FEED),
+FLtoFR("FL", "FR", Action.FEED);
 
     private final String start;
     private final String end;
-    private final PathEndType type;
+    private final Action action;
 
-    private Path(String start, String end, PathEndType type) {
+    private Path(String start, String end, Action action) {
       this.start = start;
       this.end = end;
-      this.type = type;
+      this.action = action;
     }
 
     public AutoTrajectory getTrajectory(AutoRoutine routine) {
@@ -100,11 +123,24 @@ public class Autos {
   }
 
   public Command runPath(Path path, AutoRoutine routine) {
-    PathEndType type = path.type;
-    switch (type) {
+    Action action = path.action;
+    switch (action) {
       default: // this should never happen
         return Commands.none();
     }
+  }
+
+  public Command setAutoIntakeReqTrue() {
+    return Commands.runOnce(
+        () -> {
+          autoIntake= true;
+        });
+  }
+  public Command setAutoIntakeReqFalse() {
+    return Commands.runOnce(
+        () -> {
+          autoIntake = false;
+        });
   }
 
   public Command setAutoScoreReqTrue() {
@@ -113,16 +149,37 @@ public class Autos {
           autoScore = true;
         });
   }
-
-  public Command setAutoPreScoreReqTrue() {
-    return Commands.runOnce(() -> autoPreScore = true);
-  }
-
   public Command setAutoScoreReqFalse() {
     return Commands.runOnce(
         () -> {
           autoScore = false;
-          autoPreScore = false;
         });
   }
+
+  public Command setAutoFeedReqTrue() {
+    return Commands.runOnce(
+        () -> {
+          autoFeed = true;
+        });
+  }
+  public Command setAutoFeedReqFalse() {
+    return Commands.runOnce(
+        () -> {
+          autoFeed = false;
+        });
+  }
+
+  public Command setAutoClimbReqTrue() {
+    return Commands.runOnce(
+        () -> {
+          autoClimb = true;
+        });
+  }
+  public Command setAutoClimbReqFalse() {
+    return Commands.runOnce(
+        () -> {
+          autoClimb = false;
+        });
+  }
+//TODO other things: depot autos, waiting for balls to be intaked/shot etc, make auto traj in choreo, write for the actaul paths
 }
