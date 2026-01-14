@@ -139,7 +139,7 @@ public class Superstructure {
 
     bindTransition(SuperState.INTAKE, SuperState.IDLE, intakeReq.negate().and(isEmpty));
 
-    bindTransition(SuperState.INTAKE, SuperState.READY, intakeReq.negate().and(isEmpty.negate()).or(isFull));
+    bindTransition(SuperState.INTAKE, SuperState.READY, (intakeReq.negate().and(isEmpty.negate())).or(isFull));
 
     bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
 
