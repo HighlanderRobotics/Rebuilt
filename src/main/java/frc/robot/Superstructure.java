@@ -67,8 +67,8 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq;
 
-  @AutoLogOutput(key = "Superstructre/Continuous Request")
-  private Trigger continuousReq;
+  @AutoLogOutput(key = "Superstructre/Flowstate Request")
+  private Trigger flowReq;
 
   @AutoLogOutput(key = "Superstructre/Anti Jam Req")
   private Trigger antiJamReq;
@@ -124,7 +124,7 @@ public class Superstructure {
         .and(DriverStation::isTeleop)
         .or(Autos.autoFeedReq);
     
-    continuousReq =
+    flowReq =
       operator.rightTrigger();
     
     antiJamReq = driver.a().or(operator.a());
@@ -157,19 +157,19 @@ public class Superstructure {
 
     // FEED_FLOW transitions
     {
-      bindTransition(SuperState.FEED, SuperState.FEED_FLOW, continuousReq);
+      bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
       // No so sure about the end condition here.
-      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, continuousReq.negate());
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate());
 
       // Maybe should be a transition from idle to flow as well? In case robot doesn't already have a fuel
     }
 
     // SCORE_FLOW transitions
     {
-      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, continuousReq);
+      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
-      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, continuousReq.negate());
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate());
           // Maybe should be a transition from idle to flow as well? In case robot doesn't already have a fuel
     }
 
