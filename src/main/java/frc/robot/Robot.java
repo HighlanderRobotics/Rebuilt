@@ -299,6 +299,18 @@ public class Robot extends LoggedRobot {
                             ? Rotation2d.kZero
                             : Rotation2d.k180deg)));
 
+    // TODO: ACTUAL BUTTON BINDING
+    driver
+        .leftBumper()
+        .whileTrue(
+            swerve.faceHub(
+                () ->
+                    modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
     // ---zeroing stuff---
 
     new Trigger(() -> DriverStation.isJoystickConnected(0))
