@@ -15,6 +15,7 @@ public class InterpolatingShotTree {
 
   /**
    * Add an entry to the shot map
+   *
    * @param distance the distance from the goal of the shot
    * @param data the data that made the shot
    */
@@ -23,9 +24,11 @@ public class InterpolatingShotTree {
   }
 
   /**
-   * Get shot data for a working shot at the specified distance. If the distance is included in the map, it will return that data. If not, it interpolates a working shot from the nearest data.
+   * Get shot data for a working shot at the specified distance. If the distance is included in the
+   * map, it will return that data. If not, it interpolates a working shot from the nearest data.
+   *
    * @param distance the distance from the goal
-   * @return 
+   * @return
    */
   public ShotData get(Double distance) {
     ShotData val = map.get(distance);
@@ -51,15 +54,14 @@ public class InterpolatingShotTree {
     }
   }
 
-  /**
-   * Clears the shot map
-   */
+  /** Clears the shot map */
   public void clear() {
     map.clear();
   }
 
   /**
    * Remove an entry from the shot map
+   *
    * @param key the distance from the goal of the entry to remove
    */
   public void remove(double key) {
@@ -68,6 +70,7 @@ public class InterpolatingShotTree {
 
   /**
    * Gets the largest key in the map
+   *
    * @return
    */
   public double maxKey() {
@@ -76,6 +79,7 @@ public class InterpolatingShotTree {
 
   /**
    * Interpolates a shot from the two specified shots
+   *
    * @param startValue
    * @param endValue
    * @param t how far between the two values to interpolate
@@ -92,7 +96,9 @@ public class InterpolatingShotTree {
   }
 
   /**
-   * Returns the relative distance of the query from the lower key and the larger key from the lower key.
+   * Returns the relative distance of the query from the lower key and the larger key from the lower
+   * key.
+   *
    * @param up the larger key
    * @param query the query key
    * @param down the smaller key
@@ -110,7 +116,7 @@ public class InterpolatingShotTree {
     return queryToLower / upperToLower;
   }
 
-  public ShotData calculateShot(InterpolatingShotTree tree, Pose3d goal, Pose3d shooterPose) {        
-        return tree.get(Math.hypot(goal.getX() - shooterPose.getX(), goal.getY() - shooterPose.getY()));
-    }
+  public ShotData calculateShot(Pose3d goal, Pose3d shooterPose) {
+    return get(Math.hypot(goal.getX() - shooterPose.getX(), goal.getY() - shooterPose.getY()));
+  }
 }

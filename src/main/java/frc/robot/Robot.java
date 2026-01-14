@@ -7,8 +7,11 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -34,6 +37,7 @@ import frc.robot.subsystems.turret.ShooterIOReal;
 import frc.robot.subsystems.turret.ShooterIOSim;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.autoaim.AutoAim;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -382,7 +386,17 @@ public class Robot extends LoggedRobot {
       lowBatteryAlert.set(true);
     }
 
-    Logger.recordOutput("Turret pose", turret.getPose3d(() -> swerve.getMaplesimPose3d()));
+    Pose3d hubPose = new Pose3d(4.6, 4.03, Units.inchesToMeters(72), Rotation3d.kZero);
+    Logger.recordOutput("Hub Pose", hubPose);
+    Pose3d pose =
+        AutoAim.getVirtualSOTMTarget(
+            hubPose,
+            swerve.getVelocityFieldRelative(),
+            // AutoAim.shotMap.calculateShot(hubPose, swerve.getPose3d()).flightTimeSec());
+            // TODO don't have actual shot times yet
+            1);
+    Logger.recordOutput(
+        "Turret pose", turret.getPose3d(() -> swerve.getMaplesimPose3d(), () -> pose));
   }
 
   @Override
