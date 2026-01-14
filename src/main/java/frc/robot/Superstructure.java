@@ -137,60 +137,40 @@ public class Superstructure {
   private void addTransitions() {
     bindTransition(SuperState.IDLE, SuperState.INTAKE, intakeReq);
 
+    bindTransition(SuperState.INTAKE, SuperState.IDLE, intakeReq.negate().and(isEmpty));
+
     bindTransition(SuperState.INTAKE, SuperState.READY, intakeReq.negate().or(isFull));
 
     bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
 
-    bindTransition(SuperState.READY, SuperState.FEED, feedReq.and(continuousReq.negate()));
-
-    bindTransition(SuperState.FEED, SuperState.READY, feedReq.negate().and(isEmpty.negate()));
+    bindTransition(SuperState.READY, SuperState.FEED, feedReq);
 
     bindTransition(
         SuperState.FEED,
         SuperState.IDLE,
-        isEmpty.and(
-            feedReq.negate())); // This is the condition in the graph. Should it just transition
-    // automatically when empty?
+        isEmpty); 
 
-    bindTransition(SuperState.READY, SuperState.SCORE, scoreReq.and(continuousReq.negate()));
+    bindTransition(SuperState.READY, SuperState.SCORE, scoreReq);
 
-    bindTransition(SuperState.SCORE, SuperState.READY, scoreReq.negate().and(isEmpty.negate()));
 
-    bindTransition(SuperState.SCORE, SuperState.IDLE, scoreReq.negate().and(isEmpty));
+    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty);
 
     // FEED_FLOW transitions
     {
-      bindTransition(SuperState.IDLE, SuperState.FEED_FLOW, feedReq.and(continuousReq));
+      bindTransition(SuperState.FEED, SuperState.FEED_FLOW, continuousReq);
 
-      bindTransition(SuperState.INTAKE, SuperState.FEED_FLOW, feedReq.and(continuousReq));
+      // No so sure about the end condition here.
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, continuousReq.negate());
 
-      bindTransition(SuperState.FEED, SuperState.FEED_FLOW, feedReq.and(continuousReq));
-      // Graph has no transition from READY to FEED_FLOW. I think the transition should be added
-      // though.
-
-      bindTransition(SuperState.FEED_FLOW, SuperState.FEED, feedReq.and(continuousReq.negate()));
-
-      bindTransition(
-          SuperState.FEED_FLOW, SuperState.READY, feedReq.negate().and(isEmpty.negate()));
-
-      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, feedReq.negate().and(isEmpty));
+      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have a fuel
     }
 
     // SCORE_FLOW transitions
     {
-      bindTransition(SuperState.IDLE, SuperState.SCORE_FLOW, scoreReq.and(continuousReq));
+      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, continuousReq);
 
-      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, scoreReq.and(continuousReq));
-
-      bindTransition(SuperState.INTAKE, SuperState.SCORE_FLOW, scoreReq.and(continuousReq));
-      // Graph has no transition from READY to SCORE_FLOW. I think it should be added
-
-      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, scoreReq.negate().and(isEmpty));
-
-      bindTransition(
-          SuperState.SCORE_FLOW, SuperState.READY, scoreReq.negate().and(isEmpty.negate()));
-
-      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, scoreReq.and(continuousReq.negate()));
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, continuousReq.negate());
+          // Maybe should be a transition from idle to flow as well? In case robot doesn't already have a fuel
     }
 
     // Transition from any state to SPIT for anti jamming
