@@ -6,58 +6,33 @@ IDLE
 
 subgraph BALL
 
-IDLE --> |intakeReq| INTAKE
+IDLE <--> |intakeReq + intakeEmpty| INTAKE
 
-READY --> |intakeReq + notFull| INTAKE
+READY <--> |intakeReq + empty| INTAKE
 
 READY --> |feedReq| FEED
 
 READY --> |scoreReq| SCORE
 
-FEED --> |noFeedReq / notEmpty| READY
 
-SCORE --> |noFeedReq / notEmpty + notOurTurn| READY
+FEED --> |flowReq| FEED_FLOW
 
-INTAKE --> |continuous toggle + feedReq| FEED_FLOW
+SCORE --> |flowReq| SCORE_FLOW
 
-INTAKE --> |continuous toggle + scoreReq| SCORE_FLOW
 
-INTAKE --> |full / noIntakingReq| READY
+FEED --> |empty| IDLE
 
-SCORE_FLOW --> |noScoreRep + notEmpty| READY
+SCORE --> |empty| IDLE
 
-FEED_FLOW --> |noFeedRep + notEmpty| READY
 
-FEED_FLOW --> |empty + noFeedReq| IDLE
+FEED_FLOW --> |empty| IDLE
 
-SCORE_FLOW --> |empty + noScoreReq / notOurTurn| IDLE
-
-FEED --> |empty + noScoreReq| IDLE
-
-SCORE --> |empty + noScoreReq / notOurTurn| IDLE
-
-IDLE --> |feedReq + continuous toggle| FEED_FLOW
-
-IDLE --> |scoreReq + continuous toggle| SCORE_FLOW
-
-subgraph Scoring / Feeding [SHOOT]
-
-SCORE <--> |continuous toggle| SCORE_FLOW
-
-FEED <--> |continuous toggle| FEED_FLOW
-end
+SCORE_FLOW --> |empty| IDLE
 
 end
+
 subgraph ANTI_JAM
 
-IDLE --> SPIT
-READY --> SPIT
-SCORE --> SPIT
-FEED --> SPIT
-INTAKE --> SPIT
-SCORE_FLOW --> SPIT
-FEED_FLOW --> SPIT
-
-SPIT --> IDLE
+SPIT
 
 end
