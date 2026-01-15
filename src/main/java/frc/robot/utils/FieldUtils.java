@@ -23,6 +23,8 @@ public class FieldUtils {
   }
 
   public static Pose2d getCurrentHubPose() {
-      return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? BLUE_HUB_POS : RED_HUB_POS;
+    return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+        ? BLUE_HUB_POS
+        : RED_HUB_POS;
   }
 }
