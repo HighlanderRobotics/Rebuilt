@@ -4,6 +4,7 @@
 
 package frc.robot.components.camera;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.components.camera.Camera.CameraConstants;
@@ -26,7 +27,8 @@ public class CameraIOSim implements CameraIO {
 
   public final Supplier<Pose3d> poseSupplier;
 
-  public CameraIOSim(CameraConstants constants, Supplier<Pose3d> poseSupplier) {
+  public CameraIOSim(
+      CameraConstants constants, Supplier<Pose3d> poseSupplier, AprilTagFieldLayout fieldTags) {
     this.sim = new VisionSystemSim(constants.name());
     var cameraProp = new SimCameraProperties();
     cameraProp.setCalibration(1080, 960, constants.intrinsicsMatrix(), constants.distCoeffs());
@@ -35,7 +37,7 @@ public class CameraIOSim implements CameraIO {
     cameraProp.setAvgLatencyMs(30.0);
     cameraProp.setLatencyStdDevMs(5.0);
     this.camera = new PhotonCamera(constants.name());
-    this.simCamera = new PhotonCameraSim(camera, cameraProp);
+    this.simCamera = new PhotonCameraSim(camera, cameraProp, fieldTags);
     simCamera.enableDrawWireframe(true);
     simCamera.setMaxSightRange(7.0);
     this.constants = constants;

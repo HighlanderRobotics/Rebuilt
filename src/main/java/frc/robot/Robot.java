@@ -4,15 +4,11 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Meter;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -28,9 +24,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.RoutingSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -39,9 +32,6 @@ import frc.robot.utils.CommandXboxControllerSubsystem;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.COTS;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -91,35 +81,9 @@ public class Robot extends LoggedRobot {
 
   // Instantiate subsystems
 
-  // Maple Sim Stuff
-  private final DriveTrainSimulationConfig driveTrainSimConfig =
-      DriveTrainSimulationConfig.Default()
-          .withGyro(COTS.ofPigeon2())
-          .withSwerveModule(
-              COTS.ofMark4n(
-                  DCMotor.getKrakenX60Foc(1),
-                  DCMotor.getKrakenX60Foc(1),
-                  // Still not sure where the 1.5 came from
-                  1.5,
-                  // Running l2+ swerve modules
-                  2))
-          .withTrackLengthTrackWidth(
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthX()),
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthY()))
-          .withBumperSize(
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getBumperWidth()),
-              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getBumperLength()))
-          .withRobotMass(SwerveSubsystem.SWERVE_CONSTANTS.getMass());
-
-  private final SwerveDriveSimulation swerveSimulation =
-      new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
   // Subsystem initialization
-  private final SwerveSubsystem swerve = new SwerveSubsystem(swerveSimulation, canivore);
+  private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
-
-  private final RoutingSubsystem routing = new RoutingSubsystem();
-  private final IntakeSubsystem intake = new IntakeSubsystem();
-  private final ShooterSubsystem shooter = new ShooterSubsystem();
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
@@ -133,8 +97,7 @@ public class Robot extends LoggedRobot {
   @AutoLogOutput(key = "Robot/Zeroing Request")
   private Trigger zeroingReq = driver.b();
 
-  private final Superstructure superstructure =
-      new Superstructure(swerve, routing, intake, shooter, driver, operator);
+  private final Superstructure superstructure = new Superstructure(swerve, driver, operator);
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
@@ -142,6 +105,22 @@ public class Robot extends LoggedRobot {
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
   // Logged mechanisms
+
+  // temporarily override map with empty map to avoid collisions swith reefscape elements
+  // unfortunately this also turns off collisions with walls but that's fine
+  // TODO update once rebuilt is added to maplesim
+  private static class EvergreenArena extends SimulatedArena {
+    protected EvergreenArena() {
+      super(new FieldMap() {});
+    }
+
+    @Override
+    public void placeGamePiecesOnField() {}
+  }
+
+  static {
+    SimulatedArena.overrideInstance(new EvergreenArena());
+  }
 
   @SuppressWarnings("resource")
   public Robot() {
@@ -200,10 +179,6 @@ public class Robot extends LoggedRobot {
 
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
-
-    if (ROBOT_TYPE == RobotType.SIM) {
-      SimulatedArena.getInstance().addDriveTrainSimulation(swerveSimulation);
-    }
 
     swerve.setDefaultCommand(
         swerve.driveOpenLoopFieldRelative(
@@ -381,16 +356,11 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationInit() {
     // Sets the odometry pose to start at the same place as maple sim pose
-    swerve.resetPose(swerveSimulation.getSimulatedDriveTrainPose());
+    swerve.resetMapleSimPose();
   }
 
   @Override
-  public void simulationPeriodic() {
-    // Update maple simulation
-    SimulatedArena.getInstance().simulationPeriodic();
-    // Log simulated pose
-    Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
-  }
+  public void simulationPeriodic() {}
 
   @Override
   public void disabledInit() {}

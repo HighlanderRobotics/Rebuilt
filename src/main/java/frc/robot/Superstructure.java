@@ -9,9 +9,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.RoutingSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -20,17 +17,11 @@ import org.littletonrobotics.junction.Logger;
 public class Superstructure {
 
   /**
-   * We should have a state for every single action the robot will perform.
+   * We should have a state for every single "pose" the robot will hit. See this document for
+   * screenshots of the robot in each state. There are also named positions in cad for each state.
    */
   public enum SuperState {
-    IDLE,
-    INTAKE,
-    READY,
-    FEED,
-    FEED_FLOW,
-    SCORE,
-    SCORE_FLOW,
-    SPIT;
+    IDLE();
     public final Trigger trigger;
 
     private SuperState() {
@@ -50,33 +41,15 @@ public class Superstructure {
   private Timer stateTimer = new Timer();
 
   private final SwerveSubsystem swerve;
-  private final RoutingSubsystem routing;
-  private final IntakeSubsystem intake;
-  private final ShooterSubsystem shooter;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
   // Declare triggers
+  @AutoLogOutput(key = "Superstructure/Pre Score Request")
+  public Trigger preScoreReq;
+
   @AutoLogOutput(key = "Superstructure/Score Request")
-  private Trigger scoreReq;
-
-  @AutoLogOutput(key = "Superstructure/Intake Request")
-  private Trigger intakeReq;
-
-  @AutoLogOutput(key = "Superstructure/Feed Request")
-  private Trigger feedReq;
-
-  @AutoLogOutput(key = "Superstructre/Flowstate Request")
-  private Trigger flowReq;
-
-  @AutoLogOutput(key = "Superstructre/Anti Jam Req")
-  private Trigger antiJamReq;
-
-  @AutoLogOutput(key = "Superstructure/Is Full")
-  private Trigger isFull;
-
-  @AutoLogOutput(key = "Superstructure/Is Empty")
-  private Trigger isEmpty;
+  public Trigger scoreReq;
 
   // @AutoLogOutput(key = "Superstructure/At Extension?")
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
@@ -84,21 +57,14 @@ public class Superstructure {
   /** Creates a new Superstructure. */
   public Superstructure(
       SwerveSubsystem swerve,
-      RoutingSubsystem routing,
-      IntakeSubsystem intake,
-      ShooterSubsystem shooter,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
-    this.routing = routing;
-    this.intake = intake;
-    this.shooter = shooter;
     this.driver = driver;
     this.operator = operator;
 
     addTriggers();
     addTransitions();
-    addCommands();
 
     stateTimer.start();
   }
@@ -228,16 +194,6 @@ public class Superstructure {
     trigger.and(start.getTrigger()).onTrue(Commands.parallel(changeStateTo(end), cmd));
   }
 
-  /**
-   * Runs the passed in command(s) in parallel when the superstructure is in the passed in state
-   *
-   * @param state
-   * @param commands
-   */
-  private void bindCommands(SuperState state, Command... commands) {
-    state.getTrigger().whileTrue(Commands.parallel(commands));
-  }
-
   // public boolean atExtension(SuperState state) {
   // }
 
@@ -262,6 +218,7 @@ public class Superstructure {
 
   // public Command transitionAfterZeroing() {
   //  }
+
 
   /**
    * <b>Only for setting initial state at the beginning of auto</b>
