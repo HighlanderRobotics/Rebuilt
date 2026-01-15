@@ -261,7 +261,6 @@ public class Superstructure {
   // public Command transitionAfterZeroing() {
   //  }
 
-
   /**
    * <b>Only for setting initial state at the beginning of auto</b>
    *
