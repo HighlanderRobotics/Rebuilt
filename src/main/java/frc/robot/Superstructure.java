@@ -70,7 +70,7 @@ public class Superstructure {
   }
 
   private void addTriggers() {
-    preScoreReq = driver.rightTrigger().or(Autos.autoPreScoreReq);
+    // preScoreReq = driver.rightTrigger().or(Autos.autoPreScoreReq);
 
     scoreReq = driver.rightTrigger().negate().and(DriverStation::isTeleop).or(Autos.autoScoreReq);
   }

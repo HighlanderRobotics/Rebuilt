@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-//import frc.robot.Autos.PathEndType;
+// import frc.robot.Autos.PathEndType;
 import frc.robot.Robot.RobotType;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -32,44 +32,43 @@ public class Autos {
   // private static boolean autoIntakeAlgae;
 
   @AutoLogOutput(key = "Superstructure/Auto Feed Request")
-    public static Trigger autoFeedReq =
-        new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
+  public static Trigger autoFeedReq = new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
 
-    @AutoLogOutput(key = "Superstructure/Auto Intake Request")
-    public static Trigger autoIntakeReq =
-        new Trigger(() -> autoIntake).and(DriverStation::isAutonomous);
+  @AutoLogOutput(key = "Superstructure/Auto Intake Request")
+  public static Trigger autoIntakeReq =
+      new Trigger(() -> autoIntake).and(DriverStation::isAutonomous);
 
-    @AutoLogOutput(key = "Superstructure/Auto Score Request")
-    public static Trigger autoScoreReq =
-        new Trigger(() -> autoScore).and(DriverStation::isAutonomous);
+  @AutoLogOutput(key = "Superstructure/Auto Score Request")
+  public static Trigger autoScoreReq =
+      new Trigger(() -> autoScore).and(DriverStation::isAutonomous);
 
-    @AutoLogOutput(key = "Superstructure/Auto Climb Request")
-    public static Trigger autoClimbReq =
-        new Trigger(() -> autoClimb).and(DriverStation::isAutonomous);
+  @AutoLogOutput(key = "Superstructure/Auto Climb Request")
+  public static Trigger autoClimbReq =
+      new Trigger(() -> autoClimb).and(DriverStation::isAutonomous);
 
   public enum Action {
-        FEED,
-        INTAKE,
-        SCORE,
-        CLIMB;
-    }
+    FEED,
+    INTAKE,
+    SCORE,
+    CLIMB;
+  }
 
   public enum Path {
-  //R/L for right and left. 
-//P for park 
-//C for climb. 
-//S for scoreing pos. 
-//F for feeding poses
-PLtoCL("PL", "CL", Action.CLIMB),
-PRtoCR("PR", "CR", Action.CLIMB),
-PLtoSL("PL", "CL", Action.SCORE),
-PRtoSR("PR", "CR", Action.SCORE),
-SLtoCL("SL", "CL", Action.CLIMB),
-SRtoCR("SR", "CR", Action.CLIMB),
-SLtoFL("SL", "FL", Action.FEED),
-SRtoFR("SR", "FR", Action.FEED),
-FRtoFL("FR", "FL", Action.FEED),
-FLtoFR("FL", "FR", Action.FEED);
+    // R/L for right and left.
+    // P for park
+    // C for climb.
+    // S for scoreing pos.
+    // F for feeding poses
+    PLtoCL("PL", "CL", Action.CLIMB),
+    PRtoCR("PR", "CR", Action.CLIMB),
+    PLtoSL("PL", "CL", Action.SCORE),
+    PRtoSR("PR", "CR", Action.SCORE),
+    SLtoCL("SL", "CL", Action.CLIMB),
+    SRtoCR("SR", "CR", Action.CLIMB),
+    SLtoFL("SL", "FL", Action.FEED),
+    SRtoFR("SR", "FR", Action.FEED),
+    FRtoFL("FR", "FL", Action.FEED),
+    FLtoFR("FL", "FR", Action.FEED);
 
     private final String start;
     private final String end;
@@ -122,6 +121,23 @@ FLtoFR("FL", "FR", Action.FEED);
     return routine.cmd();
   }
 
+  //TODO
+  public Command climbInAuto() {
+    return null;
+  }
+
+  public Command feedInAuto() {
+    return null;
+  }
+
+  public Command scoreInAuto() {
+    return null;
+  }
+
+  public Command intakeInAuto() {
+    return null;
+  }
+
   public Command runPath(Path path, AutoRoutine routine) {
     Action action = path.action;
     switch (action) {
@@ -133,9 +149,10 @@ FLtoFR("FL", "FR", Action.FEED);
   public Command setAutoIntakeReqTrue() {
     return Commands.runOnce(
         () -> {
-          autoIntake= true;
+          autoIntake = true;
         });
   }
+
   public Command setAutoIntakeReqFalse() {
     return Commands.runOnce(
         () -> {
@@ -149,6 +166,7 @@ FLtoFR("FL", "FR", Action.FEED);
           autoScore = true;
         });
   }
+
   public Command setAutoScoreReqFalse() {
     return Commands.runOnce(
         () -> {
@@ -162,6 +180,7 @@ FLtoFR("FL", "FR", Action.FEED);
           autoFeed = true;
         });
   }
+
   public Command setAutoFeedReqFalse() {
     return Commands.runOnce(
         () -> {
@@ -175,11 +194,13 @@ FLtoFR("FL", "FR", Action.FEED);
           autoClimb = true;
         });
   }
+
   public Command setAutoClimbReqFalse() {
     return Commands.runOnce(
         () -> {
           autoClimb = false;
         });
   }
-//TODO other things: depot autos, waiting for balls to be intaked/shot etc, make auto traj in choreo, write for the actaul paths
+  // TODO other things: depot autos, waiting for balls to be intaked/shot etc, make auto traj in
+  // choreo, write for the actaul paths
 }
