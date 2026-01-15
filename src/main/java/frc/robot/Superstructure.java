@@ -20,8 +20,7 @@ import org.littletonrobotics.junction.Logger;
 public class Superstructure {
 
   /**
-   * We should have a state for every single "pose" the robot will hit. See this document for
-   * screenshots of the robot in each state. There are also named positions in cad for each state.
+   * We should have a state for every single action the robot will perform.
    */
   public enum SuperState {
     IDLE,
