@@ -9,9 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
-
 import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
@@ -28,11 +26,11 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public Command shoot(DoubleSupplier voltage) {
-    return this.run(()->rollerIO.setRollerVoltage(voltage.getAsDouble()));
+    return this.run(() -> rollerIO.setRollerVoltage(voltage.getAsDouble()));
   }
 
   public Command feed(DoubleSupplier voltage) {
-    return this.run(()->rollerIO.setRollerVoltage(voltage.getAsDouble()));
+    return this.run(() -> rollerIO.setRollerVoltage(voltage.getAsDouble()));
   }
 
   private void setHoodVoltage(double hoodVoltage) {
