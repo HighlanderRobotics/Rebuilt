@@ -1,4 +1,7 @@
+
 package frc.robot.components.rollers;
+
+import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -10,7 +13,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import org.littletonrobotics.junction.AutoLog;
 
 public class RollerIOReal {
 
@@ -24,8 +26,6 @@ public class RollerIOReal {
   }
 
   protected final TalonFX rollerMotor;
-  private final VelocityVoltage velocityVoltage =
-      new VelocityVoltage(0.0).withEnableFOC(true).withSlot(0);
 
   private final StatusSignal<AngularVelocity> angularVelocityRotsPerSec;
   private final StatusSignal<Current> supplyCurrentAmps;
@@ -34,6 +34,8 @@ public class RollerIOReal {
   private final StatusSignal<Temperature> motorTemperatureCelsius;
 
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
+  private final VelocityVoltage velocityVoltage =
+      new VelocityVoltage(0.0).withEnableFOC(true).withSlot(0);
 
   public RollerIOReal(int motorID, TalonFXConfiguration config) {
     rollerMotor = new TalonFX(motorID, "*");
