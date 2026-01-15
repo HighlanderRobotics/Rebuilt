@@ -55,10 +55,7 @@ public class Superstructure {
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
 
   /** Creates a new Superstructure. */
-  public Superstructure(
-      SwerveSubsystem swerve,
-      CommandXboxControllerSubsystem driver,
-      CommandXboxControllerSubsystem operator) {
+  public Superstructure(SwerveSubsystem swerve, CommandXboxControllerSubsystem driver, CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
     this.driver = driver;
     this.operator = operator;
