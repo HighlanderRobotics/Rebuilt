@@ -1,104 +1,79 @@
 package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.CANBus;
-
-import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
-import frc.robot.components.canrange.CANrangeIOReal;
-
-import java.util.function.DoubleSupplier;
-
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
+import frc.robot.components.canrange.CANrangeIOReal;
+import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.components.rollers.RollerIOReal;
+import java.util.function.DoubleSupplier;
 
 public class IndexerSubsystem extends SubsystemBase {
 
-//Add actual CanBus
+  // Add actual CanBus
 
-CANBus CANBus = new CANBus();
-CANrangeIOReal firstCANRange = new CANrangeIOReal(0, CANBus);
-CANrangeIOReal secondCANRange = new CANrangeIOReal(1, CANBus);
-CANrangeIOInputsAutoLogged inputs = new CANrangeIOInputsAutoLogged();
-TalonFX motor = new TalonFX(1);
-VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
-RollerIO rollers = new RollerIO();
-    
-    public IndexerSubsystem(){
+  CANBus CANBus = new CANBus();
+  CANrangeIOReal firstCANRange = new CANrangeIOReal(0, CANBus);
+  CANrangeIOReal secondCANRange = new CANrangeIOReal(1, CANBus);
+  CANrangeIOInputsAutoLogged CANRangeInputs = new CANrangeIOInputsAutoLogged();
+  TalonFXConfiguration configs = new TalonFXConfiguration();
+  RollerIOReal rollers = new RollerIOReal(1, configs);
 
+  RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
+
+  public IndexerSubsystem() {}
+
+  public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
+    if (firstBeamBreak && secondBeamBreak) {
+      return true;
+    } else {
+      return false;
     }
-    
+  }
 
-    public void index(double volts) {
-        while(!isFull(firstCANRange, secondCANRange)){
-            motor.setControl(voltageOut.withOutput(volts));
-        }
-        motor.setControl(voltageOut.withOutput(0));
-        
+  public boolean isEmpty(boolean firstBeamBreak, boolean secondBeamBreak) {
+    if (!firstBeamBreak && !secondBeamBreak) {
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    public void score(double volts) {
-        motor.setControl(voltageOut.withOutput(volts));
+  public boolean isPartiallyFull(boolean firstBeamBreak, boolean secondBeamBreak) {
+    if (!firstBeamBreak && secondBeamBreak) {
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    public void outtake(double volts) {
-        motor.setControl(voltageOut.withOutput(volts));
-    }
-
-    public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
-        if(firstBeamBreak && secondBeamBreak){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isEmpty(boolean firstBeamBreak, boolean secondBeamBreak) {
-        if(!firstBeamBreak && !secondBeamBreak){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isPartiallyFull(boolean firstBeamBreak, boolean secondBeamBreak) {
-        if(!firstBeamBreak && secondBeamBreak){
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-    public Command index(DoubleSupplier volts) {
+  public Command index(DoubleSupplier volts) {
     return this.run(
         () -> {
-          index(volts.getAsDouble());
+          rollers.setRollerVoltage(volts.getAsDouble());
         });
   }
 
-    public Command score(DoubleSupplier volts) {
+  public Command score(DoubleSupplier volts) {
     return this.run(
         () -> {
-          score(volts.getAsDouble());
+          rollers.setRollerVoltage(volts.getAsDouble());
         });
   }
 
-    public Command outtake(DoubleSupplier volts) {
+  public Command outtake(DoubleSupplier volts) {
     return this.run(
         () -> {
-          outtake(volts.getAsDouble());
+          rollers.setRollerVoltage(volts.getAsDouble());
         });
   }
 
-@Override
+  @Override
   public void periodic() {
-    firstCANRange.updateInputs(inputs);
-    secondCANRange.updateInputs(inputs);
-
+    firstCANRange.updateInputs(CANRangeInputs);
+    secondCANRange.updateInputs(CANRangeInputs);
+    rollers.updateInputs(rollerInputs);
   }
-    
 }
