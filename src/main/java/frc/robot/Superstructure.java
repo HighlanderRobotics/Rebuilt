@@ -19,9 +19,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Superstructure {
 
-  /**
-   * We should have a state for every single action the robot will perform.
-   */
+  /** We should have a state for every single action the robot will perform. */
   public enum SuperState {
     IDLE,
     INTAKE,
