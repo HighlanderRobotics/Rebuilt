@@ -24,6 +24,7 @@ FEED --> |empty| IDLE
 
 SCORE --> |empty| IDLE
 
+FEED <--> |position on field + no scoring when not our turn| SCORE
 
 FEED_FLOW --> |empty| IDLE
 
