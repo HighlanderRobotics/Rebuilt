@@ -21,11 +21,11 @@ public class TurretSubsystem extends SubsystemBase {
   protected final ShooterIOReal shooterIO;
   protected final PivotIOInputsAutoLogged pivotInputs = new PivotIOInputsAutoLogged();
   protected final PivotIOReal pivotIO;
-  protected final PivotIOInputsAutoLogged hoodInputs = new PivotIOInputsAutoLogged();
-  protected final PivotIOReal hoodIO;
+  protected final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
+  protected final HoodIOReal hoodIO;
 
   /** Creates a new TurretSubsystem. */
-  public TurretSubsystem(ShooterIOReal shooterIO, PivotIOReal pivotIO, PivotIOReal hoodIO) {
+  public TurretSubsystem(ShooterIOReal shooterIO, PivotIOReal pivotIO, HoodIOReal hoodIO) {
     this.shooterIO = shooterIO;
     this.pivotIO = pivotIO;
     this.hoodIO = hoodIO;
@@ -42,7 +42,7 @@ public class TurretSubsystem extends SubsystemBase {
           Logger.recordOutput("Shooter Voltage", rollerVoltage.getAsDouble());
           shooterIO.setRollerVoltage(rollerVoltage.getAsDouble());
           Logger.recordOutput("Hood Setpoint", hoodTarget.get());
-          hoodIO.setMotorPosition(hoodTarget.get());
+          hoodIO.setHoodPosition(hoodTarget.get());
         });
   }
 

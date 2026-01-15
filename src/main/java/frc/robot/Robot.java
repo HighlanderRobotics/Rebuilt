@@ -28,6 +28,8 @@ import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
+import frc.robot.subsystems.turret.HoodIOReal;
+import frc.robot.subsystems.turret.HoodIOSim;
 import frc.robot.subsystems.turret.PivotIOReal;
 import frc.robot.subsystems.turret.PivotIOSim;
 import frc.robot.subsystems.turret.ShooterIOReal;
@@ -98,8 +100,8 @@ public class Robot extends LoggedRobot {
               ? PivotIOReal.getTurretPivotReal()
               : PivotIOSim.getTurretPivotSim(),
           ROBOT_TYPE != RobotType.SIM
-              ? PivotIOReal.getTurretHoodReal()
-              : PivotIOSim.getTurretHoodSim());
+              ? new HoodIOReal()
+              : new HoodIOSim());
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);

@@ -7,26 +7,24 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class PivotIOSim extends PivotIOReal {
-  private final SingleJointedArmSim pivotPhysicsSim;
+  private final DCMotorSim pivotPhysicsSim;
   TalonFXSimState motorSim;
 
   private static final double kSimLoopPeriod = 0.002; // 2 ms
   private Notifier simNotifier = null;
   private double lastSimTime = 0.0;
+  double moi = 1;
+  double gearing = 1;
 
   public PivotIOSim(
-      double minAngleRadians,
-      double maxAngleRadians,
-      double length,
-      double maxVelocity,
-      double maxAcceleration,
       TalonFXConfiguration config,
       int motorID,
       String name) {
@@ -35,16 +33,8 @@ public class PivotIOSim extends PivotIOReal {
     motorSim = motor.getSimState();
     motorSim.setMotorType(MotorType.KrakenX44);
 
-    pivotPhysicsSim =
-        new SingleJointedArmSim(
-            new DCMotor(12.0, 4.05, 275, 1.4, 7530.0 / 60.0, 1),
-            config.Feedback.SensorToMechanismRatio,
-            0.1,
-            length,
-            minAngleRadians,
-            maxAngleRadians,
-            true,
-            0.0);
+    pivotPhysicsSim = new DCMotorSim( LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), moi, gearing),
+          DCMotor.getKrakenX44Foc(1));
 
     simNotifier =
         new Notifier(
@@ -62,10 +52,9 @@ public class PivotIOSim extends PivotIOReal {
               pivotPhysicsSim.update(deltaTime);
 
               /* Apply the new rotor position and velocity to the motors (before gear ratio) */
-              motorSim.setRawRotorPosition(pivotPhysicsSim.getAngleRads()); // TODO gear ratio??
-              // convert meters/second -> rotations/second
+              motorSim.setRawRotorPosition(pivotPhysicsSim.getAngularPositionRad()); // TODO gear ratio??
               motorSim.setRotorVelocity(
-                  pivotPhysicsSim.getVelocityRadPerSec()); // TODO gear ratio??
+                  pivotPhysicsSim.getAngularVelocityRPM()); // TODO gear ratio??
             });
     simNotifier.startPeriodic(kSimLoopPeriod);
   }
@@ -92,7 +81,7 @@ public class PivotIOSim extends PivotIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
 
-    return new PivotIOSim((-1) * Math.PI / 2.0, Math.PI / 2.0, 1, 1, 1, config, 10, "Pivot");
+    return new PivotIOSim(config, 10, "Pivot");
   }
 
   public static PivotIOSim getTurretHoodSim() {
@@ -118,6 +107,6 @@ public class PivotIOSim extends PivotIOReal {
     config.Feedback.SensorToMechanismRatio = 1.0;
 
     // TODO add actual motor ids
-    return new PivotIOSim(0, Units.degreesToRadians(10), 1, 1, 1, config, 11, "Hood");
+    return new PivotIOSim(config, 11, "Hood");
   }
 }
