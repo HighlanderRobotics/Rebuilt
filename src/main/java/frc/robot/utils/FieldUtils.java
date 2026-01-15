@@ -17,6 +17,8 @@ public class FieldUtils {
   public static final Translation2d RED_HUB_POS = ChoreoAllianceFlipUtil.flip(BLUE_HUB_POS);
 
   public static Translation2d getCurrentHubPos() {
-    return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? BLUE_HUB_POS : RED_HUB_POS;
+    return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+        ? BLUE_HUB_POS
+        : RED_HUB_POS;
   }
 }
