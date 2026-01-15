@@ -16,10 +16,10 @@ public class RollerIOCTRESim extends RollerIOReal {
     private double lastLoopTime = 0.0;
     Notifier notifier;
 
-    public RollerIOCTRESim(int motorID, TalonFXConfiguration config, DCMotorSim motorSim, MotorType motorType) {
+    public RollerIOCTRESim(int motorID, TalonFXConfiguration config, DCMotorSim rollerSim, MotorType motorType) {
 
         super(motorID, config);
-        this.rollerSim = motorSim;
+        this.rollerSim = rollerSim;
         talonSim = rollerMotor.getSimState();
         talonSim.setMotorType(motorType);
 
@@ -27,10 +27,10 @@ public class RollerIOCTRESim extends RollerIOReal {
             double deltaTime = (Utils.getCurrentTimeSeconds() - lastLoopTime);
             lastLoopTime = Utils.getCurrentTimeSeconds();
             talonSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-            motorSim.setInputVoltage(talonSim.getMotorVoltage());
-            motorSim.update(deltaTime);
-            talonSim.setRawRotorPosition(motorSim.getAngularPositionRotations() * motorSim.getGearing());
-            talonSim.setRotorVelocity((motorSim.getAngularVelocityRPM() / 60) * motorSim.getGearing());
+            rollerSim.setInputVoltage(talonSim.getMotorVoltage());
+            rollerSim.update(deltaTime);
+            talonSim.setRawRotorPosition(rollerSim.getAngularPositionRotations() * rollerSim.getGearing());
+            talonSim.setRotorVelocity((rollerSim.getAngularVelocityRPM() / 60) * rollerSim.getGearing());
 
         });
         notifier.startPeriodic(0.002);
