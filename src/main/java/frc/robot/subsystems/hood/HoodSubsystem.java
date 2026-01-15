@@ -7,27 +7,44 @@ package frc.robot.subsystems.hood;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.components.rollers.RollerIOReal;
+
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
-  HoodIOReal io;
-  HoodIOInputsAutologged inputs = new HoodIOInputsAutologged();
+  HoodIOReal hoodIO;
+  HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
+
+  RollerIOReal rollerIO;
+  RollerIOInputsAutoLogged rollerinputs = new RollerIOInputsAutoLogged();
 
   /** Creates a new HoodSubsystem. */
-  public HoodSubsystem(HoodIOReal io) {
-    this.io = io;
+  public HoodSubsystem(HoodIOReal hoodIO, RollerIOReal rollerIO) {
+    this.hoodIO = hoodIO;
+    this.rollerIO = rollerIO;
+  }
+
+  public Command shoot(DoubleSupplier voltage) {
+    return this.run(()->rollerIO.setRollerVoltage(voltage.getAsDouble()));
+  }
+
+  public Command feed(DoubleSupplier voltage) {
+    return this.run(()->rollerIO.setRollerVoltage(voltage.getAsDouble()));
   }
 
   private void setHoodVoltage(double hoodVoltage) {
-    io.setHoodVoltage(hoodVoltage);
+    hoodIO.setHoodVoltage(hoodVoltage);
   }
 
   private void setHoodPosition(Rotation2d hoodPosition) {
-    io.setHoodPosition(hoodPosition);
+    hoodIO.setHoodPosition(hoodPosition);
   }
 
   private void setHoodVelocity(double hoodVelocity) {
-    io.setHoodVelocity(hoodVelocity);
+    hoodIO.setHoodVelocity(hoodVelocity);
   }
 
   public Command setHoodVoltageCommand(Double hoodVoltage) {
@@ -40,7 +57,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("hood", inputs);
+    hoodIO.updateInputs(hoodinputs);
+    Logger.processInputs("hood", hoodinputs);
   }
 }
