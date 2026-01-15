@@ -165,7 +165,7 @@ public class Superstructure {
       // Maybe should be a transition from idle to flow as well? In case robot doesn't already have
       // a fuel
     }
-
+ 
     // Transition from any state to SPIT for anti jamming
     antiJamReq.onTrue(changeStateTo(SuperState.SPIT));
 
