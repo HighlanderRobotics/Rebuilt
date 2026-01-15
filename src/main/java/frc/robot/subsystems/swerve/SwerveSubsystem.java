@@ -568,7 +568,7 @@ public class SwerveSubsystem extends SubsystemBase {
         .andThen(translateToPose(target));
   }
 
-  private Command alignToHeading(
+  private Command driveWithHeadingSnap(
       Supplier<Rotation2d> target, DoubleSupplier xVel, DoubleSupplier yVel) {
     return Commands.runOnce(
             () -> AutoAlign.resetHeadingController(getRotation(), getVelocityFieldRelative()))
@@ -582,7 +582,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
-    return alignToHeading(
+    return driveWithHeadingSnap(
         () -> {
           Translation2d robotHubVec =
               FieldUtils.getCurrentHubPos().minus(getPose().getTranslation());
