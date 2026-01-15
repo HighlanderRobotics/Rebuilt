@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems.turret;
 
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,9 +18,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-import org.littletonrobotics.junction.Logger;
 
 public class TurretSubsystem extends SubsystemBase {
   protected final ShooterIOInputsAutoLogged shooterInputs = new ShooterIOInputsAutoLogged();
@@ -45,6 +47,12 @@ public class TurretSubsystem extends SubsystemBase {
           Logger.recordOutput("Hood Setpoint", hoodTarget.get());
           hoodIO.setHoodPosition(hoodTarget.get());
         });
+  }
+
+  //this is kind of weird but whatever
+  public Command runStateCommand(Supplier<Pose3d> robot3dposeSupplier) {
+    Pose3d pose = getPose3d(robot3dposeSupplier);
+    return runStateCommand(() -> Rotation2d.fromRadians(pose.getZ()), () -> 1, () -> Rotation2d.fromRadians(pose.getY()));
   }
 
   @Override
@@ -80,5 +88,13 @@ public class TurretSubsystem extends SubsystemBase {
                     0, 0, MathUtil.clamp(pivotTarget.getRadians(), -1 * Math.PI / 2, Math.PI)))
             // 0, 0, pivotTarget.getRadians()))
             .rotateBy(new Rotation3d(0, (-1) * hoodTarget.getRadians(), 0)));
+  }
+
+  public Rotation2d getTurretPivotRotation() {
+    return pivotInputs.position;
+  }
+
+  public Rotation2d getTurretHoodRotation() {
+    return hoodInputs.hoodPositionRotations;
   }
 }

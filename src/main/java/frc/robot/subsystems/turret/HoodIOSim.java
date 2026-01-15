@@ -16,8 +16,8 @@ public class HoodIOSim extends HoodIOReal {
   // private final SingleJointedArmSim hoodPhysicsSim =
   //     new SingleJointedArmSim(
   //         DCMotor.getKrakenX44(1), 0, 0, 0, 0, 0, false, 0); // will get updated when i get specs
-  double moi = 1;
-  double gearing = 1;
+  double moi = 0.1266;
+  double gearing = (14.0 / 48.0) * (15.0 / 36.0) * (10.0 / 160.0);
 
   private final DCMotorSim hoodPhysicsSim =
       new DCMotorSim(

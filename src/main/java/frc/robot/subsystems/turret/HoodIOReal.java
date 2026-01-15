@@ -13,6 +13,8 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
@@ -22,8 +24,8 @@ public class HoodIOReal {
   /** Creates a new HoodIOReal. */
   @AutoLog
   public static class HoodIOInputs {
-    public double hoodPositionMeters = 0.0;
-    public double hoodVelocityMetersPerSecond = 0.0;
+    public Rotation2d hoodPositionRotations = Rotation2d.kZero;
+    public double hoodAngularVelocityRotsPerSec = 0.0;
     public double hoodStatorCurrentAmps = 0.0;
     public double hoodSupplyCurrentAmp = 0.0;
     public double hoodVoltage = 0.0;
@@ -32,8 +34,8 @@ public class HoodIOReal {
 
   TalonFX hoodMotor = new TalonFX(10, "*");
 
-  private final BaseStatusSignal hoodPositionMeters = hoodMotor.getPosition();
-  private final BaseStatusSignal hoodVelocityMetersPerSec = hoodMotor.getVelocity();
+  private final StatusSignal<Angle> hoodPositionRotations = hoodMotor.getPosition();
+  private final StatusSignal<AngularVelocity> hoodVelocityRotsPerSec = hoodMotor.getVelocity();
   private final StatusSignal<Voltage> hoodVoltage = hoodMotor.getMotorVoltage();
   private final StatusSignal<Current> hoodStatorCurrent = hoodMotor.getStatorCurrent();
   private final StatusSignal<Current> hoodSupplyCurrent = hoodMotor.getSupplyCurrent();
@@ -46,14 +48,13 @@ public class HoodIOReal {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-    config.Slot0.kV = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kS = 0.0;
-    config.Slot0.kP = 0.0;
-    config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0;
+    //took from 254 idec
+    config.Slot0.kS = 0.18;
+    config.Slot0.kP = 8.0;
+    config.Slot0.kD = 0.1;
+    config.Slot0.kV = 0.116;
+    config.Slot0.kA = 0.0001 * 12.0;
 
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -68,15 +69,15 @@ public class HoodIOReal {
 
   public void updateInputs(HoodIOInputs inputs) {
     BaseStatusSignal.refreshAll(
-        hoodPositionMeters,
-        hoodVelocityMetersPerSec,
+        hoodPositionRotations,
+        hoodVelocityRotsPerSec,
         hoodVoltage,
         hoodStatorCurrent,
         hoodSupplyCurrent,
         hoodTemp);
 
-    inputs.hoodPositionMeters = hoodPositionMeters.getValueAsDouble();
-    inputs.hoodVelocityMetersPerSecond = hoodVelocityMetersPerSec.getValueAsDouble();
+    inputs.hoodPositionRotations = Rotation2d.fromRotations(hoodPositionRotations.getValueAsDouble());
+    inputs.hoodAngularVelocityRotsPerSec = hoodVelocityRotsPerSec.getValueAsDouble();
     inputs.hoodVoltage = hoodVoltage.getValueAsDouble();
     inputs.hoodStatorCurrentAmps = hoodStatorCurrent.getValueAsDouble();
     inputs.hoodSupplyCurrentAmp = hoodSupplyCurrent.getValueAsDouble();

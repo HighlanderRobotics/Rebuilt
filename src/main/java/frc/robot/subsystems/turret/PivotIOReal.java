@@ -113,12 +113,11 @@ public class PivotIOReal {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-    config.Slot0.kV = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kS = 0.0;
-    config.Slot0.kP = 0.0;
-    config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kS = 0.18;
+    config.Slot0.kP = 6.0;
+    config.Slot0.kD = 0.1;
+    config.Slot0.kV = 0.120;
+    config.Slot0.kA = 0.0001 * 12.0;
 
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;

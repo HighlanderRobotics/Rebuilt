@@ -7,7 +7,10 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -208,7 +211,7 @@ public class Robot extends LoggedRobot {
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                     .times(-1)));
 
-    // turret.setDefaultCommand(turret.runStateCommand(null, null, null));
+    turret.setDefaultCommand(turret.runStateCommand(swerve::getPose3d));
 
     addControllerBindings();
 
@@ -370,7 +373,17 @@ public class Robot extends LoggedRobot {
       lowBatteryAlert.set(true);
     }
 
-    Logger.recordOutput("Turret pose", turret.getPose3d(() -> swerve.getMaplesimPose3d()));
+    Logger.recordOutput("Turret target pose", turret.getPose3d(() -> swerve.getMaplesimPose3d()));
+
+    Logger.recordOutput("actual turret pose", new Pose3d(
+        swerve.getPose3d().getTranslation().plus(new Translation3d(0, 0, 0.3)),
+        swerve.getPose3d()
+            .getRotation()
+            .rotateBy(
+                new Rotation3d(
+                    0, 0, turret.getTurretPivotRotation().getRadians()))
+            // 0, 0, pivotTarget.getRadians()))
+            .rotateBy(new Rotation3d(0, turret.getTurretHoodRotation().getRadians(), 0))));
   }
 
   @Override
