@@ -99,9 +99,7 @@ public class Robot extends LoggedRobot {
           ROBOT_TYPE != RobotType.SIM
               ? PivotIOReal.getTurretPivotReal()
               : PivotIOSim.getTurretPivotSim(),
-          ROBOT_TYPE != RobotType.SIM
-              ? new HoodIOReal()
-              : new HoodIOSim());
+          ROBOT_TYPE != RobotType.SIM ? new HoodIOReal() : new HoodIOSim());
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);

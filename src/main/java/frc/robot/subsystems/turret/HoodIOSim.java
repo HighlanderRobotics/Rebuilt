@@ -4,7 +4,6 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Notifier;
@@ -19,8 +18,10 @@ public class HoodIOSim extends HoodIOReal {
   //         DCMotor.getKrakenX44(1), 0, 0, 0, 0, 0, false, 0); // will get updated when i get specs
   double moi = 1;
   double gearing = 1;
-  
-  private final DCMotorSim hoodPhysicsSim = new DCMotorSim( LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), moi, gearing),
+
+  private final DCMotorSim hoodPhysicsSim =
+      new DCMotorSim(
+          LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), moi, gearing),
           DCMotor.getKrakenX44Foc(1));
 
   private static final double kSimLoopPeriod = 0.002; // 2 ms
@@ -45,7 +46,7 @@ public class HoodIOSim extends HoodIOReal {
               hoodPhysicsSim.setInputVoltage(hoodMotorSim.getMotorVoltage());
               hoodPhysicsSim.update(deltaTime);
 
-              //TODO gear ratios and such
+              // TODO gear ratios and such
               hoodMotorSim.setRawRotorPosition(hoodPhysicsSim.getAngularPositionRad());
 
               hoodMotorSim.setRotorVelocity(hoodPhysicsSim.getAngularVelocityRPM() / 60.0);

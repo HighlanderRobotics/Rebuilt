@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.turret;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -68,12 +69,16 @@ public class TurretSubsystem extends SubsystemBase {
     // magic function that calculates arctangent of z and the distance from turret to hub then the
     // parabola because :sparkle: kinematics
     Rotation2d hoodTarget = Rotation2d.fromRadians(Math.atan2(turretToHub.getZ(), distanceToHub));
+    Logger.recordOutput("pivot target", pivotTarget.getRadians());
     return new Pose3d(
         robot3dposeSupplier.get().getTranslation().plus(new Translation3d(0, 0, 0.3)),
         robot3dposeSupplier
             .get()
             .getRotation()
-            .rotateBy(new Rotation3d(0, 0, pivotTarget.getRadians()))
+            .rotateBy(
+                new Rotation3d(
+                    0, 0, MathUtil.clamp(pivotTarget.getRadians(), -1 * Math.PI / 2, Math.PI)))
+            // 0, 0, pivotTarget.getRadians()))
             .rotateBy(new Rotation3d(0, (-1) * hoodTarget.getRadians(), 0)));
   }
 }

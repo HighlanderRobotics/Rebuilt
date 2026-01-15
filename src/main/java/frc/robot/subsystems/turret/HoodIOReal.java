@@ -12,7 +12,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -22,7 +21,7 @@ import org.littletonrobotics.junction.AutoLog;
 public class HoodIOReal {
   /** Creates a new HoodIOReal. */
   @AutoLog
-  public class HoodIOInputs {
+  public static class HoodIOInputs {
     public double hoodPositionMeters = 0.0;
     public double hoodVelocityMetersPerSecond = 0.0;
     public double hoodStatorCurrentAmps = 0.0;
@@ -42,8 +41,8 @@ public class HoodIOReal {
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
 
   public HoodIOReal() {
-    
-        TalonFXConfiguration config = new TalonFXConfiguration();
+
+    TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -64,7 +63,7 @@ public class HoodIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
     hoodMotor.getConfigurator().apply(config);
-        hoodMotor.optimizeBusUtilization();
+    hoodMotor.optimizeBusUtilization();
   }
 
   public void updateInputs(HoodIOInputs inputs) {
@@ -83,7 +82,7 @@ public class HoodIOReal {
     inputs.hoodSupplyCurrentAmp = hoodSupplyCurrent.getValueAsDouble();
     inputs.hoodTempC = hoodTemp.getValueAsDouble();
   }
-  
+
   public void setHoodPosition(Rotation2d hoodPosition) {
     hoodMotor.setControl(positionVoltage.withPosition(hoodPosition.getMeasure()));
   }

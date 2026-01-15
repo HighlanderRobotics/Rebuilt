@@ -7,7 +7,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Notifier;
@@ -24,17 +23,16 @@ public class PivotIOSim extends PivotIOReal {
   double moi = 1;
   double gearing = 1;
 
-  public PivotIOSim(
-      TalonFXConfiguration config,
-      int motorID,
-      String name) {
+  public PivotIOSim(TalonFXConfiguration config, int motorID, String name) {
     super(motorID, config, name);
 
     motorSim = motor.getSimState();
     motorSim.setMotorType(MotorType.KrakenX44);
 
-    pivotPhysicsSim = new DCMotorSim( LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), moi, gearing),
-          DCMotor.getKrakenX44Foc(1));
+    pivotPhysicsSim =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), moi, gearing),
+            DCMotor.getKrakenX44Foc(1));
 
     simNotifier =
         new Notifier(
@@ -52,7 +50,8 @@ public class PivotIOSim extends PivotIOReal {
               pivotPhysicsSim.update(deltaTime);
 
               /* Apply the new rotor position and velocity to the motors (before gear ratio) */
-              motorSim.setRawRotorPosition(pivotPhysicsSim.getAngularPositionRad()); // TODO gear ratio??
+              motorSim.setRawRotorPosition(
+                  pivotPhysicsSim.getAngularPositionRad()); // TODO gear ratio??
               motorSim.setRotorVelocity(
                   pivotPhysicsSim.getAngularVelocityRPM()); // TODO gear ratio??
             });
@@ -82,31 +81,5 @@ public class PivotIOSim extends PivotIOReal {
     config.Feedback.SensorToMechanismRatio = 1.0;
 
     return new PivotIOSim(config, 10, "Pivot");
-  }
-
-  public static PivotIOSim getTurretHoodSim() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-
-    config.Slot0.kV = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kS = 0.0;
-    config.Slot0.kP = 0.0;
-    config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0;
-
-    config.CurrentLimits.SupplyCurrentLimit = 40.0;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-
-    config.Feedback.SensorToMechanismRatio = 1.0;
-
-    // TODO add actual motor ids
-    return new PivotIOSim(config, 11, "Hood");
   }
 }

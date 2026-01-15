@@ -10,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -91,8 +92,14 @@ public class PivotIOReal {
 
   public void setMotorPosition(Rotation2d targetPosition) {
     // motor.setControl(motionMagic.withPosition(targetPosition.getRotations()).withSlot(slot));
-    Logger.recordOutput(name + "/Pivot Setpoint/", targetPosition);
-    motor.setControl(positionVoltage.withPosition(targetPosition.getRotations()));
+    // clamp to avoid dead zone
+    // 0 is forward
+    // assume dead zone is back right corner i guess
+    Rotation2d clampedPosition =
+        Rotation2d.fromRadians(
+            MathUtil.clamp(targetPosition.getRadians(), Math.PI / 2, -Math.PI / 4));
+    Logger.recordOutput(name + "/Clamped Pivot Setpoint/", clampedPosition);
+    motor.setControl(positionVoltage.withPosition(clampedPosition.getRotations()));
   }
 
   public void resetEncoder(Rotation2d rotations) {
@@ -122,30 +129,5 @@ public class PivotIOReal {
     config.Feedback.SensorToMechanismRatio = 1.0;
 
     return new PivotIOReal(0, config, "Pivot");
-  }
-
-  public static PivotIOReal getTurretHoodReal() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-
-    config.Slot0.kV = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kS = 0.0;
-    config.Slot0.kP = 0.0;
-    config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0;
-
-    config.CurrentLimits.SupplyCurrentLimit = 40.0;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-
-    config.Feedback.SensorToMechanismRatio = 1.0;
-
-    return new PivotIOReal(1, config, "Hood");
   }
 }
