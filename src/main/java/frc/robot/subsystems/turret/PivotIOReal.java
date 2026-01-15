@@ -128,6 +128,6 @@ public class PivotIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
 
-    return new PivotIOReal(0, config, "Pivot");
+    return new PivotIOReal(11, config, "Pivot");
   }
 }

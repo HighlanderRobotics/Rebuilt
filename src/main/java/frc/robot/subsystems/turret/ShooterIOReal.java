@@ -125,6 +125,6 @@ public class ShooterIOReal {
 
     config.Feedback.SensorToMechanismRatio = 1.0;
 
-    return new ShooterIOReal(0, 1, 2, 3, config);
+    return new ShooterIOReal(12, 13, 14, 15, config);
   }
 }

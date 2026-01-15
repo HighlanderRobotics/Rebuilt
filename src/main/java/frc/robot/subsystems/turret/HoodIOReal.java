@@ -30,7 +30,7 @@ public class HoodIOReal {
     public double hoodTempC = 0.0;
   }
 
-  TalonFX hoodMotor = new TalonFX(1, "*");
+  TalonFX hoodMotor = new TalonFX(10, "*");
 
   private final BaseStatusSignal hoodPositionMeters = hoodMotor.getPosition();
   private final BaseStatusSignal hoodVelocityMetersPerSec = hoodMotor.getVelocity();
