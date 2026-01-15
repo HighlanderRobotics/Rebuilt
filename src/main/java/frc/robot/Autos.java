@@ -25,7 +25,8 @@ public class Autos {
   // mehhhhhhh
   private static boolean autoPreScore;
   private static boolean autoScore;
-  private static boolean autoIntakeCoral;
+  private static boolean autoIntake;
+  private static boolean autoFeed;
 
   // private static boolean autoIntakeAlgae;
 
@@ -37,9 +38,12 @@ public class Autos {
   public static Trigger autoScoreReq =
       new Trigger(() -> autoScore).and(DriverStation::isAutonomous);
 
-  @AutoLogOutput(key = "Superstructure/Auto Coral Intake Request")
-  public static Trigger autoIntakeCoralReq =
-      new Trigger(() -> autoIntakeCoral).and(DriverStation::isAutonomous);
+  @AutoLogOutput(key = "Superstructure/Auto Intake Request")
+  public static Trigger autoIntakeReq =
+      new Trigger(() -> autoIntake).and(DriverStation::isAutonomous);
+
+  @AutoLogOutput(key = "Superstructure/Auto Feed Request")
+  public static Trigger autoFeedReq = new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
 
   public enum PathEndType {
     PLACEHOLDER;
