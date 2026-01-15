@@ -48,7 +48,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
-import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.AutoAlign;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -477,11 +477,11 @@ public class SwerveSubsystem extends SubsystemBase {
       Constraints translationConstraints,
       Constraints headingConstraints) {
     return Commands.runOnce(
-            () -> AutoAim.resetPIDControllers(getPose(), getVelocityFieldRelative()))
+            () -> AutoAlign.resetPIDControllers(getPose(), getVelocityFieldRelative()))
         .andThen(
             driveClosedLoopFieldRelative(
                     () -> {
-                      return AutoAim.calculateSpeeds(
+                      return AutoAlign.calculateSpeeds(
                               getPose(),
                               target.get(),
                               translationConstraints,
@@ -509,11 +509,11 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private Command translateToPose(Supplier<Pose2d> target, Supplier<ChassisSpeeds> speedsModifier) {
     return Commands.runOnce(
-            () -> AutoAim.resetPIDControllers(getPose(), getVelocityFieldRelative()))
+            () -> AutoAlign.resetPIDControllers(getPose(), getVelocityFieldRelative()))
         .andThen(
             driveClosedLoopFieldRelative(
                     () -> {
-                      return AutoAim.calculateSpeeds(getPose(), target.get())
+                      return AutoAlign.calculateSpeeds(getPose(), target.get())
                           .plus(speedsModifier.get());
                     })
                 .alongWith(
@@ -571,14 +571,14 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command alignToHeading(
       Supplier<Rotation2d> target, DoubleSupplier xVel, DoubleSupplier yVel) {
     return Commands.runOnce(
-            () -> AutoAim.resetHeadingController(getRotation(), getVelocityFieldRelative()))
+            () -> AutoAlign.resetHeadingController(getRotation(), getVelocityFieldRelative()))
         .andThen(
             driveClosedLoopFieldRelative(
                 () ->
                     new ChassisSpeeds(
                         xVel.getAsDouble(),
                         yVel.getAsDouble(),
-                        AutoAim.calculateRotationVelocity(getRotation(), target.get()))));
+                        AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
   }
 
   public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
@@ -595,12 +595,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isInAutoAimTolerance(Pose2d target) {
     return isInTolerance(
-        target, AutoAim.TRANSLATION_TOLERANCE_METERS, AutoAim.ROTATION_TOLERANCE_RADIANS);
+        target, AutoAlign.TRANSLATION_TOLERANCE_METERS, AutoAlign.ROTATION_TOLERANCE_RADIANS);
   }
 
   public boolean isInTolerance(
       Pose2d target, double translationalToleranceMeters, double angularToleranceRadians) {
-    return AutoAim.isInTolerance(
+    return AutoAlign.isInTolerance(
         getPose(), target, translationalToleranceMeters, angularToleranceRadians);
   }
 
@@ -668,7 +668,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Math.hypot(
             getVelocityRobotRelative().vxMetersPerSecond,
             getVelocityRobotRelative().vyMetersPerSecond),
-        AutoAim.VELOCITY_TOLERANCE_METERSPERSECOND);
+        AutoAlign.VELOCITY_TOLERANCE_METERSPERSECOND);
   }
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
