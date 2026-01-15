@@ -15,7 +15,7 @@ public class Module {
   public record ModuleConstants(
       int id, String prefix, int driveID, int turnID, int cancoderID, Rotation2d cancoderOffset) {}
 
-  private final ModuleIO io;
+  private final ModuleIOReal io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final ModuleConstants constants;
 
@@ -32,7 +32,7 @@ public class Module {
   private final Debouncer turnEncoderConnectedDebouncer =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-  public Module(ModuleIO io) {
+  public Module(ModuleIOReal io) {
     this.io = io;
     this.constants = io.getModuleConstants();
 
