@@ -10,6 +10,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLog;
 
 public class RollerIOReal {
@@ -77,5 +78,10 @@ public class RollerIOReal {
 
   public void setRollerVelocity(double velocityRPS) {
     rollerMotor.setControl(velocityVoltage.withVelocity(velocityRPS));
+  }
+
+  public Command getVoltage() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getVoltage'");
   }
 }
