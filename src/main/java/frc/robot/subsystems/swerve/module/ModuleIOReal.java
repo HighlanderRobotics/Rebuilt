@@ -19,15 +19,43 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Registration;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import java.util.Optional;
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
-public class ModuleIOReal implements ModuleIO {
+public class ModuleIOReal {
+
+  @AutoLog
+  public static class ModuleIOInputs {
+    // For the drive motor
+    // The conversions from rotations to meters are done in the SensorToMechanismRatio config for
+    // the motors
+    public boolean driveConnected = false;
+    public double driveVelocityMetersPerSec = 0.0;
+    public double drivePositionMeters = 0.0;
+    public double driveAppliedVolts = 0.0;
+    public double driveTempC = 0.0;
+    public double driveStatorCurrentAmps = 0.0;
+    public double driveSupplyCurrentAmps = 0.0;
+
+    // For the turn motor
+    public boolean turnConnected = false;
+    public Rotation2d turnPosition = new Rotation2d();
+    public double turnVelocityRadPerSec = 0.0;
+    public double turnAppliedVolts = 0.0;
+    public double turnTempC = 0.0;
+    public double turnStatorCurrentAmps = 0.0;
+    public double turnSupplyCurrentAmps = 0.0;
+
+    public boolean cancoderConnected = false;
+    public Rotation2d cancoderAbsolutePosition = new Rotation2d();
+  }
+
   private final ModuleConstants constants;
 
   // Hardware
-  private final TalonFX driveTalon;
-  private final TalonFX turnTalon;
-  private final CANcoder cancoder;
+  protected final TalonFX driveTalon;
+  protected final TalonFX turnTalon;
+  protected final CANcoder cancoder;
 
   // Status signals
   // For drive
@@ -124,7 +152,6 @@ public class ModuleIOReal implements ModuleIO {
     cancoder.optimizeBusUtilization();
   }
 
-  @Override
   public void updateInputs(ModuleIOInputs inputs) {
     Logger.recordOutput(
         "Module" + constants.prefix() + "refresh status code",
@@ -178,27 +205,26 @@ public class ModuleIOReal implements ModuleIO {
         Rotation2d.fromRotations(cancoderAbsolutePosition.getValueAsDouble());
   }
 
-  @Override
   public void setDriveVoltage(double volts, boolean withFoc) {
     driveTalon.setControl(driveVoltage.withOutput(volts).withEnableFOC(withFoc));
   }
 
-  @Override
+  public void setDriveVoltage(double volts) {
+    setDriveVoltage(volts, true);
+  }
+
   public void setDriveVelocitySetpoint(double setpointMetersPerSecond) {
     driveTalon.setControl(driveVelocityControl.withVelocity(setpointMetersPerSecond));
   }
 
-  @Override
   public void setTurnVoltage(double volts) {
     turnTalon.setControl(turnVoltage.withOutput(volts));
   }
 
-  @Override
   public void setTurnPositionSetpoint(Rotation2d setpoint) {
     turnTalon.setControl(turnPID.withPosition(setpoint.getRotations()));
   }
 
-  @Override
   public ModuleConstants getModuleConstants() {
     return constants;
   }
