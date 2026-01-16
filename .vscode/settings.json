@@ -59,5 +59,9 @@
   ],
   "java.dependency.enableDependencyCheckup": false,
   "wpilib.selectDefaultSimulateExtension": false,
-  "wpilib.skipSelectSimulateExtension": true
+  "wpilib.skipSelectSimulateExtension": true,
+  "java.project.sourcePaths": [
+    "src/main",
+    "src/test"
+  ]
 }
