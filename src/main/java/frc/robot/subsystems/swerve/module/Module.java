@@ -10,7 +10,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 // A single module
-public class Module {
+public class Module implements AutoCloseable {
   // Represents module specific constants
   public record ModuleConstants(
       int id, String prefix, int driveID, int turnID, int cancoderID, Rotation2d cancoderOffset) {}
@@ -143,5 +143,10 @@ public class Module {
 
   public void setTurnSetpoint(Rotation2d rotation) {
     io.setTurnPositionSetpoint(rotation);
+  }
+
+  @Override
+  public void close() throws Exception {
+      io.close();
   }
 }

@@ -11,7 +11,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 /** Add your docs here. */
-public interface CameraIO {
+public interface CameraIO extends AutoCloseable {
   @AutoLog
   public static class CameraIOInputs {
     public PhotonPipelineResult result = new PhotonPipelineResult();

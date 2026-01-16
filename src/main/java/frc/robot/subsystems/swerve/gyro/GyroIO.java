@@ -3,7 +3,7 @@ package frc.robot.subsystems.swerve.gyro;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface GyroIO {
+public interface GyroIO extends AutoCloseable {
 
   @AutoLog
   public static class GyroIOInputs {

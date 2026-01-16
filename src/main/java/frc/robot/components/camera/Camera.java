@@ -30,7 +30,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** Add your docs here. */
-public class Camera {
+public class Camera implements AutoCloseable{
 
   // The intrinsics and distortion coefficients are only actually used for sim
   public record CameraConstants(
@@ -216,5 +216,10 @@ public class Camera {
 
   public Pose3d getPose() {
     return pose;
+  }
+
+  @Override
+  public void close() throws Exception {
+      io.close();
   }
 }

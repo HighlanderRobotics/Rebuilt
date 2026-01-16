@@ -17,7 +17,7 @@ import frc.robot.utils.CommandXboxControllerSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Superstructure {
+public class Superstructure implements AutoCloseable {
 
   /** We should have a state for every single action the robot will perform. */
   public enum SuperState {
@@ -280,5 +280,13 @@ public class Superstructure {
 
   public boolean stateIsIdle() {
     return getState() == SuperState.IDLE;
+  }
+
+  @Override
+  public void close() throws Exception {
+    intake.close();
+    shooter.close();
+    routing.close();
+    swerve.close();
   }
 }

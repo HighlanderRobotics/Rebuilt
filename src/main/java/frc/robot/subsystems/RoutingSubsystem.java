@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // TODO!!!
-public class RoutingSubsystem extends SubsystemBase {
+public class RoutingSubsystem extends SubsystemBase implements AutoCloseable {
 
   // TODO: BASE ON ACTUAL SENSOR READINGS
   private boolean isFull;
@@ -32,5 +32,10 @@ public class RoutingSubsystem extends SubsystemBase {
   public Command reverseIndex() {
     // TODO
     return this.run(() -> {});
+  }
+
+  @Override
+  public void close() throws Exception {
+      // Currently nothing to close
   }
 }

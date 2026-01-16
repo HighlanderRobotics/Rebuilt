@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // TODO
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase implements AutoCloseable {
   public Command intake() {
     // TODO
     return idle();
@@ -19,5 +19,10 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command spit() {
     // TODO
     return idle();
+  }
+
+  @Override
+  public void close() throws Exception {
+      // Currently does nothing bc nothing to close
   }
 }

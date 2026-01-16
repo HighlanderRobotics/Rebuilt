@@ -22,7 +22,7 @@ import java.util.Optional;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
-public class ModuleIOReal {
+public class ModuleIOReal implements AutoCloseable {
 
   @AutoLog
   public static class ModuleIOInputs {
@@ -227,5 +227,12 @@ public class ModuleIOReal {
 
   public ModuleConstants getModuleConstants() {
     return constants;
+  }
+
+  @Override
+  public void close() throws Exception {
+      driveTalon.close();
+      turnTalon.close();
+      cancoder.close();
   }
 }
