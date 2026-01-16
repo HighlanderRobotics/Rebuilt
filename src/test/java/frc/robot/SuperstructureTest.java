@@ -114,6 +114,7 @@ public class SuperstructureTest {
         SuperState.INTAKE); // Verify that the superstructure has properly transitioned
 
     // TODO: THIS DOESN'T WORK BC THE AREN'T THE SAME COMMAND IN MEMORY. FIGURE OUT HOW TO FIX
-    // assertEquals(intake.getCurrentCommand(), intake.intake()); // Verify that the intake is intaking
+    // assertEquals(intake.getCurrentCommand(), intake.intake()); // Verify that the intake is
+    // intaking
   }
 }
