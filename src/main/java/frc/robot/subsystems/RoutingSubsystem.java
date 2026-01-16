@@ -36,6 +36,6 @@ public class RoutingSubsystem extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      // Currently nothing to close
+    // Currently nothing to close
   }
 }

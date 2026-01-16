@@ -26,6 +26,6 @@ public class GyroIOSim implements GyroIO {
 
   @Override
   public void close() throws Exception {
-      // Nothing to close
+    // Nothing to close
   }
 }

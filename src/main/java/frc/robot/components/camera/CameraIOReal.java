@@ -49,6 +49,6 @@ public class CameraIOReal implements CameraIO {
 
   @Override
   public void close() throws Exception {
-      camera.close();
+    camera.close();
   }
 }

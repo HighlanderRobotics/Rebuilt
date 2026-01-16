@@ -231,8 +231,8 @@ public class ModuleIOReal implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      driveTalon.close();
-      turnTalon.close();
-      cancoder.close();
+    driveTalon.close();
+    turnTalon.close();
+    cancoder.close();
   }
 }

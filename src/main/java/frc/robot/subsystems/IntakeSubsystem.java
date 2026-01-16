@@ -23,6 +23,6 @@ public class IntakeSubsystem extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      // Currently does nothing bc nothing to close
+    // Currently does nothing bc nothing to close
   }
 }

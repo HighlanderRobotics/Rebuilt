@@ -101,6 +101,37 @@ public class Superstructure implements AutoCloseable {
     stateTimer.start();
   }
 
+  // Used for testing
+  public Superstructure(
+      SwerveSubsystem swerve,
+      RoutingSubsystem routing,
+      IntakeSubsystem intake,
+      ShooterSubsystem shooter,
+      Trigger scoreReq,
+      Trigger intakeReq,
+      Trigger feedReq,
+      Trigger flowReq,
+      Trigger antiJamReq,
+      Trigger isFull,
+      Trigger isEmpty) {
+    this.swerve = swerve;
+    this.routing = routing;
+    this.intake = intake;
+    this.shooter = shooter;
+    this.scoreReq = scoreReq;
+    this.intakeReq = intakeReq;
+    this.feedReq = feedReq;
+    this.flowReq = flowReq;
+    this.antiJamReq = antiJamReq;
+    this.isFull = isFull;
+    this.isEmpty = isEmpty;
+    this.driver = null;
+    this.operator = null;
+
+    addTransitions();
+    addCommands();
+  }
+
   private void addTriggers() {
     // TODO: THESE BINDINGS WILL LIKELY CHANGE. SHOULD HAVE A FULL MEETING TO DISCUSS
     scoreReq =
@@ -288,5 +319,6 @@ public class Superstructure implements AutoCloseable {
     shooter.close();
     routing.close();
     swerve.close();
+    Superstructure.state = SuperState.IDLE;
   }
 }

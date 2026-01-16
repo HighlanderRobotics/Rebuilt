@@ -61,6 +61,6 @@ public class GyroIOReal implements GyroIO {
 
   @Override
   public void close() throws Exception {
-      pigeon.close();
+    pigeon.close();
   }
 }

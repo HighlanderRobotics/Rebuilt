@@ -700,12 +700,12 @@ public class SwerveSubsystem extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      for (Module module : modules) {
-        module.close();
-      }
-      gyroIO.close();
-      for (Camera camera : cameras) {
-        camera.close();
-      }
+    for (Module module : modules) {
+      module.close();
+    }
+    gyroIO.close();
+    for (Camera camera : cameras) {
+      camera.close();
+    }
   }
 }

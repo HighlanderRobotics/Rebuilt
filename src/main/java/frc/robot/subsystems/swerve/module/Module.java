@@ -147,6 +147,6 @@ public class Module implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      io.close();
+    io.close();
   }
 }

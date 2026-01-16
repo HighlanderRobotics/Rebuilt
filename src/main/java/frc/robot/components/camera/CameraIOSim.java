@@ -91,7 +91,7 @@ public class CameraIOSim implements CameraIO {
 
   @Override
   public void close() throws Exception {
-      camera.close();
-      simCamera.close();
+    camera.close();
+    simCamera.close();
   }
 }
