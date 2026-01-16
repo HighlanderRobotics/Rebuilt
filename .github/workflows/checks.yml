@@ -4,7 +4,7 @@ name: checks
 on:
   push:
     branches: ["main"]
-  pull_request
+  pull_request:
 
 jobs:
   # Checks that the build succeded
