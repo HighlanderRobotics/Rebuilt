@@ -1,5 +1,6 @@
 package frc.robot.subsystems.hood;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -16,7 +17,7 @@ public class HoodIOSim extends HoodIO {
   private final DCMotorSim hoodPhysicsSim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(
-              DCMotor.getKrakenX44Foc(1), HoodSubsystem.GEAR_RATIO, 0.01),
+              DCMotor.getKrakenX44Foc(1), 0.01, HoodSubsystem.GEAR_RATIO),
           DCMotor.getKrakenX44Foc(1));
 
   // will get updated when i get specs
@@ -25,8 +26,8 @@ public class HoodIOSim extends HoodIO {
   private Notifier simNotifier = null;
   private double lastSimTime = 0.0;
 
-  public HoodIOSim() {
-    super(1, HoodIO.getHoodConfiguration());
+  public HoodIOSim(CANBus canbus) {
+    super(HoodIO.getHoodConfiguration(), canbus);
     hoodMotorSim = hoodMotor.getSimState();
     hoodMotorSim.setMotorType(MotorType.KrakenX44);
     hoodMotorSim.Orientation = ChassisReference.Clockwise_Positive;
@@ -47,6 +48,7 @@ public class HoodIOSim extends HoodIO {
 
               hoodMotorSim.setRawRotorPosition(
                   hoodPhysicsSim.getAngularPositionRad() * (HoodSubsystem.GEAR_RATIO));
+              hoodMotorSim.setRotorVelocity(hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * HoodSubsystem.GEAR_RATIO);
             });
     simNotifier.startPeriodic(simLoopPeriod);
   }

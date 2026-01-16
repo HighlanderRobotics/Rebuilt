@@ -11,23 +11,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
-  HoodIO io;
-  HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
+  private HoodIO hoodIO;
+  private HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
   public static double GEAR_RATIO = 147.0 / 13.0;
 
   /** Creates a new HoodSubsystem. */
   public HoodSubsystem(HoodIO io) {
-    this.io = io;
+    this.hoodIO = io;
   }
 
   public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
-    return this.run(() -> io.setHoodPosition(hoodPosition));
+    return this.run(() -> hoodIO.setHoodPosition(hoodPosition.get()));
   }
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Shooter/Hood", inputs);
+    hoodIO.updateInputs(hoodInputs);
+    Logger.processInputs("Shooter/Hood", hoodInputs);
   }
 }

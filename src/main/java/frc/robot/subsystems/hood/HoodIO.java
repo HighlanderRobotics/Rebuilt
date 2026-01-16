@@ -5,6 +5,7 @@
 package frc.robot.subsystems.hood;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -33,7 +34,7 @@ public class HoodIO {
     public double hoodTempC = 0.0;
   }
 
-  protected TalonFX hoodMotor = new TalonFX(1);
+  protected TalonFX hoodMotor;
 
   private final BaseStatusSignal hoodPositionRotations = hoodMotor.getPosition();
   private final BaseStatusSignal hoodAngularVelocity = hoodMotor.getVelocity();
@@ -45,7 +46,8 @@ public class HoodIO {
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
 
-  public HoodIO(int i, TalonFXConfiguration talonFXConfiguration) {
+  public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
+    hoodMotor = new TalonFX(1, canbus); //TODO motorid
     hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -91,8 +93,8 @@ public class HoodIO {
     hoodMotor.setControl(voltageOut.withOutput(hoodVoltage));
   }
 
-  public void setHoodPosition(Supplier<Rotation2d> hoodPosition) {
-    hoodMotor.setControl(positionVoltage.withPosition(hoodPosition.get().getRotations()));
+  public void setHoodPosition(Rotation2d hoodPosition) {
+    hoodMotor.setControl(positionVoltage.withPosition(hoodPosition.getRotations()));
   }
 
   public void setHoodVelocity(double hoodVelocity) {
