@@ -16,7 +16,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.google.common.base.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
@@ -47,7 +46,7 @@ public class HoodIO {
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
 
   public HoodIO(int i, TalonFXConfiguration talonFXConfiguration) {
-        hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
+    hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -85,10 +84,8 @@ public class HoodIO {
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
 
-
     return config;
   }
- 
 
   public void setHoodVoltage(double hoodVoltage) {
     hoodMotor.setControl(voltageOut.withOutput(hoodVoltage));
@@ -111,7 +108,7 @@ public class HoodIO {
         hoodSupplyCurrent,
         hoodTemp);
 
-    inputs.hoodPositionRotations =Rotation2d.fromRadians(hoodPositionRotations.getValueAsDouble());
+    inputs.hoodPositionRotations = Rotation2d.fromRadians(hoodPositionRotations.getValueAsDouble());
     inputs.hoodAngularVelocity = hoodAngularVelocity.getValueAsDouble();
     inputs.hoodVoltage = hoodVoltage.getValueAsDouble();
     inputs.hoodStatorCurrentAmps = hoodStatorCurrent.getValueAsDouble();

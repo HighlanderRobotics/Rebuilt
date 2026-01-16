@@ -49,5 +49,4 @@ public class HoodIOSim extends HoodIO {
             });
     simNotifier.startPeriodic(simLoopPeriod);
   }
-
 }
