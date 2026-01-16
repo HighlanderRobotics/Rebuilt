@@ -14,6 +14,9 @@ public class HoodSubsystem extends SubsystemBase {
   HoodIO io;
   HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
 
+  public static double GEAR_RATIO = 147.0/13.0;
+  
+
   /** Creates a new HoodSubsystem. */
   public HoodSubsystem(HoodIO io) {
     this.io = io;

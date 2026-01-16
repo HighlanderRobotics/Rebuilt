@@ -71,7 +71,7 @@ public class HoodIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = 1.0;
+    config.Feedback.SensorToMechanismRatio = HoodSubsystem.GEAR_RATIO;
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
