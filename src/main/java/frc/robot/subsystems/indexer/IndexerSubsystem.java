@@ -8,65 +8,61 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
+import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
+  private CANrangeIOReal firstCANRangeIO;
+  private CANrangeIOReal secondCANRangeIO;
 
-  // Add actual CanBus
+  private RollerIO rollerIO;
 
-  CANrangeIOReal firstCANRangeIO;
-  CANrangeIOReal secondCANRangeIO;
+  private CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
+  private CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
 
-  RollerIOReal rollerIO;
-
-  CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
-  CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
-
-  RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
+  private RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIOReal rollerIO) {
+  public IndexerSubsystem(CANBus canbus, RollerIO rollerIO) {
     firstCANRangeIO = new CANrangeIOReal(0, canbus);
     secondCANRangeIO = new CANrangeIOReal(1, canbus);
     this.rollerIO = rollerIO;
   }
 
   public boolean isFull() {
-
-    return (firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected);
+    return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
   public boolean isEmpty() {
-    return (!firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected);
+    return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
   }
 
   public boolean isPartiallyFull() {
-    return (!firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected);
+    return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
   public Command index() {
     return this.run(
-        () -> {
-          rollerIO.setRollerVoltage(5);
-        });
+        () -> 
+          rollerIO.setRollerVoltage(5)
+        );
   }
 
   public Command score() {
     return this.run(
-        () -> {
-          rollerIO.setRollerVoltage(10);
-        });
+        () -> 
+          rollerIO.setRollerVoltage(10)
+        );
   }
 
   public Command outtake() {
     return this.run(
-        () -> {
-          rollerIO.setRollerVoltage(-5);
-        });
+        () -> 
+          rollerIO.setRollerVoltage(-5)
+        );
   }
 
   public static TalonFXConfiguration getIndexerConfigs() {

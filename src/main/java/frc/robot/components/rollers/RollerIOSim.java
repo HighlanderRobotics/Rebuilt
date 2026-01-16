@@ -1,5 +1,6 @@
 package frc.robot.components.rollers;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -8,17 +9,21 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class RollerIOCTRESim extends RollerIOReal {
+public class RollerIOSim extends RollerIO {
 
   private final DCMotorSim rollerSim;
   private TalonFXSimState talonSim;
   private double lastLoopTime = 0.0;
   Notifier notifier;
 
-  public RollerIOCTRESim(
-      int motorID, TalonFXConfiguration config, DCMotorSim motorSim, MotorType motorType) {
+  public RollerIOSim(
+      int motorID,
+      TalonFXConfiguration config,
+      DCMotorSim motorSim,
+      MotorType motorType,
+      CANBus canbus) {
 
-    super(motorID, config);
+    super(motorID, config, canbus);
     rollerSim = motorSim;
     talonSim = rollerMotor.getSimState();
     talonSim.setMotorType(motorType);

@@ -1,6 +1,7 @@
 package frc.robot.components.rollers;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -13,7 +14,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLog;
 
-public class RollerIOReal {
+public class RollerIO {
 
   @AutoLog
   public static class RollerIOInputs {
@@ -36,8 +37,8 @@ public class RollerIOReal {
   private final VelocityVoltage velocityVoltage =
       new VelocityVoltage(0.0).withEnableFOC(true).withSlot(0);
 
-  public RollerIOReal(int motorID, TalonFXConfiguration config) {
-    rollerMotor = new TalonFX(motorID, "*");
+  public RollerIO(int motorID, TalonFXConfiguration config, CANBus canbus) {
+    rollerMotor = new TalonFX(motorID, canbus);
 
     angularVelocityRotsPerSec = rollerMotor.getVelocity();
     supplyCurrentAmps = rollerMotor.getSupplyCurrent();
