@@ -30,6 +30,9 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.rollers.RollerIOCTRESim;
 import frc.robot.components.rollers.RollerIOReal;
+import frc.robot.subsystems.hood.HoodIO;
+import frc.robot.subsystems.hood.HoodIOSim;
+import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
@@ -106,6 +109,11 @@ public class Robot extends LoggedRobot {
 
   // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
+  private final HoodSubsystem hood =
+      new HoodSubsystem(
+          ROBOT_TYPE == RobotType.REAL
+              ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
+              : new HoodIOSim(canivore));
   private final IntakeSubsystem intake =
       new IntakeSubsystem(new RollerIOReal(0, IntakeSubsystem.getIntakeIOConfig()));
 
