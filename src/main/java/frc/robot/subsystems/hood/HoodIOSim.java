@@ -9,19 +9,19 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
-public class HoodCTRESim extends HoodIOReal {
+public class HoodIOSim extends HoodIO {
   TalonFXSimState hoodMotorSim;
 
   private final SingleJointedArmSim hoodPhysicsSim =
       new SingleJointedArmSim(
           DCMotor.getKrakenX44(1), 0, 0, 0, 0, 0, false, 0); // will get updated when i get specs
 
-  private static final double kSimLoopPeriod = 0.002; // 2 ms
+  private final double simLoopPeriod = 0.002; // 2 ms
   private Notifier simNotifier = null;
   private double lastSimTime = 0.0;
 
-  public HoodCTRESim() {
-    super();
+  public HoodIOSim() {
+    super(1, HoodIO.getHoodConfiguration());
     hoodMotorSim = hoodMotor.getSimState();
     hoodMotorSim.setMotorType(MotorType.KrakenX44);
     hoodMotorSim.Orientation = ChassisReference.Clockwise_Positive;
@@ -40,10 +40,7 @@ public class HoodCTRESim extends HoodIOReal {
 
               // rotor position stuff added later when i have access to onshape
             });
-    simNotifier.startPeriodic(kSimLoopPeriod);
+    simNotifier.startPeriodic(simLoopPeriod);
   }
 
-  public void updateInputs(HoodIOInputs inputs) {
-    super.updateInputs(inputs);
-  }
 }

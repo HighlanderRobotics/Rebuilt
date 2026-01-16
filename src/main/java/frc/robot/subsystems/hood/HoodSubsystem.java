@@ -4,43 +4,28 @@
 
 package frc.robot.subsystems.hood;
 
+import com.google.common.base.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
-  HoodIOReal io;
-  HoodIOInputsAutologged inputs = new HoodIOInputsAutologged();
+  HoodIO io;
+  HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
 
   /** Creates a new HoodSubsystem. */
-  public HoodSubsystem(HoodIOReal io) {
+  public HoodSubsystem(HoodIO io) {
     this.io = io;
   }
 
-  private void setHoodVoltage(double hoodVoltage) {
-    io.setHoodVoltage(hoodVoltage);
-  }
-
-  private void setHoodPosition(Rotation2d hoodPosition) {
-    io.setHoodPosition(hoodPosition);
-  }
-
-  private void setHoodVelocity(double hoodVelocity) {
-    io.setHoodVelocity(hoodVelocity);
-  }
-
-  public Command setHoodVoltageCommand(Double hoodVoltage) {
-    return this.run(() -> this.setHoodVoltage(hoodVoltage));
-  }
-
-  public Command setHoodPositionCommand(Rotation2d hoodPosition) {
-    return this.run(() -> this.setHoodPosition(hoodPosition));
+  public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
+    return this.run(() -> io.setHoodPosition(hoodPosition));
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("hood", inputs);
+    Logger.processInputs("Shooter/Hood", inputs);
   }
 }
