@@ -48,7 +48,8 @@ public class HoodIOSim extends HoodIO {
 
               hoodMotorSim.setRawRotorPosition(
                   hoodPhysicsSim.getAngularPositionRad() * (HoodSubsystem.GEAR_RATIO));
-              hoodMotorSim.setRotorVelocity(hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * HoodSubsystem.GEAR_RATIO);
+              hoodMotorSim.setRotorVelocity(
+                  hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * HoodSubsystem.GEAR_RATIO);
             });
     simNotifier.startPeriodic(simLoopPeriod);
   }

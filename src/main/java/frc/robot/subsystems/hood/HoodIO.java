@@ -15,7 +15,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.google.common.base.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -47,7 +46,7 @@ public class HoodIO {
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
 
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
-    hoodMotor = new TalonFX(1, canbus); //TODO motorid
+    hoodMotor = new TalonFX(1, canbus); // TODO motorid
     hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
