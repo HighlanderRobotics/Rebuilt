@@ -4,22 +4,22 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-
-import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class HoodIOSim extends HoodIO {
   TalonFXSimState hoodMotorSim;
 
-  private final DCMotorSim hoodPhysicsSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), HoodSubsystem.GEAR_RATIO, 0.01), DCMotor.getKrakenX44Foc(1));
-        
+  private final DCMotorSim hoodPhysicsSim =
+      new DCMotorSim(
+          LinearSystemId.createDCMotorSystem(
+              DCMotor.getKrakenX44Foc(1), HoodSubsystem.GEAR_RATIO, 0.01),
+          DCMotor.getKrakenX44Foc(1));
 
-        // will get updated when i get specs
+  // will get updated when i get specs
 
   private final double simLoopPeriod = 0.002; // 2 ms
   private Notifier simNotifier = null;
@@ -45,7 +45,8 @@ public class HoodIOSim extends HoodIO {
 
               // rotor position stuff added later when i have access to onshape
 
-              hoodMotorSim.setRawRotorPosition(hoodPhysicsSim.getAngularPositionRad()*(HoodSubsystem.GEAR_RATIO));
+              hoodMotorSim.setRawRotorPosition(
+                  hoodPhysicsSim.getAngularPositionRad() * (HoodSubsystem.GEAR_RATIO));
             });
     simNotifier.startPeriodic(simLoopPeriod);
   }
