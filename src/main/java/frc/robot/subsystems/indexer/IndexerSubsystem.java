@@ -8,7 +8,6 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
-import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
