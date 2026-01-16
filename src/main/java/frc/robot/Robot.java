@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.components.rollers.RollerIOReal;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -84,7 +85,7 @@ public class Robot extends LoggedRobot {
 
   // Subsystem initialization
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
-  private final IndexerSubsystem indexer = new IndexerSubsystem(canivore);
+  private final IndexerSubsystem indexer = new IndexerSubsystem(canivore, new RollerIOReal(0,IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
