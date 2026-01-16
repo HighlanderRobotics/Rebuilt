@@ -10,6 +10,8 @@ import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 public class IndexerSubsystem extends SubsystemBase {
 
   // Add actual CanBus
@@ -19,12 +21,20 @@ public class IndexerSubsystem extends SubsystemBase {
   CANrangeIOReal secondCANRange = new CANrangeIOReal(1, CANBus);
   CANrangeIOInputsAutoLogged CANRangeInputs = new CANrangeIOInputsAutoLogged();
   TalonFXConfiguration configs = new TalonFXConfiguration();
-  RollerIOReal rollers = new RollerIOReal(1, configs);
+  RollerIOReal index = new RollerIOReal(1, configs);
 
-  RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
-
+  RollerIOInputsAutoLogged indexRollerInputs = new RollerIOInputsAutoLogged();
+  RollerIOInputsAutoLogged kickRollerIOInputsAutoLogged = new RollerIOInputsAutoLogged();
+RollerIOReal kickerIO = new RollerIOReal(0, configs); 
   public IndexerSubsystem() {}
 
+  public Command stopKicker(){
+return this.run(()-> kickerIO.setRollerVoltage(0));
+  };
+  public Command shoot(){
+return this.run(()-> kickerIO.setRollerVoltage(0));
+
+  };
   public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
     if (firstBeamBreak && secondBeamBreak) {
       return true;
@@ -52,21 +62,21 @@ public class IndexerSubsystem extends SubsystemBase {
   public Command index(DoubleSupplier volts) {
     return this.run(
         () -> {
-          rollers.setRollerVoltage(volts.getAsDouble());
+          index.setRollerVoltage(volts.getAsDouble());
         });
   }
 
   public Command score(DoubleSupplier volts) {
     return this.run(
         () -> {
-          rollers.setRollerVoltage(volts.getAsDouble());
+          index.setRollerVoltage(volts.getAsDouble());
         });
   }
 
   public Command outtake(DoubleSupplier volts) {
     return this.run(
         () -> {
-          rollers.setRollerVoltage(volts.getAsDouble());
+          index.setRollerVoltage(volts.getAsDouble());
         });
   }
 
@@ -74,6 +84,8 @@ public class IndexerSubsystem extends SubsystemBase {
   public void periodic() {
     firstCANRange.updateInputs(CANRangeInputs);
     secondCANRange.updateInputs(CANRangeInputs);
-    rollers.updateInputs(rollerInputs);
+    index.updateInputs(indexRollerInputs);
+    kickerIO.updateInputs(kickRollerIOInputsAutoLogged);
+    Logger.processInputs("indexer/roller", kickRollerIOInputsAutoLogged);
   }
 }
