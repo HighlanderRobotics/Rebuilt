@@ -87,7 +87,7 @@ public class Robot extends LoggedRobot {
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
   private final HoodSubsystem hood =
-      new HoodSubsystem(new HoodIO(1,HoodIO.getHoodConfiguration()));
+      new HoodSubsystem(new HoodIO(1, HoodIO.getHoodConfiguration()));
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
