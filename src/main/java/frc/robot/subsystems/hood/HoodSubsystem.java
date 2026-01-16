@@ -4,35 +4,35 @@
 
 package frc.robot.subsystems.hood;
 
+import java.util.function.DoubleSupplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
 
-import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.junction.Logger;
-
 public class HoodSubsystem extends SubsystemBase {
   HoodIOReal hoodIO;
   HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
 
-  RollerIOReal rollerIO;
-  RollerIOInputsAutoLogged rollerinputs = new RollerIOInputsAutoLogged();
+  RollerIOReal flywheelIO;
+  RollerIOInputsAutoLogged flywheelInputs = new RollerIOInputsAutoLogged();
 
   /** Creates a new HoodSubsystem. */
   public HoodSubsystem(HoodIOReal hoodIO, RollerIOReal rollerIO) {
     this.hoodIO = hoodIO;
-    this.rollerIO = rollerIO;
+    this.flywheelIO = rollerIO;
   }
 
   public Command shoot(DoubleSupplier voltage) {
-    return this.run(()->rollerIO.setRollerVoltage(voltage.getAsDouble()));
+    return this.run(()->flywheelIO.setRollerVoltage(voltage.getAsDouble()));
   }
 
   public Command feed(DoubleSupplier voltage) {
-    return this.run(()->rollerIO.setRollerVoltage(voltage.getAsDouble()));
+    return this.run(()->flywheelIO.setRollerVoltage(voltage.getAsDouble()));
   }
 
   private void setHoodVoltage(double hoodVoltage) {
@@ -59,5 +59,8 @@ public class HoodSubsystem extends SubsystemBase {
   public void periodic() {
     hoodIO.updateInputs(hoodinputs);
     Logger.processInputs("hood", hoodinputs);
+
+    flywheelIO.updateInputs(flywheelInputs);
+    Logger.processInputs("shooter/flywheel", flywheelInputs);
   }
 }
