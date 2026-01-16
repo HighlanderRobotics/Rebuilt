@@ -16,8 +16,8 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // Add actual CanBus
 
-  CANrangeIOReal firstCANRange;
-  CANrangeIOReal secondCANRange;
+  CANrangeIOReal firstCANRangeIO;
+  CANrangeIOReal secondCANRangeIO;
 
   RollerIOReal rollerIO;
 
@@ -29,10 +29,10 @@ public class IndexerSubsystem extends SubsystemBase {
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIOReal roller) {
-    firstCANRange = new CANrangeIOReal(0, canbus);
-    secondCANRange = new CANrangeIOReal(1, canbus);
-    rollerIO = roller;
+  public IndexerSubsystem(CANBus canbus, RollerIOReal rollerIO) {
+    firstCANRangeIO = new CANrangeIOReal(0, canbus);
+    secondCANRangeIO = new CANrangeIOReal(1, canbus);
+    this.rollerIO = rollerIO;
   }
 
   public boolean isFull() {
@@ -97,9 +97,9 @@ public class IndexerSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    firstCANRange.updateInputs(firstCANRangeInputs);
+    firstCANRangeIO.updateInputs(firstCANRangeInputs);
     Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
-    secondCANRange.updateInputs(secondCANRangeInputs);
+    secondCANRangeIO.updateInputs(secondCANRangeInputs);
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     rollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);

@@ -93,7 +93,7 @@ public class Robot extends LoggedRobot {
   private final IndexerSubsystem indexer =
       new IndexerSubsystem(
           canivore,
-          (ROBOT_TYPE == ROBOT_TYPE.REAL)
+          (ROBOT_TYPE == RobotType.REAL)
               ? new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs())
               : new RollerIOCTRESim(
                   0,
