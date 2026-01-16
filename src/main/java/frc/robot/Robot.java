@@ -6,9 +6,12 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -17,6 +20,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,7 +28,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.components.rollers.RollerIOCTRESim;
 import frc.robot.components.rollers.RollerIOReal;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -85,6 +91,20 @@ public class Robot extends LoggedRobot {
 
   // Subsystem initialization
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
+  private final IndexerSubsystem indexer =
+      new IndexerSubsystem(
+          canivore,
+          (ROBOT_TYPE == RobotType.REAL)
+              ? new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs())
+              : new RollerIOCTRESim(
+                  0,
+                  IndexerSubsystem.getIndexerConfigs(),
+                  new DCMotorSim(
+                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
+                      DCMotor.getKrakenX44Foc(1)),
+                  MotorType.KrakenX44));
+
+  // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
   private final IntakeSubsystem intake =
       new IntakeSubsystem(new RollerIOReal(0, IntakeSubsystem.getIntakeIOConfig()));
