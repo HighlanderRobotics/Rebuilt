@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,6 +15,7 @@ import frc.robot.subsystems.RoutingSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import java.util.Optional;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -49,6 +51,7 @@ public class Superstructure {
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
+  public Optional<Alliance> alliance = DriverStation.getAlliance();
 
   private final SwerveSubsystem swerve;
   private final RoutingSubsystem routing;
@@ -110,6 +113,7 @@ public class Superstructure {
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
+            .and(() -> canScore())
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
@@ -279,5 +283,37 @@ public class Superstructure {
 
   public boolean stateIsIdle() {
     return getState() == SuperState.IDLE;
+  }
+
+  public boolean turnToScore() {
+    String gameData = DriverStation.getGameSpecificMessage();
+    boolean isBlueTurn = false;
+    boolean isRedTurn = false;
+
+    if (gameData.length() > 0) {
+      switch (gameData.charAt(0)) {
+        case 'B':
+          isBlueTurn = true;
+          break;
+        case 'R':
+          isRedTurn = true;
+          break;
+        default:
+          break;
+      }
+    } else {
+      return false;
+    }
+
+    return (isBlueTurn && alliance.get() == Alliance.Blue || isRedTurn && alliance.get() == Alliance.Red) ? true : false;
+  }
+
+  public boolean inScoringArea() {
+    return (alliance.get() == Alliance.Blue && (swerve.getPose().getX() <= 4.6914191246032715)
+    || alliance.get() == Alliance.Red && (swerve.getPose().getX() >= 11.889562606811523)) ? true : false;
+    }
+
+  public boolean canScore() {
+    return turnToScore() && inScoringArea();
   }
 }
