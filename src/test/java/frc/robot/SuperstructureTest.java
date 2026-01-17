@@ -58,7 +58,7 @@ public class SuperstructureTest {
     flowReq = false;
     antiJamReq = false;
     isFull = false;
-    isEmpty = false;
+    isEmpty = true;
 
     intake = new IntakeSubsystem(new RollerIOReal(10, IntakeSubsystem.getIntakeIOConfig()));
     shooter = new HoodSubsystem(new HoodIOSim(new CANBus()));
@@ -120,5 +120,33 @@ public class SuperstructureTest {
     // TODO: THIS DOESN'T WORK BC THE AREN'T THE SAME COMMAND IN MEMORY. FIGURE OUT HOW TO FIX
     // assertEquals(intake.getCurrentCommand(), intake.intake()); // Verify that the intake is
     // intaking
+  }
+
+  @Test
+  void intakeToReadyNotFull() {
+    idleToIntake(); // First, we need to get into intake
+
+    isEmpty = false; // We're no longer empty
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(
+        SuperState.INTAKE,
+        Superstructure.getState()); // Should still be intaking bc the request is not off
+
+    intakeReq = false;
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(
+        SuperState.READY,
+        Superstructure
+            .getState()); // Should be in READY because we're not empty and intakeReq is false
   }
 }
