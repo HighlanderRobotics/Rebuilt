@@ -105,9 +105,9 @@ public class Superstructure implements AutoCloseable {
   // Used for testing
   public Superstructure(
       SwerveSubsystem swerve,
-      RoutingSubsystem routing,
+      IndexerSubsystem indexer,
       IntakeSubsystem intake,
-      ShooterSubsystem shooter,
+      HoodSubsystem shooter,
       Trigger scoreReq,
       Trigger intakeReq,
       Trigger feedReq,
@@ -116,8 +116,8 @@ public class Superstructure implements AutoCloseable {
       Trigger isFull,
       Trigger isEmpty) {
     this.swerve = swerve;
-    this.routing = routing;
     this.intake = intake;
+    this.indexer = indexer;
     this.shooter = shooter;
     this.scoreReq = scoreReq;
     this.intakeReq = intakeReq;
