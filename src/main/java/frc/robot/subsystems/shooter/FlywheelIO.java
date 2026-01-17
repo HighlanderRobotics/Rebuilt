@@ -9,6 +9,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -44,8 +45,10 @@ public class FlywheelIO {
   private final StatusSignal<Current> flywheelSupplyCurrent;
   private final StatusSignal<Temperature> flywheelTemp;
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
-  private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
+  private MotionMagicVelocityVoltage motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0.0).withEnableFOC(true).withAcceleration(100);
+  // todo: tune acceleration
+
 
   public FlywheelIO(TalonFXConfiguration config, CANBus canbus) {
     flywheelLeader = new TalonFX(10, canbus);
