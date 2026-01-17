@@ -100,9 +100,9 @@ public class Robot extends LoggedRobot {
       new IndexerSubsystem(
           canivore,
           (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIOReal(10, IndexerSubsystem.getIndexerConfigs())
+              ? new RollerIOReal(9, IndexerSubsystem.getIndexerConfigs())
               : new RollerIOCTRESim(
-                  11,
+                  9,
                   IndexerSubsystem.getIndexerConfigs(),
                   new DCMotorSim(
                       LinearSystemId.createDCMotorSystem(
@@ -123,9 +123,9 @@ public class Robot extends LoggedRobot {
   private final IntakeSubsystem intake =
       new IntakeSubsystem(
           (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIOReal(13, IntakeSubsystem.getIntakeIOConfig())
+              ? new RollerIOReal(8, IntakeSubsystem.getIntakeIOConfig())
               : new RollerIOCTRESim(
-                  13,
+                  8,
                   IntakeSubsystem.getIntakeIOConfig(),
                   new DCMotorSim(
                       LinearSystemId.createDCMotorSystem(
