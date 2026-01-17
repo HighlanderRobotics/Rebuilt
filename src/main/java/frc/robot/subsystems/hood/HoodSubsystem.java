@@ -22,7 +22,7 @@ public class HoodSubsystem extends SubsystemBase {
   private HoodIO hoodIO;
   private HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
-  private SysIdRoutine hoodSysid = new SysIdRoutine(new Config(), new Mechanism((voltage) -> hoodIO.setHoodVoltage(voltage.in(Volts)), null, this));
+  private SysIdRoutine hoodSysid = new SysIdRoutine(new Config(null, null, null, (state) -> Logger.recordOutput("Shooter/Hood/SysID State", state)), new Mechanism((voltage) -> hoodIO.setHoodVoltage(voltage.in(Volts)), null, this));
 
   public static double GEAR_RATIO = 147.0 / 13.0;
 
