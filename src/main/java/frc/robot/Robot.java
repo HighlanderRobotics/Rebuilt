@@ -37,6 +37,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.shooter.FlywheelIO;
+import frc.robot.subsystems.shooter.FlywheelIOSim;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
@@ -115,7 +116,10 @@ public class Robot extends LoggedRobot {
           ROBOT_TYPE == RobotType.REAL
               ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
               : new HoodIOSim(canivore),
-          new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore));
+          ROBOT_TYPE == RobotType.REAL
+            ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
+            : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore)
+          );
   private final IntakeSubsystem intake =
       new IntakeSubsystem(new RollerIOReal(0, IntakeSubsystem.getIntakeIOConfig()));
 
