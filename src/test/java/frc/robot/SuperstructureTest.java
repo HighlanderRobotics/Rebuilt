@@ -94,15 +94,16 @@ public class SuperstructureTest {
 
   @Test
   void idleToIntake() {
-    assertEquals( SuperState.IDLE,
-        Superstructure.getState()); // Verify that superstructure starts in IDLE
+    assertEquals(
+        SuperState.IDLE, Superstructure.getState()); // Verify that superstructure starts in IDLE
 
     // Some time passes...
     for (int i = 0; i < 50; i++) {
       CommandScheduler.getInstance().run();
     }
 
-    assertEquals(SuperState.IDLE,
+    assertEquals(
+        SuperState.IDLE,
         Superstructure.getState()); // Verify that the superstructure hasn't transitioned yet
 
     intakeReq = true; // This should trigger the state transition from IDLE to INTAKE
@@ -112,7 +113,8 @@ public class SuperstructureTest {
       CommandScheduler.getInstance().run();
     }
 
-    assertEquals(SuperState.INTAKE,
+    assertEquals(
+        SuperState.INTAKE,
         Superstructure.getState()); // Verify that the superstructure has properly transitioned
 
     // TODO: THIS DOESN'T WORK BC THE AREN'T THE SAME COMMAND IN MEMORY. FIGURE OUT HOW TO FIX
