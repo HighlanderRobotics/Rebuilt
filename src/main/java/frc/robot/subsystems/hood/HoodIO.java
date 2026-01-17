@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import org.littletonrobotics.junction.AutoLog;
 
 public class HoodIO {
@@ -73,7 +74,7 @@ public class HoodIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = HoodSubsystem.GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.GEAR_RATIO;
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
