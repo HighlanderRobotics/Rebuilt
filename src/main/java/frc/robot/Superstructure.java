@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.FeedTargets;
@@ -51,7 +51,7 @@ public class Superstructure {
   private final SwerveSubsystem swerve;
   private final IndexerSubsystem indexer;
   private final IntakeSubsystem intake;
-  private final HoodSubsystem shooter; // TODO: COMBINE WITH SHOOTER FLYWHEEL WHEN ITS MERGED
+  private final ShooterSubsystem shooter;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -87,7 +87,7 @@ public class Superstructure {
       SwerveSubsystem swerve,
       IndexerSubsystem indexer,
       IntakeSubsystem intake,
-      HoodSubsystem shooter,
+      ShooterSubsystem shooter,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
@@ -118,7 +118,12 @@ public class Superstructure {
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    feedReq = driver.rightBumper().and(DriverStation::isTeleop).and(() -> shouldFeed == true).or(Autos.autoFeedReq);
+    feedReq =
+        driver
+            .rightBumper()
+            .and(DriverStation::isTeleop)
+            .and(() -> shouldFeed == true)
+            .or(Autos.autoFeedReq);
 
     flowReq = operator.rightTrigger();
 
@@ -159,10 +164,16 @@ public class Superstructure {
 
       bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
 
-      bindTransition(SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
+      bindTransition(
+          SuperState.FEED_FLOW,
+          SuperState.READY,
+          flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(feedReq.negate()));
+      bindTransition(
+          SuperState.FEED_FLOW,
+          SuperState.IDLE,
+          flowReq.negate().and(isEmpty).and(feedReq.negate()));
     }
 
     // SCORE_FLOW transitions
@@ -173,10 +184,16 @@ public class Superstructure {
 
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
 
-      bindTransition(SuperState.SCORE_FLOW, SuperState.READY, flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
+      bindTransition(
+          SuperState.SCORE_FLOW,
+          SuperState.READY,
+          flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(scoreReq.negate()));
+      bindTransition(
+          SuperState.SCORE_FLOW,
+          SuperState.IDLE,
+          flowReq.negate().and(isEmpty).and(scoreReq.negate()));
     }
 
     // Transition from any state to SPIT for anti jamming

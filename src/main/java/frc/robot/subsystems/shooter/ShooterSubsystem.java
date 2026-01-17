@@ -5,12 +5,14 @@
 package frc.robot.subsystems.shooter;
 
 import com.google.common.base.Supplier;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.hood.HoodIO;
 import frc.robot.subsystems.hood.HoodIOInputsAutoLogged;
-import java.util.function.DoubleSupplier;
+import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -28,12 +30,44 @@ public class ShooterSubsystem extends SubsystemBase {
     this.flywheelIO = flywheelIO;
   }
 
-  public Command shoot(DoubleSupplier voltage) {
-    return this.run(() -> flywheelIO.setFlywheelVoltage(voltage.getAsDouble()));
+  public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
+    return this.run(
+        () -> {
+          ShotData shotData =
+              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
+          hoodIO.setHoodPosition(shotData.hoodRotation());
+          flywheelIO.setFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+        });
   }
 
-  public Command feed(DoubleSupplier voltage) {
-    return this.run(() -> flywheelIO.setFlywheelVoltage(voltage.getAsDouble()));
+  public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
+    return this.run(
+        () -> {
+          ShotData shotData =
+              AutoAim.FEED_SHOT_TREE.get(
+                  robotPoseSupplier
+                      .get()
+                      .getTranslation()
+                      .getDistance(feedTarget.get().getTranslation()));
+          hoodIO.setHoodPosition(shotData.hoodRotation());
+          flywheelIO.setFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+        });
+  }
+
+  public Command rest() {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.kZero); // TODO: TUNE TUCKED POSITION IF NEEDED
+          flywheelIO.setFlywheelVoltage(0.0);
+        });
+  }
+
+  public Command spit() {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.kZero);
+          flywheelIO.setFlywheelVelocity(20);
+        }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
   public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
