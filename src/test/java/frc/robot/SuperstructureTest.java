@@ -295,4 +295,9 @@ public class SuperstructureTest {
 
     assertEquals(SuperState.SCORE_FLOW, Superstructure.getState()); // Should be in FEED_FLOW now
   }
+
+  @Test
+  void shouldFail() {
+    assertEquals(true, false);
+  }
 }
