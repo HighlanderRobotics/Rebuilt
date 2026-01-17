@@ -11,10 +11,10 @@ import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
+  public static double GEAR_RATIO = 2.0;
 
   private RollerIOReal io;
   private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
-  private static TalonFX motor = new TalonFX(10, "*");
 
   public IntakeSubsystem(RollerIOReal io) {
     this.io = io;
@@ -52,6 +52,8 @@ public class IntakeSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+    config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
+
     config.Slot0.kS = 0.24;
     config.Slot0.kV = 0.6;
     config.Slot0.kP = 110.0;
@@ -62,7 +64,6 @@ public class IntakeSubsystem extends SubsystemBase {
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    motor.getConfigurator().apply(config);
     return config;
   }
 }
