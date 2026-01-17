@@ -115,6 +115,6 @@ public class IndexerSubsystem extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      rollerIO.close();
+    rollerIO.close();
   }
 }

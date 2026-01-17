@@ -68,6 +68,6 @@ public class IntakeSubsystem extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      io.close();
+    io.close();
   }
 }

@@ -87,6 +87,6 @@ public class RollerIOReal implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      rollerMotor.close();
+    rollerMotor.close();
   }
 }

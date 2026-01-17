@@ -73,6 +73,6 @@ public class HoodSubsystem extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      hoodIO.close();
+    hoodIO.close();
   }
 }

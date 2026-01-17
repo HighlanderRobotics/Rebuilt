@@ -126,6 +126,6 @@ public class HoodIO implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-      hoodMotor.close();
+    hoodMotor.close();
   }
 }
