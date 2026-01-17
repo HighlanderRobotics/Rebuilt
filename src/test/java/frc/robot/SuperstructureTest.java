@@ -149,4 +149,32 @@ public class SuperstructureTest {
         Superstructure
             .getState()); // Should be in READY because we're not empty and intakeReq is false
   }
+
+  @Test
+  void intakeToReadyFull() {
+    idleToIntake(); // Enter Intake
+
+    isEmpty = false; // We have at least 1 ball
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(
+        SuperState.INTAKE,
+        Superstructure
+            .getState()); // Should still be intaking because we're not full and the request is not
+    // off
+
+    isFull = true; // Full
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.READY, Superstructure.getState()); // Should be ready because we're full
+    assertEquals(true, intakeReq); // Even though we're still requesting to intake
+  }
 }
