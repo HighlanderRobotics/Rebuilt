@@ -49,7 +49,7 @@ public class HoodIO {
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
 
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
-    hoodMotor = new TalonFX(1, canbus); // TODO motorid
+    hoodMotor = new TalonFX(18, canbus); // TODO motorid
     hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
 
     hoodPositionRotations = hoodMotor.getPosition();
@@ -85,10 +85,10 @@ public class HoodIO {
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
-    config.Slot0.kS = 0.24;
-    config.Slot0.kG = 0.56;
-    config.Slot0.kV = 0.6;
-    config.Slot0.kP = 110.0;
+    config.Slot0.kS = 0.0;
+    config.Slot0.kG = 0.0;
+    config.Slot0.kV = 1.1;
+    config.Slot0.kP = 5.0;
     config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
