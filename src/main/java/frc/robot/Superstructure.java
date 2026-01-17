@@ -291,46 +291,46 @@ public class Superstructure {
     return getState() == SuperState.IDLE;
   }
 
-  public boolean isOurShift() {
+  private Alliance getStartingAlliance() {
     String gameData = DriverStation.getGameSpecificMessage();
-    boolean blueStarts = false;
-    boolean redStarts = false;
-    double timeLeftinMatch = Timer.getMatchTime();
-    boolean isShiftOne;
-
+    // gives first inactive alliance
     if (gameData.length() > 0) {
       switch (gameData.charAt(0)) {
         case 'B':
-          blueStarts = true;
-          break;
+          return Alliance.Red;
         case 'R':
-          redStarts = true;
-          break;
+          return Alliance.Blue;
         default:
-          break;
+          return Alliance.Blue;
       }
     } else {
       // not sure
-      return false;
+      return Alliance.Blue;
     }
+  }
 
-    // TODO shorten and fix this ugly ahh code
-    isShiftOne = (blueStarts && alliance == Alliance.Blue || redStarts && alliance == Alliance.Red);
-
-    // Obviously fix naming :( and thers prob a prettier way to do ts
-    boolean shiftOneandthree =
-        ((105.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 130.00)
-            || (55.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 80.00));
-
-    boolean shifttwoandfour =
-        ((80.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 105.00)
-            || (30.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 55.00));
-
-    // make this like a loop or list for efficency
-    if (isShiftOne) {
-      return !shifttwoandfour;
+  private int getCurrentShift() {
+    double timeLeftinMatch = Timer.getMatchTime();
+    // may be a nicer way to do this
+    if (105.00 <= timeLeftinMatch && timeLeftinMatch <= 130.00) {
+      return 1;
+    } else if (80.00 <= timeLeftinMatch && timeLeftinMatch <= 105.00) {
+      return 2;
+    } else if ((55.00 <= timeLeftinMatch && timeLeftinMatch <= 80.00)) {
+      return 3;
+    } else if ((30.00 <= timeLeftinMatch && timeLeftinMatch <= 55.00)) {
+      return 4;
     } else {
-      return !shiftOneandthree;
+      return 0;
+    }
+  }
+
+  public boolean isOurShift() {
+    // only cant score when its the others turn, otherwise everyone can
+    if (getStartingAlliance() == alliance) {
+      return !(getCurrentShift() == 2 || getCurrentShift() == 4);
+    } else {
+      return !(getCurrentShift() == 1 || getCurrentShift() == 3);
     }
   }
 
