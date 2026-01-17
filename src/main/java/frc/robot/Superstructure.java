@@ -77,6 +77,8 @@ public class Superstructure implements AutoCloseable {
   @AutoLogOutput(key = "Superstructure/Is Empty")
   private Trigger isEmpty;
 
+  private boolean shouldFeed = false;
+
   // @AutoLogOutput(key = "Superstructure/At Extension?")
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
 
@@ -134,16 +136,20 @@ public class Superstructure implements AutoCloseable {
   }
 
   private void addTriggers() {
-    // TODO: THESE BINDINGS WILL LIKELY CHANGE. SHOULD HAVE A FULL MEETING TO DISCUSS
+    // Toggles for feeding
+    operator.leftBumper().onTrue(Commands.runOnce(() -> shouldFeed = true));
+    operator.rightBumper().onTrue(Commands.runOnce(() -> shouldFeed = false));
+
     scoreReq =
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
+            .and(() -> shouldFeed == false)
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
+    feedReq = driver.rightBumper().and(DriverStation::isTeleop).and(() -> shouldFeed == true).or(Autos.autoFeedReq);
 
     flowReq = operator.rightTrigger();
 
@@ -178,22 +184,30 @@ public class Superstructure implements AutoCloseable {
 
     // FEED_FLOW transitions
     {
+      bindTransition(SuperState.IDLE, SuperState.FEED_FLOW, flowReq.and(feedReq));
+
       bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
-      // No so sure about the end condition here.
-      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate());
+      bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
 
-      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have
-      // a fuel
+      bindTransition(SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
+
+      // No so sure about the end condition here.
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(feedReq.negate()));
     }
 
     // SCORE_FLOW transitions
     {
+      bindTransition(SuperState.IDLE, SuperState.SCORE_FLOW, flowReq.and(scoreReq));
+
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
-      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate());
-      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have
-      // a fuel
+      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
+
+      bindTransition(SuperState.SCORE_FLOW, SuperState.READY, flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
+
+      // No so sure about the end condition here.
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(scoreReq.negate()));
     }
 
     // Transition from any state to SPIT for anti jamming
