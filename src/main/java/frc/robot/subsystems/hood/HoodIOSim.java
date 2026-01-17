@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class HoodIOSim extends HoodIO {
   TalonFXSimState hoodMotorSim;
@@ -17,7 +18,7 @@ public class HoodIOSim extends HoodIO {
   private final DCMotorSim hoodPhysicsSim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(
-              DCMotor.getKrakenX44Foc(1), 0.01, HoodSubsystem.GEAR_RATIO),
+              DCMotor.getKrakenX44Foc(1), 0.01, ShooterSubsystem.GEAR_RATIO),
           DCMotor.getKrakenX44Foc(1));
 
   // will get updated when i get specs
@@ -47,9 +48,9 @@ public class HoodIOSim extends HoodIO {
               // rotor position stuff added later when i have access to onshape
 
               hoodMotorSim.setRawRotorPosition(
-                  hoodPhysicsSim.getAngularPositionRad() * (HoodSubsystem.GEAR_RATIO));
+                  hoodPhysicsSim.getAngularPositionRad() * (ShooterSubsystem.GEAR_RATIO));
               hoodMotorSim.setRotorVelocity(
-                  hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * HoodSubsystem.GEAR_RATIO);
+                  hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * ShooterSubsystem.GEAR_RATIO);
             });
     simNotifier.startPeriodic(simLoopPeriod);
   }
