@@ -1,7 +1,9 @@
 package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 
 public class AutoAim {
 
@@ -11,6 +13,8 @@ public class AutoAim {
 
   static { // For hub shot tree
     // TODO: ADD SHOTS TO HUB SHOT HERE
+    HUB_SHOT_TREE.put(
+        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0.5)); // Placeholder to prevent crashes
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -18,6 +22,8 @@ public class AutoAim {
 
   static { // For feed shot tree
     // TODO: POPULATE
+    FEED_SHOT_TREE.put(
+        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0.5)); // Placeholder to prevent crashes
   }
 
   // TODO: SOTM

@@ -65,10 +65,10 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq;
 
-  @AutoLogOutput(key = "Superstructre/Flowstate Request")
+  @AutoLogOutput(key = "Superstructure/Flowstate Request")
   private Trigger flowReq;
 
-  @AutoLogOutput(key = "Superstructre/Anti Jam Req")
+  @AutoLogOutput(key = "Superstructure/Anti Jam Req")
   private Trigger antiJamReq;
 
   @AutoLogOutput(key = "Superstructure/Is Full")
