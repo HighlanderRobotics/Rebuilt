@@ -121,4 +121,9 @@ public class SuperstructureTest {
     // assertEquals(intake.getCurrentCommand(), intake.intake()); // Verify that the intake is
     // intaking
   }
+
+  @Test
+  void shouldFail() {
+    assertEquals(1, 2);
+  }
 }
