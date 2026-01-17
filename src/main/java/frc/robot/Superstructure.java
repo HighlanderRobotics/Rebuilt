@@ -153,22 +153,30 @@ public class Superstructure {
 
     // FEED_FLOW transitions
     {
+      bindTransition(SuperState.IDLE, SuperState.FEED_FLOW, flowReq.and(feedReq));
+
       bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
-      // No so sure about the end condition here.
-      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate());
+      bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
 
-      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have
-      // a fuel
+      bindTransition(SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
+
+      // No so sure about the end condition here.
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(feedReq.negate()));
     }
 
     // SCORE_FLOW transitions
     {
+      bindTransition(SuperState.IDLE, SuperState.SCORE_FLOW, flowReq.and(scoreReq));
+
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
-      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate());
-      // Maybe should be a transition from idle to flow as well? In case robot doesn't already have
-      // a fuel
+      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
+
+      bindTransition(SuperState.SCORE_FLOW, SuperState.READY, flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
+
+      // No so sure about the end condition here.
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(scoreReq.negate()));
     }
 
     // Transition from any state to SPIT for anti jamming
