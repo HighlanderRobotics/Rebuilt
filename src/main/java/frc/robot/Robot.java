@@ -343,6 +343,11 @@ public class Robot extends LoggedRobot {
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
     haveAutosGenerated = true;
+
+    // Sysid Autos
+    autoChooser.addOption("Hood Sysid", hood.runHoodSysid());
+    autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
   }
 
   @Override
