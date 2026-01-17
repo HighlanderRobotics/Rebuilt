@@ -9,8 +9,15 @@ public class AutoAim {
 
   // If we need other shot trees (i.e. for feeding) we can put them here
 
-  static {
+  static { // For hub shot tree
     // TODO: ADD SHOTS TO HUB SHOT HERE
+  }
+
+  // Ig we'll see if we need more than 1 feed shot tree
+  public static final InterpolatingShotTree FEED_SHOT_TREE = new InterpolatingShotTree();
+
+  static { // For feed shot tree
+    // TODO: POPULATE
   }
 
   // TODO: SOTM

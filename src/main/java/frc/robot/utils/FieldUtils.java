@@ -27,4 +27,30 @@ public class FieldUtils {
         ? BLUE_HUB_POS
         : RED_HUB_POS;
   }
+
+  public enum FeedTargets {
+    BLUE_BACK_RIGHT(new Translation2d(0.6643, 0.75)), // Eyeballed in Choreo
+    BLUE_BACK_LEFT(new Translation2d(0.75, 7.367)),
+    RED_BACK_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_BACK_RIGHT.getPose())),
+    RED_BACK_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_BACK_LEFT.getPose()))
+    ;
+
+    private Pose2d targetPose;
+
+    private FeedTargets(Pose2d pose) {
+      this.targetPose = pose;
+    }
+
+    private FeedTargets(Translation2d translation) {
+      this.targetPose = new Pose2d(translation, Rotation2d.kZero);
+    }
+
+    public Pose2d getPose() {
+      return targetPose;
+    }
+
+    public Translation2d getTranslation() {
+      return targetPose.getTranslation();
+    }
+  }
 }
