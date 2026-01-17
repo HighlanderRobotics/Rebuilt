@@ -177,4 +177,50 @@ public class SuperstructureTest {
     assertEquals(SuperState.READY, Superstructure.getState()); // Should be ready because we're full
     assertEquals(true, intakeReq); // Even though we're still requesting to intake
   }
+
+  @Test
+  void readyToScore() {
+    intakeToReadyNotFull(); // Get into ready
+
+    scoreReq = true; // I.e. press button to start scoring
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.SCORE, Superstructure.getState());
+
+    isEmpty = true; // We've shot our whole hopper
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.IDLE, Superstructure.getState());
+  }
+
+  @Test
+  void readyToFeed() {
+    intakeToReadyNotFull(); // Get into ready
+
+    feedReq = true; // I.e. press button to start scoring
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.FEED, Superstructure.getState());
+
+    isEmpty = true; // We've shot our whole hopper
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.IDLE, Superstructure.getState());
+  }
 }

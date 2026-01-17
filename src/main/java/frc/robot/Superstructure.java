@@ -149,7 +149,12 @@ public class Superstructure implements AutoCloseable {
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    feedReq = driver.rightBumper().and(DriverStation::isTeleop).and(() -> shouldFeed == true).or(Autos.autoFeedReq);
+    feedReq =
+        driver
+            .rightBumper()
+            .and(DriverStation::isTeleop)
+            .and(() -> shouldFeed == true)
+            .or(Autos.autoFeedReq);
 
     flowReq = operator.rightTrigger();
 
@@ -190,10 +195,16 @@ public class Superstructure implements AutoCloseable {
 
       bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
 
-      bindTransition(SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
+      bindTransition(
+          SuperState.FEED_FLOW,
+          SuperState.READY,
+          flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(feedReq.negate()));
+      bindTransition(
+          SuperState.FEED_FLOW,
+          SuperState.IDLE,
+          flowReq.negate().and(isEmpty).and(feedReq.negate()));
     }
 
     // SCORE_FLOW transitions
@@ -204,10 +215,16 @@ public class Superstructure implements AutoCloseable {
 
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
 
-      bindTransition(SuperState.SCORE_FLOW, SuperState.READY, flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
+      bindTransition(
+          SuperState.SCORE_FLOW,
+          SuperState.READY,
+          flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty).and(scoreReq.negate()));
+      bindTransition(
+          SuperState.SCORE_FLOW,
+          SuperState.IDLE,
+          flowReq.negate().and(isEmpty).and(scoreReq.negate()));
     }
 
     // Transition from any state to SPIT for anti jamming
