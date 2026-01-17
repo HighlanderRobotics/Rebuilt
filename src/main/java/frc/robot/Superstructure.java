@@ -293,25 +293,45 @@ public class Superstructure {
 
   public boolean isOurShift() {
     String gameData = DriverStation.getGameSpecificMessage();
-    boolean isBlueTurn = false;
-    boolean isRedTurn = false;
+    boolean blueStarts = false;
+    boolean redStarts = false;
+    double timeLeftinMatch = Timer.getMatchTime();
+    boolean isShiftOne;
 
     if (gameData.length() > 0) {
       switch (gameData.charAt(0)) {
         case 'B':
-          isBlueTurn = true;
+          blueStarts = true;
           break;
         case 'R':
-          isRedTurn = true;
+          redStarts = true;
           break;
         default:
           break;
       }
     } else {
+      // not sure
       return false;
     }
 
-    return (isBlueTurn && alliance == Alliance.Blue || isRedTurn && alliance == Alliance.Red);
+    // TODO shorten and fix this ugly ahh code
+    isShiftOne = (blueStarts && alliance == Alliance.Blue || redStarts && alliance == Alliance.Red);
+
+    // Obviously fix naming :( and thers prob a prettier way to do ts
+    boolean shiftOneandthree =
+        ((105.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 130.00)
+            || (55.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 80.00));
+
+    boolean shifttwoandfour =
+        ((80.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 105.00)
+            || (30.00 <= Timer.getMatchTime() && Timer.getMatchTime() <= 55.00));
+
+    // make this like a loop or list for efficency
+    if (isShiftOne) {
+      return !shifttwoandfour;
+    } else {
+      return !shiftOneandthree;
+    }
   }
 
   public boolean inScoringArea() {
