@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
-
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -38,21 +37,25 @@ public class HoodSubsystem extends SubsystemBase {
   public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
     return this.run(
         () -> {
-          ShotData shotData = AutoAim.HUB_SHOT_TREE
-                  .get(AutoAim.distanceToHub(robotPoseSupplier.get()));
-          hoodIO.setHoodPosition(
-                  shotData
-                  .hoodRotation());
+          ShotData shotData =
+              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
+          hoodIO.setHoodPosition(shotData.hoodRotation());
           // TODO: FLYWHEEL WHEN MERGED
         });
   }
 
   public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
-    return this.run(() -> {
-      ShotData shotData = AutoAim.FEED_SHOT_TREE.get(robotPoseSupplier.get().getTranslation().getDistance(feedTarget.get().getTranslation()));
-      hoodIO.setHoodPosition(shotData.hoodRotation());
-      // TODO: FLYWHEEL
-    });
+    return this.run(
+        () -> {
+          ShotData shotData =
+              AutoAim.FEED_SHOT_TREE.get(
+                  robotPoseSupplier
+                      .get()
+                      .getTranslation()
+                      .getDistance(feedTarget.get().getTranslation()));
+          hoodIO.setHoodPosition(shotData.hoodRotation());
+          // TODO: FLYWHEEL
+        });
   }
 
   public Command rest() {

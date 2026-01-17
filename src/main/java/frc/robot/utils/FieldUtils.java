@@ -32,8 +32,7 @@ public class FieldUtils {
     BLUE_BACK_RIGHT(new Translation2d(0.6643, 0.75)), // Eyeballed in Choreo
     BLUE_BACK_LEFT(new Translation2d(0.75, 7.367)),
     RED_BACK_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_BACK_RIGHT.getPose())),
-    RED_BACK_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_BACK_LEFT.getPose()))
-    ;
+    RED_BACK_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_BACK_LEFT.getPose()));
 
     private Pose2d targetPose;
 

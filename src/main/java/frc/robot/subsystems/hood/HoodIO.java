@@ -35,12 +35,12 @@ public class HoodIO {
 
   protected TalonFX hoodMotor;
 
-  private final BaseStatusSignal hoodPositionRotations = hoodMotor.getPosition();
-  private final BaseStatusSignal hoodAngularVelocity = hoodMotor.getVelocity();
-  private final StatusSignal<Voltage> hoodVoltage = hoodMotor.getMotorVoltage();
-  private final StatusSignal<Current> hoodStatorCurrent = hoodMotor.getStatorCurrent();
-  private final StatusSignal<Current> hoodSupplyCurrent = hoodMotor.getSupplyCurrent();
-  private final StatusSignal<Temperature> hoodTemp = hoodMotor.getDeviceTemp();
+  private final BaseStatusSignal hoodPositionRotations;
+  private final BaseStatusSignal hoodAngularVelocity;
+  private final StatusSignal<Voltage> hoodVoltage;
+  private final StatusSignal<Current> hoodStatorCurrent;
+  private final StatusSignal<Current> hoodSupplyCurrent;
+  private final StatusSignal<Temperature> hoodTemp;
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
@@ -48,6 +48,13 @@ public class HoodIO {
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
     hoodMotor = new TalonFX(1, canbus); // TODO motorid
     hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
+
+    hoodPositionRotations = hoodMotor.getPosition();
+    hoodAngularVelocity = hoodMotor.getVelocity();
+    hoodVoltage = hoodMotor.getMotorVoltage();
+    hoodStatorCurrent = hoodMotor.getStatorCurrent();
+    hoodSupplyCurrent = hoodMotor.getSupplyCurrent();
+    hoodTemp = hoodMotor.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,

@@ -15,7 +15,6 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.FeedTargets;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -193,10 +192,19 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE_FLOW, intake.intake(), indexer.index(), shooter.shoot(swerve::getPose));
 
-    bindCommands(SuperState.FEED, intake.rest(), indexer.index(), shooter.feed(swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: ADD SOME SELECTION LOGIC
+    bindCommands(
+        SuperState.FEED,
+        intake.rest(),
+        indexer.index(),
+        shooter.feed(
+            swerve::getPose,
+            () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: ADD SOME SELECTION LOGIC
 
     bindCommands(
-        SuperState.FEED_FLOW, intake.intake(), indexer.index(), shooter.feed(swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose()));
+        SuperState.FEED_FLOW,
+        intake.intake(),
+        indexer.index(),
+        shooter.feed(swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose()));
 
     bindCommands(SuperState.SPIT, intake.outake(), indexer.outtake(), shooter.spit());
   }
