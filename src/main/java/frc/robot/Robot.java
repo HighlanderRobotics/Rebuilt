@@ -112,7 +112,7 @@ public class Robot extends LoggedRobot {
 
   // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
-  private final ShooterSubsystem hood =
+  private final ShooterSubsystem shooter =
       new ShooterSubsystem(
           ROBOT_TYPE == RobotType.REAL
               ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
@@ -146,7 +146,7 @@ public class Robot extends LoggedRobot {
   private Trigger zeroingReq = driver.b();
 
   private final Superstructure superstructure =
-      new Superstructure(swerve, indexer, intake, hood, driver, operator);
+      new Superstructure(swerve, indexer, intake, shooter, driver, operator);
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
