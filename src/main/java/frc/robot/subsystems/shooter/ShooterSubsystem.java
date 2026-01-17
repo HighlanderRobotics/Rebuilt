@@ -19,7 +19,8 @@ public class ShooterSubsystem extends SubsystemBase {
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
 
-  public static double GEAR_RATIO = 147.0 / 13.0;
+  public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
+  public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
