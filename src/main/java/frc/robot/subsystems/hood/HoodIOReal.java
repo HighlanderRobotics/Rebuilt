@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.hood;
 
+// idk if this is what i was supposed to import
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -19,7 +21,7 @@ import org.littletonrobotics.junction.AutoLog;
 public class HoodIOReal {
   /** Creates a new HoodIOReal. */
   @AutoLog
-  public class HoodIOInputs {
+  public static class HoodIOInputs {
     public double hoodPositionMeters = 0.0;
     public double hoodVelocityMetersPerSecond = 0.0;
     public double hoodStatorCurrentAmps = 0.0;
@@ -28,7 +30,9 @@ public class HoodIOReal {
     public double hoodTempC = 0.0;
   }
 
-  TalonFX hoodMotor = new TalonFX(1);
+  protected TalonFX hoodMotor;
+
+  // private final Follower followerControl;
 
   private final BaseStatusSignal hoodPositionMeters = hoodMotor.getPosition();
   private final BaseStatusSignal hoodVelocityMetersPerSec = hoodMotor.getVelocity();
@@ -39,6 +43,10 @@ public class HoodIOReal {
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
+
+  // these are for follower only (?)
+
+  // constructor for both leader and follower
 
   public void setHoodVoltage(double hoodVoltage) {
     hoodMotor.setControl(voltageOut.withOutput(hoodVoltage));
