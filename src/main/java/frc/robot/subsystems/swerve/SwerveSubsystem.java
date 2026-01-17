@@ -11,6 +11,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -45,12 +46,14 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Samples;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
-import frc.robot.utils.AutoAim;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.autoaim.AutoAlign;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -474,11 +477,11 @@ public class SwerveSubsystem extends SubsystemBase {
       Constraints translationConstraints,
       Constraints headingConstraints) {
     return Commands.runOnce(
-            () -> AutoAim.resetPIDControllers(getPose(), getVelocityFieldRelative()))
+            () -> AutoAlign.resetPIDControllers(getPose(), getVelocityFieldRelative()))
         .andThen(
             driveClosedLoopFieldRelative(
                     () -> {
-                      return AutoAim.calculateSpeeds(
+                      return AutoAlign.calculateSpeeds(
                               getPose(),
                               target.get(),
                               translationConstraints,
@@ -506,11 +509,11 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private Command translateToPose(Supplier<Pose2d> target, Supplier<ChassisSpeeds> speedsModifier) {
     return Commands.runOnce(
-            () -> AutoAim.resetPIDControllers(getPose(), getVelocityFieldRelative()))
+            () -> AutoAlign.resetPIDControllers(getPose(), getVelocityFieldRelative()))
         .andThen(
             driveClosedLoopFieldRelative(
                     () -> {
-                      return AutoAim.calculateSpeeds(getPose(), target.get())
+                      return AutoAlign.calculateSpeeds(getPose(), target.get())
                           .plus(speedsModifier.get());
                     })
                 .alongWith(
@@ -565,14 +568,39 @@ public class SwerveSubsystem extends SubsystemBase {
         .andThen(translateToPose(target));
   }
 
+  private Command driveWithHeadingSnap(
+      Supplier<Rotation2d> target, DoubleSupplier xVel, DoubleSupplier yVel) {
+    return Commands.runOnce(
+            () -> AutoAlign.resetHeadingController(getRotation(), getVelocityFieldRelative()))
+        .andThen(
+            driveClosedLoopFieldRelative(
+                () ->
+                    new ChassisSpeeds(
+                        xVel.getAsDouble(),
+                        yVel.getAsDouble(),
+                        AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
+  }
+
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(
+        () -> {
+          Translation2d robotHubVec =
+              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+        },
+        xVel,
+        yVel);
+  }
+
   public boolean isInAutoAimTolerance(Pose2d target) {
     return isInTolerance(
-        target, AutoAim.TRANSLATION_TOLERANCE_METERS, AutoAim.ROTATION_TOLERANCE_RADIANS);
+        target, AutoAlign.TRANSLATION_TOLERANCE_METERS, AutoAlign.ROTATION_TOLERANCE_RADIANS);
   }
 
   public boolean isInTolerance(
       Pose2d target, double translationalToleranceMeters, double angularToleranceRadians) {
-    return AutoAim.isInTolerance(
+    return AutoAlign.isInTolerance(
         getPose(), target, translationalToleranceMeters, angularToleranceRadians);
   }
 
@@ -640,7 +668,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Math.hypot(
             getVelocityRobotRelative().vxMetersPerSecond,
             getVelocityRobotRelative().vyMetersPerSecond),
-        AutoAim.VELOCITY_TOLERANCE_METERSPERSECOND);
+        AutoAlign.VELOCITY_TOLERANCE_METERSPERSECOND);
   }
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */

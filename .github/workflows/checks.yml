@@ -38,10 +38,6 @@ jobs:
   format:
     name: Format
 
-    permissions: 
-      # Gives permissions for any formatting changes to be commited
-      contents: write
-
     runs-on: ubuntu-latest
 
     # Wpilib docker container
@@ -64,10 +60,5 @@ jobs:
       run: chmod +x gradlew
 
     # Runs a single command using the runners shell
-    - name: Compile and run tests on robot code
-      run: ./gradlew spotlessApply
-
-    # Commit changes
-    - uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-          commit_message: run spotless
+    - name: Run formatting check
+      run: ./gradlew spotlessCheck
