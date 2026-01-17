@@ -92,9 +92,9 @@ public class FlywheelIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
 
-    config.Slot0.kS = 0.2;
-    config.Slot0.kV = 0.12;
-    config.Slot0.kP = 0.3;
+    config.Slot0.kS = 0.0;
+    config.Slot0.kV = 0.15; // From sim
+    config.Slot0.kP = 10.0;
     config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
