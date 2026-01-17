@@ -295,4 +295,57 @@ public class SuperstructureTest {
 
     assertEquals(SuperState.SCORE_FLOW, Superstructure.getState()); // Should be in FEED_FLOW now
   }
+
+  @Test
+  void idleToFeedFlow() {
+    assertEquals(SuperState.IDLE, Superstructure.getState()); // Ensure we start in IDLE
+    assertEquals(feedReq, false);
+
+    flowReq = true; // We want to flow
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(
+        SuperState.IDLE,
+        Superstructure.getState()); // Shouldn't transition yet bc feedReq is still false
+
+    feedReq = true; // We want to feed
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.FEED_FLOW, Superstructure.getState()); // Should be in FEED_FLOW now
+  }
+
+  @Test
+  void idleToScoreFlow() {
+    assertEquals(SuperState.IDLE, Superstructure.getState()); // Ensure we start in IDLE
+    assertEquals(scoreReq, false);
+
+    flowReq = true; // We want to flow
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(
+        SuperState.IDLE,
+        Superstructure.getState()); // Shouldn't transition yet bc scoreReq is still false
+
+    scoreReq = true; // We want to score
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.SCORE_FLOW, Superstructure.getState()); // Should be in SCORE_FLOW now
+  }
+
 }

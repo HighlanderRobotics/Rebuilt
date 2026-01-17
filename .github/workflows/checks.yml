@@ -89,5 +89,5 @@ jobs:
       run: chmod +x gradlew
 
     # Runs a single command using the runners shell
-    - name: Run formatting check
+    - name: Run tests
       run: ./gradlew test
