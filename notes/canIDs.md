@@ -12,12 +12,11 @@ Back Left Steer (X60) | 5
 Back Right Drive (X60) | 6
 Back Right Steer (X60) | 7
 Intake Rollers (X44) | 8
-Indexer Leader Rollers (X44) | 9
-Indexer Follower Rollers (X44) | 10
-Kicker Rollers (X44) | 11
-Shooter Hood (X44) | 12
-Shooter Flywheel Leader (X60) | 13
-Shooter Flywheel Follower (X60) | 14
+Indexer Rollers (X44) | 9
+Kicker Rollers (X44) | 10
+Shooter Hood (X44) | 11
+Shooter Flywheel Leader (X60) | 12
+Shooter Flywheel Follower (X60) | 13
 Front Left Encoder (CANcoder) | 0
 Front Right Encoder (CANcoder) | 1
 Back Left Encoder (CANcoder) | 2
