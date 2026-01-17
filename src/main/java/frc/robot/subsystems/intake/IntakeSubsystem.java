@@ -14,7 +14,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private RollerIOReal io;
   private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
-  private static TalonFX motor = new TalonFX(10, "*");
 
   public IntakeSubsystem(RollerIOReal io) {
     this.io = io;
@@ -62,7 +61,6 @@ public class IntakeSubsystem extends SubsystemBase {
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    motor.getConfigurator().apply(config);
     return config;
   }
 }
