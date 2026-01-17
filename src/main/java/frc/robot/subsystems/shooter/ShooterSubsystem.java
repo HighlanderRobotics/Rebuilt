@@ -12,6 +12,8 @@ import frc.robot.subsystems.hood.HoodIOInputsAutoLogged;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
+import com.google.common.base.Supplier;
+
 public class ShooterSubsystem extends SubsystemBase {
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
@@ -35,25 +37,12 @@ public class ShooterSubsystem extends SubsystemBase {
     return this.run(() -> flywheelIO.setFlywheelVoltage(voltage.getAsDouble()));
   }
 
-  private void setHoodVoltage(double hoodVoltage) {
-    hoodIO.setHoodVoltage(hoodVoltage);
+ 
+
+   public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
+    return this.run(() -> hoodIO.setHoodPosition(hoodPosition.get()));
   }
 
-  private void setHoodPosition(Rotation2d hoodPosition) {
-    hoodIO.setHoodPosition(hoodPosition);
-  }
-
-  private void setHoodVelocity(double hoodVelocity) {
-    hoodIO.setHoodVelocity(hoodVelocity);
-  }
-
-  public Command setHoodVoltageCommand(Double hoodVoltage) {
-    return this.run(() -> this.setHoodVoltage(hoodVoltage));
-  }
-
-  public Command setHoodPositionCommand(Rotation2d hoodPosition) {
-    return this.run(() -> this.setHoodPosition(hoodPosition));
-  }
 
   @Override
   public void periodic() {
