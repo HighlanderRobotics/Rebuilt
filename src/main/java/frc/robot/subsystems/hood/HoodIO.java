@@ -102,7 +102,7 @@ public class HoodIO {
     hoodMotor.setControl(velocityVoltage.withVelocity(hoodVelocity));
   }
 
-  public void updateInputs(HoodIOInputsAutoLogged inputs) {
+  public void updateInputs(HoodIOInputs inputs) {
     BaseStatusSignal.refreshAll(
         hoodPositionRotations,
         hoodAngularVelocity,

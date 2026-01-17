@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.hood;
 
-import com.google.common.base.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,14 +13,16 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
-  HoodIOReal hoodIO;
+  HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
+
+  public static double GEAR_RATIO = 147.0 / 13.0;
 
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
   /** Creates a new HoodSubsystem. */
-  public HoodSubsystem(HoodIOReal hoodIO, FlywheelIO flywheelIO) {
+  public HoodSubsystem(HoodIO hoodIO, FlywheelIO flywheelIO) {
     this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
   }
@@ -57,7 +58,7 @@ public class HoodSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     hoodIO.updateInputs(hoodinputs);
-    Logger.processInputs("hood", hoodinputs);
+    Logger.processInputs("shooter/hood", hoodinputs);
 
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("shooter/flywheel", flywheelInputs);
