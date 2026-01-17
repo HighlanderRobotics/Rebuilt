@@ -5,15 +5,23 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
+
+import static edu.wpi.first.units.Units.Volts;
+
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
 
   private RollerIOReal io;
   private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
+
+  private SysIdRoutine intakeRollerSysid = new SysIdRoutine(new Config(null, null, null, (state) -> Logger.recordOutput("Intake/SysID State", state)), new Mechanism((volts) -> io.setRollerVoltage(volts.in(Volts)), null, this));
 
   public IntakeSubsystem(RollerIOReal io) {
     this.io = io;
@@ -44,6 +52,15 @@ public class IntakeSubsystem extends SubsystemBase {
         () -> {
           io.setRollerVoltage(0);
         });
+  }
+
+  public Command runRollerSysid() {
+    return Commands.sequence(
+      intakeRollerSysid.quasistatic(Direction.kForward),
+      intakeRollerSysid.quasistatic(Direction.kReverse),
+      intakeRollerSysid.dynamic(Direction.kForward),
+      intakeRollerSysid.dynamic(Direction.kReverse)
+    );
   }
 
   public static TalonFXConfiguration getIntakeIOConfig() {
