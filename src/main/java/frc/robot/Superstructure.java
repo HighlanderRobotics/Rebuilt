@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.RoutingSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -48,9 +48,9 @@ public class Superstructure {
   private Timer stateTimer = new Timer();
 
   private final SwerveSubsystem swerve;
-  private final RoutingSubsystem routing;
+  private final IndexerSubsystem indexer;
   private final IntakeSubsystem intake;
-  private final ShooterSubsystem shooter;
+  private final HoodSubsystem shooter; // TODO: COMBINE WITH SHOOTER FLYWHEEL WHEN ITS MERGED
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -82,13 +82,13 @@ public class Superstructure {
   /** Creates a new Superstructure. */
   public Superstructure(
       SwerveSubsystem swerve,
-      RoutingSubsystem routing,
+      IndexerSubsystem indexer,
       IntakeSubsystem intake,
-      ShooterSubsystem shooter,
+      HoodSubsystem shooter,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
-    this.routing = routing;
+    this.indexer = indexer;
     this.intake = intake;
     this.shooter = shooter;
     this.driver = driver;
@@ -117,9 +117,9 @@ public class Superstructure {
 
     antiJamReq = driver.a().or(operator.a());
 
-    isFull = new Trigger(routing::isFull);
+    isFull = new Trigger(indexer::isFull);
 
-    isEmpty = new Trigger(routing::isEmpty);
+    isEmpty = new Trigger(indexer::isEmpty);
   }
 
   private void addTransitions() {
@@ -174,26 +174,29 @@ public class Superstructure {
     bindCommands(
         SuperState.IDLE,
         intake.rest(),
-        routing.rest(),
-        shooter.rest()); // Maybe the routing should be indexing?
+        indexer.rest(),
+        shooter.rest()); // Maybe the indexer should be indexing?
 
-    bindCommands(SuperState.INTAKE, intake.intake(), routing.index(), shooter.rest());
+    bindCommands(SuperState.INTAKE, intake.intake(), indexer.index(), shooter.rest());
 
     bindCommands(
         SuperState.READY,
         intake.rest(),
-        routing.index(),
+        indexer.index(),
         shooter.rest()); // Maybe index at slower speed?
 
-    bindCommands(SuperState.SCORE, intake.rest(), routing.index(), shooter.shoot());
+    bindCommands(
+        SuperState.SCORE, intake.rest(), indexer.indexToShoot(), shooter.shoot(swerve::getPose));
 
-    bindCommands(SuperState.SCORE_FLOW, intake.intake(), routing.index(), shooter.shoot());
+    bindCommands(
+        SuperState.SCORE_FLOW, intake.intake(), indexer.index(), shooter.shoot(swerve::getPose));
 
-    bindCommands(SuperState.FEED, intake.rest(), routing.index(), shooter.feed());
+    bindCommands(SuperState.FEED, intake.rest(), indexer.index(), shooter.feed(swerve::getPose));
 
-    bindCommands(SuperState.FEED_FLOW, intake.intake(), routing.index(), shooter.feed());
+    bindCommands(
+        SuperState.FEED_FLOW, intake.intake(), indexer.index(), shooter.feed(swerve::getPose));
 
-    bindCommands(SuperState.SPIT, intake.spit(), routing.reverseIndex(), shooter.shoot());
+    bindCommands(SuperState.SPIT, intake.outake(), indexer.outtake(), shooter.spit());
   }
 
   public void periodic() {

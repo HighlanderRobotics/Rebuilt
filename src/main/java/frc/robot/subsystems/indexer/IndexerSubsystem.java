@@ -55,10 +55,11 @@ public class IndexerSubsystem extends SubsystemBase {
         });
   }
 
-  public Command score() {
+  public Command indexToShoot() {
     return this.run(
         () -> {
           rollerIO.setRollerVoltage(10);
+          // TODO: KICKER WHEEL
         });
   }
 
@@ -66,6 +67,13 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           rollerIO.setRollerVoltage(-5);
+        });
+  }
+
+  public Command rest() {
+    return this.run(
+        () -> {
+          rollerIO.setRollerVoltage(0.0);
         });
   }
 

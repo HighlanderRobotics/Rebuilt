@@ -130,7 +130,7 @@ public class Robot extends LoggedRobot {
   private Trigger zeroingReq = driver.b();
 
   private final Superstructure superstructure =
-      new Superstructure(swerve, routing, intake, shooter, driver, operator);
+      new Superstructure(swerve, indexer, intake, hood, driver, operator);
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
