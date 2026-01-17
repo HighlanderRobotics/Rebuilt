@@ -5,11 +5,17 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
+
+import static edu.wpi.first.units.Units.Volts;
+
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
@@ -25,6 +31,8 @@ public class IndexerSubsystem extends SubsystemBase {
   CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
+
+  private SysIdRoutine indexRollerSysid = new SysIdRoutine(new Config(null, null, null, (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)), new Mechanism((volts) -> rollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
@@ -103,5 +111,14 @@ public class IndexerSubsystem extends SubsystemBase {
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     rollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
+  }
+
+  public Command runRollerSysId() {
+    return Commands.sequence(
+      indexRollerSysid.quasistatic(Direction.kForward),
+      indexRollerSysid.quasistatic(Direction.kReverse),
+      indexRollerSysid.dynamic(Direction.kForward),
+      indexRollerSysid.dynamic(Direction.kReverse)
+    );
   }
 }
