@@ -98,9 +98,9 @@ public class Robot extends LoggedRobot {
       new IndexerSubsystem(
           canivore,
           (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs())
+              ? new RollerIOReal(10, IndexerSubsystem.getIndexerConfigs())
               : new RollerIOCTRESim(
-                  0,
+                  11,
                   IndexerSubsystem.getIndexerConfigs(),
                   new DCMotorSim(
                       LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
@@ -115,7 +115,7 @@ public class Robot extends LoggedRobot {
               ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
               : new HoodIOSim(canivore));
   private final IntakeSubsystem intake =
-      new IntakeSubsystem(new RollerIOReal(0, IntakeSubsystem.getIntakeIOConfig()));
+      new IntakeSubsystem(new RollerIOReal(13, IntakeSubsystem.getIntakeIOConfig()));
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
@@ -133,7 +133,9 @@ public class Robot extends LoggedRobot {
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
+
   @AutoLogOutput boolean haveAutosGenerated = false;
+
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
   // Logged mechanisms
@@ -342,12 +344,13 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
-    haveAutosGenerated = true;
 
     // Sysid Autos
     autoChooser.addOption("Hood Sysid", hood.runHoodSysid());
     autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    haveAutosGenerated = true;
+    System.out.println("Done generating autos");
   }
 
   @Override

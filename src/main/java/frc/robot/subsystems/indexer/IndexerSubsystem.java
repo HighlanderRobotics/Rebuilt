@@ -1,5 +1,7 @@
 package frc.robot.subsystems.indexer;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -13,9 +15,6 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
-
-import static edu.wpi.first.units.Units.Volts;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
@@ -32,7 +31,14 @@ public class IndexerSubsystem extends SubsystemBase {
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
-  private SysIdRoutine indexRollerSysid = new SysIdRoutine(new Config(null, null, null, (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)), new Mechanism((volts) -> rollerIO.setRollerVoltage(volts.in(Volts)), null, this));
+  private SysIdRoutine indexRollerSysid =
+      new SysIdRoutine(
+          new Config(
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)),
+          new Mechanism((volts) -> rollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
@@ -115,10 +121,9 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public Command runRollerSysId() {
     return Commands.sequence(
-      indexRollerSysid.quasistatic(Direction.kForward),
-      indexRollerSysid.quasistatic(Direction.kReverse),
-      indexRollerSysid.dynamic(Direction.kForward),
-      indexRollerSysid.dynamic(Direction.kReverse)
-    );
+        indexRollerSysid.quasistatic(Direction.kForward),
+        indexRollerSysid.quasistatic(Direction.kReverse),
+        indexRollerSysid.dynamic(Direction.kForward),
+        indexRollerSysid.dynamic(Direction.kReverse));
   }
 }
