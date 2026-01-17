@@ -117,9 +117,8 @@ public class Robot extends LoggedRobot {
               ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
               : new HoodIOSim(canivore),
           ROBOT_TYPE == RobotType.REAL
-            ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-            : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore)
-          );
+              ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
+              : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
   private final IntakeSubsystem intake =
       new IntakeSubsystem(new RollerIOReal(0, IntakeSubsystem.getIntakeIOConfig()));
 

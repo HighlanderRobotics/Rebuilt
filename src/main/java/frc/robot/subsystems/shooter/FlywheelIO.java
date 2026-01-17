@@ -45,9 +45,10 @@ public class FlywheelIO {
   private final StatusSignal<Temperature> flywheelTemp;
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
-  private MotionMagicVelocityVoltage motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0.0).withEnableFOC(true).withAcceleration(100);
-  // todo: tune acceleration
+  private MotionMagicVelocityVoltage motionMagicVelocityVoltage =
+      new MotionMagicVelocityVoltage(0.0).withEnableFOC(true).withAcceleration(100);
 
+  // todo: tune acceleration
 
   public FlywheelIO(TalonFXConfiguration config, CANBus canbus) {
     flywheelLeader = new TalonFX(10, canbus);
