@@ -32,8 +32,9 @@ jobs:
       run: chmod +x gradlew
 
     # Runs a single command using the runners shell
-    - name: Compile and run tests on robot code
-      run: ./gradlew build
+    # Assemble builds the code without running tests
+    - name: Compile robot code
+      run: ./gradlew assemble
   
   format:
     name: Format
@@ -62,3 +63,31 @@ jobs:
     # Runs a single command using the runners shell
     - name: Run formatting check
       run: ./gradlew spotlessCheck
+
+  test:
+    name: Test
+
+    runs-on: ubuntu-latest
+
+    # Wpilib docker container
+    # Latest as of 1/11/26
+    # Need to use a container without -py. The ones with -py don't have java installed
+    container: wpilib/roborio-cross-ubuntu:2025-22.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    # Copied from Onseason implementation
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v3
+
+    # Declares the repository safe and not under dubious ownership.
+    - name: Add repository to git safe directories
+      run: git config --global --add safe.directory $GITHUB_WORKSPACE
+
+    # Grant execute permission for gradlew
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    # Runs a single command using the runners shell
+    - name: Run formatting check
+      run: ./gradlew test
