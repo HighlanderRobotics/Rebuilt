@@ -10,30 +10,31 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class RollerIOCTRESim extends RollerIOReal {
 
-  private final DCMotorSim motorSim;
+  private final DCMotorSim rollerSim;
   private TalonFXSimState talonSim;
   private double lastLoopTime = 0.0;
+  Notifier notifier;
 
   public RollerIOCTRESim(
       int motorID, TalonFXConfiguration config, DCMotorSim motorSim, MotorType motorType) {
 
     super(motorID, config);
-    this.motorSim = motorSim;
+    rollerSim = motorSim;
     talonSim = rollerMotor.getSimState();
     talonSim.setMotorType(motorType);
 
-    Notifier notifier =
+    notifier =
         new Notifier(
             () -> {
               double deltaTime = (Utils.getCurrentTimeSeconds() - lastLoopTime);
               lastLoopTime = Utils.getCurrentTimeSeconds();
               talonSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-              motorSim.setInputVoltage(talonSim.getMotorVoltage());
-              motorSim.update(deltaTime);
+              rollerSim.setInputVoltage(talonSim.getMotorVoltage());
+              rollerSim.update(deltaTime);
               talonSim.setRawRotorPosition(
-                  motorSim.getAngularPositionRotations() * motorSim.getGearing());
+                  rollerSim.getAngularPositionRotations() * rollerSim.getGearing());
               talonSim.setRotorVelocity(
-                  motorSim.getAngularVelocityRPM() / 60 * motorSim.getGearing());
+                  (rollerSim.getAngularVelocityRPM() / 60) * rollerSim.getGearing());
             });
     notifier.startPeriodic(0.002);
   }

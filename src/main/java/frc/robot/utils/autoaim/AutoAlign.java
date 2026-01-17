@@ -1,15 +1,16 @@
-package frc.robot.utils;
+package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.Logger;
 
-public class AutoAim {
+public class AutoAlign {
   static final double MAX_ANGULAR_SPEED = 10.0;
   static final double MAX_ANGULAR_ACCELERATION = 10.0;
   static final double MAX_TRANSLATIONAL_SPEED = 3.0;
@@ -53,6 +54,28 @@ public class AutoAim {
     VY_CONTROLLER.reset(robotPose.getY(), robotVelocityFieldRelative.vyMetersPerSecond);
     HEADING_CONTROLLER.reset(
         robotPose.getRotation().getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
+  }
+
+  public static void resetHeadingController(
+      Rotation2d robotHeading, ChassisSpeeds robotVelocityFieldRelative) {
+    HEADING_CONTROLLER.reset(
+        robotHeading.getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
+  }
+
+  /**
+   * Use PID to calculate the velocity required to align the robot heading to the target heading
+   *
+   * @param robotHeading
+   * @param targetHeading
+   * @return the calculated velocity
+   */
+  public static double calculateRotationVelocity(
+      Rotation2d robotHeading, Rotation2d targetHeading) {
+    double omegaRadsPerSec =
+        HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
+    Logger.recordOutput(
+        "AutoAim/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
+    return omegaRadsPerSec;
   }
 
   public static ChassisSpeeds calculateSpeeds(Pose2d robotPose, Pose2d target) {
