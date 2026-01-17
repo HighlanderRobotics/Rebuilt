@@ -77,6 +77,8 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Is Empty")
   private Trigger isEmpty;
 
+  private boolean shouldFeed = false;
+
   // @AutoLogOutput(key = "Superstructure/At Extension?")
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
 
@@ -103,16 +105,20 @@ public class Superstructure {
   }
 
   private void addTriggers() {
-    // TODO: THESE BINDINGS WILL LIKELY CHANGE. SHOULD HAVE A FULL MEETING TO DISCUSS
+    // Toggles for feeding
+    operator.leftBumper().onTrue(Commands.runOnce(() -> shouldFeed = true));
+    operator.rightBumper().onTrue(Commands.runOnce(() -> shouldFeed = false));
+
     scoreReq =
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
+            .and(() -> shouldFeed == false)
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
+    feedReq = driver.rightBumper().and(DriverStation::isTeleop).and(() -> shouldFeed == true).or(Autos.autoFeedReq);
 
     flowReq = operator.rightTrigger();
 
