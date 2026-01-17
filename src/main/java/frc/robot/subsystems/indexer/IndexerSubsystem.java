@@ -19,6 +19,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
 
+  public static final double GEAR_RATIO = 2.0;
+
   // Add actual CanBus
 
   CANrangeIOReal firstCANRangeIO;
@@ -90,8 +92,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // Converts angular motion to linear motion
-    config.Feedback.SensorToMechanismRatio = 1;
+    config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
     config.Slot0.kS = 0;
     config.Slot0.kG = 0;

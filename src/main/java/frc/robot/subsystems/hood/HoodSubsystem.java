@@ -49,29 +49,29 @@ public class HoodSubsystem extends SubsystemBase {
 
   public Command runHoodSysid() {
     return Commands.sequence(
-            hoodSysid
-                .quasistatic(Direction.kForward)
-                .until(
-                    () ->
-                        hoodInputs.hoodPositionRotations.getDegrees()
-                            > (MAX_ROTATION.getDegrees() - 5)), // Stop before endstop
-            hoodSysid
-                .quasistatic(Direction.kReverse)
-                .until(
-                    () ->
-                        hoodInputs.hoodPositionRotations.getDegrees()
-                            < (MIN_ROTATION.getDegrees() + 5)),
-            hoodSysid
-                .dynamic(Direction.kForward)
-                .until(
-                    () ->
-                        hoodInputs.hoodPositionRotations.getDegrees()
-                            > (MAX_ROTATION.getDegrees() - 5)),
-            hoodSysid
-                .dynamic(Direction.kReverse)
-                .until(
-                    () ->
-                        hoodInputs.hoodPositionRotations.getDegrees()
-                            < (MIN_ROTATION.getDegrees() + 5)));
+        hoodSysid
+            .quasistatic(Direction.kForward)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        > (MAX_ROTATION.getDegrees() - 5)), // Stop before endstop
+        hoodSysid
+            .quasistatic(Direction.kReverse)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        < (MIN_ROTATION.getDegrees() + 5)),
+        hoodSysid
+            .dynamic(Direction.kForward)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        > (MAX_ROTATION.getDegrees() - 5)),
+        hoodSysid
+            .dynamic(Direction.kReverse)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        < (MIN_ROTATION.getDegrees() + 5)));
   }
 }

@@ -103,7 +103,7 @@ public class Robot extends LoggedRobot {
                   11,
                   IndexerSubsystem.getIndexerConfigs(),
                   new DCMotorSim(
-                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
+                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 0.003, IndexerSubsystem.GEAR_RATIO),
                       DCMotor.getKrakenX44Foc(1)),
                   MotorType.KrakenX44));
 
@@ -115,7 +115,16 @@ public class Robot extends LoggedRobot {
               ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
               : new HoodIOSim(canivore));
   private final IntakeSubsystem intake =
-      new IntakeSubsystem(new RollerIOReal(13, IntakeSubsystem.getIntakeIOConfig()));
+      new IntakeSubsystem(
+          (ROBOT_TYPE == RobotType.REAL)
+              ? new RollerIOReal(13, IntakeSubsystem.getIntakeIOConfig())
+              : new RollerIOCTRESim(
+                  13,
+                  IntakeSubsystem.getIntakeIOConfig(),
+                  new DCMotorSim(
+                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 0.001, IntakeSubsystem.GEAR_RATIO),
+                      DCMotor.getKrakenX44Foc(1)),
+                  MotorType.KrakenX44));
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
