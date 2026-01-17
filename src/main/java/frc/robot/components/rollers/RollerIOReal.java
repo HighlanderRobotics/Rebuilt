@@ -13,7 +13,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLog;
 
-public class RollerIOReal {
+public class RollerIOReal implements AutoCloseable {
 
   @AutoLog
   public static class RollerIOInputs {
@@ -83,5 +83,10 @@ public class RollerIOReal {
   public Command getVoltage() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'getVoltage'");
+  }
+
+  @Override
+  public void close() throws Exception {
+      rollerMotor.close();
   }
 }

@@ -330,7 +330,7 @@ public class Superstructure implements AutoCloseable {
   public void close() throws Exception {
     intake.close();
     shooter.close();
-    routing.close();
+    indexer.close();
     swerve.close();
     Superstructure.state = SuperState.IDLE;
   }

@@ -9,7 +9,7 @@ import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase implements AutoCloseable {
   public static double GEAR_RATIO = 2.0;
 
   private RollerIOReal io;
@@ -64,5 +64,10 @@ public class IntakeSubsystem extends SubsystemBase {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     return config;
+  }
+
+  @Override
+  public void close() throws Exception {
+      io.close();
   }
 }

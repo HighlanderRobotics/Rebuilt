@@ -12,7 +12,7 @@ import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
-public class IndexerSubsystem extends SubsystemBase {
+public class IndexerSubsystem extends SubsystemBase implements AutoCloseable {
   public static double GEAR_RATIO = 2.0;
   // Add actual CanBus
 
@@ -111,5 +111,10 @@ public class IndexerSubsystem extends SubsystemBase {
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     rollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
+  }
+
+  @Override
+  public void close() throws Exception {
+      rollerIO.close();
   }
 }

@@ -13,7 +13,7 @@ import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-public class HoodSubsystem extends SubsystemBase {
+public class HoodSubsystem extends SubsystemBase implements AutoCloseable {
   private HoodIO hoodIO;
   private HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
@@ -69,5 +69,10 @@ public class HoodSubsystem extends SubsystemBase {
   public Command spit() {
     return this.run(
         () -> hoodIO.setHoodPosition(Rotation2d.kZero)); // TODO: FLYWHEEL AND TUNE HOOD POS
+  }
+
+  @Override
+  public void close() throws Exception {
+      hoodIO.close();
   }
 }
