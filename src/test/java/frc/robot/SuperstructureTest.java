@@ -190,6 +190,25 @@ public class SuperstructureTest {
     }
 
     assertEquals(SuperState.SCORE, Superstructure.getState());
+  }
+
+  @Test
+  void scoreToIdle() {
+    readyToScore(); // Start scoring
+
+    assertEquals(SuperState.SCORE, Superstructure.getState()); // Ensure we're still scoring
+    assertEquals(true, scoreReq);
+
+    scoreReq = false;
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(
+        SuperState.SCORE,
+        Superstructure.getState()); // Should still score because we only transition when empty
 
     isEmpty = true; // We've shot our whole hopper
 
@@ -213,6 +232,25 @@ public class SuperstructureTest {
     }
 
     assertEquals(SuperState.FEED, Superstructure.getState());
+  }
+
+  @Test
+  void feedToIdle() {
+    readyToFeed(); // Start feeding
+
+    assertEquals(SuperState.FEED, Superstructure.getState()); // Ensure we're still scoring
+    assertEquals(true, feedReq);
+
+    feedReq = false;
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(
+        SuperState.FEED,
+        Superstructure.getState()); // Should still score because we only transition when empty
 
     isEmpty = true; // We've shot our whole hopper
 
@@ -222,5 +260,39 @@ public class SuperstructureTest {
     }
 
     assertEquals(SuperState.IDLE, Superstructure.getState());
+  }
+
+  @Test
+  void feedToFeedFlow() {
+    readyToFeed(); // Get into feed
+
+    assertEquals(SuperState.FEED, Superstructure.getState()); // Ensure we're still feeding
+    assertEquals(true, feedReq); // Make sure we're still requesting to feed
+
+    flowReq = true; // Request to flow
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.FEED_FLOW, Superstructure.getState()); // Should be in FEED_FLOW now
+  }
+
+  @Test
+  void scoreToScoreFlow() {
+    readyToScore(); // Get into score
+
+    assertEquals(SuperState.SCORE, Superstructure.getState()); // Ensure we're still feeding
+    assertEquals(true, scoreReq); // Make sure we're still requesting to feed
+
+    flowReq = true; // Request to flow
+
+    // Some time passes...
+    for (int i = 0; i < 50; i++) {
+      CommandScheduler.getInstance().run();
+    }
+
+    assertEquals(SuperState.SCORE_FLOW, Superstructure.getState()); // Should be in FEED_FLOW now
   }
 }
