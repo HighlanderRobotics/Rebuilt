@@ -70,7 +70,7 @@ public class FlywheelIO {
 
     // follower follows leader
     flywheelFollower.setControl(
-        new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Aligned));
+        new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Opposed));
 
     flywheelLeaderVelocity = flywheelLeader.getVelocity();
     flywheelLeaderVoltage = flywheelLeader.getMotorVoltage();
