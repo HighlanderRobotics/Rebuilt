@@ -8,34 +8,29 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
+import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
+  private CANrangeIOReal firstCANRangeIO;
+  private CANrangeIOReal secondCANRangeIO;
 
-  // Add actual CanBus
-
-  CANrangeIOReal firstCANRangeIO;
-  CANrangeIOReal secondCANRangeIO;
-
-  RollerIOReal indexRollerIO;
+  private RollerIO indexRollerIO;
 
   CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
   CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
-  CANBus CANBus = new CANBus();
-  TalonFXConfiguration configs = new TalonFXConfiguration();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
-  RollerIOReal kickerIO;
+  RollerIO kickerIO;
   RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
   public static final double KICKER_GEAR_RATIO = 2.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIOReal indexRollerIO, RollerIOReal kickerIO) {
+  public IndexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
     firstCANRangeIO = new CANrangeIOReal(0, canbus);
     secondCANRangeIO = new CANrangeIOReal(1, canbus);
@@ -43,8 +38,7 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public boolean isFull() {
-
-    return (firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected);
+    return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
   public Command stopKicker() {
@@ -66,19 +60,17 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public boolean isEmpty() {
-    return (!firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected);
+    return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
   }
 
   public boolean isPartiallyFull() {
-    return (!firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected);
+    return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
   public Command index() {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(5);
-          indexRollerIO.setRollerVoltage(0);
-          // TODO: Get the voltage value
         });
   }
 
@@ -86,8 +78,6 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(10);
-          indexRollerIO.setRollerVoltage(0);
-          // TODO: Get the voltage value
         });
   }
 

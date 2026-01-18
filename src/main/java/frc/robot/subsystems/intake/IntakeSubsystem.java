@@ -1,22 +1,20 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  private RollerIOReal io;
+  private RollerIO io;
   private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
-  private static TalonFX motor = new TalonFX(10, "*");
 
-  public IntakeSubsystem(RollerIOReal io) {
+  public IntakeSubsystem(RollerIO io) {
     this.io = io;
   }
 
@@ -27,27 +25,18 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // TODO get actual values
   public Command intake() {
-    return this.run(
-        () -> {
-          io.setRollerVoltage(5);
-        });
+    return this.run(() -> io.setRollerVoltage(5));
   }
 
   public Command outake() {
-    return this.run(
-        () -> {
-          io.setRollerVoltage(-2);
-        });
+    return this.run(() -> io.setRollerVoltage(-2));
   }
 
   public Command rest() {
-    return this.run(
-        () -> {
-          io.setRollerVoltage(0);
-        });
+    return this.run(() -> io.setRollerVoltage(0));
   }
 
-  public static TalonFXConfiguration getIntakeIOConfig() {
+  public static TalonFXConfiguration getIntakeConfig() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -62,7 +51,6 @@ public class IntakeSubsystem extends SubsystemBase {
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    motor.getConfigurator().apply(config);
     return config;
   }
 }

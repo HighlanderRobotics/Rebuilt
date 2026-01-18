@@ -28,8 +28,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.components.rollers.RollerIOCTRESim;
-import frc.robot.components.rollers.RollerIOReal;
+import frc.robot.components.rollers.RollerIO;
+import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.hood.HoodIO;
 import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.hood.HoodSubsystem;
@@ -98,24 +98,26 @@ public class Robot extends LoggedRobot {
       new IndexerSubsystem(
           canivore,
           (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs())
-              : new RollerIOCTRESim(
-                  0,
+              ? new RollerIO(9, IndexerSubsystem.getIndexerConfigs(), canivore) // TODO follower
+              : new RollerIOSim(
+                  9,
                   IndexerSubsystem.getIndexerConfigs(),
                   new DCMotorSim(
                       LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
                       DCMotor.getKrakenX44Foc(1)),
-                  MotorType.KrakenX44), 
-                   (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIOReal(10, IndexerSubsystem.getIndexerConfigs())
-              : new RollerIOCTRESim(
+                  MotorType.KrakenX44,
+                canivore),
+          (ROBOT_TYPE == RobotType.REAL)
+              ? new RollerIO(10, IndexerSubsystem.getIndexerConfigs(), canivore)
+              : new RollerIOSim(
                   10,
                   IndexerSubsystem.getKickerConfigs(),
                   new DCMotorSim(
-                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 0.00001, IndexerSubsystem.KICKER_GEAR_RATIO),
+                      LinearSystemId.createDCMotorSystem(
+                          DCMotor.getKrakenX44Foc(1), 0.00001, IndexerSubsystem.KICKER_GEAR_RATIO),
                       DCMotor.getKrakenX44Foc(1)),
-                  MotorType.KrakenX44)
-          );
+                  MotorType.KrakenX44,
+                canivore));
 
   // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
@@ -125,7 +127,17 @@ public class Robot extends LoggedRobot {
               ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
               : new HoodIOSim(canivore));
   private final IntakeSubsystem intake =
-      new IntakeSubsystem(new RollerIOReal(0, IntakeSubsystem.getIntakeIOConfig()));
+      new IntakeSubsystem(
+          ROBOT_TYPE == RobotType.REAL
+              ? new RollerIO(8, IntakeSubsystem.getIntakeConfig(), canivore)
+              : new RollerIOSim(
+                  8,
+                  IntakeSubsystem.getIntakeConfig(),
+                  new DCMotorSim(
+                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
+                      DCMotor.getKrakenX44Foc(1)),
+                  MotorType.KrakenX44,
+                  canivore));
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
