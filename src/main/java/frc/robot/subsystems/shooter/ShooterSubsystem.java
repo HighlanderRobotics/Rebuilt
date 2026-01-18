@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.google.common.base.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,19 +17,18 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.subsystems.hood.HoodIO;
 import frc.robot.subsystems.hood.HoodIOInputsAutoLogged;
-
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
-  HoodIO hoodIO;
-  HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
-
   public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(90); // TODO: ACTUAL VALUE
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0); // TODO: ACTUAL VALUE
+
+  public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
+
+  HoodIO hoodIO;
+  HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
@@ -41,7 +42,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private SysIdRoutine flywheelSysid =
       new SysIdRoutine(
           new Config(
-              null, null, null, (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state)),
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state)),
           new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
 
   /** Creates a new HoodSubsystem. */
@@ -101,10 +105,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command runFlywheelSysid() {
     return Commands.sequence(
-      flywheelSysid.quasistatic(Direction.kForward),
-      flywheelSysid.quasistatic(Direction.kReverse),
-      flywheelSysid.dynamic(Direction.kForward),
-      flywheelSysid.dynamic(Direction.kReverse)
-    );
+        flywheelSysid.quasistatic(Direction.kForward),
+        flywheelSysid.quasistatic(Direction.kReverse),
+        flywheelSysid.dynamic(Direction.kForward),
+        flywheelSysid.dynamic(Direction.kReverse));
   }
 }
