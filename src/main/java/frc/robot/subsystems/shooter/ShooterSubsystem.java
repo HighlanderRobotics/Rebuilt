@@ -22,8 +22,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
   public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
-  public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(90); // TODO: ACTUAL VALUE
-  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0); // TODO: ACTUAL VALUE
+  public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
+  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
