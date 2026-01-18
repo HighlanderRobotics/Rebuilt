@@ -62,8 +62,8 @@ public class FlywheelIO {
   // todo: tune acceleration
 
   public FlywheelIO(TalonFXConfiguration config, CANBus canbus) {
-    flywheelLeader = new TalonFX(10, canbus);
-    flywheelFollower = new TalonFX(11, canbus);
+    flywheelLeader = new TalonFX(12, canbus);
+    flywheelFollower = new TalonFX(13, canbus);
 
     flywheelLeader.getConfigurator().apply(config);
     flywheelFollower.getConfigurator().apply(config);

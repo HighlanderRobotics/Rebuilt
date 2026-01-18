@@ -135,9 +135,9 @@ public class Robot extends LoggedRobot {
   private final IntakeSubsystem intake =
       new IntakeSubsystem(
           (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIO(13, IntakeSubsystem.getIntakeConfig(), canivore)
+              ? new RollerIO(8, IntakeSubsystem.getIntakeConfig(), canivore)
               : new RollerIOSim(
-                  13,
+                  8,
                   IntakeSubsystem.getIntakeConfig(),
                   new DCMotorSim(
                       LinearSystemId.createDCMotorSystem(

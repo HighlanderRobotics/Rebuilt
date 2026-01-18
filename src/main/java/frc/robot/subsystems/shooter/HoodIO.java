@@ -48,7 +48,7 @@ public class HoodIO {
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
 
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
-    hoodMotor = new TalonFX(12, canbus);
+    hoodMotor = new TalonFX(11, canbus);
     hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
 
     hoodPositionRotations = hoodMotor.getPosition();
