@@ -2,7 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.hood;
+package frc.robot.subsystems.shooter;
+
+// idk if this is what i was supposed to import
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
@@ -71,7 +73,7 @@ public class HoodIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = HoodSubsystem.GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.GEAR_RATIO;
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
@@ -100,7 +102,7 @@ public class HoodIO {
     hoodMotor.setControl(velocityVoltage.withVelocity(hoodVelocity));
   }
 
-  public void updateInputs(HoodIOInputsAutoLogged inputs) {
+  public void updateInputs(HoodIOInputs inputs) {
     BaseStatusSignal.refreshAll(
         hoodPositionRotations,
         hoodAngularVelocity,
