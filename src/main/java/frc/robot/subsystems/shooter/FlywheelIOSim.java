@@ -25,7 +25,7 @@ public class FlywheelIOSim extends FlywheelIO {
   DCMotorSim physicsSim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(
-              DCMotor.getKrakenX60Foc(2), 0.01, ShooterSubsystem.GEAR_RATIO),
+              DCMotor.getKrakenX60Foc(2), 0.0136, ShooterSubsystem.FLYWHEEL_GEAR_RATIO),
           DCMotor.getKrakenX60Foc(2));
 
   private final double simLoopPeriod = 0.002;

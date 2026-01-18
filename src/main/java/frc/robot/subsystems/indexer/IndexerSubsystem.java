@@ -1,11 +1,16 @@
 package frc.robot.subsystems.indexer;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
@@ -13,6 +18,8 @@ import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
+
+  public static final double GEAR_RATIO = 2.0;
   private CANrangeIOReal firstCANRangeIO;
   private CANrangeIOReal secondCANRangeIO;
 
@@ -25,6 +32,15 @@ public class IndexerSubsystem extends SubsystemBase {
 
   RollerIO kickerIO;
   RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
+
+  private SysIdRoutine indexRollerSysid =
+      new SysIdRoutine(
+          new Config(
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)),
+          new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
@@ -95,8 +111,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // Converts angular motion to linear motion
-    config.Feedback.SensorToMechanismRatio = 1;
+    config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
     config.Slot0.kS = 0;
     config.Slot0.kG = 0;
@@ -150,5 +165,13 @@ public class IndexerSubsystem extends SubsystemBase {
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);
     Logger.processInputs("Intake/Kicker", kickerInputs);
+  }
+
+  public Command runRollerSysId() {
+    return Commands.sequence(
+        indexRollerSysid.quasistatic(Direction.kForward),
+        indexRollerSysid.quasistatic(Direction.kReverse),
+        indexRollerSysid.dynamic(Direction.kForward),
+        indexRollerSysid.dynamic(Direction.kReverse));
   }
 }

@@ -100,12 +100,13 @@ public class Robot extends LoggedRobot {
       new IndexerSubsystem(
           canivore,
           (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIO(9, IndexerSubsystem.getIndexerConfigs(), canivore) // TODO follower
+              ? new RollerIO(9, IndexerSubsystem.getIndexerConfigs(), canivore)
               : new RollerIOSim(
                   9,
                   IndexerSubsystem.getIndexerConfigs(),
                   new DCMotorSim(
-                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
+                      LinearSystemId.createDCMotorSystem(
+                          DCMotor.getKrakenX44Foc(1), 0.003, IndexerSubsystem.GEAR_RATIO),
                       DCMotor.getKrakenX44Foc(1)),
                   MotorType.KrakenX44,
                   canivore),
@@ -133,13 +134,14 @@ public class Robot extends LoggedRobot {
               : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
   private final IntakeSubsystem intake =
       new IntakeSubsystem(
-          ROBOT_TYPE == RobotType.REAL
+          (ROBOT_TYPE == RobotType.REAL)
               ? new RollerIO(8, IntakeSubsystem.getIntakeConfig(), canivore)
               : new RollerIOSim(
                   8,
                   IntakeSubsystem.getIntakeConfig(),
                   new DCMotorSim(
-                      LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
+                      LinearSystemId.createDCMotorSystem(
+                          DCMotor.getKrakenX44Foc(1), 0.001, IntakeSubsystem.GEAR_RATIO),
                       DCMotor.getKrakenX44Foc(1)),
                   MotorType.KrakenX44,
                   canivore));
@@ -160,7 +162,9 @@ public class Robot extends LoggedRobot {
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
+
   @AutoLogOutput boolean haveAutosGenerated = false;
+
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
   // Logged mechanisms
@@ -369,7 +373,14 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
+
+    // Sysid Autos
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     haveAutosGenerated = true;
+    System.out.println("Done generating autos");
   }
 
   @Override
