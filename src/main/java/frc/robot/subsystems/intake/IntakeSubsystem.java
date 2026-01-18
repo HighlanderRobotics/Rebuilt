@@ -10,14 +10,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
+import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
   public static final double GEAR_RATIO = 2.0;
 
-  private RollerIOReal io;
+  private RollerIO io;
   private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
   private SysIdRoutine intakeRollerSysid =
@@ -25,7 +25,7 @@ public class IntakeSubsystem extends SubsystemBase {
           new Config(null, null, null, (state) -> Logger.recordOutput("Intake/SysID State", state)),
           new Mechanism((volts) -> io.setRollerVoltage(volts.in(Volts)), null, this));
 
-  public IntakeSubsystem(RollerIOReal io) {
+  public IntakeSubsystem(RollerIO io) {
     this.io = io;
   }
 
@@ -36,24 +36,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // TODO get actual values
   public Command intake() {
-    return this.run(
-        () -> {
-          io.setRollerVoltage(5);
-        });
+    return this.run(() -> io.setRollerVoltage(5));
   }
 
   public Command outake() {
-    return this.run(
-        () -> {
-          io.setRollerVoltage(-2);
-        });
+    return this.run(() -> io.setRollerVoltage(-2));
   }
 
   public Command rest() {
-    return this.run(
-        () -> {
-          io.setRollerVoltage(0);
-        });
+    return this.run(() -> io.setRollerVoltage(0)); 
   }
 
   public Command runRollerSysid() {
@@ -64,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeRollerSysid.dynamic(Direction.kReverse));
   }
 
-  public static TalonFXConfiguration getIntakeIOConfig() {
+  public static TalonFXConfiguration getIntakeConfig() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

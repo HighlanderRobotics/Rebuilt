@@ -13,25 +13,25 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
+import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.components.rollers.RollerIOReal;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
 
   public static final double GEAR_RATIO = 2.0;
+  private CANrangeIOReal firstCANRangeIO;
+  private CANrangeIOReal secondCANRangeIO;
 
-  // Add actual CanBus
-
-  CANrangeIOReal firstCANRangeIO;
-  CANrangeIOReal secondCANRangeIO;
-
-  RollerIOReal rollerIO;
+  private RollerIO indexRollerIO;
 
   CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
   CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
+
+  RollerIO kickerIO;
+  RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
   private SysIdRoutine indexRollerSysid =
       new SysIdRoutine(
@@ -40,48 +40,67 @@ public class IndexerSubsystem extends SubsystemBase {
               null,
               null,
               (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)),
-          new Mechanism((volts) -> rollerIO.setRollerVoltage(volts.in(Volts)), null, this));
+          new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
+  public static final double KICKER_GEAR_RATIO = 2.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIOReal rollerIO) {
+  public IndexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
+    this.kickerIO = kickerIO;
     firstCANRangeIO = new CANrangeIOReal(0, canbus);
     secondCANRangeIO = new CANrangeIOReal(1, canbus);
-    this.rollerIO = rollerIO;
+    this.indexRollerIO = indexRollerIO;
   }
 
   public boolean isFull() {
+    return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
+  }
 
-    return (firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected);
+  public Command stopKicker() {
+    return this.run(() -> kickerIO.setRollerVoltage(0));
+  }
+  ;
+
+  public Command shoot() {
+    return this.run(() -> kickerIO.setRollerVoltage(0));
+  }
+  ;
+
+  public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
+    if (firstBeamBreak && secondBeamBreak) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isEmpty() {
-    return (!firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected);
+    return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
   }
 
   public boolean isPartiallyFull() {
-    return (!firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected);
+    return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
   public Command index() {
     return this.run(
         () -> {
-          rollerIO.setRollerVoltage(5);
+          indexRollerIO.setRollerVoltage(5);
         });
   }
 
   public Command score() {
     return this.run(
         () -> {
-          rollerIO.setRollerVoltage(10);
+          indexRollerIO.setRollerVoltage(10);
         });
   }
 
   public Command outtake() {
     return this.run(
         () -> {
-          rollerIO.setRollerVoltage(-5);
+          indexRollerIO.setRollerVoltage(-5);
         });
   }
 
@@ -110,14 +129,42 @@ public class IndexerSubsystem extends SubsystemBase {
     return config;
   }
 
+  public static TalonFXConfiguration getKickerConfigs() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    // Converts angular motion to linear motion
+    config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO; 
+
+    config.Slot0.kS = 0;
+    config.Slot0.kG = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
+
+    return config;
+  }
+
   @Override
   public void periodic() {
     firstCANRangeIO.updateInputs(firstCANRangeInputs);
     Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
     secondCANRangeIO.updateInputs(secondCANRangeInputs);
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
-    rollerIO.updateInputs(rollerInputs);
+    indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
+    kickerIO.updateInputs(kickerInputs); 
+    Logger.processInputs("Intake/Kicker", kickerInputs);
   }
 
   public Command runRollerSysId() {
