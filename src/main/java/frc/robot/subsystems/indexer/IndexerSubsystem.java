@@ -10,8 +10,6 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIOReal;
-import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
@@ -21,17 +19,16 @@ public class IndexerSubsystem extends SubsystemBase {
   CANrangeIOReal firstCANRangeIO;
   CANrangeIOReal secondCANRangeIO;
 
-  RollerIOReal rollerIO;
+  RollerIOReal indexRollerIO;
 
   CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
   CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
   CANBus CANBus = new CANBus();
   TalonFXConfiguration configs = new TalonFXConfiguration();
-  RollerIOReal index = new RollerIOReal(1, configs);
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
-  RollerIOReal kickerIO = new RollerIOReal(10, configs); 
+  RollerIOReal kickerIO = new RollerIOReal(10, configs);
   RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
   public static final double MAX_ACCELERATION = 10.0;
@@ -40,24 +37,24 @@ public class IndexerSubsystem extends SubsystemBase {
   public IndexerSubsystem(CANBus canbus, RollerIOReal rollerIO) {
     firstCANRangeIO = new CANrangeIOReal(0, canbus);
     secondCANRangeIO = new CANrangeIOReal(1, canbus);
-    this.rollerIO = rollerIO;
+    this.indexRollerIO = rollerIO;
   }
 
   public boolean isFull() {
 
     return (firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected);
-  RollerIOInputsAutoLogged indexRollerInputs = new RollerIOInputsAutoLogged();
-  RollerIOInputsAutoLogged kickRollerIOInputsAutoLogged = new RollerIOInputsAutoLogged();
   }
 
+  public Command stopKicker() {
+    return this.run(() -> kickerIO.setRollerVoltage(0));
+  }
+  ;
 
-  public Command stopKicker(){
-return this.run(()-> kickerIO.setRollerVoltage(0));
-  };
-  public Command shoot(){
-return this.run(()-> kickerIO.setRollerVoltage(0));
+  public Command shoot() {
+    return this.run(() -> kickerIO.setRollerVoltage(0));
+  }
+  ;
 
-  };
   public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
     if (firstBeamBreak && secondBeamBreak) {
       return true;
@@ -77,23 +74,25 @@ return this.run(()-> kickerIO.setRollerVoltage(0));
   public Command index() {
     return this.run(
         () -> {
-          rollerIO.setRollerVoltage(5);
-          index.setRollerVoltage(volts.getAsDouble());
+          indexRollerIO.setRollerVoltage(5);
+          indexRollerIO.setRollerVoltage(0);
+          // TODO: Get the voltage value
         });
   }
 
   public Command score() {
     return this.run(
         () -> {
-          rollerIO.setRollerVoltage(10);
-          index.setRollerVoltage(volts.getAsDouble());
+          indexRollerIO.setRollerVoltage(10);
+          indexRollerIO.setRollerVoltage(0);
+          // TODO: Get the voltage value
         });
   }
 
   public Command outtake() {
     return this.run(
         () -> {
-          rollerIO.setRollerVoltage(-5);
+          indexRollerIO.setRollerVoltage(-5);
         });
   }
 
@@ -129,7 +128,7 @@ return this.run(()-> kickerIO.setRollerVoltage(0));
     Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
     secondCANRangeIO.updateInputs(secondCANRangeInputs);
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
-    rollerIO.updateInputs(rollerInputs);
+    indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);
     Logger.processInputs("Intake/Kicker", kickerInputs);
