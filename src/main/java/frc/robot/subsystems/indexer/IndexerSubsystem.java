@@ -137,7 +137,7 @@ public class IndexerSubsystem extends SubsystemBase {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Converts angular motion to linear motion
-    config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO; 
+    config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
 
     config.Slot0.kS = 0;
     config.Slot0.kG = 0;
@@ -163,7 +163,7 @@ public class IndexerSubsystem extends SubsystemBase {
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
-    kickerIO.updateInputs(kickerInputs); 
+    kickerIO.updateInputs(kickerInputs);
     Logger.processInputs("Intake/Kicker", kickerInputs);
   }
 

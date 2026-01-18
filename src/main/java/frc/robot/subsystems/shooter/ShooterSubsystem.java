@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import frc.robot.subsystems.shooter.HoodIO;
-import frc.robot.subsystems.shooter.HoodIOInputsAutoLogged;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -83,7 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 () ->
                     hoodInputs.hoodPositionRotations.getDegrees()
                         > (HOOD_MAX_ROTATION.getDegrees() - 5)), // Stop before endstop
-        hoodSysid 
+        hoodSysid
             .quasistatic(Direction.kReverse)
             .until(
                 () ->

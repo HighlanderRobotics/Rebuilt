@@ -44,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public Command rest() {
-    return this.run(() -> io.setRollerVoltage(0)); 
+    return this.run(() -> io.setRollerVoltage(0));
   }
 
   public Command runRollerSysid() {
