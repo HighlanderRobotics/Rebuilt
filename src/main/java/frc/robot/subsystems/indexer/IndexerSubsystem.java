@@ -28,17 +28,18 @@ public class IndexerSubsystem extends SubsystemBase {
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
-  RollerIOReal kickerIO = new RollerIOReal(10, configs);
+  RollerIOReal kickerIO;
   RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
   public static final double KICKER_GEAR_RATIO = 2.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIOReal rollerIO) {
+  public IndexerSubsystem(CANBus canbus, RollerIOReal indexRollerIO, RollerIOReal kickerIO) {
+    this.kickerIO = kickerIO;
     firstCANRangeIO = new CANrangeIOReal(0, canbus);
     secondCANRangeIO = new CANrangeIOReal(1, canbus);
-    this.indexRollerIO = rollerIO;
+    this.indexRollerIO = indexRollerIO;
   }
 
   public boolean isFull() {
