@@ -54,21 +54,37 @@ public class Autos {
   }
 
   public enum Path {
-    // R/L for right and left.
-    // P for park
-    // C for climb.
-    // S for scoreing pos.
+    // R for right
+    // L for left
+    // M for middle
+    // P for park (starting pose but often used for scoring pose ig)
+    // D for depot
+    // O for outpost
+    // C for climb
+    // S  was going to  be for scoreing pos but i think we will just score
     // F for feeding poses
+    // I for intake???
+
+    // not every same path will result in same action so ill think on that a little bit or i could
+    // just make two different paths for each like the intake version and feeding version
+    // may have to rethink naming to some extent and add more poses
+
+    DtoFL("D", "FL", Action.INTAKE), // intake or feed
+    FLMtoPL("FLM", "PL", Action.SCORE),
+    FLtoFLM("FL", "FLM", Action.INTAKE), // intake or feed
+    FLtoPL("FL", "PL", Action.SCORE),
+    FRMtoPR("FRM", "PR", Action.SCORE),
+    FRtoFRM("FR", "FRM", Action.INTAKE), // intake or feed
+    FRtoPR("FR", "PR", Action.SCORE),
+    OtoFR("O", "FR", Action.INTAKE), // intake or feed
     PLtoCL("PL", "CL", Action.CLIMB),
+    PLtoCM("PL", "CM", Action.CLIMB),
+    PLtoD("PL", "D", Action.INTAKE),
+    PLtoFL("PL", "FL", Action.INTAKE), // intake or feed
+    PRtoCM("PR", "CM", Action.CLIMB),
     PRtoCR("PR", "CR", Action.CLIMB),
-    PLtoSL("PL", "CL", Action.SCORE),
-    PRtoSR("PR", "CR", Action.SCORE),
-    SLtoCL("SL", "CL", Action.CLIMB),
-    SRtoCR("SR", "CR", Action.CLIMB),
-    SLtoFL("SL", "FL", Action.FEED),
-    SRtoFR("SR", "FR", Action.FEED),
-    FRtoFL("FR", "FL", Action.FEED),
-    FLtoFR("FL", "FR", Action.FEED);
+    PRtoFR("PR", "FR", Action.INTAKE), // intake or feed
+    PRtoO("PR", "O", Action.INTAKE);
 
     private final String start;
     private final String end;
@@ -106,7 +122,6 @@ public class Autos {
             });
   }
 
-  // TODO write leave auto
   public Command leaveAuto() {
     final AutoRoutine routine = factory.newRoutine("Leave Auto");
     Path[] paths = {};
@@ -121,7 +136,7 @@ public class Autos {
     return routine.cmd();
   }
 
-  //TODO
+  // TODO
   public Command climbInAuto() {
     return null;
   }
