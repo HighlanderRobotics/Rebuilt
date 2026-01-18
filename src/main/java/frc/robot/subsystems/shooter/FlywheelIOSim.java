@@ -24,7 +24,8 @@ public class FlywheelIOSim extends FlywheelIO {
   TalonFXSimState leaderFxSimState;
   DCMotorSim physicsSim =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), 0, 0),
+          LinearSystemId.createDCMotorSystem(
+              DCMotor.getKrakenX60Foc(2), 0.01, ShooterSubsystem.GEAR_RATIO),
           DCMotor.getKrakenX60Foc(2));
 
   private final double simLoopPeriod = 0.002;
