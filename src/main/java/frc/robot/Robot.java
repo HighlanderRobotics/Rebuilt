@@ -365,6 +365,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }

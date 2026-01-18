@@ -7,20 +7,42 @@ package frc.robot.subsystems.shooter;
 import com.google.common.base.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.subsystems.hood.HoodIO;
 import frc.robot.subsystems.hood.HoodIOInputsAutoLogged;
+
+import static edu.wpi.first.units.Units.Volts;
+
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
   HoodIO hoodIO;
-  HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
+  HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
-  public static double GEAR_RATIO = 147.0 / 13.0;
+  public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
+  public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(90); // TODO: ACTUAL VALUE
+  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0); // TODO: ACTUAL VALUE
 
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
+
+  private SysIdRoutine hoodSysid =
+      new SysIdRoutine(
+          new Config(
+              null, null, null, (state) -> Logger.recordOutput("Shooter/Hood/SysID State", state)),
+          new Mechanism((voltage) -> hoodIO.setHoodVoltage(voltage.in(Volts)), null, this));
+
+  private SysIdRoutine flywheelSysid =
+      new SysIdRoutine(
+          new Config(
+              null, null, null, (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state)),
+          new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
 
   /** Creates a new HoodSubsystem. */
   public ShooterSubsystem(HoodIO hoodIO, FlywheelIO flywheelIO) {
@@ -42,10 +64,47 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    hoodIO.updateInputs(hoodinputs);
-    Logger.processInputs("shooter/hood", hoodinputs);
+    hoodIO.updateInputs(hoodInputs);
+    Logger.processInputs("shooter/hood", hoodInputs);
 
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("shooter/flywheel", flywheelInputs);
+  }
+
+  public Command runHoodSysid() {
+    return Commands.sequence(
+        hoodSysid
+            .quasistatic(Direction.kForward)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        > (HOOD_MAX_ROTATION.getDegrees() - 5)), // Stop before endstop
+        hoodSysid
+            .quasistatic(Direction.kReverse)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        < (HOOD_MIN_ROTATION.getDegrees() + 5)),
+        hoodSysid
+            .dynamic(Direction.kForward)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        > (HOOD_MAX_ROTATION.getDegrees() - 5)),
+        hoodSysid
+            .dynamic(Direction.kReverse)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        < (HOOD_MIN_ROTATION.getDegrees() + 5)));
+  }
+
+  public Command runFlywheelSysid() {
+    return Commands.sequence(
+      flywheelSysid.quasistatic(Direction.kForward),
+      flywheelSysid.quasistatic(Direction.kReverse),
+      flywheelSysid.dynamic(Direction.kForward),
+      flywheelSysid.dynamic(Direction.kReverse)
+    );
   }
 }
