@@ -112,7 +112,7 @@ public class Robot extends LoggedRobot {
 
   // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
-  private final ShooterSubsystem hood =
+  private final ShooterSubsystem shooter =
       new ShooterSubsystem(
           ROBOT_TYPE == RobotType.REAL
               ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
@@ -362,7 +362,7 @@ public class Robot extends LoggedRobot {
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
 
     // Sysid Autos
-    autoChooser.addOption("Hood Sysid", hood.runHoodSysid());
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
     haveAutosGenerated = true;
