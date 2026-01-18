@@ -16,24 +16,47 @@ public class IndexerSubsystem extends SubsystemBase {
   private CANrangeIOReal firstCANRangeIO;
   private CANrangeIOReal secondCANRangeIO;
 
-  private RollerIO rollerIO;
+  private RollerIO indexRollerIO;
 
-  private CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
-  private CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
+  CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
+  CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
 
-  private RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
+  RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
+
+  RollerIO kickerIO;
+  RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
+  public static final double KICKER_GEAR_RATIO = 2.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIO rollerIO) {
+  public IndexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
+    this.kickerIO = kickerIO;
     firstCANRangeIO = new CANrangeIOReal(0, canbus);
     secondCANRangeIO = new CANrangeIOReal(1, canbus);
-    this.rollerIO = rollerIO;
+    this.indexRollerIO = indexRollerIO;
   }
 
   public boolean isFull() {
     return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
+  }
+
+  public Command stopKicker() {
+    return this.run(() -> kickerIO.setRollerVoltage(0));
+  }
+  ;
+
+  public Command shoot() {
+    return this.run(() -> kickerIO.setRollerVoltage(0));
+  }
+  ;
+
+  public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
+    if (firstBeamBreak && secondBeamBreak) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isEmpty() {
@@ -45,15 +68,24 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public Command index() {
-    return this.run(() -> rollerIO.setRollerVoltage(5));
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(5);
+        });
   }
 
   public Command score() {
-    return this.run(() -> rollerIO.setRollerVoltage(10));
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(10);
+        });
   }
 
   public Command outtake() {
-    return this.run(() -> rollerIO.setRollerVoltage(-5));
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(-5);
+        });
   }
 
   public static TalonFXConfiguration getIndexerConfigs() {
@@ -82,13 +114,41 @@ public class IndexerSubsystem extends SubsystemBase {
     return config;
   }
 
+  public static TalonFXConfiguration getKickerConfigs() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    // Converts angular motion to linear motion
+    config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
+
+    config.Slot0.kS = 0;
+    config.Slot0.kG = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
+
+    return config;
+  }
+
   @Override
   public void periodic() {
     firstCANRangeIO.updateInputs(firstCANRangeInputs);
     Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
     secondCANRangeIO.updateInputs(secondCANRangeInputs);
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
-    rollerIO.updateInputs(rollerInputs);
+    indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
+    kickerIO.updateInputs(kickerInputs);
+    Logger.processInputs("Intake/Kicker", kickerInputs);
   }
 }

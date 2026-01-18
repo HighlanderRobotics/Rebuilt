@@ -108,6 +108,17 @@ public class Robot extends LoggedRobot {
                       LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 1, 1),
                       DCMotor.getKrakenX44Foc(1)),
                   MotorType.KrakenX44,
+                  canivore),
+          (ROBOT_TYPE == RobotType.REAL)
+              ? new RollerIO(10, IndexerSubsystem.getIndexerConfigs(), canivore)
+              : new RollerIOSim(
+                  10,
+                  IndexerSubsystem.getKickerConfigs(),
+                  new DCMotorSim(
+                      LinearSystemId.createDCMotorSystem(
+                          DCMotor.getKrakenX44Foc(1), 0.00001, IndexerSubsystem.KICKER_GEAR_RATIO),
+                      DCMotor.getKrakenX44Foc(1)),
+                  MotorType.KrakenX44,
                   canivore));
 
   // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
