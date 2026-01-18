@@ -25,7 +25,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   RollerIOInputsAutoLogged indexRollerInputs = new RollerIOInputsAutoLogged();
   RollerIOInputsAutoLogged kickRollerIOInputsAutoLogged = new RollerIOInputsAutoLogged();
-RollerIOReal kickerIO = new RollerIOReal(0, configs); 
+RollerIOReal kickerIO = new RollerIOReal(10, configs); 
   public IndexerSubsystem() {}
 
   public Command stopKicker(){
@@ -86,6 +86,6 @@ return this.run(()-> kickerIO.setRollerVoltage(0));
     secondCANRange.updateInputs(CANRangeInputs);
     index.updateInputs(indexRollerInputs);
     kickerIO.updateInputs(kickRollerIOInputsAutoLogged);
-    Logger.processInputs("indexer/roller", kickRollerIOInputsAutoLogged);
+    Logger.processInputs("Indexer/Kicker", kickRollerIOInputsAutoLogged);
   }
 }
