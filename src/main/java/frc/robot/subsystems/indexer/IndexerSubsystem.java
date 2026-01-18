@@ -33,6 +33,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
+  public static final double KICKER_GEAR_RATIO = 2.0;
 
   public IndexerSubsystem(CANBus canbus, RollerIOReal rollerIO) {
     firstCANRangeIO = new CANrangeIOReal(0, canbus);
@@ -105,6 +106,32 @@ public class IndexerSubsystem extends SubsystemBase {
 
     // Converts angular motion to linear motion
     config.Feedback.SensorToMechanismRatio = 1;
+
+    config.Slot0.kS = 0;
+    config.Slot0.kG = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getKickerConfigs() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    // Converts angular motion to linear motion
+    config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
 
     config.Slot0.kS = 0;
     config.Slot0.kG = 0;
