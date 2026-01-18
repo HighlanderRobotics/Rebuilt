@@ -98,7 +98,7 @@ public class Robot extends LoggedRobot {
       new IndexerSubsystem(
           canivore,
           (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIO(9, IndexerSubsystem.getIndexerConfigs(), canivore) //TODO follower
+              ? new RollerIO(9, IndexerSubsystem.getIndexerConfigs(), canivore) // TODO follower
               : new RollerIOSim(
                   9,
                   IndexerSubsystem.getIndexerConfigs(),

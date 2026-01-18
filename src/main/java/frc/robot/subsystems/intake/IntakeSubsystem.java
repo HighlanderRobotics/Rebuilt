@@ -25,24 +25,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // TODO get actual values
   public Command intake() {
-    return this.run(
-        () -> 
-          io.setRollerVoltage(5)
-        );
+    return this.run(() -> io.setRollerVoltage(5));
   }
 
   public Command outake() {
-    return this.run(
-        () -> 
-          io.setRollerVoltage(-2)
-        );
+    return this.run(() -> io.setRollerVoltage(-2));
   }
 
   public Command rest() {
-    return this.run(
-        () -> 
-          io.setRollerVoltage(0)
-        );
+    return this.run(() -> io.setRollerVoltage(0));
   }
 
   public static TalonFXConfiguration getIntakeConfig() {

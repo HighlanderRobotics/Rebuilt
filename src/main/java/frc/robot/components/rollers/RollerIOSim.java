@@ -25,7 +25,7 @@ public class RollerIOSim extends RollerIO {
 
     super(motorID, config, canbus);
     rollerSim = motorSim;
-    talonSim = rollerMotor.getSimState();
+    talonSim = motor.getSimState();
     talonSim.setMotorType(motorType);
 
     notifier =

@@ -45,24 +45,15 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public Command index() {
-    return this.run(
-        () -> 
-          rollerIO.setRollerVoltage(5)
-        );
+    return this.run(() -> rollerIO.setRollerVoltage(5));
   }
 
   public Command score() {
-    return this.run(
-        () -> 
-          rollerIO.setRollerVoltage(10)
-        );
+    return this.run(() -> rollerIO.setRollerVoltage(10));
   }
 
   public Command outtake() {
-    return this.run(
-        () -> 
-          rollerIO.setRollerVoltage(-5)
-        );
+    return this.run(() -> rollerIO.setRollerVoltage(-5));
   }
 
   public static TalonFXConfiguration getIndexerConfigs() {
