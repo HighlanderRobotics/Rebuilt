@@ -31,6 +31,9 @@ public class IndexerSubsystem extends SubsystemBase {
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
+  RollerIOReal kickerIO = new RollerIOReal(10, configs); 
+  RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
+
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
 
@@ -46,7 +49,7 @@ public class IndexerSubsystem extends SubsystemBase {
   RollerIOInputsAutoLogged indexRollerInputs = new RollerIOInputsAutoLogged();
   RollerIOInputsAutoLogged kickRollerIOInputsAutoLogged = new RollerIOInputsAutoLogged();
   }
-RollerIOReal kickerIO = new RollerIOReal(10, configs); 
+
 
   public Command stopKicker(){
 return this.run(()-> kickerIO.setRollerVoltage(0));
@@ -128,5 +131,7 @@ return this.run(()-> kickerIO.setRollerVoltage(0));
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     rollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
+    kickerIO.updateInputs(kickerInputs);
+    Logger.processInputs("Intake/Kicker", kickerInputs);
   }
 }
