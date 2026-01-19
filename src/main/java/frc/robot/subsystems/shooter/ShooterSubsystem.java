@@ -7,6 +7,8 @@ package frc.robot.subsystems.shooter;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.google.common.base.Supplier;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,6 +28,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
+
+  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0; // TODO: TUNE
 
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
@@ -141,5 +145,9 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelSysid.quasistatic(Direction.kReverse),
         flywheelSysid.dynamic(Direction.kForward),
         flywheelSysid.dynamic(Direction.kReverse));
+  }
+
+  public boolean atFlywheelVelocitySetpoint() {
+    return MathUtil.isNear(flywheelInputs.flywheelLeaderVelocityRotationsPerSecond, flywheelIO.getSetpointRotPerSec(), FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
   }
 }

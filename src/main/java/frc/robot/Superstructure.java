@@ -25,6 +25,7 @@ public class Superstructure {
     IDLE,
     INTAKE,
     READY,
+    SPIN_UP,
     FEED,
     FEED_FLOW,
     SCORE,
@@ -142,17 +143,17 @@ public class Superstructure {
     bindTransition(
         SuperState.INTAKE, SuperState.READY, (intakeReq.negate().and(isEmpty.negate())).or(isFull));
 
-    bindTransition(SuperState.INTAKE, SuperState.FEED, feedReq);
-
-    bindTransition(SuperState.INTAKE, SuperState.SCORE, scoreReq);
+    bindTransition(SuperState.INTAKE, SuperState.SPIN_UP, feedReq.or(scoreReq));
 
     bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
 
-    bindTransition(SuperState.READY, SuperState.FEED, feedReq);
+    bindTransition(SuperState.READY, SuperState.SPIN_UP, scoreReq.or(feedReq));
+    
+    bindTransition(SuperState.SPIN_UP, SuperState.SCORE, scoreReq.and(shooter::atFlywheelVelocitySetpoint));
+
+    bindTransition(SuperState.SPIN_UP, SuperState.FEED, feedReq.and(shooter::atFlywheelVelocitySetpoint));
 
     bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
-
-    bindTransition(SuperState.READY, SuperState.SCORE, scoreReq);
 
     bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty);
 
