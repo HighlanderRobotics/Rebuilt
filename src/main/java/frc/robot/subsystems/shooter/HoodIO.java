@@ -14,9 +14,11 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
@@ -32,11 +34,13 @@ public class HoodIO {
     public double hoodSupplyCurrentAmp = 0.0;
     public double hoodVoltage = 0.0;
     public double hoodTempC = 0.0;
+    // For sysid
+    public double hoodRotations = 0.0;
   }
 
   protected TalonFX hoodMotor;
 
-  private final BaseStatusSignal hoodPositionRotations;
+  private final StatusSignal<Angle> hoodPositionRotations;
   private final BaseStatusSignal hoodAngularVelocity;
   private final StatusSignal<Voltage> hoodVoltage;
   private final StatusSignal<Current> hoodStatorCurrent;
@@ -81,13 +85,13 @@ public class HoodIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
 
-    // config.Slot0.GravityType = GravityTypeValue.Arm_Cosine; Potentially need, maybe not tho.
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine; 
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kV = 1.1;
-    config.Slot0.kP = 5.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kS = 0.055;
+    config.Slot0.kG = 0.445;
+    config.Slot0.kV = 1.45; 
+    config.Slot0.kP = 35;
+    config.Slot0.kD = 0.25;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -123,5 +127,6 @@ public class HoodIO {
     inputs.hoodStatorCurrentAmps = hoodStatorCurrent.getValueAsDouble();
     inputs.hoodSupplyCurrentAmp = hoodSupplyCurrent.getValueAsDouble();
     inputs.hoodTempC = hoodTemp.getValueAsDouble();
+    inputs.hoodRotations = hoodPositionRotations.getValueAsDouble();
   }
 }
