@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Meter;
+
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.MathUtil;
@@ -9,11 +11,13 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -42,14 +46,19 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Samples;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
-import frc.robot.utils.AutoAim;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.autoaim.AutoAlign;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -92,14 +101,34 @@ public class SwerveSubsystem extends SubsystemBase {
     new SignalID(SignalType.TURN, 2),
     new SignalID(SignalType.TURN, 3)
   };
-
-  private final SwerveDriveSimulation swerveSimulation;
-
   private Alert usingSyncOdoAlert = new Alert("Using Sync Odometry", AlertType.kInfo);
   private Alert missingModuleData = new Alert("Missing Module Data", AlertType.kError);
   private Alert missingGyroData = new Alert("Missing Gyro Data", AlertType.kWarning);
 
-  public SwerveSubsystem(SwerveDriveSimulation swerveSimulation, CANBus canbus) {
+  // Maple Sim Stuff
+  private final DriveTrainSimulationConfig driveTrainSimConfig =
+      DriveTrainSimulationConfig.Default()
+          .withGyro(COTS.ofPigeon2())
+          .withSwerveModule(
+              COTS.ofMark4n(
+                  DCMotor.getKrakenX60Foc(1),
+                  DCMotor.getKrakenX60Foc(1),
+                  // Still not sure where the 1.5 came from
+                  1.5,
+                  // Running l2+ swerve modules
+                  2))
+          .withTrackLengthTrackWidth(
+              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthX()),
+              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthY()))
+          .withBumperSize(
+              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getBumperWidth()),
+              Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getBumperLength()))
+          .withRobotMass(SwerveSubsystem.SWERVE_CONSTANTS.getMass());
+
+  private final SwerveDriveSimulation swerveSimulation =
+      new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
+
+  public SwerveSubsystem(CANBus canbus) {
     if (Robot.ROBOT_TYPE == RobotType.SIM) {
       // Add simulated modules
       modules =
@@ -131,10 +160,26 @@ public class SwerveSubsystem extends SubsystemBase {
       //         .toArray(Camera[]::new);
       cameras =
           new Camera[] {
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[0], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[1], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[2], this::getPose3d)),
-            new Camera(new CameraIOSim(SWERVE_CONSTANTS.getCameraConstants()[3], this::getPose3d))
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[0],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()),
+                    SWERVE_CONSTANTS.getFieldTagLayout())),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[1],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()),
+                    SWERVE_CONSTANTS.getFieldTagLayout())),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[2],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()),
+                    SWERVE_CONSTANTS.getFieldTagLayout())),
+            new Camera(
+                new CameraIOSim(
+                    SWERVE_CONSTANTS.getCameraConstants()[3],
+                    () -> new Pose3d(swerveSimulation.getSimulatedDriveTrainPose()),
+                    SWERVE_CONSTANTS.getFieldTagLayout()))
           };
     } else {
       // Add real modules
@@ -170,8 +215,6 @@ public class SwerveSubsystem extends SubsystemBase {
             ? new GyroIOReal(SWERVE_CONSTANTS.getGyroID(), SWERVE_CONSTANTS.getGyroConfig(), canbus)
             : new GyroIOSim(swerveSimulation.getGyroSimulation());
 
-    this.swerveSimulation = swerveSimulation;
-
     this.kinematics = new SwerveDriveKinematics(SWERVE_CONSTANTS.getModuleTranslations());
     // Std devs copied from reefscape
     this.estimator =
@@ -184,6 +227,10 @@ public class SwerveSubsystem extends SubsystemBase {
             VecBuilder.fill(0.9, 0.9, 0.4));
 
     this.odometryThread = PhoenixOdometryThread.getInstance();
+
+    if (Robot.ROBOT_TYPE == RobotType.SIM) {
+      SimulatedArena.getInstance().addDriveTrainSimulation(swerveSimulation);
+    }
   }
 
   @Override
@@ -300,13 +347,24 @@ public class SwerveSubsystem extends SubsystemBase {
       cameras[i].updateCamera(estimator);
       cameraPoses[i] = cameras[i].getPose();
     }
-    if (Robot.ROBOT_TYPE != RobotType.REAL) Logger.recordOutput("Vision/Camera Poses", cameraPoses);
-    Pose3d[] arr = new Pose3d[cameras.length];
-    for (int k = 0; k < cameras.length; k++) {
-      arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
-    }
-    if (Robot.ROBOT_TYPE != RobotType.REAL)
+    // only do all this logging stuff if we're not irl for performance
+    if (Robot.ROBOT_TYPE != RobotType.REAL) {
+      Logger.recordOutput("Vision/Camera Poses", cameraPoses);
+      Pose3d[] arr = new Pose3d[cameras.length];
+      for (int k = 0; k < cameras.length; k++) {
+        // honetsly not sure if this distinction is the way to go but
+        if (Robot.ROBOT_TYPE == RobotType.SIM)
+          // If we're in sim, use the maplesim pose to calculate vision
+          arr[k] =
+              new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
+                  .transformBy(cameras[k].getCameraConstants().robotToCamera());
+        else {
+          // if we're in replay, use whatever the pose was
+          arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
+        }
+      }
       Logger.recordOutput("Vision/Camera Poses on Robot", arr);
+    }
   }
 
   /**
@@ -419,11 +477,11 @@ public class SwerveSubsystem extends SubsystemBase {
       Constraints translationConstraints,
       Constraints headingConstraints) {
     return Commands.runOnce(
-            () -> AutoAim.resetPIDControllers(getPose(), getVelocityFieldRelative()))
+            () -> AutoAlign.resetPIDControllers(getPose(), getVelocityFieldRelative()))
         .andThen(
             driveClosedLoopFieldRelative(
                     () -> {
-                      return AutoAim.calculateSpeeds(
+                      return AutoAlign.calculateSpeeds(
                               getPose(),
                               target.get(),
                               translationConstraints,
@@ -451,11 +509,11 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private Command translateToPose(Supplier<Pose2d> target, Supplier<ChassisSpeeds> speedsModifier) {
     return Commands.runOnce(
-            () -> AutoAim.resetPIDControllers(getPose(), getVelocityFieldRelative()))
+            () -> AutoAlign.resetPIDControllers(getPose(), getVelocityFieldRelative()))
         .andThen(
             driveClosedLoopFieldRelative(
                     () -> {
-                      return AutoAim.calculateSpeeds(getPose(), target.get())
+                      return AutoAlign.calculateSpeeds(getPose(), target.get())
                           .plus(speedsModifier.get());
                     })
                 .alongWith(
@@ -510,14 +568,39 @@ public class SwerveSubsystem extends SubsystemBase {
         .andThen(translateToPose(target));
   }
 
+  private Command driveWithHeadingSnap(
+      Supplier<Rotation2d> target, DoubleSupplier xVel, DoubleSupplier yVel) {
+    return Commands.runOnce(
+            () -> AutoAlign.resetHeadingController(getRotation(), getVelocityFieldRelative()))
+        .andThen(
+            driveClosedLoopFieldRelative(
+                () ->
+                    new ChassisSpeeds(
+                        xVel.getAsDouble(),
+                        yVel.getAsDouble(),
+                        AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
+  }
+
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(
+        () -> {
+          Translation2d robotHubVec =
+              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+        },
+        xVel,
+        yVel);
+  }
+
   public boolean isInAutoAimTolerance(Pose2d target) {
     return isInTolerance(
-        target, AutoAim.TRANSLATION_TOLERANCE_METERS, AutoAim.ROTATION_TOLERANCE_RADIANS);
+        target, AutoAlign.TRANSLATION_TOLERANCE_METERS, AutoAlign.ROTATION_TOLERANCE_RADIANS);
   }
 
   public boolean isInTolerance(
       Pose2d target, double translationalToleranceMeters, double angularToleranceRadians) {
-    return AutoAim.isInTolerance(
+    return AutoAlign.isInTolerance(
         getPose(), target, translationalToleranceMeters, angularToleranceRadians);
   }
 
@@ -585,7 +668,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Math.hypot(
             getVelocityRobotRelative().vxMetersPerSecond,
             getVelocityRobotRelative().vyMetersPerSecond),
-        AutoAim.VELOCITY_TOLERANCE_METERSPERSECOND);
+        AutoAlign.VELOCITY_TOLERANCE_METERSPERSECOND);
   }
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
@@ -629,5 +712,17 @@ public class SwerveSubsystem extends SubsystemBase {
 
       this.drive(speeds, false);
     };
+  }
+
+  public void resetMapleSimPose() {
+    resetPose(swerveSimulation.getSimulatedDriveTrainPose());
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // Update maple simulation
+    SimulatedArena.getInstance().simulationPeriodic();
+    // Log simulated pose
+    Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
   }
 }
