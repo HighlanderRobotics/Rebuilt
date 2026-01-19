@@ -42,6 +42,15 @@ public class IndexerSubsystem extends SubsystemBase {
               (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)),
           new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
+  private SysIdRoutine kickerRollerSysid =
+      new SysIdRoutine(
+          new Config(
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Indexer/Kicker/SysID State", state)),
+          new Mechanism((volts) -> kickerIO.setRollerVoltage(volts.in(Volts)), null, this));
+
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
   public static final double KICKER_GEAR_RATIO = 2.0;
@@ -173,5 +182,13 @@ public class IndexerSubsystem extends SubsystemBase {
         indexRollerSysid.quasistatic(Direction.kReverse),
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
+  }
+
+  public Command runKickerSysId() {
+    return Commands.sequence(
+        kickerRollerSysid.quasistatic(Direction.kForward),
+        kickerRollerSysid.quasistatic(Direction.kReverse),
+        kickerRollerSysid.dynamic(Direction.kForward),
+        kickerRollerSysid.dynamic(Direction.kReverse));
   }
 }
