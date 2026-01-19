@@ -50,7 +50,6 @@ public class Superstructure {
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
-  public Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
 
   private final SwerveSubsystem swerve;
   private final RoutingSubsystem routing;
@@ -112,19 +111,13 @@ public class Superstructure {
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
-            .and(() -> canScore())
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
     // or should it be like the same button/general req for feeding vs scoring and choose based on
     // if it can score or operator can override??
-    feedReq =
-        driver
-            .rightBumper()
-            .and(DriverStation::isTeleop)
-            .and(() -> !inScoringArea())
-            .or(Autos.autoFeedReq);
+    feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
 
     flowReq = operator.rightTrigger();
 
@@ -327,7 +320,7 @@ public class Superstructure {
 
   public boolean isOurShift() {
     // only cant score when its the others turn, otherwise everyone can
-    if (getStartingAlliance() == alliance) {
+    if (getStartingAlliance() == DriverStation.getAlliance().orElse(Alliance.Blue)) {
       return !(getCurrentShift() == 2 || getCurrentShift() == 4);
     } else {
       return !(getCurrentShift() == 1 || getCurrentShift() == 3);
@@ -335,8 +328,10 @@ public class Superstructure {
   }
 
   public boolean inScoringArea() {
-    return (alliance == Alliance.Blue && (swerve.getPose().getX() <= 4.6914191246032715)
-        || alliance == Alliance.Red && (swerve.getPose().getX() >= 11.889562606811523));
+    return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+            && (swerve.getPose().getX() <= 4.6914191246032715)
+        || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            && (swerve.getPose().getX() >= 11.889562606811523));
   }
 
   public boolean canScore() {
