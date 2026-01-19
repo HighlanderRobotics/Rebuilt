@@ -6,9 +6,12 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -17,6 +20,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,8 +28,17 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.components.rollers.RollerIO;
+import frc.robot.components.rollers.RollerIOSim;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.shooter.FlywheelIO;
+import frc.robot.subsystems.shooter.FlywheelIOSim;
+import frc.robot.subsystems.shooter.HoodIO;
+import frc.robot.subsystems.shooter.HoodIOSim;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
@@ -83,7 +96,55 @@ public class Robot extends LoggedRobot {
 
   // Subsystem initialization
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
+  private final IndexerSubsystem indexer =
+      new IndexerSubsystem(
+          canivore,
+          (ROBOT_TYPE == RobotType.REAL)
+              ? new RollerIO(9, IndexerSubsystem.getIndexerConfigs(), canivore)
+              : new RollerIOSim(
+                  9,
+                  IndexerSubsystem.getIndexerConfigs(),
+                  new DCMotorSim(
+                      LinearSystemId.createDCMotorSystem(
+                          DCMotor.getKrakenX44Foc(1), 0.003, IndexerSubsystem.GEAR_RATIO),
+                      DCMotor.getKrakenX44Foc(1)),
+                  MotorType.KrakenX44,
+                  canivore),
+          (ROBOT_TYPE == RobotType.REAL)
+              ? new RollerIO(10, IndexerSubsystem.getIndexerConfigs(), canivore)
+              : new RollerIOSim(
+                  10,
+                  IndexerSubsystem.getKickerConfigs(),
+                  new DCMotorSim(
+                      LinearSystemId.createDCMotorSystem(
+                          DCMotor.getKrakenX44Foc(1), 0.00001, IndexerSubsystem.KICKER_GEAR_RATIO),
+                      DCMotor.getKrakenX44Foc(1)),
+                  MotorType.KrakenX44,
+                  canivore));
+
+  // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
+  private final ShooterSubsystem shooter =
+      new ShooterSubsystem(
+          ROBOT_TYPE == RobotType.REAL
+              ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
+              : new HoodIOSim(canivore),
+          ROBOT_TYPE == RobotType.REAL
+              ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
+              : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
+  private final IntakeSubsystem intake =
+      new IntakeSubsystem(
+          (ROBOT_TYPE == RobotType.REAL)
+              ? new RollerIO(8, IntakeSubsystem.getIntakeConfig(), canivore)
+              : new RollerIOSim(
+                  8,
+                  IntakeSubsystem.getIntakeConfig(),
+                  new DCMotorSim(
+                      LinearSystemId.createDCMotorSystem(
+                          DCMotor.getKrakenX44Foc(1), 0.001, IntakeSubsystem.GEAR_RATIO),
+                      DCMotor.getKrakenX44Foc(1)),
+                  MotorType.KrakenX44,
+                  canivore));
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
@@ -101,7 +162,9 @@ public class Robot extends LoggedRobot {
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
+
   @AutoLogOutput boolean haveAutosGenerated = false;
+
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
   // Logged mechanisms
@@ -281,6 +344,18 @@ public class Robot extends LoggedRobot {
                             ? Rotation2d.kZero
                             : Rotation2d.k180deg)));
 
+    // TODO: ACTUAL BUTTON BINDING
+    driver
+        .leftBumper()
+        .whileTrue(
+            swerve.faceHub(
+                () ->
+                    modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
     // ---zeroing stuff---
 
     new Trigger(() -> DriverStation.isJoystickConnected(0))
@@ -298,7 +373,14 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
+
+    // Sysid Autos
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     haveAutosGenerated = true;
+    System.out.println("Done generating autos");
   }
 
   @Override
