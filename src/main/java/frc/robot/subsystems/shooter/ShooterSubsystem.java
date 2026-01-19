@@ -39,7 +39,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private SysIdRoutine hoodSysid =
       new SysIdRoutine(
           new Config(
-              null, null, null, (state) -> Logger.recordOutput("Shooter/Hood/SysID State", state.toString())),
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Shooter/Hood/SysID State", state.toString())),
           new Mechanism((voltage) -> hoodIO.setHoodVoltage(voltage.in(Volts)), null, this));
 
   private SysIdRoutine flywheelSysid =
