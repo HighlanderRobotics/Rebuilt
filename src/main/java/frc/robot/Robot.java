@@ -50,6 +50,7 @@ import frc.robot.subsystems.turret.ShooterIOReal;
 import frc.robot.subsystems.turret.ShooterIOSim;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.autoaim.AutoAim;
 import java.util.Optional;
 import java.util.Set;
@@ -467,6 +468,7 @@ public class Robot extends LoggedRobot {
             1);
     Logger.recordOutput(
         "Turret pose", turret.getPose3d(() -> swerve.getMaplesimPose3d(), () -> pose));
+    Logger.recordOutput("sotm turret pose", new Pose3d(swerve.getPose().getTranslation(), new Rotation3d(0, CANIVORE_ERROR_TIME_THRESHOLD, AutoAim.getTurretSOTMAzimuth(FieldUtils.getCurrentHubPos(), pose, null))));
   }
 
   @Override

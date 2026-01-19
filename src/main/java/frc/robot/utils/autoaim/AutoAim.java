@@ -1,6 +1,8 @@
 package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -50,5 +52,30 @@ public class AutoAim {
                 .inverse());
     Logger.recordOutput("Autoaim/Virtual Target", vtarget);
     return vtarget;
+  }
+
+  public static Rotation2d getTurretSOTMAzimuth(
+      Pose3d goal, Pose3d robot, ChassisSpeeds fieldRelativeSpeeds) {
+    // V_ball-ground = V_ball-robot + V_robot-ground (relative motion)
+    // if we want the ball to go straight towards the goal,
+    // the V_ball-robot vector needs to cancel out with the V_robot-ground vector to "offset" the
+    // velocity it already has
+    // the ball exits the shooter with velocity v at an angle theta (just assume it's the correct
+    // velocity and angle)
+    // the magnitude of the V_ball-ground vector (or |V_ball-ground|) is v * cos (theta)
+    double fuelHorizVelocity =
+        AutoAim.shotMap.calculateShot(goal, robot).flywheelVelocityRotPerSec()
+            * AutoAim.shotMap.calculateShot(goal, robot).hoodAngle().getCos();
+    // let phi be the azimuth
+    // phi = arcsin(-V_robot-ground / |V_ball-ground|)
+    double phi = Math.asin((-1) * fieldRelativeSpeeds.vyMetersPerSecond / fuelHorizVelocity);
+    return Rotation2d.fromRadians(phi);
+  }
+
+  public static Pair<Rotation2d, Double> getShooterState(
+      Pose3d goal, Pose3d robot, ChassisSpeeds fieldRelativeSpeeds) {
+    Rotation2d hoodTarget = AutoAim.shotMap.calculateShot(goal, robot).hoodAngle();
+    double shooterVelocity = AutoAim.shotMap.calculateShot(goal, robot).flywheelVelocityRotPerSec();
+    return Pair.of(hoodTarget, shooterVelocity);
   }
 }

@@ -53,7 +53,7 @@ public class TurretSubsystem extends SubsystemBase {
     return shootCommand(
         pivotTarget,
         () -> shotData.get().flywheelVelocityRotPerSec(),
-        () -> shotData.get().hoodRotation());
+        () -> shotData.get().hoodAngle());
   }
 
   @Override
@@ -73,9 +73,7 @@ public class TurretSubsystem extends SubsystemBase {
     Rotation2d pivotTarget =
         Rotation2d.fromRadians(Math.atan2(turretToHub.getY(), turretToHub.getX()));
     Rotation2d hoodTarget =
-        AutoAim.shotMap
-            .calculateShot(targetSupplier.get(), robot3dposeSupplier.get())
-            .hoodRotation();
+        AutoAim.shotMap.calculateShot(targetSupplier.get(), robot3dposeSupplier.get()).hoodAngle();
     return new Pose3d(
         robot3dposeSupplier.get().getTranslation().plus(new Translation3d(0, 0, 0.3)),
         robot3dposeSupplier
