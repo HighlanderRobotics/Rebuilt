@@ -468,7 +468,6 @@ public class Robot extends LoggedRobot {
             1);
     Logger.recordOutput(
         "Turret pose", turret.getPose3d(() -> swerve.getMaplesimPose3d(), () -> pose));
-    Logger.recordOutput("sotm turret pose", new Pose3d(swerve.getPose().getTranslation(), new Rotation3d(0, CANIVORE_ERROR_TIME_THRESHOLD, AutoAim.getTurretSOTMAzimuth(FieldUtils.getCurrentHubPos(), pose, null))));
   }
 
   @Override
