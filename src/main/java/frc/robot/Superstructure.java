@@ -125,7 +125,7 @@ public class Superstructure {
     // if it can score or operator can override??
     feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
 
-    //flow = intake + (score or feed)
+    // flow = intake + (score or feed)
     flowReq = driver.leftTrigger().and(driver.rightTrigger().or(driver.rightBumper()));
 
     antiJamReq = driver.a().or(operator.a());
