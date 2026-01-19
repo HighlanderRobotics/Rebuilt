@@ -6,7 +6,8 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -99,13 +100,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
     return this.run(() -> hoodIO.setHoodPosition(hoodPosition.get()));
-  }
-
-  public Command spinUp() {
-    return this.run(
-        () -> {
-          flywheelIO.setMotionProfiledFlywheelVelocity(80); // TODO: TUNE TO BE NEAR MOST SHOTS
-        });
   }
 
   @Override

@@ -25,9 +25,10 @@ public class Superstructure {
     IDLE,
     INTAKE,
     READY,
-    SPIN_UP,
+    SPIN_UP_FEED,
     FEED,
     FEED_FLOW,
+    SPIN_UP_SCORE,
     SCORE,
     SCORE_FLOW,
     SPIT;
@@ -126,7 +127,7 @@ public class Superstructure {
             .and(() -> shouldFeed == true)
             .or(Autos.autoFeedReq);
 
-    flowReq = operator.rightTrigger();
+    flowReq = driver.leftTrigger().and(driver.rightTrigger());
 
     antiJamReq = driver.a().or(operator.a());
 
@@ -143,17 +144,17 @@ public class Superstructure {
     bindTransition(
         SuperState.INTAKE, SuperState.READY, (intakeReq.negate().and(isEmpty.negate())).or(isFull));
 
-    bindTransition(SuperState.INTAKE, SuperState.SPIN_UP, feedReq.or(scoreReq));
+    bindTransition(SuperState.INTAKE, SuperState.SPIN_UP_FEED, feedReq);
 
     bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
 
-    bindTransition(SuperState.READY, SuperState.SPIN_UP, scoreReq.or(feedReq));
+    bindTransition(SuperState.READY, SuperState.SPIN_UP_SCORE, scoreReq);
 
     bindTransition(
-        SuperState.SPIN_UP, SuperState.SCORE, scoreReq.and(shooter::atFlywheelVelocitySetpoint));
+        SuperState.SPIN_UP_SCORE, SuperState.SCORE, scoreReq.and(shooter::atFlywheelVelocitySetpoint));
 
     bindTransition(
-        SuperState.SPIN_UP, SuperState.FEED, feedReq.and(shooter::atFlywheelVelocitySetpoint));
+        SuperState.SPIN_UP_FEED, SuperState.FEED, feedReq.and(shooter::atFlywheelVelocitySetpoint));
 
     bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
 
@@ -168,13 +169,13 @@ public class Superstructure {
       bindTransition(
           SuperState.FEED_FLOW,
           SuperState.READY,
-          flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
+          flowReq.negate().and(isEmpty.negate()));
 
       // No so sure about the end condition here.
       bindTransition(
           SuperState.FEED_FLOW,
           SuperState.IDLE,
-          flowReq.negate().and(isEmpty).and(feedReq.negate()));
+          flowReq.negate().and(isEmpty));
     }
 
     // SCORE_FLOW transitions
@@ -186,13 +187,13 @@ public class Superstructure {
       bindTransition(
           SuperState.SCORE_FLOW,
           SuperState.READY,
-          flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
+          flowReq.negate().and(isEmpty.negate()));
 
       // No so sure about the end condition here.
       bindTransition(
           SuperState.SCORE_FLOW,
           SuperState.IDLE,
-          flowReq.negate().and(isEmpty).and(scoreReq.negate()));
+          flowReq.negate().and(isEmpty));
     }
 
     // Transition from any state to SPIT for anti jamming
@@ -216,7 +217,11 @@ public class Superstructure {
         indexer.index(),
         shooter.rest()); // Maybe index at slower speed?
 
-    bindCommands(SuperState.SPIN_UP, intake.rest(), indexer.rest(), shooter.spinUp());
+    bindCommands(SuperState.SPIN_UP_SCORE, intake.rest(), indexer.rest(), shooter.shoot(swerve::getPose));
+
+    bindCommands(SuperState.SPIN_UP_FEED, intake.rest(), indexer.rest(), shooter.feed(
+            swerve::getPose,
+            () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
 
     bindCommands(
         SuperState.SCORE, intake.rest(), indexer.indexToShoot(), shooter.shoot(swerve::getPose));
