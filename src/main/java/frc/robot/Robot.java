@@ -167,23 +167,6 @@ public class Robot extends LoggedRobot {
 
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
-  // Logged mechanisms
-
-  // temporarily override map with empty map to avoid collisions swith reefscape elements
-  // unfortunately this also turns off collisions with walls but that's fine
-  // TODO update once rebuilt is added to maplesim
-  private static class EvergreenArena extends SimulatedArena {
-    protected EvergreenArena() {
-      super(new FieldMap() {});
-    }
-
-    @Override
-    public void placeGamePiecesOnField() {}
-  }
-
-  static {
-    SimulatedArena.overrideInstance(new EvergreenArena());
-  }
 
   @SuppressWarnings("resource")
   public Robot() {
