@@ -102,9 +102,10 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command spinUp() {
-    return this.run(() -> {
-      flywheelIO.setMotionProfiledFlywheelVelocity(80); // TODO: TUNE TO BE NEAR MOST SHOTS
-    });
+    return this.run(
+        () -> {
+          flywheelIO.setMotionProfiledFlywheelVelocity(80); // TODO: TUNE TO BE NEAR MOST SHOTS
+        });
   }
 
   @Override
