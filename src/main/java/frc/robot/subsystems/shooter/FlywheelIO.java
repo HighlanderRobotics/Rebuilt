@@ -26,23 +26,34 @@ public class FlywheelIO {
 
   @AutoLog
   public static class FlywheelIOInputs {
-    public double flywheelPositionMeters = 0.0;
-    public double flywheelVelocityMetersPerSecond = 0.0;
-    public double flywheelStatorCurrentAmps = 0.0;
-    public double flywheelSupplyCurrentAmp = 0.0;
-    public double flywheelVoltage = 0.0;
-    public double flywheelTempC = 0.0;
+    public double flywheelLeaderVelocityMetersPerSecond = 0.0;
+    public double flywheelLeaderStatorCurrentAmps = 0.0;
+    public double flywheelLeaderSupplyCurrentAmp = 0.0;
+    public double flywheelLeaderVoltage = 0.0;
+    public double flywheelLeaderTempC = 0.0;
+
+    public double flywheelFollowerVelocityMetersPerSecond = 0.0;
+    public double flywheelFollowerStatorCurrentAmps = 0.0;
+    public double flywheelFollowerSupplyCurrentAmp = 0.0;
+    public double flywheelFollowerVoltage = 0.0;
+    public double flywheelFollowerTempC = 0.0;
   }
 
   protected TalonFX flywheelLeader;
   protected TalonFX flywheelFollower;
 
-  private final BaseStatusSignal flywheelPositionRotations;
-  private final BaseStatusSignal flywheelVelocity;
-  private final StatusSignal<Voltage> flywheelVoltage;
-  private final StatusSignal<Current> flywheelStatorCurrent;
-  private final StatusSignal<Current> flywheelSupplyCurrent;
-  private final StatusSignal<Temperature> flywheelTemp;
+  private final BaseStatusSignal flywheelLeaderVelocity;
+  private final StatusSignal<Voltage> flywheelLeaderVoltage;
+  private final StatusSignal<Current> flywheelLeaderStatorCurrent;
+  private final StatusSignal<Current> flywheelLeaderSupplyCurrent;
+  private final StatusSignal<Temperature> flywheelLeaderTemp;
+
+  private final BaseStatusSignal flywheelFollowerVelocity;
+  private final StatusSignal<Voltage> flywheelFollowerVoltage;
+  private final StatusSignal<Current> flywheelFollowerStatorCurrent;
+  private final StatusSignal<Current> flywheelFollowerSupplyCurrent;
+  private final StatusSignal<Temperature> flywheelFollowerTemp;
+
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage =
@@ -59,17 +70,19 @@ public class FlywheelIO {
 
     // follower follows leader
     flywheelFollower.setControl(
-        new Follower(
-            flywheelLeader.getDeviceID(),
-            MotorAlignmentValue.Opposed) // i didnt know what to put here
-        );
+        new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Opposed));
 
-    flywheelVelocity = flywheelLeader.getVelocity();
-    flywheelVoltage = flywheelLeader.getMotorVoltage();
-    flywheelStatorCurrent = flywheelLeader.getStatorCurrent();
-    flywheelSupplyCurrent = flywheelLeader.getSupplyCurrent();
-    flywheelTemp = flywheelLeader.getDeviceTemp();
-    flywheelPositionRotations = flywheelLeader.getPosition();
+    flywheelLeaderVelocity = flywheelLeader.getVelocity();
+    flywheelLeaderVoltage = flywheelLeader.getMotorVoltage();
+    flywheelLeaderStatorCurrent = flywheelLeader.getStatorCurrent();
+    flywheelLeaderSupplyCurrent = flywheelLeader.getSupplyCurrent();
+    flywheelLeaderTemp = flywheelLeader.getDeviceTemp();
+
+    flywheelFollowerVelocity = flywheelFollower.getVelocity();
+    flywheelFollowerVoltage = flywheelFollower.getMotorVoltage();
+    flywheelFollowerStatorCurrent = flywheelFollower.getStatorCurrent();
+    flywheelFollowerSupplyCurrent = flywheelFollower.getSupplyCurrent();
+    flywheelFollowerTemp = flywheelFollower.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -77,13 +90,17 @@ public class FlywheelIO {
         flywheelLeader.getMotorVoltage(),
         flywheelLeader.getStatorCurrent(),
         flywheelLeader.getSupplyCurrent(),
-        flywheelLeader.getDeviceTemp());
+        flywheelLeader.getDeviceTemp(),
+        flywheelFollower.getVelocity(),
+        flywheelFollower.getMotorVoltage(),
+        flywheelFollower.getStatorCurrent(),
+        flywheelFollower.getSupplyCurrent(),
+        flywheelFollower.getDeviceTemp());
 
     flywheelLeader.optimizeBusUtilization();
     flywheelFollower.optimizeBusUtilization();
   }
 
-  // did not know how to do anything here,
   public static TalonFXConfiguration getFlywheelConfiguration() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -108,7 +125,7 @@ public class FlywheelIO {
     flywheelLeader.setControl(voltageOut.withOutput(volts));
   }
 
-  public void setFlywheelVelocity(double flywheelVelocity) {
+  public void setMotionProfiledFlywheelVelocity(double flywheelVelocity) {
     flywheelLeader.setControl(motionMagicVelocityVoltage.withVelocity(flywheelVelocity));
   }
 
@@ -118,16 +135,27 @@ public class FlywheelIO {
 
   public void updateInputs(FlywheelIOInputs inputs) {
     BaseStatusSignal.refreshAll(
-        flywheelVelocity,
-        flywheelVoltage,
-        flywheelStatorCurrent,
-        flywheelSupplyCurrent,
-        flywheelTemp);
+        flywheelLeaderVelocity,
+        flywheelLeaderVoltage,
+        flywheelLeaderStatorCurrent,
+        flywheelLeaderSupplyCurrent,
+        flywheelLeaderTemp,
+        flywheelFollowerVelocity,
+        flywheelFollowerVoltage,
+        flywheelFollowerStatorCurrent,
+        flywheelFollowerSupplyCurrent,
+        flywheelFollowerTemp);
 
-    inputs.flywheelVelocityMetersPerSecond = flywheelVelocity.getValueAsDouble();
-    inputs.flywheelVoltage = flywheelVoltage.getValueAsDouble();
-    inputs.flywheelStatorCurrentAmps = flywheelStatorCurrent.getValueAsDouble();
-    inputs.flywheelSupplyCurrentAmp = flywheelSupplyCurrent.getValueAsDouble();
-    inputs.flywheelTempC = flywheelTemp.getValueAsDouble();
+    inputs.flywheelLeaderVelocityMetersPerSecond = flywheelLeaderVelocity.getValueAsDouble();
+    inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
+    inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
+    inputs.flywheelLeaderSupplyCurrentAmp = flywheelLeaderSupplyCurrent.getValueAsDouble();
+    inputs.flywheelLeaderTempC = flywheelLeaderTemp.getValueAsDouble();
+
+    inputs.flywheelFollowerVelocityMetersPerSecond = flywheelFollowerVelocity.getValueAsDouble();
+    inputs.flywheelFollowerVoltage = flywheelFollowerVoltage.getValueAsDouble();
+    inputs.flywheelFollowerStatorCurrentAmps = flywheelFollowerStatorCurrent.getValueAsDouble();
+    inputs.flywheelFollowerSupplyCurrentAmp = flywheelFollowerSupplyCurrent.getValueAsDouble();
+    inputs.flywheelFollowerTempC = flywheelFollowerTemp.getValueAsDouble();
   }
 }
