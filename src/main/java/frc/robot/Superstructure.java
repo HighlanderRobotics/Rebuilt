@@ -151,7 +151,9 @@ public class Superstructure {
     bindTransition(SuperState.READY, SuperState.SPIN_UP_SCORE, scoreReq);
 
     bindTransition(
-        SuperState.SPIN_UP_SCORE, SuperState.SCORE, scoreReq.and(shooter::atFlywheelVelocitySetpoint));
+        SuperState.SPIN_UP_SCORE,
+        SuperState.SCORE,
+        scoreReq.and(shooter::atFlywheelVelocitySetpoint));
 
     bindTransition(
         SuperState.SPIN_UP_FEED, SuperState.FEED, feedReq.and(shooter::atFlywheelVelocitySetpoint));
@@ -167,15 +169,10 @@ public class Superstructure {
       bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
 
       bindTransition(
-          SuperState.FEED_FLOW,
-          SuperState.READY,
-          flowReq.negate().and(isEmpty.negate()));
+          SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(
-          SuperState.FEED_FLOW,
-          SuperState.IDLE,
-          flowReq.negate().and(isEmpty));
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty));
     }
 
     // SCORE_FLOW transitions
@@ -185,15 +182,10 @@ public class Superstructure {
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
 
       bindTransition(
-          SuperState.SCORE_FLOW,
-          SuperState.READY,
-          flowReq.negate().and(isEmpty.negate()));
+          SuperState.SCORE_FLOW, SuperState.READY, flowReq.negate().and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(
-          SuperState.SCORE_FLOW,
-          SuperState.IDLE,
-          flowReq.negate().and(isEmpty));
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty));
     }
 
     // Transition from any state to SPIT for anti jamming
@@ -217,11 +209,15 @@ public class Superstructure {
         indexer.index(),
         shooter.rest()); // Maybe index at slower speed?
 
-    bindCommands(SuperState.SPIN_UP_SCORE, intake.rest(), indexer.rest(), shooter.shoot(swerve::getPose));
+    bindCommands(
+        SuperState.SPIN_UP_SCORE, intake.rest(), indexer.rest(), shooter.shoot(swerve::getPose));
 
-    bindCommands(SuperState.SPIN_UP_FEED, intake.rest(), indexer.rest(), shooter.feed(
-            swerve::getPose,
-            () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
+    bindCommands(
+        SuperState.SPIN_UP_FEED,
+        intake.rest(),
+        indexer.rest(),
+        shooter.feed(
+            swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
 
     bindCommands(
         SuperState.SCORE, intake.rest(), indexer.indexToShoot(), shooter.shoot(swerve::getPose));
