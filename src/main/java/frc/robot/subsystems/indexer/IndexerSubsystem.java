@@ -39,7 +39,7 @@ public class IndexerSubsystem extends SubsystemBase {
               null,
               null,
               null,
-              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)),
+              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
           new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
@@ -166,7 +166,7 @@ public class IndexerSubsystem extends SubsystemBase {
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);
-    Logger.processInputs("Intake/Kicker", kickerInputs);
+    Logger.processInputs("Indexer/Kicker", kickerInputs);
   }
 
   public Command runRollerSysId() {

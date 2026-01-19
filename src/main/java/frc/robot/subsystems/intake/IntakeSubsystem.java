@@ -22,7 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private SysIdRoutine intakeRollerSysid =
       new SysIdRoutine(
-          new Config(null, null, null, (state) -> Logger.recordOutput("Intake/SysID State", state)),
+          new Config(null, null, null, (state) -> Logger.recordOutput("Intake/SysID State", state.toString())),
           new Mechanism((volts) -> io.setRollerVoltage(volts.in(Volts)), null, this));
 
   public IntakeSubsystem(RollerIO io) {
