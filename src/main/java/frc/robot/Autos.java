@@ -65,11 +65,8 @@ public class Autos {
     // F for feeding poses
     // I for intake???
 
-    // not every same path will result in same action so ill think on that a little bit or i could
-    // just make two different paths for each like the intake version and feeding version
     // may have to rethink naming to some extent and add more poses
 
-    // may change back to include action it makes stuff easier
     DtoFL("D", "FL", Action.FEED),
     FLMtoPL("FLM", "PL", Action.SCORE),
     FLtoFLM("FL", "FLM", Action.FEED),
@@ -86,7 +83,8 @@ public class Autos {
     PRtoCR("PR", "CR", Action.CLIMB),
     PRtoFR("PR", "FR", Action.FEED),
     PRtoO("PR", "O", Action.INTAKE),
-    // idk sep intake and feed so action is included makes it easier for me but they use the same
+    // idk seperate intake and feed so action is included makes it easier for me but they use the
+    // same
     // trajectories so i dont have to make new paths
     DtoIL("D", "FL", Action.INTAKE),
     ILMtoPL("FLM", "PL", Action.SCORE),
@@ -153,20 +151,20 @@ public class Autos {
     Action action = path.action;
     switch (action) {
       case INTAKE:
-        return intakeInAutoPath(path, routine);
+        return intakePath(path, routine);
       case FEED:
-        return feedInAutoPath(path, routine);
+        return feedPath(path, routine);
       case SCORE:
-        return scoreInAutoPath(path, routine);
+        return scorePath(path, routine);
       case CLIMB:
-        return climbInAutoPath(path, routine);
+        return climbPath(path, routine);
       default: // this should never happen
         return Commands.none();
     }
   }
 
   // TODO aligning to climb pos correctly
-  public Command climbInAutoPath(Path path, AutoRoutine routine) {
+  public Command climbPath(Path path, AutoRoutine routine) {
     // path align and climb
     return Commands.sequence(
         path.getTrajectory(routine)
@@ -176,24 +174,19 @@ public class Autos {
                     path.getTrajectory(routine)
                         .atTime(
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
-                                - (path.end.length() == 1 ? 0.3 : 0.0)))),
+                                - (0.3)))),
         setAutoClimbReqTrue());
   }
 
-  public Command feedInAutoPath(Path path, AutoRoutine routine) {
+  public Command feedPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoFeedReqTrue(),
         path.getTrajectory(routine).cmd(),
-        path.getTrajectory(routine)
-            .cmd()
-            .until(
-                routine.observe(
-                    path.getTrajectory(routine)
-                        .atTime(path.getTrajectory(routine).getRawTrajectory().getTotalTime()))),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoFeedReqFalse());
   }
 
-  public Command scoreInAutoPath(Path path, AutoRoutine routine) {
+  public Command scorePath(Path path, AutoRoutine routine) {
     // path align and score
     return Commands.sequence(
         path.getTrajectory(routine)
@@ -203,82 +196,54 @@ public class Autos {
                     path.getTrajectory(routine)
                         .atTime(
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
-                                - (path.end.length() == 1 ? 0.3 : 0.0)))),
+                                - (0.3)))),
         setAutoScoreReqTrue(),
         waitUntilEmpty(),
         setAutoScoreReqFalse());
   }
 
   // feeding and intake could prob be improved
-  public Command intakeInAutoPath(Path path, AutoRoutine routine) {
+  public Command intakePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd(),
-        path.getTrajectory(routine)
-            .cmd()
-            .until(
-                routine.observe(
-                    path.getTrajectory(routine)
-                        .atTime(path.getTrajectory(routine).getRawTrajectory().getTotalTime()))),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoIntakeReqFalse());
   }
 
   public Command setAutoIntakeReqTrue() {
-    return Commands.runOnce(
-        () -> {
-          autoIntake = true;
-        });
+    return Commands.runOnce(() -> autoIntake = true);
   }
 
   public Command setAutoIntakeReqFalse() {
-    return Commands.runOnce(
-        () -> {
-          autoIntake = false;
-        });
+    return Commands.runOnce(() -> autoIntake = false);
   }
 
   public Command setAutoScoreReqTrue() {
-    return Commands.runOnce(
-        () -> {
-          autoScore = true;
-        });
+    return Commands.runOnce(() -> autoScore = true);
   }
 
   public Command setAutoScoreReqFalse() {
-    return Commands.runOnce(
-        () -> {
-          autoScore = false;
-        });
+    return Commands.runOnce(() -> autoScore = false);
   }
 
   public Command setAutoFeedReqTrue() {
-    return Commands.runOnce(
-        () -> {
-          autoFeed = true;
-        });
+    return Commands.runOnce(() -> autoFeed = true);
   }
 
   public Command setAutoFeedReqFalse() {
-    return Commands.runOnce(
-        () -> {
-          autoFeed = false;
-        });
+    return Commands.runOnce(() -> autoFeed = false);
   }
 
   public Command setAutoClimbReqTrue() {
-    return Commands.runOnce(
-        () -> {
-          autoClimb = true;
-        });
+    return Commands.runOnce(() -> autoClimb = true);
   }
 
   public Command setAutoClimbReqFalse() {
-    return Commands.runOnce(
-        () -> {
-          autoClimb = false;
-        });
+    return Commands.runOnce(() -> autoClimb = false);
   }
 
+  // TODO: score at the start of each auto
   // specific paths:
   // no idea what to name them
   public Command getDepotScoreClimbAuto() {
@@ -296,7 +261,7 @@ public class Autos {
 
   public Command getOutpostScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Score Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
+    Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoPR, Path.PRtoCR};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
@@ -308,7 +273,7 @@ public class Autos {
 
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
+    Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoPL, Path.PLtoCL};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
@@ -320,7 +285,7 @@ public class Autos {
 
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
+    Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoPL, Path.PLtoCL};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
