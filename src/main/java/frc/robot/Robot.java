@@ -349,7 +349,7 @@ public class Robot extends LoggedRobot {
     driver
         .leftBumper()
         .whileTrue(
-            swerve.faceHub(
+            swerve.faceHubSOTM(
                 () ->
                     modifyJoystick(driver.getLeftY())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),

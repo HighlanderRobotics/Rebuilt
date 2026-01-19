@@ -48,6 +48,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
 import java.util.Arrays;
 import java.util.List;
@@ -591,6 +592,10 @@ public class SwerveSubsystem extends SubsystemBase {
         },
         xVel,
         yVel);
+  }
+
+  public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()), xVel, yVel);
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {

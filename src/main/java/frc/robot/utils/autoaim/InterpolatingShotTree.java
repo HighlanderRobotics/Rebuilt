@@ -1,7 +1,12 @@
 package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.utils.FieldUtils;
+
+import java.lang.reflect.Field;
 import java.util.TreeMap;
 
 public class InterpolatingShotTree {
@@ -113,5 +118,9 @@ public class InterpolatingShotTree {
       return 0.0;
     }
     return queryToLower / upperToLower;
+  }
+
+    public ShotData calculateShot(Pose2d pose) {
+      return get(AutoAim.distanceToHub(pose));
   }
 }
