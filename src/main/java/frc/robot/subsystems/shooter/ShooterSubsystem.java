@@ -7,7 +7,6 @@ package frc.robot.subsystems.shooter;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.google.common.base.Supplier;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -148,6 +147,9 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean atFlywheelVelocitySetpoint() {
-    return MathUtil.isNear(flywheelInputs.flywheelLeaderVelocityRotationsPerSecond, flywheelIO.getSetpointRotPerSec(), FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
+    return MathUtil.isNear(
+        flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
+        flywheelIO.getSetpointRotPerSec(),
+        FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
   }
 }
