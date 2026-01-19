@@ -10,9 +10,13 @@ IDLE <--> |intakeReq + intakeEmpty| INTAKE
 
 READY <--> |intakeReq + empty| INTAKE
 
-READY --> |feedReq| FEED
+READY --> |feedReq| SPIN_UP_FEED
 
-READY --> |scoreReq| SCORE
+READY --> |scoreReq| SPIN_UP_SCORE
+
+SPIN_UP_FEED --> |atVelocity| FEED
+
+SPIN_UP_SCORE --> |atVelocity| SCORE
 
 
 FEED --> |flowReq| FEED_FLOW
