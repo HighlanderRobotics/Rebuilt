@@ -85,11 +85,11 @@ public class HoodIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
 
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine; 
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
     config.Slot0.kS = 0.055;
     config.Slot0.kG = 0.445;
-    config.Slot0.kV = 1.45; 
+    config.Slot0.kV = 1.45;
     config.Slot0.kP = 35;
     config.Slot0.kD = 0.25;
 

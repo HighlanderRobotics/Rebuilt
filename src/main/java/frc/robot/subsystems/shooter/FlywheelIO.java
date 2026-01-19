@@ -16,6 +16,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
@@ -31,6 +32,7 @@ public class FlywheelIO {
     public double flywheelLeaderSupplyCurrentAmp = 0.0;
     public double flywheelLeaderVoltage = 0.0;
     public double flywheelLeaderTempC = 0.0;
+    public double flywheelLeaderPosition = 0.0;
 
     public double flywheelFollowerVelocityRotationsPerSecond = 0.0;
     public double flywheelFollowerStatorCurrentAmps = 0.0;
@@ -47,6 +49,7 @@ public class FlywheelIO {
   private final StatusSignal<Current> flywheelLeaderStatorCurrent;
   private final StatusSignal<Current> flywheelLeaderSupplyCurrent;
   private final StatusSignal<Temperature> flywheelLeaderTemp;
+  private final StatusSignal<Angle> flywheelLeaderPosition;
 
   private final BaseStatusSignal flywheelFollowerVelocity;
   private final StatusSignal<Voltage> flywheelFollowerVoltage;
@@ -79,6 +82,7 @@ public class FlywheelIO {
     flywheelLeaderStatorCurrent = flywheelLeader.getStatorCurrent();
     flywheelLeaderSupplyCurrent = flywheelLeader.getSupplyCurrent();
     flywheelLeaderTemp = flywheelLeader.getDeviceTemp();
+    flywheelLeaderPosition = flywheelLeader.getPosition();
 
     flywheelFollowerVelocity = flywheelFollower.getVelocity();
     flywheelFollowerVoltage = flywheelFollower.getMotorVoltage();
@@ -97,7 +101,8 @@ public class FlywheelIO {
         flywheelFollower.getMotorVoltage(),
         flywheelFollower.getStatorCurrent(),
         flywheelFollower.getSupplyCurrent(),
-        flywheelFollower.getDeviceTemp());
+        flywheelFollower.getDeviceTemp(),
+        flywheelLeaderPosition);
 
     flywheelLeader.optimizeBusUtilization();
     flywheelFollower.optimizeBusUtilization();
@@ -111,9 +116,10 @@ public class FlywheelIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.15; // From sim
-    config.Slot0.kP = 10.0;
+    config.Slot0.kS = 0.43477;
+    config.Slot0.kV = 0.144; // From sim
+    config.Slot0.kA = 0.016433;
+    config.Slot0.kP = 0.1;
     config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
@@ -148,13 +154,16 @@ public class FlywheelIO {
         flywheelFollowerVoltage,
         flywheelFollowerStatorCurrent,
         flywheelFollowerSupplyCurrent,
-        flywheelFollowerTemp);
+        flywheelFollowerTemp,
+        flywheelLeaderPosition);
 
     inputs.flywheelLeaderVelocityRotationsPerSecond = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
     inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
     inputs.flywheelLeaderSupplyCurrentAmp = flywheelLeaderSupplyCurrent.getValueAsDouble();
     inputs.flywheelLeaderTempC = flywheelLeaderTemp.getValueAsDouble();
+
+    inputs.flywheelLeaderPosition = flywheelLeaderPosition.getValueAsDouble();
 
     inputs.flywheelFollowerVelocityRotationsPerSecond = flywheelFollowerVelocity.getValueAsDouble();
     inputs.flywheelFollowerVoltage = flywheelFollowerVoltage.getValueAsDouble();
