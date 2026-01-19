@@ -111,6 +111,7 @@ public class Superstructure {
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
+            .and(() -> canScore())
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
