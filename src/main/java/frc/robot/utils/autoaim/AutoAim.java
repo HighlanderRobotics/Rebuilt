@@ -1,7 +1,6 @@
 package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,8 +8,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.util.Units;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,82 +16,6 @@ public class AutoAim {
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
 
   // If we need other shot trees (i.e. for feeding) we can put them here
-
-  static {
-    HEADING_CONTROLLER.enableContinuousInput(-Math.PI, Math.PI);
-  }
-
-  public static void resetPIDControllers(
-      Pose2d robotPose, ChassisSpeeds robotVelocityFieldRelative) {
-    VX_CONTROLLER.reset(robotPose.getX(), robotVelocityFieldRelative.vxMetersPerSecond);
-    VY_CONTROLLER.reset(robotPose.getY(), robotVelocityFieldRelative.vyMetersPerSecond);
-    HEADING_CONTROLLER.reset(
-        robotPose.getRotation().getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
-  }
-
-  public static void resetHeadingController(
-      Rotation2d robotHeading, ChassisSpeeds robotVelocityFieldRelative) {
-    HEADING_CONTROLLER.reset(
-        robotHeading.getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
-  }
-
-  /**
-   * Use PID to calculate the velocity required to align the robot heading to the target heading
-   *
-   * @param robotHeading
-   * @param targetHeading
-   * @return the calculated velocity
-   */
-  public static double calculateRotationVelocity(
-      Rotation2d robotHeading, Rotation2d targetHeading) {
-    double omegaRadsPerSec =
-        HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
-    Logger.recordOutput(
-        "AutoAim/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
-    return omegaRadsPerSec;
-  }
-
-  public static ChassisSpeeds calculateSpeeds(Pose2d robotPose, Pose2d target) {
-    return calculateSpeeds(
-        robotPose,
-        target,
-        DEFAULT_TRANSLATIONAL_CONSTRAINTS,
-        DEFAULT_TRANSLATIONAL_CONSTRAINTS,
-        DEFAULT_ANGULAR_CONSTRAINTS);
-  }
-
-  public static ChassisSpeeds calculateSpeeds(
-      Pose2d robotPose,
-      Pose2d target,
-      Constraints xConstraints,
-      Constraints yConstraints,
-      Constraints headingConstraints) {
-    VX_CONTROLLER.setConstraints(xConstraints);
-    VY_CONTROLLER.setConstraints(yConstraints);
-    HEADING_CONTROLLER.setConstraints(headingConstraints);
-
-    ChassisSpeeds speeds;
-
-    if (isInTolerance(
-        robotPose, target, TRANSLATION_TOLERANCE_METERS, ROTATION_TOLERANCE_RADIANS)) {
-      speeds = new ChassisSpeeds();
-    } else {
-      speeds =
-          new ChassisSpeeds(
-              VX_CONTROLLER.calculate(robotPose.getX(), target.getX())
-                  + VX_CONTROLLER.getSetpoint().velocity,
-              VY_CONTROLLER.calculate(robotPose.getY(), target.getY())
-                  + VY_CONTROLLER.getSetpoint().velocity,
-              HEADING_CONTROLLER.calculate(
-                      robotPose.getRotation().getRadians(), target.getRotation().getRadians())
-                  + HEADING_CONTROLLER.getSetpoint().velocity);
-    }
-    Logger.recordOutput(
-        "AutoAim/Target Speeds Robot Relative",
-        ChassisSpeeds.fromFieldRelativeSpeeds(speeds, robotPose.getRotation()));
-
-    return speeds;
-  }
 
   public static boolean isInTolerance(
       Pose2d current,
@@ -112,7 +33,7 @@ public class AutoAim {
   public static final InterpolatingShotTree shotMap = new InterpolatingShotTree();
 
   static {
-    //TODO find actual numbers
+    // TODO find actual numbers
     shotMap.put(1.0, new ShotData(Rotation2d.kZero, 0, 0));
   }
 
