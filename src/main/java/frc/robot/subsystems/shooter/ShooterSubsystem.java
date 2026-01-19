@@ -101,6 +101,12 @@ public class ShooterSubsystem extends SubsystemBase {
     return this.run(() -> hoodIO.setHoodPosition(hoodPosition.get()));
   }
 
+  public Command spinUp() {
+    return this.run(() -> {
+      flywheelIO.setMotionProfiledFlywheelVelocity(80); // TODO: TUNE TO BE NEAR MOST SHOTS
+    });
+  }
+
   @Override
   public void periodic() {
     hoodIO.updateInputs(hoodInputs);

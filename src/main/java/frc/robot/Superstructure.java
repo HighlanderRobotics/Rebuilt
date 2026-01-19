@@ -217,6 +217,12 @@ public class Superstructure {
         shooter.rest()); // Maybe index at slower speed?
 
     bindCommands(
+      SuperState.SPIN_UP, 
+      intake.rest(),
+      indexer.rest(),
+      shooter.spinUp());
+
+    bindCommands(
         SuperState.SCORE, intake.rest(), indexer.indexToShoot(), shooter.shoot(swerve::getPose));
 
     bindCommands(
