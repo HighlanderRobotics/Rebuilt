@@ -6,7 +6,8 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import com.google.common.base.Supplier;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import java.util.function.DoubleSupplier;
+import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -24,6 +27,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
+
+  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0; // TODO: TUNE
 
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
@@ -52,12 +57,44 @@ public class ShooterSubsystem extends SubsystemBase {
     this.flywheelIO = flywheelIO;
   }
 
-  public Command shoot(DoubleSupplier voltage) {
-    return this.run(() -> flywheelIO.setFlywheelVoltage(voltage.getAsDouble()));
+  public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
+    return this.run(
+        () -> {
+          ShotData shotData =
+              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
+          hoodIO.setHoodPosition(shotData.hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+        });
   }
 
-  public Command feed(DoubleSupplier voltage) {
-    return this.run(() -> flywheelIO.setFlywheelVoltage(voltage.getAsDouble()));
+  public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
+    return this.run(
+        () -> {
+          ShotData shotData =
+              AutoAim.FEED_SHOT_TREE.get(
+                  robotPoseSupplier
+                      .get()
+                      .getTranslation()
+                      .getDistance(feedTarget.get().getTranslation()));
+          hoodIO.setHoodPosition(shotData.hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+        });
+  }
+
+  public Command rest() {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.kZero); // TODO: TUNE TUCKED POSITION IF NEEDED
+          flywheelIO.setFlywheelVoltage(0.0);
+        });
+  }
+
+  public Command spit() {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.kZero);
+          flywheelIO.setMotionProfiledFlywheelVelocity(20);
+        }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
   public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
@@ -107,5 +144,12 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelSysid.quasistatic(Direction.kReverse),
         flywheelSysid.dynamic(Direction.kForward),
         flywheelSysid.dynamic(Direction.kReverse));
+  }
+
+  public boolean atFlywheelVelocitySetpoint() {
+    return MathUtil.isNear(
+        flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
+        flywheelIO.getSetpointRotPerSec(),
+        FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
   }
 }

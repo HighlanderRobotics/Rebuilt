@@ -65,15 +65,6 @@ public class IndexerSubsystem extends SubsystemBase {
   public Command shoot() {
     return this.run(() -> kickerIO.setRollerVoltage(0));
   }
-  ;
-
-  public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
-    if (firstBeamBreak && secondBeamBreak) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   public boolean isEmpty() {
     return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
@@ -87,13 +78,15 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(5);
+          kickerIO.setRollerVoltage(-5);
         });
   }
 
-  public Command score() {
+  public Command indexToShoot() {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(10);
+          kickerIO.setRollerVoltage(5);
         });
   }
 
@@ -101,6 +94,15 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(-5);
+          kickerIO.setRollerVoltage(-5);
+        });
+  }
+
+  public Command rest() {
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(0.0);
+          kickerIO.setRollerVoltage(0.0);
         });
   }
 

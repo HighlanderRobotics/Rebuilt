@@ -26,13 +26,13 @@ public class FlywheelIO {
 
   @AutoLog
   public static class FlywheelIOInputs {
-    public double flywheelLeaderVelocityMetersPerSecond = 0.0;
+    public double flywheelLeaderVelocityRotationsPerSecond = 0.0;
     public double flywheelLeaderStatorCurrentAmps = 0.0;
     public double flywheelLeaderSupplyCurrentAmp = 0.0;
     public double flywheelLeaderVoltage = 0.0;
     public double flywheelLeaderTempC = 0.0;
 
-    public double flywheelFollowerVelocityMetersPerSecond = 0.0;
+    public double flywheelFollowerVelocityRotationsPerSecond = 0.0;
     public double flywheelFollowerStatorCurrentAmps = 0.0;
     public double flywheelFollowerSupplyCurrentAmp = 0.0;
     public double flywheelFollowerVoltage = 0.0;
@@ -58,6 +58,8 @@ public class FlywheelIO {
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage =
       new MotionMagicVelocityVoltage(0.0).withEnableFOC(true).withAcceleration(100);
+
+  private double velocitySetpointRotPerSec = 0.0;
 
   // todo: tune acceleration
 
@@ -107,9 +109,11 @@ public class FlywheelIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.Slot0.kS = 0.2;
-    config.Slot0.kV = 0.12;
-    config.Slot0.kP = 0.3;
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
+
+    config.Slot0.kS = 0.0;
+    config.Slot0.kV = 0.15; // From sim
+    config.Slot0.kP = 10.0;
     config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
@@ -124,10 +128,12 @@ public class FlywheelIO {
   }
 
   public void setMotionProfiledFlywheelVelocity(double flywheelVelocity) {
+    velocitySetpointRotPerSec = flywheelVelocity;
     flywheelLeader.setControl(motionMagicVelocityVoltage.withVelocity(flywheelVelocity));
   }
 
   public void stop() { // thought i should add a stop command, dont think i had to though
+    velocitySetpointRotPerSec = 0.0;
     flywheelLeader.setControl(voltageOut.withOutput(0.0));
   }
 
@@ -144,16 +150,20 @@ public class FlywheelIO {
         flywheelFollowerSupplyCurrent,
         flywheelFollowerTemp);
 
-    inputs.flywheelLeaderVelocityMetersPerSecond = flywheelLeaderVelocity.getValueAsDouble();
+    inputs.flywheelLeaderVelocityRotationsPerSecond = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
     inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
     inputs.flywheelLeaderSupplyCurrentAmp = flywheelLeaderSupplyCurrent.getValueAsDouble();
     inputs.flywheelLeaderTempC = flywheelLeaderTemp.getValueAsDouble();
 
-    inputs.flywheelFollowerVelocityMetersPerSecond = flywheelFollowerVelocity.getValueAsDouble();
+    inputs.flywheelFollowerVelocityRotationsPerSecond = flywheelFollowerVelocity.getValueAsDouble();
     inputs.flywheelFollowerVoltage = flywheelFollowerVoltage.getValueAsDouble();
     inputs.flywheelFollowerStatorCurrentAmps = flywheelFollowerStatorCurrent.getValueAsDouble();
     inputs.flywheelFollowerSupplyCurrentAmp = flywheelFollowerSupplyCurrent.getValueAsDouble();
     inputs.flywheelFollowerTempC = flywheelFollowerTemp.getValueAsDouble();
+  }
+
+  public double getSetpointRotPerSec() {
+    return velocitySetpointRotPerSec;
   }
 }

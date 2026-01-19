@@ -158,7 +158,8 @@ public class Robot extends LoggedRobot {
   @AutoLogOutput(key = "Robot/Zeroing Request")
   private Trigger zeroingReq = driver.b();
 
-  private final Superstructure superstructure = new Superstructure(swerve, driver, operator);
+  private final Superstructure superstructure =
+      new Superstructure(swerve, indexer, intake, shooter, driver, operator);
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
