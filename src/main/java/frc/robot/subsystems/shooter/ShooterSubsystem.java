@@ -59,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> {
           ShotData shotData =
               AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
-          hoodIO.setHoodPosition(shotData.hoodRotation());
+          hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
         });
   }
@@ -73,7 +73,7 @@ public class ShooterSubsystem extends SubsystemBase {
                       .get()
                       .getTranslation()
                       .getDistance(feedTarget.get().getTranslation()));
-          hoodIO.setHoodPosition(shotData.hoodRotation());
+          hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
         });
   }

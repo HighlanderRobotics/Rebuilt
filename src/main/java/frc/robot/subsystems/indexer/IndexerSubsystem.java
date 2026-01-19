@@ -65,15 +65,6 @@ public class IndexerSubsystem extends SubsystemBase {
   public Command shoot() {
     return this.run(() -> kickerIO.setRollerVoltage(0));
   }
-  ;
-
-  public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
-    if (firstBeamBreak && secondBeamBreak) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   public boolean isEmpty() {
     return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;

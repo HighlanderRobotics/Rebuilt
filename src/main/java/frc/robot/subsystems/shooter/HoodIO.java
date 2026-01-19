@@ -14,7 +14,6 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -82,7 +81,7 @@ public class HoodIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
 
-    config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    // config.Slot0.GravityType = GravityTypeValue.Arm_Cosine; Potentially need, maybe not tho.
 
     config.Slot0.kS = 0.0;
     config.Slot0.kG = 0.0;
