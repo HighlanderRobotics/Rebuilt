@@ -87,6 +87,7 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(5);
+          kickerIO.setRollerVoltage(-5);
         });
   }
 
@@ -94,6 +95,7 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(10);
+          kickerIO.setRollerVoltage(5);
         });
   }
 
@@ -101,6 +103,7 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(-5);
+          kickerIO.setRollerVoltage(-5);
         });
   }
 
@@ -108,6 +111,7 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(0.0);
+          kickerIO.setRollerVoltage(0.0);
         });
   }
 
