@@ -3,22 +3,46 @@ package frc.robot.utils.autoaim;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
-import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
 
-public class AutoAim {
+public class AutoAlign {
+  static final double MAX_ANGULAR_SPEED = 10.0;
+  static final double MAX_ANGULAR_ACCELERATION = 10.0;
+  static final double MAX_TRANSLATIONAL_SPEED = 3.0;
+  static final double MAX_TRANSLATIONAL_ACCELERATION = 4.0;
+  public static final Constraints DEFAULT_TRANSLATIONAL_CONSTRAINTS =
+      new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION);
+  public static final Constraints DEFAULT_ANGULAR_CONSTRAINTS =
+      new Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION);
 
-  public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
+  public static final double TRANSLATION_TOLERANCE_METERS = Units.inchesToMeters(1.0);
+  public static final double ROTATION_TOLERANCE_RADIANS = Units.degreesToRadians(2.0);
+  public static final double VELOCITY_TOLERANCE_METERSPERSECOND = 0.5;
+  public static final double INITIAL_REEF_KEEPOFF_DISTANCE_METERS = -0.1;
 
-  // If we need other shot trees (i.e. for feeding) we can put them here
+  //   public static final double ALGAE_APPROACH_SPEED_METERS_PER_SECOND = 1.0;
+
+  // Velocity controllers
+  static final ProfiledPIDController VX_CONTROLLER =
+      new ProfiledPIDController(
+          10.0,
+          0.01,
+          0.02,
+          new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION));
+  static final ProfiledPIDController VY_CONTROLLER =
+      new ProfiledPIDController(
+          10.0,
+          0.01,
+          0.02,
+          new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION));
+  static final ProfiledPIDController HEADING_CONTROLLER =
+      new ProfiledPIDController(
+          6.0, 0.0, 0.0, new Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION));
 
   static {
     HEADING_CONTROLLER.enableContinuousInput(-Math.PI, Math.PI);
@@ -107,27 +131,5 @@ public class AutoAim {
             target.getRotation().getRadians(),
             current.getRotation().getRadians(),
             angularToleranceRadians);
-  }
-
-  public static final InterpolatingShotTree shotMap = new InterpolatingShotTree();
-
-  static {
-    //TODO find actual numbers
-    shotMap.put(1.0, new ShotData(Rotation2d.kZero, 0, 0));
-  }
-
-  public static Pose3d getVirtualSOTMTarget(
-      Pose3d target, ChassisSpeeds fieldRelativeSpeeds, double shotTime) {
-    // velocity times shot time is how translated it is
-    Pose3d vtarget =
-        target.transformBy(
-            new Transform3d(
-                    fieldRelativeSpeeds.vxMetersPerSecond * shotTime,
-                    fieldRelativeSpeeds.vyMetersPerSecond * shotTime,
-                    0,
-                    new Rotation3d())
-                .inverse());
-    Logger.recordOutput("Autoaim/Virtual Target", vtarget);
-    return vtarget;
   }
 }
