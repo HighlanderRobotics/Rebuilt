@@ -158,8 +158,6 @@ public class Superstructure {
 
     // FEED_FLOW transitions
     {
-      bindTransition(SuperState.IDLE, SuperState.FEED_FLOW, flowReq.and(feedReq));
-
       bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
       bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
@@ -178,8 +176,6 @@ public class Superstructure {
 
     // SCORE_FLOW transitions
     {
-      bindTransition(SuperState.IDLE, SuperState.SCORE_FLOW, flowReq.and(scoreReq));
-
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
