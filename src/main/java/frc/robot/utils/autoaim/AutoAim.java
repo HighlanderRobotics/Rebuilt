@@ -14,7 +14,7 @@ public class AutoAim {
   static { // For hub shot tree
     // TODO: ADD SHOTS TO HUB SHOT HERE
     HUB_SHOT_TREE.put(
-        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0.5)); // Placeholder to prevent crashes
+        1.0, new ShotData(Rotation2d.fromDegrees(20), 10, 0.5)); // Placeholder to prevent crashes
   }
 
   // Ig we'll see if we need more than 1 feed shot tree

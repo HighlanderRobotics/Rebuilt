@@ -155,4 +155,8 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelIO.getSetpointRotPerSec(),
         FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
   }
+
+  public Command zeroHood() {
+    return this.runOnce(() -> hoodIO.setHoodPosition(Rotation2d.fromDegrees(2)));
+  }
 }

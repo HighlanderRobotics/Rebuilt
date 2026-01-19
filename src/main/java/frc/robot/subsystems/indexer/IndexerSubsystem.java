@@ -48,8 +48,8 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public IndexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    firstCANRangeIO = new CANrangeIOReal(0, canbus);
-    secondCANRangeIO = new CANrangeIOReal(1, canbus);
+    firstCANRangeIO = new CANrangeIOReal(0, canbus, 10);
+    secondCANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
 
@@ -77,8 +77,8 @@ public class IndexerSubsystem extends SubsystemBase {
   public Command index() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(5);
-          kickerIO.setRollerVoltage(-5);
+          indexRollerIO.setRollerVoltage(7);
+          kickerIO.setRollerVoltage(-7);
         });
   }
 
@@ -111,7 +111,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 

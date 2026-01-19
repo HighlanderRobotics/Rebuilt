@@ -40,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // TODO get actual values
   public Command intake() {
-    return this.run(() -> io.setRollerVoltage(8));
+    return this.run(() -> io.setRollerVoltage(10));
   }
 
   public Command outake() {
