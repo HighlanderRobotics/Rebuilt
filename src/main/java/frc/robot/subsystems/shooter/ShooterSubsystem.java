@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
@@ -58,6 +59,13 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem(HoodIO hoodIO, FlywheelIO flywheelIO) {
     this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
+  }
+
+  public Command testShoot() {
+    return this.run(() -> {
+      hoodIO.setHoodPosition(Rotation2d.fromDegrees(new LoggedTunableNumber("Shooter/Test Degrees").get()));
+      flywheelIO.setMotionProfiledFlywheelVelocity(new LoggedTunableNumber("Shooter/Test Velocity").get());
+    });
   }
 
   public Command shoot(Supplier<Pose2d> robotPoseSupplier) {

@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.utils.LoggedTunableNumber;
+
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -40,11 +42,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // TODO get actual values
   public Command intake() {
-    return this.run(() -> io.setRollerVoltage(10));
+    return this.run(() -> io.setRollerVoltage(new LoggedTunableNumber("Intake/Intake", 10).get()));
   }
 
   public Command outake() {
-    return this.run(() -> io.setRollerVoltage(-5));
+    return this.run(() -> io.setRollerVoltage(new LoggedTunableNumber("Intake/Spit", -5).get()));
   }
 
   public Command rest() {

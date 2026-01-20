@@ -8,6 +8,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -59,8 +60,7 @@ public class FlywheelIO {
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
-  private MotionMagicVelocityVoltage motionMagicVelocityVoltage =
-      new MotionMagicVelocityVoltage(0.0).withEnableFOC(true).withAcceleration(100);
+  private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
 
   private double velocitySetpointRotPerSec = 0.0;
 
@@ -89,6 +89,12 @@ public class FlywheelIO {
     flywheelFollowerStatorCurrent = flywheelFollower.getStatorCurrent();
     flywheelFollowerSupplyCurrent = flywheelFollower.getSupplyCurrent();
     flywheelFollowerTemp = flywheelFollower.getDeviceTemp();
+
+    motionMagicVelocityVoltage =
+        new MotionMagicVelocityVoltage(
+                0.0).withAcceleration(
+                config.MotionMagic.MotionMagicAcceleration)
+            .withEnableFOC(true);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -125,6 +131,8 @@ public class FlywheelIO {
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 80.0;
+ 
+    config.MotionMagic.MotionMagicAcceleration = 100.0;
 
     return config;
   }

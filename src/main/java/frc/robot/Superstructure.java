@@ -220,7 +220,7 @@ public class Superstructure {
             swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
 
     bindCommands(
-        SuperState.SCORE, intake.rest(), indexer.indexToShoot(), shooter.shoot(swerve::getPose));
+        SuperState.SCORE, intake.rest(), indexer.kick(), shooter.shoot(swerve::getPose));
 
     bindCommands(
         SuperState.SCORE_FLOW, intake.intake(), indexer.index(), shooter.shoot(swerve::getPose));
@@ -239,7 +239,7 @@ public class Superstructure {
         indexer.index(),
         shooter.feed(swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose()));
 
-    bindCommands(SuperState.SPIT, intake.outake(), indexer.outtake(), shooter.spit());
+    bindCommands(SuperState.SPIT, intake.outake(), indexer.spit(), shooter.spit());
   }
 
   public void periodic() {

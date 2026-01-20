@@ -15,6 +15,8 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.utils.LoggedTunableNumber;
+
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {
@@ -77,24 +79,24 @@ public class IndexerSubsystem extends SubsystemBase {
   public Command index() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(7);
-          kickerIO.setRollerVoltage(-7);
+          indexRollerIO.setRollerVoltage(new LoggedTunableNumber("Indexer Roller/Index", 7).get());
+          kickerIO.setRollerVoltage(new LoggedTunableNumber("Kicker/Index", -7).get());
         });
   }
 
-  public Command indexToShoot() {
+  public Command kick() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(10);
-          kickerIO.setRollerVoltage(5);
+          indexRollerIO.setRollerVoltage(new LoggedTunableNumber("Indexer Roller/Kick", 10).get());
+          kickerIO.setRollerVoltage(new LoggedTunableNumber("Kicker/Kick", 5).get());
         });
   }
 
-  public Command outtake() {
+  public Command spit() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(-5);
-          kickerIO.setRollerVoltage(-5);
+          indexRollerIO.setRollerVoltage(new LoggedTunableNumber("Indexer Roller/Spit", -5).get());
+          kickerIO.setRollerVoltage(new LoggedTunableNumber("Kicker/Spit", -5).get());
         });
   }
 
