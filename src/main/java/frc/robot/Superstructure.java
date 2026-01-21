@@ -158,7 +158,11 @@ public class Superstructure {
             .and(shooter::atHoodSetpoint));
 
     bindTransition(
-        SuperState.SPIN_UP_FEED, SuperState.FEED, new Trigger(shooter::atFlywheelVelocitySetpoint));
+        SuperState.SPIN_UP_FEED,
+        SuperState.FEED,
+        new Trigger(shooter::atFlywheelVelocitySetpoint)
+            .and(() -> stateTimer.hasElapsed(0.2))
+            .and(shooter::atHoodSetpoint));
 
     bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
 
