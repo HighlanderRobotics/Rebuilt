@@ -153,7 +153,9 @@ public class Superstructure {
     bindTransition(
         SuperState.SPIN_UP_SCORE,
         SuperState.SCORE,
-        new Trigger(shooter::atFlywheelVelocitySetpoint));
+        new Trigger(shooter::atFlywheelVelocitySetpoint)
+            .and(() -> stateTimer.hasElapsed(0.2))
+            .and(shooter::atHoodSetpoint));
 
     bindTransition(
         SuperState.SPIN_UP_FEED, SuperState.FEED, new Trigger(shooter::atFlywheelVelocitySetpoint));
@@ -210,7 +212,10 @@ public class Superstructure {
         shooter.rest()); // Maybe index at slower speed?
 
     bindCommands(
-        SuperState.SPIN_UP_SCORE, intake.rest(), indexer.rest(), shooter.shoot(swerve::getPose));
+        SuperState.SPIN_UP_SCORE,
+        intake.rest(),
+        indexer.rest(), /*shooter.shoot(swerve::getPose)*/
+        shooter.testShoot());
 
     bindCommands(
         SuperState.SPIN_UP_FEED,
@@ -219,7 +224,11 @@ public class Superstructure {
         shooter.feed(
             swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
 
-    bindCommands(SuperState.SCORE, intake.rest(), indexer.kick(), shooter.shoot(swerve::getPose));
+    bindCommands(
+        SuperState.SCORE,
+        intake.rest(),
+        indexer.kick(), /*shooter.shoot(swerve::getPose)*/
+        shooter.testShoot());
 
     bindCommands(
         SuperState.SCORE_FLOW, intake.intake(), indexer.index(), shooter.shoot(swerve::getPose));

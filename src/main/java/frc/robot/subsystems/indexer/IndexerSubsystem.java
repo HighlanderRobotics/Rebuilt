@@ -79,7 +79,7 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(new LoggedTunableNumber("Indexer Roller/Index", 7).get());
-          kickerIO.setRollerVoltage(new LoggedTunableNumber("Kicker/Index", -7).get());
+          kickerIO.setRollerVoltage(new LoggedTunableNumber("Kicker/Index", 7).get());
         });
   }
 

@@ -20,10 +20,11 @@ import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
-  public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
+  public static double HOOD_GEAR_RATIO = 24.230769;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
 
@@ -161,11 +162,18 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelSysid.dynamic(Direction.kReverse));
   }
 
+  @AutoLogOutput(key = "Shooter/At Vel Setpoint")
   public boolean atFlywheelVelocitySetpoint() {
     return MathUtil.isNear(
         flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
         flywheelIO.getSetpointRotPerSec(),
         FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
+  }
+
+  @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
+  public boolean atHoodSetpoint() {
+    return MathUtil.isNear(
+        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
   }
 
   public Command zeroHood() {

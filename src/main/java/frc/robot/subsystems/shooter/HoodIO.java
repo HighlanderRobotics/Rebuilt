@@ -23,6 +23,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class HoodIO {
   /** Creates a new HoodIOReal. */
@@ -49,6 +50,8 @@ public class HoodIO {
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
+
+  private Rotation2d hoodSetpoint = Rotation2d.kZero;
 
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
     hoodMotor = new TalonFX(11, canbus);
@@ -105,6 +108,7 @@ public class HoodIO {
   }
 
   public void setHoodPosition(Rotation2d hoodPosition) {
+    hoodSetpoint = hoodPosition;
     hoodMotor.setControl(positionVoltage.withPosition(hoodPosition.getRotations()));
   }
 
@@ -128,5 +132,10 @@ public class HoodIO {
     inputs.hoodSupplyCurrentAmp = hoodSupplyCurrent.getValueAsDouble();
     inputs.hoodTempC = hoodTemp.getValueAsDouble();
     inputs.hoodRotations = hoodPositionRotations.getValueAsDouble();
+  }
+
+  @AutoLogOutput(key = "Shooter/Hood/Setpoint")
+  public Rotation2d getHoodSetpoint() {
+    return hoodSetpoint;
   }
 }
