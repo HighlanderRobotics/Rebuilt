@@ -14,7 +14,30 @@ public class AutoAim {
 
   static { // For hub shot tree
     // 6 feet from edge of hub
-    HUB_SHOT_TREE.put(Units.inchesToMeters(95), new ShotData(Rotation2d.fromDegrees(0), 0, 0));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 12),
+        new ShotData(Rotation2d.fromDegrees(6), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36),
+        new ShotData(Rotation2d.fromDegrees(8), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24),
+        new ShotData(Rotation2d.fromDegrees(12), 31));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(17), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(21), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(24), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(28), 30));
+
+    // 2sqrt2 ft +
+    // 6 deg 30 rps
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -23,7 +46,7 @@ public class AutoAim {
   static { // For feed shot tree
     // TODO: POPULATE
     FEED_SHOT_TREE.put(
-        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0.5)); // Placeholder to prevent crashes
+        1.0, new ShotData(Rotation2d.kCW_90deg, 10)); // Placeholder to prevent crashes
   }
 
   // TODO: SOTM

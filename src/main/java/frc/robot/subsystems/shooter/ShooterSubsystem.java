@@ -26,7 +26,7 @@ import org.littletonrobotics.junction.Logger;
 public class ShooterSubsystem extends SubsystemBase {
   public static double HOOD_GEAR_RATIO = 24.230769;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
-  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
+  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
@@ -100,7 +100,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command rest() {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(Rotation2d.kZero); // TODO: TUNE TUCKED POSITION IF NEEDED
+          hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
         });
   }
@@ -177,10 +177,6 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command zeroHood() {
-    return this.runOnce(() -> hoodIO.setHoodPosition(Rotation2d.fromDegrees(2)));
-  }
-
-  public Command ninety() {
-    return this.runOnce(() -> hoodIO.setHoodPosition(Rotation2d.fromDegrees(90)));
+    return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
   }
 }

@@ -139,4 +139,8 @@ public class HoodIO {
   public Rotation2d getHoodSetpoint() {
     return hoodSetpoint;
   }
+
+  public void resetEncoder(Rotation2d rotations) {
+    hoodMotor.setPosition(rotations.getRotations());
+  }
 }

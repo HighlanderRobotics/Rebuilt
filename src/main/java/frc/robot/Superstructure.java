@@ -154,8 +154,9 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         SuperState.SCORE,
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .and(() -> stateTimer.hasElapsed(0.2))
-            .and(shooter::atHoodSetpoint));
+            .debounce(0.5)
+            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.5))
+            .and(() -> stateTimer.hasElapsed(0.5)));
 
     bindTransition(
         SuperState.SPIN_UP_FEED,
@@ -166,7 +167,7 @@ public class Superstructure {
 
     bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
 
-    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty);
+    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty.debounce(0.5));
 
     // FEED_FLOW transitions
     {
@@ -212,7 +213,7 @@ public class Superstructure {
     bindCommands(
         SuperState.READY,
         intake.rest(),
-        indexer.index(),
+        indexer.rest(),
         shooter.rest()); // Maybe index at slower speed?
 
     bindCommands(
