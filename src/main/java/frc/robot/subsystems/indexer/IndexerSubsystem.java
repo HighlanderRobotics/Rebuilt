@@ -16,7 +16,6 @@ import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.utils.LoggedTunableNumber;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends SubsystemBase {

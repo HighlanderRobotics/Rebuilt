@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.utils.LoggedTunableNumber;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {

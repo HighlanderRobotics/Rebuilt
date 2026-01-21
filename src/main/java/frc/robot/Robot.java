@@ -317,6 +317,7 @@ public class Robot extends LoggedRobot {
                 .ignoringDisable(true));
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
     SmartDashboard.putData("Zero hood", shooter.zeroHood());
+    SmartDashboard.putData("Test Shot", shooter.testShoot());
 
     // Reset alert timers
     canInitialErrorTimer.restart();

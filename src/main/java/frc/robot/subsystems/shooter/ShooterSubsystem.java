@@ -55,6 +55,9 @@ public class ShooterSubsystem extends SubsystemBase {
               (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state.toString())),
           new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
 
+  private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 0.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 0.0);
+
   /** Creates a new HoodSubsystem. */
   public ShooterSubsystem(HoodIO hoodIO, FlywheelIO flywheelIO) {
     this.hoodIO = hoodIO;
@@ -62,10 +65,11 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command testShoot() {
-    return this.run(() -> {
-      hoodIO.setHoodPosition(Rotation2d.fromDegrees(new LoggedTunableNumber("Shooter/Test Degrees").get()));
-      flywheelIO.setMotionProfiledFlywheelVelocity(new LoggedTunableNumber("Shooter/Test Velocity").get());
-    });
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+        });
   }
 
   public Command shoot(Supplier<Pose2d> robotPoseSupplier) {

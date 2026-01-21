@@ -8,7 +8,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -91,9 +90,8 @@ public class FlywheelIO {
     flywheelFollowerTemp = flywheelFollower.getDeviceTemp();
 
     motionMagicVelocityVoltage =
-        new MotionMagicVelocityVoltage(
-                0.0).withAcceleration(
-                config.MotionMagic.MotionMagicAcceleration)
+        new MotionMagicVelocityVoltage(0.0)
+            .withAcceleration(config.MotionMagic.MotionMagicAcceleration)
             .withEnableFOC(true);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -131,7 +129,7 @@ public class FlywheelIO {
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 80.0;
- 
+
     config.MotionMagic.MotionMagicAcceleration = 100.0;
 
     return config;

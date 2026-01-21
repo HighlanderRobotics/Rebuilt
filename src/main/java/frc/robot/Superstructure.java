@@ -219,8 +219,7 @@ public class Superstructure {
         shooter.feed(
             swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
 
-    bindCommands(
-        SuperState.SCORE, intake.rest(), indexer.kick(), shooter.shoot(swerve::getPose));
+    bindCommands(SuperState.SCORE, intake.rest(), indexer.kick(), shooter.shoot(swerve::getPose));
 
     bindCommands(
         SuperState.SCORE_FLOW, intake.intake(), indexer.index(), shooter.shoot(swerve::getPose));
