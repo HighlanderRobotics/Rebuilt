@@ -86,7 +86,7 @@ public class IndexerSubsystem extends SubsystemBase {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(10);
-          kickerIO.setRollerVoltage(5);
+          kickerIO.setRollerVoltage(-7);
         });
   }
 
@@ -136,7 +136,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Converts angular motion to linear motion
     config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
