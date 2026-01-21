@@ -125,7 +125,8 @@ public class HoodIO {
         hoodSupplyCurrent,
         hoodTemp);
 
-    inputs.hoodPositionRotations = Rotation2d.fromRadians(hoodPositionRotations.getValueAsDouble());
+    inputs.hoodPositionRotations =
+        Rotation2d.fromRotations(hoodPositionRotations.getValueAsDouble());
     inputs.hoodAngularVelocity = hoodAngularVelocity.getValueAsDouble();
     inputs.hoodVoltage = hoodVoltage.getValueAsDouble();
     inputs.hoodStatorCurrentAmps = hoodStatorCurrent.getValueAsDouble();

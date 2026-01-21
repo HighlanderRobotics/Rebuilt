@@ -56,7 +56,7 @@ public class ShooterSubsystem extends SubsystemBase {
               (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state.toString())),
           new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
 
-  private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 0.0);
+  private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
   private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 0.0);
 
   /** Creates a new HoodSubsystem. */
@@ -178,5 +178,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command zeroHood() {
     return this.runOnce(() -> hoodIO.setHoodPosition(Rotation2d.fromDegrees(2)));
+  }
+
+  public Command ninety() {
+    return this.runOnce(() -> hoodIO.setHoodPosition(Rotation2d.fromDegrees(90)));
   }
 }
