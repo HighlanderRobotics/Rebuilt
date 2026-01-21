@@ -169,7 +169,7 @@ public class Superstructure {
 
     // bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
 
-    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty.debounce(0.5));
+    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty.debounce(0.5).and(scoreReq.negate()));
 
     // FEED_FLOW transitions
     // {
@@ -242,8 +242,7 @@ public class Superstructure {
         indexer.kick(), /*shooter.shoot(swerve::getPose)*/
         shooter.testShoot());
 
-    bindCommands(
-        SuperState.SCORE_FLOW, intake.intake(), indexer.index(), shooter.shoot(swerve::getPose));
+    bindCommands(SuperState.SCORE_FLOW, intake.intake(), indexer.kick(), shooter.testShoot());
 
     bindCommands(
         SuperState.FEED,
