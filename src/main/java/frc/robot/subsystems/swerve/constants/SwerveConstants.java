@@ -25,18 +25,19 @@ public abstract class SwerveConstants {
   protected AprilTagFieldLayout fieldTags;
 
   public SwerveConstants() {
-    try {
-      fieldTags =
-          new AprilTagFieldLayout(
-              Filesystem.getDeployDirectory()
-                  .toPath()
-                  .resolve("tagmaps" + File.separator + "2026-rebuilt-welded.json"));
-      System.out.println("Successfully loaded tag map");
-    } catch (Exception e) {
-      System.err.println("Failed to load custom tag map");
-      tagLoadFailureAlert.set(true);
+    // try {
+    //   fieldTags =
+    //       new AprilTagFieldLayout(
+    //           Filesystem.getDeployDirectory()
+    //               .toPath()
+    //               .resolve("tagmaps" + File.separator + "2026-rebuilt-welded.json"));
+    //   System.out.println("Successfully loaded tag map");
+    // } catch (Exception e) {
+    //   System.err.println("Failed to load custom tag map");
+    //   tagLoadFailureAlert.set(true);
+    //   fieldTags = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    // }
       fieldTags = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    }
   }
 
   public AprilTagFieldLayout getFieldTagLayout() {
