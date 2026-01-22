@@ -62,22 +62,31 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
-  public static final RobotType ROBOT_TYPE = Robot.isReal() ? RobotType.REAL : RobotType.SIM;
-  public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
-  public static final boolean TUNING_MODE = true;
-  public boolean hasZeroedSinceStartup = false;
-
-  public enum RobotType {
+  /** This is whether or not the robot is real, sim, or replay */
+  public enum RobotMode {
     REAL,
     SIM,
     REPLAY
   }
 
+  /** This is whether or not the robot is Alpha or Comp */
   public enum RobotEdition {
     ALPHA,
     COMP
   }
 
+  public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
+  public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
+
+  /**
+   * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
+   * complete
+   */
+  public static final boolean TUNING_MODE = true;
+
+  public boolean hasZeroedSinceStartup = false;
+
+  // Add stuff related to dashboard alerts
   private final Alert driverJoystickDisconnectedAlert =
       new Alert("Driver controller disconnected!", AlertType.kError);
   private final Alert operatorJoystickDisconnectedAlert =
@@ -91,8 +100,6 @@ public class Robot extends LoggedRobot {
           "Battery voltage is very low, consider turning off the robot or replacing the battery.",
           AlertType.kWarning);
 
-  private static CANBus canivore = new CANBus("*");
-
   private final Timer canInitialErrorTimer = new Timer();
   private final Timer canErrorTimer = new Timer();
   private final Timer canivoreErrorTimer = new Timer();
@@ -105,39 +112,40 @@ public class Robot extends LoggedRobot {
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 
-  // Instantiate subsystems
+  /**
+   * As per the 2026+ ctre api we should be passing in the actual canbus object to any ctre device
+   * constructors, NOT the name as a string
+   */
+  public static CANBus canivore = new CANBus("*");
 
-  // Subsystem initialization
+  // Declare subsystems that aren't part of the superstructure
+  // This means they can do stuff regardless of what state the robot's in
+  // since none of them are dependent on the state - f.e. climber can do what it wants
+  // Subsystems that *are* part of the superstructure are initialized later
+
+  // swervesubsystem decides on its own whether or not to use alpha or comp swerve constants
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
-
-  // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
+
+  // climber only exists for the comp bot - this is accounted for later
   private ClimberSubsystem climber;
+
+  private final Superstructure superstructure;
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
 
+  // Assign non-superstructure triggers
   @AutoLogOutput(key = "Superstructure/Autoaim Request")
   private Trigger autoAimReq = driver.rightBumper().or(driver.leftBumper());
 
-  @AutoLogOutput(key = "Robot/Pre Zeroing Request")
-  private Trigger preZeroingReq = driver.a();
-
-  @AutoLogOutput(key = "Robot/Zeroing Request")
-  private Trigger zeroingReq = driver.b();
-
-  private final Superstructure superstructure;
-
+  // Auto stuff
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
-
   @AutoLogOutput boolean haveAutosGenerated = false;
-
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
-  // Logged mechanisms
-
-  // temporarily override map with empty map to avoid collisions swith reefscape elements
+  // temporarily override map with empty map to avoid collisions with reefscape elements
   // unfortunately this also turns off collisions with walls but that's fine
   // TODO update once rebuilt is added to maplesim
   private static class EvergreenArena extends SimulatedArena {
@@ -153,17 +161,30 @@ public class Robot extends LoggedRobot {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
 
+  // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
   public Robot() {
+    // these have to be instantiated as null to ensure that there's always *something* in it
+    // although it always gets assigned to the robot-specific version in the switch-case statement
+    // below, the compiler doesn't technically know that for sure
+    // that would be bad because if for some reason we had some case of ROBOT_EDITION that wasn't
+    // accounted for, it wouldn't be able to pass anything to the superstructure below and it would
+    // break
+    // granted this would never actually happen but
     Indexer indexer = null;
     Intake intake = null;
     Shooter shooter = null;
+
+    // this looks at the ROBOT_EDITION variable and decides which version of each subsystem to
+    // create based on that
+    // alpha: lindexer, fintake, shooter
+    // comp: spindexer, lintake, turret
     switch (ROBOT_EDITION) {
       case ALPHA:
         indexer =
             new LindexerSubsystem(
                 canivore,
-                (ROBOT_TYPE == RobotType.REAL)
+                (ROBOT_MODE == RobotMode.REAL)
                     ? new RollerIO(9, LindexerSubsystem.getIndexerConfigs(), canivore)
                     : new RollerIOSim(
                         9,
@@ -174,7 +195,7 @@ public class Robot extends LoggedRobot {
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore),
-                (ROBOT_TYPE == RobotType.REAL)
+                (ROBOT_MODE == RobotMode.REAL)
                     ? new RollerIO(10, LindexerSubsystem.getIndexerConfigs(), canivore)
                     : new RollerIOSim(
                         10,
@@ -187,17 +208,19 @@ public class Robot extends LoggedRobot {
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore));
+
         shooter =
             new ShooterSubsystem(
-                ROBOT_TYPE == RobotType.REAL
+                ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
                     : new HoodIOSim(canivore),
-                ROBOT_TYPE == RobotType.REAL
+                ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
                     : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
+
         intake =
             new FintakeSubsystem(
-                (ROBOT_TYPE == RobotType.REAL)
+                (ROBOT_MODE == RobotMode.REAL)
                     ? new RollerIO(8, FintakeSubsystem.getIntakeConfig(), canivore)
                     : new RollerIOSim(
                         8,
@@ -208,28 +231,38 @@ public class Robot extends LoggedRobot {
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore));
+        // note that the climber is not instantiated here
         break;
       case COMP:
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
         shooter = new TurretSubsystem();
-        climber = new ClimberSubsystem(); //TODO climber
+        climber = new ClimberSubsystem(); // TODO climber
         break;
     }
+    // now that we've assigned the correct subsystems based on robot edition, we can pass them into
+    // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
-    if (climber == null) climber = new ClimberSubsystem();//TODO new ClimberSubsystem(new ClimberIO() {}) and such
+    // if this is alpha, we won't have assigned a climber yet
+    // this creates a placeholder "no-operation" climber that will just not do anything, but is not
+    // null (and we need it to be not null)
+    if (climber == null)
+      climber = new ClimberSubsystem(); // TODO new ClimberSubsystem(new ClimberIO() {}) and such
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
+
     // Metadata about the current code running on the robot
     Logger.recordMetadata("Codebase", "Rebuilt");
     Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
-    Logger.recordMetadata("Robot Mode", ROBOT_TYPE.toString());
+    Logger.recordMetadata("Robot Mode", ROBOT_MODE.toString());
     Logger.recordMetadata("Robot Edition", ROBOT_EDITION.toString());
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
     Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
     Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+
+    // log if we have uncommitted changes
     switch (BuildConstants.DIRTY) {
       case 0:
         Logger.recordMetadata("GitDirty", "All changes committed");
@@ -242,11 +275,16 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    switch (ROBOT_TYPE) {
+    // set up logging stuff depending on robot mode
+    switch (ROBOT_MODE) {
       case REAL:
         Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        new PowerDistribution(1, ModuleType.kCTRE); // Enables power distribution logging
+        // TODO confirm pdp vs pdh
+        // apparently LoggedPowerDistribution doesn't work with the pdp 2.0
+        // LoggedPowerDistribution.getInstance(1, ModuleType.kCTRE); // Enables power distribution
+        // logging
+        new PowerDistribution(1, ModuleType.kCTRE);
         break;
       case REPLAY:
         setUseTiming(false); // Run as fast as possible
@@ -266,16 +304,15 @@ public class Robot extends LoggedRobot {
     // be added.
 
     Logger.recordOutput("Canivore Status", canivore.getStatus().Status);
+    Logger.recordOutput("Robot Edition", ROBOT_EDITION);
 
     PhoenixOdometryThread.getInstance().start();
 
-    leds = new LEDSubsystem(new LEDIOReal());
+    leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 
     // Set default commands
-
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
-
     swerve.setDefaultCommand(
         swerve.driveOpenLoopFieldRelative(
             () ->
@@ -290,38 +327,13 @@ public class Robot extends LoggedRobot {
 
     addControllerBindings();
 
+    // Auto things
     autos = new Autos(swerve);
     autoChooser.addDefaultOption("None", Commands.none());
-
-    // Generates autos on connected
-    new Trigger(
-            () ->
-                DriverStation.isDSAttached()
-                    && DriverStation.getAlliance().isPresent()
-                    && !haveAutosGenerated)
-        .onTrue(Commands.print("Connected"))
-        .onTrue(Commands.runOnce(this::addAutos).ignoringDisable(true));
-
-    new Trigger(
-            () -> {
-              boolean allianceChanged = !DriverStation.getAlliance().equals(lastAlliance);
-              lastAlliance = DriverStation.getAlliance();
-              return allianceChanged && DriverStation.getAlliance().isPresent();
-            })
-        .onTrue(Commands.runOnce(this::addAutos).ignoringDisable(true));
 
     // Run auto when auto starts. Matches Choreolib's defer impl
     RobotModeTriggers.autonomous()
         .whileTrue(Commands.defer(() -> autoChooser.get().asProxy(), Set.of()));
-
-    CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            (interrupted, interrupting) -> {
-              System.out.println("Interrupted: " + interrupted);
-              System.out.println(
-                  "Interrputing: "
-                      + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
-            });
 
     // Add autos on alliance change
     new Trigger(
@@ -347,6 +359,7 @@ public class Robot extends LoggedRobot {
             Commands.runOnce(() -> addAutos())
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
+
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
     // SmartDashboard.putData("Zero hood", shooter.zeroHood().ignoringDisable(true));
     // SmartDashboard.putData("Test Shot", shooter.testShoot());
@@ -356,6 +369,16 @@ public class Robot extends LoggedRobot {
     canErrorTimer.restart();
     canivoreErrorTimer.restart();
     disabledTimer.restart();
+
+    // log when commands get interrupted
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            (interrupted, interrupting) -> {
+              System.out.println("Interrupted: " + interrupted);
+              System.out.println(
+                  "Interrputing: "
+                      + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
+            });
   }
 
   /** Scales a joystick value for teleop driving */
@@ -363,7 +386,6 @@ public class Robot extends LoggedRobot {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.02);
   }
 
-  @SuppressWarnings("unlikely-arg-type")
   private void addControllerBindings() {
     // heading reset
     driver
@@ -390,10 +412,11 @@ public class Robot extends LoggedRobot {
                 () ->
                     modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-      //TODO add binding for climb
+    // TODO add binding for climb
 
     // ---zeroing stuff---
 
+    // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))
         .negate()
         .onTrue(Commands.runOnce(() -> driverJoystickDisconnectedAlert.set(true)))
@@ -422,10 +445,15 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
     superstructure.periodic();
 
-    // Log mechanism poses
+    // TODO Log mechanism poses
 
+    updateAlerts();
+  }
+
+  public void updateAlerts() {
     // Check CAN status
     var canStatus = RobotController.getCANStatus();
     if (canStatus.transmitErrorCount > 0 || canStatus.receiveErrorCount > 0) {

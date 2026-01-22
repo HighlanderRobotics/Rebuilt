@@ -14,7 +14,7 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-/**Fintake = Fixed Intake. !! ALPHA !! */
+/** Fintake = Fixed Intake. !! ALPHA !! */
 public class FintakeSubsystem extends SubsystemBase implements Intake {
   public static final double GEAR_RATIO = 2.0;
 
@@ -40,7 +40,7 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
     Logger.processInputs("Intake", inputs);
   }
 
- @Override
+  @Override
   public Command intake() {
     return this.run(() -> io.setRollerVoltage(10));
   }
