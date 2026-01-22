@@ -30,15 +30,21 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
-import frc.robot.subsystems.indexer.IndexerSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.LindexerSubsystem;
+import frc.robot.subsystems.indexer.SpindexerSubsystem;
+import frc.robot.subsystems.intake.FintakeSubsystem;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.LintakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.shooter.FlywheelIO;
 import frc.robot.subsystems.shooter.FlywheelIOSim;
 import frc.robot.subsystems.shooter.HoodIO;
 import frc.robot.subsystems.shooter.HoodIOSim;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
@@ -56,6 +62,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
   public static final RobotType ROBOT_TYPE = Robot.isReal() ? RobotType.REAL : RobotType.SIM;
+  public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
   public static final boolean TUNING_MODE = true;
   public boolean hasZeroedSinceStartup = false;
 
@@ -63,6 +70,11 @@ public class Robot extends LoggedRobot {
     REAL,
     SIM,
     REPLAY
+  }
+
+  public enum RobotEdition {
+    ALPHA,
+    COMP
   }
 
   private final Alert driverJoystickDisconnectedAlert =
@@ -96,55 +108,9 @@ public class Robot extends LoggedRobot {
 
   // Subsystem initialization
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
-  private final IndexerSubsystem indexer =
-      new IndexerSubsystem(
-          canivore,
-          (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIO(9, IndexerSubsystem.getIndexerConfigs(), canivore)
-              : new RollerIOSim(
-                  9,
-                  IndexerSubsystem.getIndexerConfigs(),
-                  new DCMotorSim(
-                      LinearSystemId.createDCMotorSystem(
-                          DCMotor.getKrakenX44Foc(1), 0.003, IndexerSubsystem.GEAR_RATIO),
-                      DCMotor.getKrakenX44Foc(1)),
-                  MotorType.KrakenX44,
-                  canivore),
-          (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIO(10, IndexerSubsystem.getIndexerConfigs(), canivore)
-              : new RollerIOSim(
-                  10,
-                  IndexerSubsystem.getKickerConfigs(),
-                  new DCMotorSim(
-                      LinearSystemId.createDCMotorSystem(
-                          DCMotor.getKrakenX44Foc(1), 0.00001, IndexerSubsystem.KICKER_GEAR_RATIO),
-                      DCMotor.getKrakenX44Foc(1)),
-                  MotorType.KrakenX44,
-                  canivore));
 
   // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
-  private final ShooterSubsystem shooter =
-      new ShooterSubsystem(
-          ROBOT_TYPE == RobotType.REAL
-              ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
-              : new HoodIOSim(canivore),
-          ROBOT_TYPE == RobotType.REAL
-              ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-              : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
-  private final IntakeSubsystem intake =
-      new IntakeSubsystem(
-          (ROBOT_TYPE == RobotType.REAL)
-              ? new RollerIO(8, IntakeSubsystem.getIntakeConfig(), canivore)
-              : new RollerIOSim(
-                  8,
-                  IntakeSubsystem.getIntakeConfig(),
-                  new DCMotorSim(
-                      LinearSystemId.createDCMotorSystem(
-                          DCMotor.getKrakenX44Foc(1), 0.001, IntakeSubsystem.GEAR_RATIO),
-                      DCMotor.getKrakenX44Foc(1)),
-                  MotorType.KrakenX44,
-                  canivore));
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
@@ -158,8 +124,7 @@ public class Robot extends LoggedRobot {
   @AutoLogOutput(key = "Robot/Zeroing Request")
   private Trigger zeroingReq = driver.b();
 
-  private final Superstructure superstructure =
-      new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+  private final Superstructure superstructure;
 
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
@@ -188,6 +153,69 @@ public class Robot extends LoggedRobot {
 
   @SuppressWarnings("resource")
   public Robot() {
+
+    Indexer indexer = null;
+    Intake intake = null;
+    Shooter shooter = null;
+    switch (ROBOT_EDITION) {
+      case ALPHA:
+        indexer =
+            new LindexerSubsystem(
+                canivore,
+                (ROBOT_TYPE == RobotType.REAL)
+                    ? new RollerIO(9, LindexerSubsystem.getIndexerConfigs(), canivore)
+                    : new RollerIOSim(
+                        9,
+                        LindexerSubsystem.getIndexerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1), 0.003, LindexerSubsystem.GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore),
+                (ROBOT_TYPE == RobotType.REAL)
+                    ? new RollerIO(10, LindexerSubsystem.getIndexerConfigs(), canivore)
+                    : new RollerIOSim(
+                        10,
+                        LindexerSubsystem.getKickerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.00001,
+                                LindexerSubsystem.KICKER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore));
+        shooter =
+            new ShooterSubsystem(
+                ROBOT_TYPE == RobotType.REAL
+                    ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
+                    : new HoodIOSim(canivore),
+                ROBOT_TYPE == RobotType.REAL
+                    ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
+                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
+        intake =
+            new FintakeSubsystem(
+                (ROBOT_TYPE == RobotType.REAL)
+                    ? new RollerIO(8, FintakeSubsystem.getIntakeConfig(), canivore)
+                    : new RollerIOSim(
+                        8,
+                        FintakeSubsystem.getIntakeConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1), 0.001, FintakeSubsystem.GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore));
+        break;
+      case COMP:
+        indexer = new SpindexerSubsystem();
+        intake = new LintakeSubsystem();
+        shooter = new TurretSubsystem();
+        break;
+    }
+    superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
@@ -316,8 +344,8 @@ public class Robot extends LoggedRobot {
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
-    SmartDashboard.putData("Zero hood", shooter.zeroHood().ignoringDisable(true));
-    SmartDashboard.putData("Test Shot", shooter.testShoot());
+    // SmartDashboard.putData("Zero hood", shooter.zeroHood().ignoringDisable(true));
+    // SmartDashboard.putData("Test Shot", shooter.testShoot());
 
     // Reset alert timers
     canInitialErrorTimer.restart();
@@ -378,10 +406,10 @@ public class Robot extends LoggedRobot {
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
 
     // Sysid Autos
-    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-    autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+    // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
