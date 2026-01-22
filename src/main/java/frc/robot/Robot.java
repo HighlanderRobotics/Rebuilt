@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
@@ -111,6 +112,7 @@ public class Robot extends LoggedRobot {
 
   // canivore, new RollerIOReal(0, IndexerSubsystem.getIndexerConfigs()));
   private final LEDSubsystem leds;
+  private ClimberSubsystem climber;
 
   private final CommandXboxControllerSubsystem driver = new CommandXboxControllerSubsystem(0);
   private final CommandXboxControllerSubsystem operator = new CommandXboxControllerSubsystem(1);
@@ -153,7 +155,6 @@ public class Robot extends LoggedRobot {
 
   @SuppressWarnings("resource")
   public Robot() {
-
     Indexer indexer = null;
     Intake intake = null;
     Shooter shooter = null;
@@ -212,17 +213,20 @@ public class Robot extends LoggedRobot {
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
         shooter = new TurretSubsystem();
+        climber = new ClimberSubsystem(); //TODO climber
         break;
     }
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+    if (climber == null) climber = new ClimberSubsystem();//TODO new ClimberSubsystem(new ClimberIO() {}) and such
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
     // Metadata about the current code running on the robot
-    Logger.recordMetadata("Codebase", "2026 Template");
+    Logger.recordMetadata("Codebase", "Rebuilt");
     Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
     Logger.recordMetadata("Robot Mode", ROBOT_TYPE.toString());
+    Logger.recordMetadata("Robot Edition", ROBOT_EDITION.toString());
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
     Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
     Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
@@ -386,6 +390,7 @@ public class Robot extends LoggedRobot {
                 () ->
                     modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+      //TODO add binding for climb
 
     // ---zeroing stuff---
 
