@@ -211,6 +211,10 @@ public class Autos {
         setAutoIntakeReqFalse());
   }
 
+  public Command shootPreload() {
+    return Commands.sequence(setAutoScoreReqTrue(), waitUntilEmpty(), setAutoScoreReqFalse());
+  }
+
   public Command setAutoIntakeReqTrue() {
     return Commands.runOnce(() -> autoIntake = true);
   }
@@ -250,7 +254,11 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine("Depot Score Clim Auto");
     Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
     // Will always need to reset odo at the start of a routine
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    Command autoCommand =
+        paths[0]
+            .getTrajectory(routine)
+            .resetOdometry()
+            .andThen(shootPreload()); // shoot preload then do the paths
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -262,7 +270,7 @@ public class Autos {
   public Command getOutpostScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Score Climb Auto");
     Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoPR, Path.PRtoCR};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -274,7 +282,7 @@ public class Autos {
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
     Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoPL, Path.PLtoCL};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -286,7 +294,7 @@ public class Autos {
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
     Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoPL, Path.PLtoCL};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -297,6 +305,7 @@ public class Autos {
 
   public Command waitUntilEmpty() {
     // TODO wait till robot empty / done scoring
-    return null;
+    // return null;
+    return Commands.waitSeconds(0.5);
   }
 }
