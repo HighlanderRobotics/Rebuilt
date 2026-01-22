@@ -20,19 +20,19 @@ public class AutoAim {
         new ShotData(Rotation2d.fromDegrees(6), 30));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36),
-        new ShotData(Rotation2d.fromDegrees(8), 30));
+        new ShotData(Rotation2d.fromDegrees(10.5), 30));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24),
-        new ShotData(Rotation2d.fromDegrees(12), 31));
+        new ShotData(Rotation2d.fromDegrees(14.5), 30));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24),
-        new ShotData(Rotation2d.fromDegrees(17), 30));
+        new ShotData(Rotation2d.fromDegrees(18), 30));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24),
-        new ShotData(Rotation2d.fromDegrees(21), 30));
+        new ShotData(Rotation2d.fromDegrees(21.5), 30));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24),
-        new ShotData(Rotation2d.fromDegrees(24), 30));
+        new ShotData(Rotation2d.fromDegrees(24.5), 30));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24 + 24),
         new ShotData(Rotation2d.fromDegrees(28), 30));
