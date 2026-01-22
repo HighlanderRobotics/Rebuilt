@@ -59,15 +59,6 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
-  public Command stopKicker() {
-    return this.run(() -> kickerIO.setRollerVoltage(0));
-  }
-  ;
-
-  public Command shoot() {
-    return this.run(() -> kickerIO.setRollerVoltage(0));
-  }
-
   @Override
   public boolean isEmpty() {
     return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
@@ -78,6 +69,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
+  @Override
   public Command index() {
     return this.run(
         () -> {
@@ -86,6 +78,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         });
   }
 
+  @Override
   public Command kick() {
     return this.run(
         () -> {
@@ -94,6 +87,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         });
   }
 
+  @Override
   public Command spit() {
     return this.run(
         () -> {
@@ -102,6 +96,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         });
   }
 
+  @Override
   public Command rest() {
     return this.run(
         () -> {

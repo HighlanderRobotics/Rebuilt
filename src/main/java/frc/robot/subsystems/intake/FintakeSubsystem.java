@@ -34,20 +34,23 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
     this.io = io;
   }
 
+  @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
   }
 
-  // TODO get actual values
+ @Override
   public Command intake() {
     return this.run(() -> io.setRollerVoltage(10));
   }
 
+  @Override
   public Command outtake() {
     return this.run(() -> io.setRollerVoltage(-5));
   }
 
+  @Override
   public Command rest() {
     return this.run(() -> io.setRollerVoltage(0));
   }

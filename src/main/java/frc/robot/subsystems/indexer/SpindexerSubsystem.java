@@ -42,12 +42,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command shoot() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'shoot'");
-  }
-
-  @Override
   public Command spit() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'spit'");

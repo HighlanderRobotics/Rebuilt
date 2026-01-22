@@ -17,8 +17,6 @@ public interface Indexer {
 
   public Command index();
 
-  public Command shoot();
-
   public Command spit();
 
   public Command kick();

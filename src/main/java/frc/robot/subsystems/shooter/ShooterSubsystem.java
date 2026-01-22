@@ -65,6 +65,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
     this.flywheelIO = flywheelIO;
   }
 
+  @Override
   public Command testShoot() {
     return this.run(
         () -> {
@@ -115,10 +116,6 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(Rotation2d.kZero);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
-  }
-
-  public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
-    return this.run(() -> hoodIO.setHoodPosition(hoodPosition.get()));
   }
 
   @Override
