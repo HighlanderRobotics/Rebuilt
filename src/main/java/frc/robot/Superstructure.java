@@ -131,7 +131,7 @@ public class Superstructure {
 
     antiJamReq = driver.a().or(operator.a());
 
-    isFull = new Trigger(indexer::isFull);
+    isFull = new Trigger(indexer::isFull).debounce(0.5); // TODO tune
 
     isEmpty = new Trigger(indexer::isEmpty);
   }
