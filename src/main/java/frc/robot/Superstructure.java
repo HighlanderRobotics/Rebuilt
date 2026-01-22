@@ -47,6 +47,12 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/State")
   private static SuperState state = SuperState.IDLE;
 
+  @AutoLogOutput(key = "Scoring/Scoring Active")
+  public boolean isScoringActive =
+      isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
+
+  // its litterly possible
+
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
