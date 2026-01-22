@@ -2,8 +2,10 @@ package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
@@ -12,9 +14,31 @@ public class AutoAim {
   // If we need other shot trees (i.e. for feeding) we can put them here
 
   static { // For hub shot tree
-    // TODO: ADD SHOTS TO HUB SHOT HERE
+    // 6 feet from edge of hub
     HUB_SHOT_TREE.put(
-        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0.5)); // Placeholder to prevent crashes
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 12),
+        new ShotData(Rotation2d.fromDegrees(6), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36),
+        new ShotData(Rotation2d.fromDegrees(10.5), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24),
+        new ShotData(Rotation2d.fromDegrees(14.5), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(18), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(21.5), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(24.5), 30));
+    HUB_SHOT_TREE.put(
+        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24 + 24),
+        new ShotData(Rotation2d.fromDegrees(28), 30));
+
+    // 2sqrt2 ft +
+    // 6 deg 30 rps
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -23,12 +47,14 @@ public class AutoAim {
   static { // For feed shot tree
     // TODO: POPULATE
     FEED_SHOT_TREE.put(
-        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0.5)); // Placeholder to prevent crashes
+        1.0, new ShotData(Rotation2d.kCW_90deg, 10)); // Placeholder to prevent crashes
   }
 
   // TODO: SOTM
 
   public static double distanceToHub(Pose2d pose) {
-    return pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    Logger.recordOutput("Autoaim/Distance To Hub", distance);
+    return distance;
   }
 }

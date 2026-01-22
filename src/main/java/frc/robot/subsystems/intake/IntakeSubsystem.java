@@ -22,7 +22,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private SysIdRoutine intakeRollerSysid =
       new SysIdRoutine(
-          new Config(null, null, null, (state) -> Logger.recordOutput("Intake/SysID State", state)),
+          new Config(
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Intake/SysID State", state.toString())),
           new Mechanism((volts) -> io.setRollerVoltage(volts.in(Volts)), null, this));
 
   public IntakeSubsystem(RollerIO io) {
@@ -36,11 +40,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // TODO get actual values
   public Command intake() {
-    return this.run(() -> io.setRollerVoltage(5));
+    return this.run(() -> io.setRollerVoltage(10));
   }
 
   public Command outake() {
-    return this.run(() -> io.setRollerVoltage(-2));
+    return this.run(() -> io.setRollerVoltage(-5));
   }
 
   public Command rest() {
@@ -62,14 +66,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
-    config.Slot0.kS = 0.24;
-    config.Slot0.kV = 0.6;
-    config.Slot0.kP = 110.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kS = 0.42;
+    config.Slot0.kV = 0.21;
+    config.Slot0.kA = 0.00347;
 
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     return config;

@@ -16,10 +16,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 /** Add your docs here. */
 public class FlywheelIO {
@@ -31,6 +33,7 @@ public class FlywheelIO {
     public double flywheelLeaderSupplyCurrentAmp = 0.0;
     public double flywheelLeaderVoltage = 0.0;
     public double flywheelLeaderTempC = 0.0;
+    public double flywheelLeaderPosition = 0.0;
 
     public double flywheelFollowerVelocityRotationsPerSecond = 0.0;
     public double flywheelFollowerStatorCurrentAmps = 0.0;
@@ -47,6 +50,7 @@ public class FlywheelIO {
   private final StatusSignal<Current> flywheelLeaderStatorCurrent;
   private final StatusSignal<Current> flywheelLeaderSupplyCurrent;
   private final StatusSignal<Temperature> flywheelLeaderTemp;
+  private final StatusSignal<Angle> flywheelLeaderPosition;
 
   private final BaseStatusSignal flywheelFollowerVelocity;
   private final StatusSignal<Voltage> flywheelFollowerVoltage;
@@ -56,8 +60,7 @@ public class FlywheelIO {
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
-  private MotionMagicVelocityVoltage motionMagicVelocityVoltage =
-      new MotionMagicVelocityVoltage(0.0).withEnableFOC(true).withAcceleration(100);
+  private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
 
   private double velocitySetpointRotPerSec = 0.0;
 
@@ -79,12 +82,18 @@ public class FlywheelIO {
     flywheelLeaderStatorCurrent = flywheelLeader.getStatorCurrent();
     flywheelLeaderSupplyCurrent = flywheelLeader.getSupplyCurrent();
     flywheelLeaderTemp = flywheelLeader.getDeviceTemp();
+    flywheelLeaderPosition = flywheelLeader.getPosition();
 
     flywheelFollowerVelocity = flywheelFollower.getVelocity();
     flywheelFollowerVoltage = flywheelFollower.getMotorVoltage();
     flywheelFollowerStatorCurrent = flywheelFollower.getStatorCurrent();
     flywheelFollowerSupplyCurrent = flywheelFollower.getSupplyCurrent();
     flywheelFollowerTemp = flywheelFollower.getDeviceTemp();
+
+    motionMagicVelocityVoltage =
+        new MotionMagicVelocityVoltage(0.0)
+            .withAcceleration(config.MotionMagic.MotionMagicAcceleration)
+            .withEnableFOC(true);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -97,7 +106,8 @@ public class FlywheelIO {
         flywheelFollower.getMotorVoltage(),
         flywheelFollower.getStatorCurrent(),
         flywheelFollower.getSupplyCurrent(),
-        flywheelFollower.getDeviceTemp());
+        flywheelFollower.getDeviceTemp(),
+        flywheelLeaderPosition);
 
     flywheelLeader.optimizeBusUtilization();
     flywheelFollower.optimizeBusUtilization();
@@ -111,14 +121,17 @@ public class FlywheelIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.15; // From sim
-    config.Slot0.kP = 10.0;
+    config.Slot0.kS = 0.43477;
+    config.Slot0.kV = 0.144; // From sim
+    config.Slot0.kA = 0.016433;
+    config.Slot0.kP = 0.1;
     config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 80.0;
+
+    config.MotionMagic.MotionMagicAcceleration = 100.0;
 
     return config;
   }
@@ -148,13 +161,16 @@ public class FlywheelIO {
         flywheelFollowerVoltage,
         flywheelFollowerStatorCurrent,
         flywheelFollowerSupplyCurrent,
-        flywheelFollowerTemp);
+        flywheelFollowerTemp,
+        flywheelLeaderPosition);
 
     inputs.flywheelLeaderVelocityRotationsPerSecond = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
     inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
     inputs.flywheelLeaderSupplyCurrentAmp = flywheelLeaderSupplyCurrent.getValueAsDouble();
     inputs.flywheelLeaderTempC = flywheelLeaderTemp.getValueAsDouble();
+
+    inputs.flywheelLeaderPosition = flywheelLeaderPosition.getValueAsDouble();
 
     inputs.flywheelFollowerVelocityRotationsPerSecond = flywheelFollowerVelocity.getValueAsDouble();
     inputs.flywheelFollowerVoltage = flywheelFollowerVoltage.getValueAsDouble();
@@ -163,6 +179,7 @@ public class FlywheelIO {
     inputs.flywheelFollowerTempC = flywheelFollowerTemp.getValueAsDouble();
   }
 
+  @AutoLogOutput(key = "Shooter/Setpoint")
   public double getSetpointRotPerSec() {
     return velocitySetpointRotPerSec;
   }
