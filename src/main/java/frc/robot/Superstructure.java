@@ -144,11 +144,13 @@ public class Superstructure {
     bindTransition(
         SuperState.INTAKE,
         SuperState.READY,
-        (intakeReq.negate().and(scoreReq.negate()).and(isEmpty.negate())).or(isFull));
+        (intakeReq.negate().and(scoreReq.negate()).and(isEmpty.negate())));
+    // .or(isFull));
 
     // bindTransition(SuperState.INTAKE, SuperState.SPIN_UP_FEED, feedReq);
 
-    bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
+    bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq);
+    // .and(isFull.negate()));
 
     bindTransition(SuperState.READY, SuperState.SPIN_UP_SCORE, scoreReq);
 

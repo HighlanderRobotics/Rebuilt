@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
@@ -52,6 +53,8 @@ public class AutoAim {
   // TODO: SOTM
 
   public static double distanceToHub(Pose2d pose) {
-    return pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    Logger.recordOutput("Autoaim/Distance To Hub", distance);
+    return distance;
   }
 }

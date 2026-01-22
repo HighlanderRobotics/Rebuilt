@@ -85,7 +85,7 @@ public class IndexerSubsystem extends SubsystemBase {
   public Command kick() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(10);
+          indexRollerIO.setRollerVoltage(12);
           kickerIO.setRollerVoltage(-7);
         });
   }
