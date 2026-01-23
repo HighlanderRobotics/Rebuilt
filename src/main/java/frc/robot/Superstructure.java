@@ -127,11 +127,7 @@ public class Superstructure {
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    feedReq =
-        driver
-            .rightBumper()
-            .and(DriverStation::isTeleop)
-            .or(Autos.autoFeedReq);
+    feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
 
     // flowReq = driver.leftTrigger().and(driver.rightTrigger());
 
