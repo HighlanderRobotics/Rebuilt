@@ -9,10 +9,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
 import frc.robot.components.rollers.RollerIO;
-import frc.robot.subsystems.indexer.IndexerSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.LindexerSubsystem;
+import frc.robot.subsystems.intake.FintakeSubsystem;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.LintakeSubsystem;
 import frc.robot.subsystems.shooter.FlywheelIO;
 import frc.robot.subsystems.shooter.HoodIO;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.lang.reflect.Field;
@@ -22,9 +26,9 @@ import org.junit.jupiter.api.Test;
 
 public class SuperstructureTest {
   Superstructure superstructure;
-  IntakeSubsystem intake;
-  ShooterSubsystem shooter;
-  IndexerSubsystem routing;
+  Intake intake;
+  Shooter shooter;
+  Indexer routing;
   SwerveSubsystem swerve;
 
   boolean scoreReq;
@@ -61,16 +65,16 @@ public class SuperstructureTest {
     isFull = false;
     isEmpty = true;
 
-    intake = new IntakeSubsystem(new RollerIO(10, IntakeSubsystem.getIntakeConfig(), new CANBus()));
+    intake = new FintakeSubsystem(new RollerIO(10, FintakeSubsystem.getIntakeConfig(), new CANBus()));
     shooter =
         new ShooterSubsystem(
             new HoodIO(HoodIO.getHoodConfiguration(), new CANBus()),
             new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), new CANBus()));
     routing =
-        new IndexerSubsystem(
+        new LindexerSubsystem(
             new CANBus(),
-            new RollerIO(11, IndexerSubsystem.getIndexerConfigs(), new CANBus()),
-            new RollerIO(12, IndexerSubsystem.getKickerConfigs(), new CANBus()));
+            new RollerIO(11, LindexerSubsystem.getIndexerConfigs(), new CANBus()),
+            new RollerIO(12, LindexerSubsystem.getKickerConfigs(), new CANBus()));
     swerve = new SwerveSubsystem(new CANBus());
 
     superstructure =
@@ -82,7 +86,6 @@ public class SuperstructureTest {
             new Trigger(() -> scoreReq),
             new Trigger(() -> intakeReq),
             new Trigger(() -> feedReq),
-            new Trigger(() -> flowReq),
             new Trigger(() -> antiJamReq),
             new Trigger(() -> isFull),
             new Trigger(() -> isEmpty));
