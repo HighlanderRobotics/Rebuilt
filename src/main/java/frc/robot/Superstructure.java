@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.FeedTargets;
@@ -25,8 +25,10 @@ public class Superstructure implements AutoCloseable {
     IDLE,
     INTAKE,
     READY,
+    SPIN_UP_FEED,
     FEED,
     FEED_FLOW,
+    SPIN_UP_SCORE,
     SCORE,
     SCORE_FLOW,
     SPIT;
@@ -51,7 +53,7 @@ public class Superstructure implements AutoCloseable {
   private final SwerveSubsystem swerve;
   private final IndexerSubsystem indexer;
   private final IntakeSubsystem intake;
-  private final HoodSubsystem shooter; // TODO: COMBINE WITH SHOOTER FLYWHEEL WHEN ITS MERGED
+  private final ShooterSubsystem shooter;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -87,7 +89,7 @@ public class Superstructure implements AutoCloseable {
       SwerveSubsystem swerve,
       IndexerSubsystem indexer,
       IntakeSubsystem intake,
-      HoodSubsystem shooter,
+      ShooterSubsystem shooter,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
@@ -156,7 +158,7 @@ public class Superstructure implements AutoCloseable {
             .and(() -> shouldFeed == true)
             .or(Autos.autoFeedReq);
 
-    flowReq = operator.rightTrigger();
+    flowReq = driver.leftTrigger().and(driver.rightTrigger());
 
     antiJamReq = driver.a().or(operator.a());
 
@@ -173,58 +175,48 @@ public class Superstructure implements AutoCloseable {
     bindTransition(
         SuperState.INTAKE, SuperState.READY, (intakeReq.negate().and(isEmpty.negate())).or(isFull));
 
-    bindTransition(SuperState.INTAKE, SuperState.FEED, feedReq);
-
-    bindTransition(SuperState.INTAKE, SuperState.SCORE, scoreReq);
+    bindTransition(SuperState.INTAKE, SuperState.SPIN_UP_FEED, feedReq);
 
     bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
 
-    bindTransition(SuperState.READY, SuperState.FEED, feedReq);
+    bindTransition(SuperState.READY, SuperState.SPIN_UP_SCORE, scoreReq);
+
+    bindTransition(
+        SuperState.SPIN_UP_SCORE,
+        SuperState.SCORE,
+        new Trigger(shooter::atFlywheelVelocitySetpoint));
+
+    bindTransition(
+        SuperState.SPIN_UP_FEED, SuperState.FEED, new Trigger(shooter::atFlywheelVelocitySetpoint));
 
     bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
-
-    bindTransition(SuperState.READY, SuperState.SCORE, scoreReq);
 
     bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty);
 
     // FEED_FLOW transitions
     {
-      bindTransition(SuperState.IDLE, SuperState.FEED_FLOW, flowReq.and(feedReq));
-
       bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
       bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
 
       bindTransition(
-          SuperState.FEED_FLOW,
-          SuperState.READY,
-          flowReq.negate().and(feedReq.negate()).and(isEmpty.negate()));
+          SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(
-          SuperState.FEED_FLOW,
-          SuperState.IDLE,
-          flowReq.negate().and(isEmpty).and(feedReq.negate()));
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty));
     }
 
     // SCORE_FLOW transitions
     {
-      bindTransition(SuperState.IDLE, SuperState.SCORE_FLOW, flowReq.and(scoreReq));
-
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
 
       bindTransition(
-          SuperState.SCORE_FLOW,
-          SuperState.READY,
-          flowReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
+          SuperState.SCORE_FLOW, SuperState.READY, flowReq.negate().and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(
-          SuperState.SCORE_FLOW,
-          SuperState.IDLE,
-          flowReq.negate().and(isEmpty).and(scoreReq.negate()));
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty));
     }
 
     // Transition from any state to SPIT for anti jamming
@@ -247,6 +239,16 @@ public class Superstructure implements AutoCloseable {
         intake.rest(),
         indexer.index(),
         shooter.rest()); // Maybe index at slower speed?
+
+    bindCommands(
+        SuperState.SPIN_UP_SCORE, intake.rest(), indexer.rest(), shooter.shoot(swerve::getPose));
+
+    bindCommands(
+        SuperState.SPIN_UP_FEED,
+        intake.rest(),
+        indexer.rest(),
+        shooter.feed(
+            swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
 
     bindCommands(
         SuperState.SCORE, intake.rest(), indexer.indexToShoot(), shooter.shoot(swerve::getPose));
