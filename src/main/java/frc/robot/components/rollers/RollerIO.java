@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -23,6 +24,7 @@ public class RollerIO implements AutoCloseable {
     public double appliedVoltage = 0.0;
     public double statorCurrentAmps = 0.0;
     public double motorTemperatureCelsius = 0.0;
+    public double motorPositionRotations = 0.0;
   }
 
   protected final TalonFX motor;
@@ -32,6 +34,7 @@ public class RollerIO implements AutoCloseable {
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<Current> statorCurrentAmps;
   private final StatusSignal<Temperature> motorTemperatureCelsius;
+  private final StatusSignal<Angle> motorPosition;
 
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private final VelocityVoltage velocityVoltage =
@@ -47,6 +50,7 @@ public class RollerIO implements AutoCloseable {
     appliedVoltage = motor.getMotorVoltage();
     statorCurrentAmps = motor.getStatorCurrent();
     motorTemperatureCelsius = motor.getDeviceTemp();
+    motorPosition = motor.getPosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -54,7 +58,8 @@ public class RollerIO implements AutoCloseable {
         supplyCurrentAmps,
         statorCurrentAmps,
         appliedVoltage,
-        motorTemperatureCelsius);
+        motorTemperatureCelsius,
+        motorPosition);
 
     motor.getConfigurator().apply(config);
     motor.optimizeBusUtilization();
@@ -66,13 +71,15 @@ public class RollerIO implements AutoCloseable {
         supplyCurrentAmps,
         appliedVoltage,
         statorCurrentAmps,
-        motorTemperatureCelsius);
+        motorTemperatureCelsius,
+        motorPosition);
 
     inputs.velocityRotsPerSec = angularVelocityRotsPerSec.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
     inputs.motorTemperatureCelsius = motorTemperatureCelsius.getValueAsDouble();
+    inputs.motorPositionRotations = motorPosition.getValueAsDouble();
   }
 
   public void setRollerVoltage(double volts) {

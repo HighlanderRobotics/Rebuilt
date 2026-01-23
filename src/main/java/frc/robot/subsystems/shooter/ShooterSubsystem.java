@@ -16,19 +16,21 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
+public class ShooterSubsystem extends SubsystemBase implements Shooter, AutoCloseable {
   public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
-  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
+  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
-  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0; // TODO: TUNE
+  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
 
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
@@ -39,7 +41,10 @@ public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
   private SysIdRoutine hoodSysid =
       new SysIdRoutine(
           new Config(
-              null, null, null, (state) -> Logger.recordOutput("Shooter/Hood/SysID State", state)),
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Shooter/Hood/SysID State", state.toString())),
           new Mechanism((voltage) -> hoodIO.setHoodVoltage(voltage.in(Volts)), null, this));
 
   private SysIdRoutine flywheelSysid =
@@ -48,8 +53,11 @@ public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
               null,
               null,
               null,
-              (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state)),
+              (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state.toString())),
           new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
+
+  private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
   /** Creates a new HoodSubsystem. */
   public ShooterSubsystem(HoodIO hoodIO, FlywheelIO flywheelIO) {
@@ -57,6 +65,16 @@ public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
     this.flywheelIO = flywheelIO;
   }
 
+  @Override
+  public Command testShoot() {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+        });
+  }
+
+  @Override
   public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
     return this.run(
         () -> {
@@ -67,6 +85,7 @@ public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
         });
   }
 
+  @Override
   public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
@@ -81,24 +100,22 @@ public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
         });
   }
 
+  @Override
   public Command rest() {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(Rotation2d.kZero); // TODO: TUNE TUCKED POSITION IF NEEDED
+          hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
         });
   }
 
+  @Override
   public Command spit() {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.kZero);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
-  }
-
-  public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
-    return this.run(() -> hoodIO.setHoodPosition(hoodPosition.get()));
   }
 
   @Override
@@ -146,11 +163,25 @@ public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
         flywheelSysid.dynamic(Direction.kReverse));
   }
 
+  @Override
+  @AutoLogOutput(key = "Shooter/At Vel Setpoint")
   public boolean atFlywheelVelocitySetpoint() {
     return MathUtil.isNear(
         flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
         flywheelIO.getSetpointRotPerSec(),
         FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
+  }
+
+  @Override
+  @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
+  public boolean atHoodSetpoint() {
+    return MathUtil.isNear(
+        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
+  }
+
+  @Override
+  public Command zeroHood() {
+    return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
   }
 
   @Override
