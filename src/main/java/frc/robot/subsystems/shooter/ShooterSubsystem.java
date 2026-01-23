@@ -21,7 +21,7 @@ import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-public class ShooterSubsystem extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase implements AutoCloseable {
   public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
@@ -151,5 +151,11 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
         flywheelIO.getSetpointRotPerSec(),
         FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
+  }
+
+  @Override
+  public void close() throws Exception {
+    flywheelIO.close();
+    hoodIO.close();
   }
 }

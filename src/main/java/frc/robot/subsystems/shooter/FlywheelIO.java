@@ -22,7 +22,7 @@ import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Add your docs here. */
-public class FlywheelIO {
+public class FlywheelIO implements AutoCloseable {
 
   @AutoLog
   public static class FlywheelIOInputs {
@@ -165,5 +165,11 @@ public class FlywheelIO {
 
   public double getSetpointRotPerSec() {
     return velocitySetpointRotPerSec;
+  }
+
+  @Override
+  public void close() {
+    flywheelFollower.close();
+    flywheelLeader.close();
   }
 }

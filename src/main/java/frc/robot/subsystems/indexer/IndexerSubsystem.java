@@ -166,7 +166,7 @@ public class IndexerSubsystem extends SubsystemBase implements AutoCloseable {
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
-    kickerIO.updateInputs(kickerInputs); 
+    kickerIO.updateInputs(kickerInputs);
     Logger.processInputs("Intake/Kicker", kickerInputs);
   }
 
@@ -180,6 +180,7 @@ public class IndexerSubsystem extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-    rollerIO.close();
+    indexRollerIO.close();
+    kickerIO.close();
   }
 }

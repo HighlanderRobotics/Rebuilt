@@ -14,7 +14,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLog;
 
-public class RollerIO {
+public class RollerIO implements AutoCloseable {
 
   @AutoLog
   public static class RollerIOInputs {
@@ -90,6 +90,6 @@ public class RollerIO {
 
   @Override
   public void close() throws Exception {
-    rollerMotor.close();
+    motor.close();
   }
 }

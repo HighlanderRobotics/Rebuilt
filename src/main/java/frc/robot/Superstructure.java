@@ -111,7 +111,7 @@ public class Superstructure implements AutoCloseable {
       SwerveSubsystem swerve,
       IndexerSubsystem indexer,
       IntakeSubsystem intake,
-      HoodSubsystem shooter,
+      ShooterSubsystem shooter,
       Trigger scoreReq,
       Trigger intakeReq,
       Trigger feedReq,
