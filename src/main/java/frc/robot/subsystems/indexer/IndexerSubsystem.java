@@ -39,7 +39,7 @@ public class IndexerSubsystem extends SubsystemBase {
               null,
               null,
               null,
-              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)),
+              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
           new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
@@ -48,8 +48,8 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public IndexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    firstCANRangeIO = new CANrangeIOReal(0, canbus);
-    secondCANRangeIO = new CANrangeIOReal(1, canbus);
+    firstCANRangeIO = new CANrangeIOReal(0, canbus, 10);
+    secondCANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
 
@@ -77,20 +77,20 @@ public class IndexerSubsystem extends SubsystemBase {
   public Command index() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(5);
-          kickerIO.setRollerVoltage(-5);
+          indexRollerIO.setRollerVoltage(7);
+          kickerIO.setRollerVoltage(7);
         });
   }
 
-  public Command indexToShoot() {
+  public Command kick() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(10);
-          kickerIO.setRollerVoltage(5);
+          indexRollerIO.setRollerVoltage(12);
+          kickerIO.setRollerVoltage(-7);
         });
   }
 
-  public Command outtake() {
+  public Command spit() {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(-5);
@@ -111,7 +111,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
@@ -136,7 +136,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Converts angular motion to linear motion
     config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
@@ -166,7 +166,7 @@ public class IndexerSubsystem extends SubsystemBase {
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);
-    Logger.processInputs("Intake/Kicker", kickerInputs);
+    Logger.processInputs("Indexer/Kicker", kickerInputs);
   }
 
   public Command runRollerSysId() {
