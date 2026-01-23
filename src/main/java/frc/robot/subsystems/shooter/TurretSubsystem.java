@@ -66,4 +66,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'testShoot'");
   }
+
+  @Override
+  public Command runCurrentZeroing() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'runCurrentZeroing'");
+  }
 }

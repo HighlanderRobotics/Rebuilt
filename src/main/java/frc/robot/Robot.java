@@ -348,7 +348,7 @@ public class Robot extends LoggedRobot {
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                     .times(-1)));
 
-    addControllerBindings();
+    addControllerBindings(shooter);
 
     // Auto things
     autos = new Autos(swerve);
@@ -409,7 +409,8 @@ public class Robot extends LoggedRobot {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.02);
   }
 
-  private void addControllerBindings() {
+  //passing in the shooter is kind of chopped but like it's fine
+  private void addControllerBindings(Shooter shooter) {
     // heading reset
     driver
         .leftStick()
@@ -424,7 +425,7 @@ public class Robot extends LoggedRobot {
                             ? Rotation2d.kZero
                             : Rotation2d.k180deg)));
 
-    // TODO: ACTUAL BUTTON BINDING
+    //autoaim (alpha)
     driver
         .leftBumper()
         .whileTrue(
@@ -436,6 +437,9 @@ public class Robot extends LoggedRobot {
                     modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
     // TODO add binding for climb
+
+    // current zero shooter hood
+    driver.a().onTrue(shooter.runCurrentZeroing());
 
     // ---zeroing stuff---
 
