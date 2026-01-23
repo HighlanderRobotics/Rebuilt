@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class ShooterSubsystem extends SubsystemBase implements Shooter, AutoCloseable {
+public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);

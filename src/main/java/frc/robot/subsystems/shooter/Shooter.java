@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 
 /** Add your docs here. */
-public interface Shooter {
+public interface Shooter extends AutoCloseable {
 
   /**
    * Sets hood angle and flywheel velocity based on distance from hub from the shot map + current

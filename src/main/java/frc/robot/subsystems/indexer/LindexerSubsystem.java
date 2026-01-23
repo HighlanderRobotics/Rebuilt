@@ -17,7 +17,7 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-public class LindexerSubsystem extends SubsystemBase implements AutoCloseable, Indexer {
+public class LindexerSubsystem extends SubsystemBase implements Indexer {
   // Add actual CanBus
 
   public static final double GEAR_RATIO = 2.0;

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -116,13 +117,12 @@ public class Superstructure implements AutoCloseable {
   // Used for testing
   public Superstructure(
       SwerveSubsystem swerve,
-      IndexerSubsystem indexer,
-      IntakeSubsystem intake,
-      ShooterSubsystem shooter,
+      Indexer indexer,
+      Intake intake,
+      Shooter shooter,
       Trigger scoreReq,
       Trigger intakeReq,
       Trigger feedReq,
-      Trigger flowReq,
       Trigger antiJamReq,
       Trigger isFull,
       Trigger isEmpty) {
@@ -133,7 +133,6 @@ public class Superstructure implements AutoCloseable {
     this.scoreReq = scoreReq;
     this.intakeReq = intakeReq;
     this.feedReq = feedReq;
-    this.flowReq = flowReq;
     this.antiJamReq = antiJamReq;
     this.isFull = isFull;
     this.isEmpty = isEmpty;
