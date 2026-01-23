@@ -76,7 +76,23 @@ public class Robot extends LoggedRobot {
   }
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
-  public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
+  // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
+  public static final RobotEdition ROBOT_EDITION;
+
+  // TODO get rio serial numbers
+  static {
+    switch (RobotController.getSerialNumber()) {
+      case "1":
+        ROBOT_EDITION = RobotEdition.ALPHA;
+        break;
+      case "2":
+        ROBOT_EDITION = RobotEdition.COMP;
+        break;
+      default:
+        // defaulting to comp is probably safer?
+        ROBOT_EDITION = RobotEdition.COMP;
+    }
+  }
 
   /**
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
@@ -99,6 +115,12 @@ public class Robot extends LoggedRobot {
       new Alert(
           "Battery voltage is very low, consider turning off the robot or replacing the battery.",
           AlertType.kWarning);
+  private final Alert wrongRobotAlert =
+      new Alert(
+          "!! ALPHA CODE HAS BEEN DEPLOYED TO COMP BOT THIS IS VERY BAD !!", AlertType.kError);
+  private final Alert tuningModeAlert =
+      new Alert(
+          "! Tuning mode is enabled while FMS attached, this is Quite bad !", AlertType.kWarning);
 
   private final Timer canInitialErrorTimer = new Timer();
   private final Timer canErrorTimer = new Timer();
@@ -164,6 +186,7 @@ public class Robot extends LoggedRobot {
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
   public Robot() {
+
     // these have to be instantiated as null to ensure that there's always *something* in it
     // although it always gets assigned to the robot-specific version in the switch-case statement
     // below, the compiler doesn't technically know that for sure
@@ -454,6 +477,12 @@ public class Robot extends LoggedRobot {
   }
 
   public void updateAlerts() {
+
+    if (ROBOT_EDITION == RobotEdition.ALPHA && DriverStation.isFMSAttached()) {
+      wrongRobotAlert.set(true);
+      // TODO make leds strobe red or something
+    }
+    if (TUNING_MODE && DriverStation.isFMSAttached()) tuningModeAlert.set(true);
     // Check CAN status
     var canStatus = RobotController.getCANStatus();
     if (canStatus.transmitErrorCount > 0 || canStatus.receiveErrorCount > 0) {

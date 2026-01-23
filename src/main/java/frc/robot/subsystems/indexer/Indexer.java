@@ -15,11 +15,15 @@ public interface Indexer {
 
   public boolean isPartiallyFull();
 
+  /** Run indexer towards shooter and kicker away from shooter */
   public Command index();
 
+  /** Run everything backwards. This is for antijamming the robot */
   public Command spit();
 
+  /** Run both indexer and kicker towards the shooter */
   public Command kick();
 
+  /** Not running (set to 0) */
   public Command rest();
 }
