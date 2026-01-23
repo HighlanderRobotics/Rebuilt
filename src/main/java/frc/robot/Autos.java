@@ -181,7 +181,6 @@ public class Autos {
   public Command feedPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoFeedReqTrue(),
-        path.getTrajectory(routine).cmd(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoFeedReqFalse());
   }
@@ -206,7 +205,6 @@ public class Autos {
   public Command intakePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoIntakeReqTrue(),
-        path.getTrajectory(routine).cmd(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoIntakeReqFalse());
   }
