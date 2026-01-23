@@ -10,8 +10,7 @@ import java.lang.reflect.Field;
 import java.util.TreeMap;
 
 public class InterpolatingShotTree {
-  public record ShotData(
-      Rotation2d hoodAngle, double flywheelVelocityRotPerSec, double flightTimeSec) {}
+  public record ShotData(Rotation2d hoodAngle, double flywheelVelocityRotPerSec) {}
 
   private final TreeMap<Double, ShotData> map = new TreeMap<>();
 
@@ -95,8 +94,7 @@ public class InterpolatingShotTree {
             MathUtil.interpolate(
                 startValue.hoodAngle().getRadians(), endValue.hoodAngle().getRadians(), t)),
         MathUtil.interpolate(
-            startValue.flywheelVelocityRotPerSec(), endValue.flywheelVelocityRotPerSec(), t),
-        MathUtil.interpolate(startValue.flightTimeSec(), endValue.flightTimeSec(), t));
+            startValue.flywheelVelocityRotPerSec(), endValue.flywheelVelocityRotPerSec(), t));
   }
 
   /**

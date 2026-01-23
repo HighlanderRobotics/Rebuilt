@@ -17,14 +17,15 @@ public class CANrangeIOReal implements CANrangeIO {
   private final StatusSignal<Distance> distance;
   private final StatusSignal<Boolean> isDetected;
 
-  public CANrangeIOReal(int CANrangeID, CANBus canbus) {
+  public CANrangeIOReal(int CANrangeID, CANBus canbus, double xFovDegrees) {
     canrange = new CANrange(CANrangeID, canbus);
     distance = canrange.getDistance();
     isDetected = canrange.getIsDetected();
 
     final CANrangeConfiguration config = new CANrangeConfiguration();
     config.ToFParams.UpdateFrequency = 50; // update frequency in Hz
-    config.ProximityParams.ProximityThreshold = 0.05;
+    config.ProximityParams.ProximityThreshold = 0.254;
+    config.FovParams.FOVRangeX = xFovDegrees;
 
     BaseStatusSignal.setUpdateFrequencyForAll(50.0, distance, isDetected);
 
