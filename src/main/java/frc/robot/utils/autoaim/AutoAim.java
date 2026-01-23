@@ -11,34 +11,28 @@ public class AutoAim {
 
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
 
-  // If we need other shot trees (i.e. for feeding) we can put them here
-
   static { // For hub shot tree
-    // 6 feet from edge of hub
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 12),
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
         new ShotData(Rotation2d.fromDegrees(6), 30));
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36),
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
         new ShotData(Rotation2d.fromDegrees(10.5), 30));
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24),
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
         new ShotData(Rotation2d.fromDegrees(14.5), 30));
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24),
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
         new ShotData(Rotation2d.fromDegrees(18), 30));
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24),
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
         new ShotData(Rotation2d.fromDegrees(21.5), 30));
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24),
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
         new ShotData(Rotation2d.fromDegrees(24.5), 30));
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(12 * 2 * Math.sqrt(2) + 6 + 36 + 24 + 24 + 24 + 24 + 24),
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
         new ShotData(Rotation2d.fromDegrees(28), 30));
-
-    // 2sqrt2 ft +
-    // 6 deg 30 rps
   }
 
   // Ig we'll see if we need more than 1 feed shot tree

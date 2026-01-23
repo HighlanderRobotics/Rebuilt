@@ -31,7 +31,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
-  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0; // TODO: TUNE
+  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
 
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
