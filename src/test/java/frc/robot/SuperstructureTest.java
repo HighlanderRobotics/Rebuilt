@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
-import frc.robot.components.rollers.RollerIOReal;
-import frc.robot.subsystems.hood.HoodIOSim;
-import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.components.rollers.RollerIO;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelIO;
+import frc.robot.subsystems.shooter.HoodIO;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class SuperstructureTest {
   Superstructure superstructure;
   IntakeSubsystem intake;
-  HoodSubsystem shooter;
+  ShooterSubsystem shooter;
   IndexerSubsystem routing;
   SwerveSubsystem swerve;
 
@@ -60,11 +61,10 @@ public class SuperstructureTest {
     isFull = false;
     isEmpty = true;
 
-    intake = new IntakeSubsystem(new RollerIOReal(10, IntakeSubsystem.getIntakeIOConfig()));
-    shooter = new HoodSubsystem(new HoodIOSim(new CANBus()));
+    intake = new IntakeSubsystem(new RollerIO(10, IntakeSubsystem.getIntakeConfig(), new CANBus()));
+    shooter = new ShooterSubsystem(new HoodIO(HoodIO.getHoodConfiguration(), new CANBus()), new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), new CANBus()));
     routing =
-        new IndexerSubsystem(
-            new CANBus(), new RollerIOReal(11, IndexerSubsystem.getIndexerConfigs()));
+        new IndexerSubsystem(new CANBus(), new RollerIO(11, IndexerSubsystem.getIndexerConfigs(), new CANBus()), new RollerIO(12, IndexerSubsystem.getKickerConfigs(), new CANBus()));
     swerve = new SwerveSubsystem(new CANBus());
 
     superstructure =
