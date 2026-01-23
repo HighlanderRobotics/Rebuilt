@@ -17,7 +17,8 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-public class IndexerSubsystem extends SubsystemBase {
+/** Lindexer = Linear Indexer. !! ALPHA !! */
+public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
   private CANrangeIOReal firstCANRangeIO;
@@ -46,34 +47,29 @@ public class IndexerSubsystem extends SubsystemBase {
   public static final double MAX_VELOCITY = 10.0;
   public static final double KICKER_GEAR_RATIO = 2.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
+  public LindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
     firstCANRangeIO = new CANrangeIOReal(0, canbus, 10);
     secondCANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
 
+  @Override
   public boolean isFull() {
     return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
-  public Command stopKicker() {
-    return this.run(() -> kickerIO.setRollerVoltage(0));
-  }
-  ;
-
-  public Command shoot() {
-    return this.run(() -> kickerIO.setRollerVoltage(0));
-  }
-
+  @Override
   public boolean isEmpty() {
     return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
   }
 
+  @Override
   public boolean isPartiallyFull() {
     return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
+  @Override
   public Command index() {
     return this.run(
         () -> {
@@ -82,6 +78,7 @@ public class IndexerSubsystem extends SubsystemBase {
         });
   }
 
+  @Override
   public Command kick() {
     return this.run(
         () -> {
@@ -90,6 +87,7 @@ public class IndexerSubsystem extends SubsystemBase {
         });
   }
 
+  @Override
   public Command spit() {
     return this.run(
         () -> {
@@ -98,6 +96,7 @@ public class IndexerSubsystem extends SubsystemBase {
         });
   }
 
+  @Override
   public Command rest() {
     return this.run(
         () -> {

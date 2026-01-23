@@ -27,11 +27,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.Robot.RobotType;
+import frc.robot.Robot.RobotEdition;
+import frc.robot.Robot.RobotMode;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
+import frc.robot.subsystems.swerve.constants.CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
@@ -63,7 +65,12 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveSubsystem extends SubsystemBase {
-  public static final SwerveConstants SWERVE_CONSTANTS = new AlphaSwerveConstants();
+  // decide which set of swerve constants to use based on robot edition
+  // defaulting to comp is probably safer?
+  public static final SwerveConstants SWERVE_CONSTANTS =
+      Robot.ROBOT_EDITION == RobotEdition.ALPHA
+          ? new AlphaSwerveConstants()
+          : new CompBotSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
@@ -129,7 +136,7 @@ public class SwerveSubsystem extends SubsystemBase {
       new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
 
   public SwerveSubsystem(CANBus canbus) {
-    if (Robot.ROBOT_TYPE == RobotType.SIM) {
+    if (Robot.ROBOT_MODE == RobotMode.SIM) {
       // Add simulated modules
       modules =
           new Module[] {
@@ -211,7 +218,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     this.gyroIO =
-        Robot.ROBOT_TYPE != RobotType.SIM
+        Robot.ROBOT_MODE != RobotMode.SIM
             ? new GyroIOReal(SWERVE_CONSTANTS.getGyroID(), SWERVE_CONSTANTS.getGyroConfig(), canbus)
             : new GyroIOSim(swerveSimulation.getGyroSimulation());
 
@@ -228,7 +235,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     this.odometryThread = PhoenixOdometryThread.getInstance();
 
-    if (Robot.ROBOT_TYPE == RobotType.SIM) {
+    if (Robot.ROBOT_MODE == RobotMode.SIM) {
       SimulatedArena.getInstance().addDriveTrainSimulation(swerveSimulation);
     }
   }
@@ -350,12 +357,12 @@ public class SwerveSubsystem extends SubsystemBase {
       cameraPoses[i] = cameras[i].getPose();
     }
     // only do all this logging stuff if we're not irl for performance
-    if (Robot.ROBOT_TYPE != RobotType.REAL) {
+    if (Robot.ROBOT_MODE != RobotMode.REAL) {
       Logger.recordOutput("Vision/Camera Poses", cameraPoses);
       Pose3d[] arr = new Pose3d[cameras.length];
       for (int k = 0; k < cameras.length; k++) {
         // honetsly not sure if this distinction is the way to go but
-        if (Robot.ROBOT_TYPE == RobotType.SIM)
+        if (Robot.ROBOT_MODE == RobotMode.SIM)
           // If we're in sim, use the maplesim pose to calculate vision
           arr[k] =
               new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
@@ -646,7 +653,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void resetPose(Pose2d newPose) {
     estimator.resetPose(newPose);
-    if (Robot.ROBOT_TYPE == RobotType.SIM) {
+    if (Robot.ROBOT_MODE == RobotMode.SIM) {
       swerveSimulation.setSimulationWorldPose(newPose);
       swerveSimulation.setRobotSpeeds(new ChassisSpeeds());
     }

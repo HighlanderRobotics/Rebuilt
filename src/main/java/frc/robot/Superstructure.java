@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.indexer.IndexerSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.FeedTargets;
@@ -58,9 +58,9 @@ public class Superstructure {
   private Timer stateTimer = new Timer();
 
   private final SwerveSubsystem swerve;
-  private final IndexerSubsystem indexer;
-  private final IntakeSubsystem intake;
-  private final ShooterSubsystem shooter;
+  private final Indexer indexer;
+  private final Intake intake;
+  private final Shooter shooter;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -94,9 +94,9 @@ public class Superstructure {
   /** Creates a new Superstructure. */
   public Superstructure(
       SwerveSubsystem swerve,
-      IndexerSubsystem indexer,
-      IntakeSubsystem intake,
-      ShooterSubsystem shooter,
+      Indexer indexer,
+      Intake intake,
+      Shooter shooter,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
@@ -262,7 +262,7 @@ public class Superstructure {
         indexer.index(),
         shooter.feed(swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose()));
 
-    bindCommands(SuperState.SPIT, intake.outake(), indexer.spit(), shooter.spit());
+    bindCommands(SuperState.SPIT, intake.outtake(), indexer.spit(), shooter.spit());
   }
 
   public void periodic() {

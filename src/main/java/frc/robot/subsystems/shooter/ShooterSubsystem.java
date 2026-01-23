@@ -23,7 +23,8 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class ShooterSubsystem extends SubsystemBase {
+/** Fixed shooter. !! ALPHA !! */
+public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public static double HOOD_GEAR_RATIO = 24.230769;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
@@ -65,6 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
     this.flywheelIO = flywheelIO;
   }
 
+  @Override
   public Command testShoot() {
     return this.run(
         () -> {
@@ -73,6 +75,7 @@ public class ShooterSubsystem extends SubsystemBase {
         });
   }
 
+  @Override
   public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
     return this.run(
         () -> {
@@ -83,6 +86,7 @@ public class ShooterSubsystem extends SubsystemBase {
         });
   }
 
+  @Override
   public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
@@ -97,6 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
         });
   }
 
+  @Override
   public Command rest() {
     return this.run(
         () -> {
@@ -105,16 +110,13 @@ public class ShooterSubsystem extends SubsystemBase {
         });
   }
 
+  @Override
   public Command spit() {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.kZero);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
-  }
-
-  public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
-    return this.run(() -> hoodIO.setHoodPosition(hoodPosition.get()));
   }
 
   @Override
@@ -162,6 +164,7 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelSysid.dynamic(Direction.kReverse));
   }
 
+  @Override
   @AutoLogOutput(key = "Shooter/At Vel Setpoint")
   public boolean atFlywheelVelocitySetpoint() {
     return MathUtil.isNear(
@@ -170,12 +173,14 @@ public class ShooterSubsystem extends SubsystemBase {
         FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
   }
 
+  @Override
   @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
   public boolean atHoodSetpoint() {
     return MathUtil.isNear(
         hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
   }
 
+  @Override
   public Command zeroHood() {
     return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
   }
