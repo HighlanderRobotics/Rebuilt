@@ -181,27 +181,23 @@ public class AlphaSwerveConstants extends SwerveConstants {
 
   @Override
   public ModuleConstants getFrontLeftModuleConstants() {
-    // TODO update cancoder rotation2d
     return new ModuleConstants(
         0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(-0.29).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getFrontRightModuleConstants() {
-    // TODO update cancoder rotation2d
     return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(0.012));
   }
 
   @Override
   public ModuleConstants getBackLeftModuleConstants() {
-    // TODO update cancoder rotation2d
     return new ModuleConstants(
         2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.229).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getBackRightModuleConstants() {
-    // TODO update cancoder rotation2d
     return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(-0.205));
   }
 
@@ -212,7 +208,6 @@ public class AlphaSwerveConstants extends SwerveConstants {
 
   @Override
   public Pigeon2Configuration getGyroConfig() {
-    // TODO getGyroConfig
     Pigeon2Configuration config = new Pigeon2Configuration();
     config.MountPose.MountPosePitch = 0.18661323189735413;
     config.MountPose.MountPoseRoll = -0.706454336643219;
@@ -222,7 +217,6 @@ public class AlphaSwerveConstants extends SwerveConstants {
 
   @Override
   public TalonFXConfiguration getDriveConfig() {
-    // TODO getDriveConfig
     var driveConfig = new TalonFXConfiguration();
     // Current limits
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
@@ -255,7 +249,6 @@ public class AlphaSwerveConstants extends SwerveConstants {
 
   @Override
   public TalonFXConfiguration getTurnConfig(int cancoderID) {
-    // TODO getTurnConfig
     var turnConfig = new TalonFXConfiguration();
     // Current limits
     turnConfig.CurrentLimits.SupplyCurrentLimit = 20.0;

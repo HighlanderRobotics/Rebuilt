@@ -38,7 +38,6 @@ public class IntakeSubsystem extends SubsystemBase {
     Logger.processInputs("Intake", inputs);
   }
 
-  // TODO get actual values
   public Command intake() {
     return this.run(() -> io.setRollerVoltage(10));
   }
