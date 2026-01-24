@@ -374,7 +374,10 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
-
+    autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
+    autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
+    autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
+    autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
     // Sysid Autos
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
