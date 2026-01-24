@@ -337,16 +337,14 @@ public class Robot extends LoggedRobot {
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     swerve.setDefaultCommand(
-        // swerve.driveOpenLoopFieldRelative(
-        //     () ->
-        //         new ChassisSpeeds(
-        //                 modifyJoystick(driver.getLeftY())
-        //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-        //                 modifyJoystick(driver.getLeftX())
-        //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-        //                 modifyJoystick(driver.getRightX())
-        //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-        //             .times(-1)));
+        // new ChassisSpeeds(
+                    //     modifyJoystick(-1 * driver.getLeftX())
+                    //         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                    //     modifyJoystick(driver.getLeftY())
+                    //         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                    //     modifyJoystick(driver.getRightX())
+                    //         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                    // .times(-1)));
         swerve.faceHubSOTM(
             () ->
                 modifyJoystick(driver.getLeftY())
@@ -357,7 +355,7 @@ public class Robot extends LoggedRobot {
                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
                     * -1));
 
-    addControllerBindings(shooter);
+    addControllerBindings(indexer, shooter);
 
     // Auto things
     autos = new Autos(swerve);
@@ -418,8 +416,7 @@ public class Robot extends LoggedRobot {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.02);
   }
 
-  // passing in the shooter is kind of chopped but like it's fine
-  private void addControllerBindings(Shooter shooter) {
+  private void addControllerBindings(Indexer indexer, Shooter shooter) {
     // heading reset
     driver
         .leftStick()
@@ -449,6 +446,10 @@ public class Robot extends LoggedRobot {
 
     // current zero shooter hood
     driver.a().onTrue(shooter.runCurrentZeroing());
+
+    new Trigger(() -> indexer.firstBeambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.1));
+
+    new Trigger(() -> indexer.isFull()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
     // ---zeroing stuff---
 

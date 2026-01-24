@@ -51,6 +51,8 @@ public class Superstructure {
   public boolean isScoringActive =
       isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
 
+  public boolean practice = true;
+
   // its litterly possible
 
   private SuperState prevState = SuperState.IDLE;
@@ -402,6 +404,6 @@ public class Superstructure {
   }
 
   public boolean canScore() {
-    return isOurShift() && inScoringArea();
+    return isOurShift() && inScoringArea() && practice;
   }
 }
