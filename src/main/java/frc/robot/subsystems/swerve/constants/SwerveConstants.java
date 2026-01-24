@@ -11,10 +11,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.components.camera.Camera.CameraConstants;
 import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
-import java.io.File;
 
 public abstract class SwerveConstants {
 
@@ -25,18 +23,19 @@ public abstract class SwerveConstants {
   protected AprilTagFieldLayout fieldTags;
 
   public SwerveConstants() {
-    try {
-      fieldTags =
-          new AprilTagFieldLayout(
-              Filesystem.getDeployDirectory()
-                  .toPath()
-                  .resolve("tagmaps" + File.separator + "2026-rebuilt-welded.json"));
-      System.out.println("Successfully loaded tag map");
-    } catch (Exception e) {
-      System.err.println("Failed to load custom tag map");
-      tagLoadFailureAlert.set(true);
-      fieldTags = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    }
+    // try {
+    //   fieldTags =
+    //       new AprilTagFieldLayout(
+    //           Filesystem.getDeployDirectory()
+    //               .toPath()
+    //               .resolve("tagmaps" + File.separator + "2026-rebuilt-welded.json"));
+    //   System.out.println("Successfully loaded tag map");
+    // } catch (Exception e) {
+    //   System.err.println("Failed to load custom tag map");
+    //   tagLoadFailureAlert.set(true);
+    //   fieldTags = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    // }
+    fieldTags = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
   }
 
   public AprilTagFieldLayout getFieldTagLayout() {
