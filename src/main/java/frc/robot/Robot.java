@@ -76,23 +76,24 @@ public class Robot extends LoggedRobot {
   }
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
-  // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
-  public static final RobotEdition ROBOT_EDITION;
+  public static final RobotEdition ROBOT_EDITION = RobotEdition.ALPHA;
 
-  // TODO get rio serial numbers
-  static {
-    switch (RobotController.getSerialNumber()) {
-      case "1":
-        ROBOT_EDITION = RobotEdition.ALPHA;
-        break;
-      case "2":
-        ROBOT_EDITION = RobotEdition.COMP;
-        break;
-      default:
-        // defaulting to comp is probably safer?
-        ROBOT_EDITION = RobotEdition.COMP;
-    }
-  }
+  // public static final RobotEdition ROBOT_EDITION;
+
+  // // TODO get rio serial numbers
+  // static {
+  //   switch (RobotController.getSerialNumber()) {
+  //     case "1":
+  //       ROBOT_EDITION = RobotEdition.ALPHA;
+  //       break;
+  //     case "2":
+  //       ROBOT_EDITION = RobotEdition.COMP;
+  //       break;
+  //     default:
+  //       // defaulting to comp is probably safer?
+  //       ROBOT_EDITION = RobotEdition.COMP;
+  //   }
+  // }
 
   /**
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
@@ -340,9 +341,9 @@ public class Robot extends LoggedRobot {
         swerve.driveOpenLoopFieldRelative(
             () ->
                 new ChassisSpeeds(
-                        modifyJoystick(driver.getLeftY())
+                        modifyJoystick(-1 * driver.getLeftX())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getLeftX())
+                        modifyJoystick(driver.getLeftY())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                         modifyJoystick(driver.getRightX())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
