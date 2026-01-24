@@ -9,7 +9,6 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Alert;
@@ -76,23 +75,24 @@ public class Robot extends LoggedRobot {
   }
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
-  // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
-  public static final RobotEdition ROBOT_EDITION;
+  public static final RobotEdition ROBOT_EDITION = RobotEdition.ALPHA;
 
-  // TODO get rio serial numbers
-  static {
-    switch (RobotController.getSerialNumber()) {
-      case "1":
-        ROBOT_EDITION = RobotEdition.ALPHA;
-        break;
-      case "2":
-        ROBOT_EDITION = RobotEdition.COMP;
-        break;
-      default:
-        // defaulting to comp is probably safer?
-        ROBOT_EDITION = RobotEdition.COMP;
-    }
-  }
+  // public static final RobotEdition ROBOT_EDITION;
+
+  // // TODO get rio serial numbers
+  // static {
+  //   switch (RobotController.getSerialNumber()) {
+  //     case "1":
+  //       ROBOT_EDITION = RobotEdition.ALPHA;
+  //       break;
+  //     case "2":
+  //       ROBOT_EDITION = RobotEdition.COMP;
+  //       break;
+  //     default:
+  //       // defaulting to comp is probably safer?
+  //       ROBOT_EDITION = RobotEdition.COMP;
+  //   }
+  // }
 
   /**
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
@@ -337,16 +337,25 @@ public class Robot extends LoggedRobot {
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     swerve.setDefaultCommand(
-        swerve.driveOpenLoopFieldRelative(
+        // swerve.driveOpenLoopFieldRelative(
+        //     () ->
+        //         new ChassisSpeeds(
+        //                 modifyJoystick(driver.getLeftY())
+        //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+        //                 modifyJoystick(driver.getLeftX())
+        //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+        //                 modifyJoystick(driver.getRightX())
+        //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+        //             .times(-1)));
+        swerve.faceHubSOTM(
             () ->
-                new ChassisSpeeds(
-                        modifyJoystick(driver.getLeftY())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getLeftX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getRightX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-                    .times(-1)));
+                modifyJoystick(driver.getLeftY())
+                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
+                    * -1,
+            () ->
+                modifyJoystick(driver.getLeftX())
+                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
+                    * -1));
 
     addControllerBindings(shooter);
 
@@ -409,7 +418,7 @@ public class Robot extends LoggedRobot {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.02);
   }
 
-  //passing in the shooter is kind of chopped but like it's fine
+  // passing in the shooter is kind of chopped but like it's fine
   private void addControllerBindings(Shooter shooter) {
     // heading reset
     driver
@@ -425,7 +434,7 @@ public class Robot extends LoggedRobot {
                             ? Rotation2d.kZero
                             : Rotation2d.k180deg)));
 
-    //autoaim (alpha)
+    // autoaim (alpha)
     driver
         .leftBumper()
         .whileTrue(

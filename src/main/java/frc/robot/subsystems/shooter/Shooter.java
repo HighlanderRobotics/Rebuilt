@@ -41,6 +41,9 @@ public interface Shooter {
   /** Shoots based on dashboard numbers. For testing only */
   public Command testShoot();
 
-  /** Runs the hood backwards until it hits its hard stop and the current spikes, then resets encoder position. */
-    public Command runCurrentZeroing();
+  /**
+   * Runs the hood backwards until it hits its hard stop and the current spikes, then resets encoder
+   * position.
+   */
+  public Command runCurrentZeroing();
 }

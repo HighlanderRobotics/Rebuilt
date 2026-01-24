@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -21,6 +22,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import frc.robot.utils.rusthoundsSOTM.ChassisAccelerations;
+import frc.robot.utils.rusthoundsSOTM.ShootOnTheFlyCalculator;
+import frc.robot.utils.rusthoundsSOTM.ShootOnTheFlyCalculator.InterceptSolution;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -30,7 +34,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public static double HOOD_GEAR_RATIO = 24.230769;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
-  public static double CURRENT_ZERO_THRESHOLD = 30.0; //TODO tune
+  public static double CURRENT_ZERO_THRESHOLD = 30.0; // TODO tune
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
@@ -63,7 +67,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
   private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
-    private LinearFilter currentFilter = LinearFilter.movingAverage(10);
+  private LinearFilter currentFilter = LinearFilter.movingAverage(10);
 
   @AutoLogOutput(key = "Shooter/Hood/Current Filter Value")
   private double currentFilterValue = 0.0;
@@ -91,6 +95,24 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
               AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+        });
+  }
+
+  public Command shootOTM(
+      Supplier<Pose2d> robotPoseSupplier,
+      ChassisSpeeds fieldRelRobotVelocity,
+      ChassisAccelerations fieldRelRobotAcceleration) {
+    return this.run(
+        () -> {
+          InterceptSolution sol =
+              ShootOnTheFlyCalculator.solveShootOnTheFly(
+                  robotPoseSupplier.get(),
+                  fieldRelRobotVelocity,
+                  fieldRelRobotAcceleration,
+                  5,
+                  0.01);
+          hoodIO.setHoodPosition(sol.shotData().hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(sol.shotData().flywheelVelocityRotPerSec());
         });
   }
 
@@ -198,11 +220,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public Command runCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
-            new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD)
-                .debounce(0.25))
-        .andThen(
-            Commands.parallel(
-                Commands.print("Hood Zeroed"),
-                zeroHood()));
+            new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD).debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
   }
 }

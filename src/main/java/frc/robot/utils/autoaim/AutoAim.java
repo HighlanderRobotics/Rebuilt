@@ -1,11 +1,7 @@
 package frc.robot.utils.autoaim;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import frc.robot.utils.FieldUtils;
@@ -19,25 +15,25 @@ public class AutoAim {
   static { // For hub shot tree
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(6), 30));
+        new ShotData(Rotation2d.fromDegrees(6), 30, 0.5));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
-        new ShotData(Rotation2d.fromDegrees(10.5), 30));
+        new ShotData(Rotation2d.fromDegrees(10.5), 30, 0.55));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
-        new ShotData(Rotation2d.fromDegrees(14.5), 30));
+        new ShotData(Rotation2d.fromDegrees(14.5), 30, 0.6));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
-        new ShotData(Rotation2d.fromDegrees(18), 30));
+        new ShotData(Rotation2d.fromDegrees(18), 30, 0.65));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
-        new ShotData(Rotation2d.fromDegrees(21.5), 30));
+        new ShotData(Rotation2d.fromDegrees(21.5), 30, 0.7));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
-        new ShotData(Rotation2d.fromDegrees(24.5), 30));
+        new ShotData(Rotation2d.fromDegrees(24.5), 30, 0.75));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
-        new ShotData(Rotation2d.fromDegrees(28), 30));
+        new ShotData(Rotation2d.fromDegrees(28), 30, 0.8));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -46,7 +42,7 @@ public class AutoAim {
   static { // For feed shot tree
     // TODO: POPULATE
     FEED_SHOT_TREE.put(
-        1.0, new ShotData(Rotation2d.kCW_90deg, 10)); // Placeholder to prevent crashes
+        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0)); // Placeholder to prevent crashes
   }
 
   // TODO: SOTM
