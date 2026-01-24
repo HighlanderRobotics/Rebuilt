@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
-import frc.robot.utils.rusthoundsSOTM.ChassisAccelerations;
 import frc.robot.utils.rusthoundsSOTM.ShootOnTheFlyCalculator;
 import frc.robot.utils.rusthoundsSOTM.ShootOnTheFlyCalculator.InterceptSolution;
 import java.util.function.Supplier;
@@ -98,19 +97,14 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
+  @Override
   public Command shootOTM(
-      Supplier<Pose2d> robotPoseSupplier,
-      ChassisSpeeds fieldRelRobotVelocity,
-      ChassisAccelerations fieldRelRobotAcceleration) {
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> fieldRelRobotVelocity) {
     return this.run(
         () -> {
           InterceptSolution sol =
               ShootOnTheFlyCalculator.solveShootOnTheFly(
-                  robotPoseSupplier.get(),
-                  fieldRelRobotVelocity,
-                  fieldRelRobotAcceleration,
-                  5,
-                  0.01);
+                  robotPoseSupplier.get(), fieldRelRobotVelocity.get(), 10, 0.01);
           hoodIO.setHoodPosition(sol.shotData().hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(sol.shotData().flywheelVelocityRotPerSec());
         });

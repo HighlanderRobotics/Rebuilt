@@ -1,5 +1,6 @@
 package frc.robot.utils.rusthoundsSOTM;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -78,7 +79,7 @@ public class ShootOnTheFlyCalculator {
   public static Pose2d calculateEffectiveTargetLocation(
       Supplier<Pose2d> robotPose,
       Supplier<ChassisSpeeds> fieldRelRobotVelocity,
-      Supplier<ChassisAccelerations> fieldRelRobotAcceleration,
+      // Supplier<ChassisAccelerations> fieldRelRobotAcceleration,
       double goalPositionIterations,
       double accelerationCompensationFactor) {
 
@@ -88,21 +89,23 @@ public class ShootOnTheFlyCalculator {
     for (int i = 0; i < goalPositionIterations; i++) {
       double virtualGoalX =
           FieldUtils.getCurrentHubPose().getX()
-              - shotTime
-                  * (fieldRelRobotVelocity.get().vxMetersPerSecond
-                      + fieldRelRobotAcceleration.get().axMetersPerSecondSquared
-                          * accelerationCompensationFactor);
+              + shotTime
+                  * MathUtil.applyDeadband(
+                      Math.abs(Math.pow(fieldRelRobotVelocity.get().vxMetersPerSecond, 2))
+                          * Math.signum(fieldRelRobotVelocity.get().vxMetersPerSecond),
+                      0.1);
       Logger.recordOutput("Autoaim/virtual x", virtualGoalX);
       double virtualGoalY =
           FieldUtils.getCurrentHubPose().getY()
               - shotTime
-                  * (fieldRelRobotVelocity.get().vyMetersPerSecond
-                      + fieldRelRobotAcceleration.get().ayMetersPerSecondSquared
-                          * accelerationCompensationFactor);
+                  * MathUtil.applyDeadband(
+                      Math.abs(Math.pow(fieldRelRobotVelocity.get().vyMetersPerSecond, 2))
+                          * Math.signum(fieldRelRobotVelocity.get().vyMetersPerSecond),
+                      0.1);
       Logger.recordOutput("Autoaim/virtual y", virtualGoalY);
 
       correctedTargetPose =
-          new Pose2d(virtualGoalX, virtualGoalY, FieldUtils.getCurrentHubPose().getRotation());
+          new Pose2d(virtualGoalY, virtualGoalX, FieldUtils.getCurrentHubPose().getRotation());
       // i don't think rotation even matters here but
 
       double newShotTime =
@@ -110,10 +113,10 @@ public class ShootOnTheFlyCalculator {
               .calculateShot(robotPose.get(), correctedTargetPose)
               .timeOfFlightSecs();
 
-      //       shotTime = newShotTime;
-      //       if (Math.abs(newShotTime - shotTime) <= 0.010) {
-      //         break;
-      //       }
+      shotTime = newShotTime;
+      if (Math.abs(newShotTime - shotTime) <= 0.010) {
+        break;
+      }
     }
     Logger.recordOutput("Autoaim/Virtual Target", correctedTargetPose);
     Logger.recordOutput(
@@ -129,7 +132,6 @@ public class ShootOnTheFlyCalculator {
   public static InterceptSolution solveShootOnTheFly(
       Pose2d shooterPose,
       ChassisSpeeds fieldRelRobotVelocity,
-      ChassisAccelerations fieldRelRobotAcceleration,
       int maxIterations,
       double timeTolerance) {
     ShotData sol = AutoAim.HUB_SHOT_TREE.calculateShot(shooterPose);

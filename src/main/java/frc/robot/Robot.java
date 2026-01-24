@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Alert;
@@ -337,23 +338,25 @@ public class Robot extends LoggedRobot {
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     swerve.setDefaultCommand(
-        // new ChassisSpeeds(
-                    //     modifyJoystick(-1 * driver.getLeftX())
-                    //         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                    //     modifyJoystick(driver.getLeftY())
-                    //         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                    //     modifyJoystick(driver.getRightX())
-                    //         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-                    // .times(-1)));
-        swerve.faceHubSOTM(
+        swerve.driveOpenLoopFieldRelative(
             () ->
-                modifyJoystick(driver.getLeftY())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
-                    * -1,
-            () ->
-                modifyJoystick(driver.getLeftX())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
-                    * -1));
+                new ChassisSpeeds(
+                        modifyJoystick(-1 * driver.getLeftX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                        modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                        modifyJoystick(driver.getRightX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                    .times(-1)));
+    // swerve.faceHubSOTM(
+    //     () ->
+    //         modifyJoystick(driver.getLeftY())
+    //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
+    //             * -1,
+    //     () ->
+    //         modifyJoystick(driver.getLeftX())
+    //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
+    //             * -1));
 
     addControllerBindings(indexer, shooter);
 
@@ -435,17 +438,24 @@ public class Robot extends LoggedRobot {
     driver
         .leftBumper()
         .whileTrue(
+            // swerve.faceHubSOTM(
+            //     () ->
+            //         modifyJoystick(driver.getLeftY())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+            //     () ->
+            //         modifyJoystick(driver.getLeftX())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
             swerve.faceHubSOTM(
                 () ->
-                    modifyJoystick(driver.getLeftY())
+                    modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 () ->
-                    modifyJoystick(driver.getLeftX())
+                    modifyJoystick(-1 * driver.getLeftY())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
     // TODO add binding for climb
 
     // current zero shooter hood
-    driver.a().onTrue(shooter.runCurrentZeroing());
+    driver.b().onTrue(shooter.runCurrentZeroing());
 
     new Trigger(() -> indexer.firstBeambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.1));
 

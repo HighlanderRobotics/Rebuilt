@@ -278,6 +278,13 @@ public class SwerveSubsystem extends SubsystemBase {
           Logger.recordOutput("Current Hub Pose", FieldUtils.getCurrentHubPose());
 
           prevFieldRelVelocities = getVelocityFieldRelative();
+          Logger.recordOutput(
+              "Chassis Accelerations/X", this.getChassisAccelerations().axMetersPerSecondSquared);
+          Logger.recordOutput(
+              "Chassis Accelerations/Y", this.getChassisAccelerations().ayMetersPerSecondSquared);
+          Logger.recordOutput(
+              "Chassis Accelerations/Omega",
+              this.getChassisAccelerations().omegaRadiansPerSecondSquared);
         });
   }
 
@@ -622,7 +629,7 @@ public class SwerveSubsystem extends SubsystemBase {
               ShootOnTheFlyCalculator.calculateEffectiveTargetLocation(
                       () -> getPose(),
                       () -> getVelocityFieldRelative(),
-                      () -> getChassisAccelerations(),
+                      // () -> getChassisAccelerations(),
                       5,
                       0.01)
                   .getTranslation()
