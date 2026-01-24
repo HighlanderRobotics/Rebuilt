@@ -173,4 +173,9 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
   }
+
+  /** for controller rumble */
+  public boolean firstBeambreak() {
+    return firstCANRangeInputs.isDetected;
+  }
 }
