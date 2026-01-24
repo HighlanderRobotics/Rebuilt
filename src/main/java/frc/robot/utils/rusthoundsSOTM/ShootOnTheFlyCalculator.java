@@ -88,7 +88,7 @@ public class ShootOnTheFlyCalculator {
     Pose2d correctedTargetPose = new Pose2d();
     for (int i = 0; i < goalPositionIterations; i++) {
       double virtualGoalX =
-          FieldUtils.getCurrentHubPose().getX()
+          FieldUtils.getCurrentHubPose().getY()
               + shotTime
                   * MathUtil.applyDeadband(
                       Math.abs(Math.pow(fieldRelRobotVelocity.get().vxMetersPerSecond, 2))
@@ -96,7 +96,7 @@ public class ShootOnTheFlyCalculator {
                       0.1);
       Logger.recordOutput("Autoaim/virtual x", virtualGoalX);
       double virtualGoalY =
-          FieldUtils.getCurrentHubPose().getY()
+          FieldUtils.getCurrentHubPose().getX()
               - shotTime
                   * MathUtil.applyDeadband(
                       Math.abs(Math.pow(fieldRelRobotVelocity.get().vyMetersPerSecond, 2))
