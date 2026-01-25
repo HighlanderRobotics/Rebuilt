@@ -34,4 +34,10 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'rest'");
   }
+
+  @Override
+  public Command extend() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'extend'");
+  }
 }

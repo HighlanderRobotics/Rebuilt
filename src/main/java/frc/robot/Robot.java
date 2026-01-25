@@ -183,6 +183,10 @@ public class Robot extends LoggedRobot {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
 
+    Indexer indexer = null;
+    Intake intake = null;
+    Shooter shooter = null;
+
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
   public Robot() {
@@ -259,11 +263,11 @@ public class Robot extends LoggedRobot {
       case COMP:
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
-        shooter = 
-        new TurretSubsystem(
-          ROBOT_MODE == RobotMode.REAL
-          ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-          : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(),canivore));
+        shooter =
+            new TurretSubsystem(
+                ROBOT_MODE == RobotMode.REAL
+                    ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
+                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
 
         climber = new ClimberSubsystem(); // TODO climber
         break;
@@ -466,6 +470,11 @@ public class Robot extends LoggedRobot {
     // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
     // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
     // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    autoChooser.addOption("Pitcheck/Intake ", Commands.sequence(
+      intake.intake().withTimeout(1),
+      intake.rest().withTimeout(1),
+      intake.outtake().withTimeout(1))
+    );
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }

@@ -16,4 +16,6 @@ public interface Intake {
 
   /** Not running (set to 0) */
   public Command rest();
+
+  public Command extend(); 
 }
