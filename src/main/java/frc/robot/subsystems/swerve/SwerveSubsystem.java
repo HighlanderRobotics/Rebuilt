@@ -50,9 +50,9 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
 import frc.robot.utils.rusthoundsSOTM.ChassisAccelerations;
-import frc.robot.utils.rusthoundsSOTM.ShootOnTheFlyCalculator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -625,20 +625,21 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
         () -> {
-          Translation2d robotHubVec =
-              ShootOnTheFlyCalculator.calculateEffectiveTargetLocation(
-                      () -> getPose(),
-                      () -> getVelocityFieldRelative(),
-                      // () -> getChassisAccelerations(),
-                      5,
-                      0.01)
-                  .getTranslation()
-                  .minus(getPose().getTranslation());
-          Rotation2d rot =
-              Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-                  .plus(Rotation2d.kCW_90deg);
-          Logger.recordOutput("Autoaim/Target Rotation", rot);
-          return rot;
+          // Translation2d robotHubVec =
+          //     ShootOnTheFlyCalculator.calculateEffectiveTargetLocation(
+          //             () -> getPose(),
+          //             () -> getVelocityFieldRelative(),
+          //             // () -> getChassisAccelerations(),
+          //             5,
+          //             0.01)
+          //         .getTranslation()
+          //         .minus(getPose().getTranslation());
+          // Rotation2d rot =
+          //     Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+          //         .plus(Rotation2d.kCW_90deg);
+          // Logger.recordOutput("Autoaim/Target Rotation", rot);
+          // return rot;
+          return AutoAim.getSOTMYawfr(getPose(), getVelocityFieldRelative());
         },
         xVel,
         yVel);

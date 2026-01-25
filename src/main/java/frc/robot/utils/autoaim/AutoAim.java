@@ -2,6 +2,8 @@ package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import frc.robot.utils.FieldUtils;
@@ -14,28 +16,57 @@ public class AutoAim {
 
   static { // For hub shot tree
     HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46, Units.inchesToMeters(24 + 17) / 1.46));
+        Units.inchesToMeters(24 + 17),
+        new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46, Units.inchesToMeters(24 + 17) / 1.46));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(6), 30, 1.55, Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12) / 1.55));
+        new ShotData(
+            Rotation2d.fromDegrees(6),
+            30,
+            1.55,
+            Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12) / 1.55));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
-        new ShotData(Rotation2d.fromDegrees(10.5), 30, 1.54, Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12) / 1.54));
+        new ShotData(
+            Rotation2d.fromDegrees(10.5),
+            30,
+            1.54,
+            Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12) / 1.54));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
-        new ShotData(Rotation2d.fromDegrees(14.5), 30, 1.54, Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12) / 1.54));
+        new ShotData(
+            Rotation2d.fromDegrees(14.5),
+            30,
+            1.54,
+            Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12) / 1.54));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
-        new ShotData(Rotation2d.fromDegrees(18), 30, 1.52, Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12) / 1.52));
+        new ShotData(
+            Rotation2d.fromDegrees(18),
+            30,
+            1.52,
+            Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12) / 1.52));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
-        new ShotData(Rotation2d.fromDegrees(21.5), 30, 1.46, Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12) / 1.46));
+        new ShotData(
+            Rotation2d.fromDegrees(21.5),
+            30,
+            1.46,
+            Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12) / 1.46));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
-        new ShotData(Rotation2d.fromDegrees(24.5), 30, 1.35, Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12) / 1.35));
+        new ShotData(
+            Rotation2d.fromDegrees(24.5),
+            30,
+            1.35,
+            Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12) / 1.35));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
-        new ShotData(Rotation2d.fromDegrees(28), 30, 1.36, Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12) / 1.36));
+        new ShotData(
+            Rotation2d.fromDegrees(28),
+            30,
+            1.36,
+            Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12) / 1.36));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -56,16 +87,116 @@ public class AutoAim {
   }
 
   public static Rotation2d getSOTMYaw(Pose2d robot, ChassisSpeeds fieldRelativeSpeeds) {
-    // V_ball-ground = V_ball-robot + V_robot-ground (relative motion)
-    // if we want the ball to go straight towards the goal,
-    // the V_ball-robot vector needs to cancel out with the V_robot-ground vector to "offset" the
-    // velocity it already has
-    //this is the desired final ground velocity of the ball
-    double v_ballGround =
-        HUB_SHOT_TREE.calculateShot(robot).groundVelocity();
+    // // V_ball-ground = V_ball-robot + V_robot-ground (relative motion)
+    // // if we want the ball to go straight towards the goal,
+    // // the V_ball-robot vector needs to cancel out with the V_robot-ground vector to "offset" the
+    // // velocity it already has
+    // //this is the desired final ground velocity of the ball
+    // double v_ballGround =
+    //     HUB_SHOT_TREE.calculateShot(robot).groundVelocity();
+    // // let phi be the azimuth
+    // // phi = arcsin(-V_robot-ground / |V_ball-ground|)
+    // double phi = Math.asin((-1) * fieldRelativeSpeeds.vyMetersPerSecond / v_ballGround);
+    // return Rotation2d.fromRadians(phi);
+
+    // the ball exits the shooter with velocity v at an angle theta (just assume it's the correct
+    // velocity and angle)
+    // the magnitude of the V_ball-ground vector (or |V_ball-ground|) is v * cos (theta)
+    double v_BallGround = HUB_SHOT_TREE.calculateShot(robot).groundVelocity();
+
+    double v_RobotGround = fieldRelativeSpeeds.vyMetersPerSecond; // sob
+    // use law of cosines to find needed velocity of the ball relative to the ground
+    // let the current angle between the robot and hub be alpha
+    // the following is from the static autoaim
+    Translation2d robotHubVec = FieldUtils.getCurrentHubTranslation().minus(robot.getTranslation());
+    // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
+    // Logger.recordOutput("robot hub vec", robotHubVec);
+    // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+    Rotation2d alpha =
+        Rotation2d.k180deg.minus(
+            Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX())));
+    double v_BallRobot =
+        Math.sqrt(
+            Math.pow(v_RobotGround, 2)
+                + Math.pow(v_BallGround, 2)
+                - 2 * v_RobotGround * v_BallGround * alpha.getCos());
+
+    // use law of sines to find heading
+    // let phi be the desired angle
+    // V_ball-robot / alpha = V_ball_ground / phi
+    // so phi = alpha * v_ball-ground / v_ball-robot
+
+    double phi = alpha.getRadians() * v_BallGround / v_BallRobot;
     // let phi be the azimuth
     // phi = arcsin(-V_robot-ground / |V_ball-ground|)
-    double phi = Math.asin((-1) * fieldRelativeSpeeds.vyMetersPerSecond / v_ballGround);
-    return Rotation2d.fromRadians(phi);
+    // double phi = Math.acos((-1) * fieldRelativeSpeeds.vyMetersPerSecond / v_BallGround);
+    Logger.recordOutput(
+        "sotm target??", robot.transformBy(new Transform2d(0, 5, new Rotation2d())));
+
+    // Logger.recordOutput(
+    //     "autoaim target",
+    //     new Pose3d(
+    //         new Translation3d(
+    //                 swerveSimulation
+    //                     .getSimulatedDriveTrainPose()
+    //                     .getTranslation())
+    //             .plus(new Translation3d(0, 0, 1)),
+    //         new Rotation3d(
+    //             AutoAim.getSOTMHeading(
+    //                 getPose(), getVelocityFieldRelative()))));
+    if (v_RobotGround < 0.05) return alpha;
+    else {
+      return robot.getRotation().plus(Rotation2d.fromRadians(phi)).plus(Rotation2d.kCW_90deg);
+    }
   }
+
+  // public static Rotation2d getSOTMPitch(Pose2d robot, ChassisSpeeds fieldRelativeSpeeds) {
+  // //simple case in which you are moving straight backwards from the goal
+  //     //you know your current distance from the goal
+  //     //that means you know the ball's ground velocity if you were to launch it right then
+  //     double v_BallGround = HUB_SHOT_TREE.calculateShot(robot).groundVelocity();
+  //     //you know your current velocity
+  //     double v_RobotGround = fieldRelativeSpeeds.vxMetersPerSecond;
+  //     double desiredV_BallGround = v_BallGround - v_RobotGround;
+  //     ShotData shot = HUB_SHOT_TREE.get(null)
+
+  // }
+  // brooooo
+  public static Rotation2d getSOTMYawfr(Pose2d robot, ChassisSpeeds fieldChassisSpeeds) {
+    // V_ball-ground = V_ball-robot + V_robot-ground (relative motion)
+    Translation2d V_RobotGround =
+        new Translation2d(
+            fieldChassisSpeeds.vxMetersPerSecond, fieldChassisSpeeds.vyMetersPerSecond);
+    Translation2d robotToHub = FieldUtils.getCurrentHubTranslation().minus(robot.getTranslation());
+    double ballGroundVelocity = AutoAim.HUB_SHOT_TREE.calculateShot(robot).groundVelocity();
+    double v_x = robotToHub.getX() * ballGroundVelocity * robotToHub.getAngle().getCos();
+    double v_y =
+        robotToHub.getY()
+            * ballGroundVelocity
+            * robotToHub.getAngle().getSin()
+            * Math.signum(robotToHub.getY());
+    Logger.recordOutput("angle", robotToHub.getAngle());
+    Translation2d V_BallGround = new Translation2d(v_x, v_y);
+    Translation2d V_BallRobot = V_BallGround.minus(V_RobotGround);
+
+    Rotation2d rot = V_BallRobot.getAngle();
+    if (V_RobotGround.getNorm() < 0.15) {
+
+      // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
+      // Logger.recordOutput("robot hub vec", robotHubVec);
+      // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+      rot = Rotation2d.fromRadians(Math.atan2(robotToHub.getY(), robotToHub.getX()));
+    }
+    Pose2d pose = new Pose2d(robot.getTranslation(), rot);
+    Logger.recordOutput("what this bastard is supposed to be doing", pose);
+    Logger.recordOutput(
+        "Autoaim/Target viz", pose.transformBy(new Transform2d(10, 0, new Rotation2d())));
+    Logger.recordOutput("hi we are still alive", Logger.getTimestamp());
+    // new Pose2d(V_BallGround.times(-1), rot));
+    return rot;
+  }
+
+  // public static Rotation2d getSOTMPitchfr(Pose2d robot, ChassisSpeeds fieldChassisSpeeds) {
+
+  // }
 }
