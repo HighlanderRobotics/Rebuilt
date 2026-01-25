@@ -234,6 +234,7 @@ public class Superstructure {
         intake.rest(),
         indexer.rest(), /*shooter.shoot(swerve::getPose)*/
         shooter.shootOTM(swerve::getPose, swerve::getVelocityFieldRelative));
+    // shooter.testShoot());
 
     bindCommands(
         SuperState.SPIN_UP_FEED,
@@ -247,6 +248,7 @@ public class Superstructure {
         intake.rest(),
         indexer.kick(), /*shooter.shoot(swerve::getPose)*/
         shooter.shootOTM(swerve::getPose, swerve::getVelocityFieldRelative));
+    // shooter.testShoot());
 
     bindCommands(SuperState.SCORE_FLOW, intake.intake(), indexer.kick(), shooter.testShoot());
 

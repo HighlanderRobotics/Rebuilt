@@ -14,6 +14,8 @@ public class AutoAim {
 
   static { // For hub shot tree
     HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46));
+    HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
         new ShotData(Rotation2d.fromDegrees(6), 30, 1.55));
     HUB_SHOT_TREE.put(
