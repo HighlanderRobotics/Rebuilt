@@ -4,15 +4,39 @@
 
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.LoggedTunableNumber;
+import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
   /** Creates a new TurretSubsystem. */
+  public static double HOOD_GEAR_RATIO = 24.230769;
+
+  public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
+  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
+
+  public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
+
+  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
+
+  HoodIO hoodIO;
+  HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
+
+  FlywheelIO flywheelIO;
+  FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
+
   public TurretSubsystem() {}
+
+  private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
   @Override
   public void periodic() {
@@ -20,50 +44,76 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'shoot'");
-  }
-
-  @Override
   public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'feed'");
+    return this.run(
+        () -> {
+          ShotData shotData =
+              AutoAim.FEED_SHOT_TREE.get(
+                  robotPoseSupplier
+                      .get()
+                      .getTranslation()
+                      .getDistance(feedTarget.get().getTranslation()));
+          hoodIO.setHoodPosition(shotData.hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+        });
   }
 
   @Override
   public Command rest() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'rest'");
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
+          flywheelIO.setFlywheelVoltage(0.0);
+        });
   }
 
   @Override
   public Command spit() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'spit'");
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.kZero);
+          flywheelIO.setMotionProfiledFlywheelVelocity(20);
+        }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
   @Override
+  @AutoLogOutput(key = "Shooter/At Vel Setpoint")
   public boolean atFlywheelVelocitySetpoint() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'atFlywheelVelocitySetpoint'");
+    return MathUtil.isNear(
+        flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
+        flywheelIO.getSetpointRotPerSec(),
+        FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
   }
 
   @Override
+  @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
   public boolean atHoodSetpoint() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'atHoodSetpoint'");
+    return MathUtil.isNear(
+        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
   }
 
   @Override
   public Command zeroHood() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'zeroHood'");
+    return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
   }
 
   @Override
   public Command testShoot() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'testShoot'");
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+        });
+  }
+
+  @Override
+  public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
+    return this.run(
+        () -> {
+          ShotData shotData =
+              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
+          hoodIO.setHoodPosition(shotData.hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+        });
   }
 }
