@@ -37,7 +37,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
-
   }
 
   private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
