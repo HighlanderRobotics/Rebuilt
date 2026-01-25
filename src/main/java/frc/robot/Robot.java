@@ -90,7 +90,7 @@ public class Robot extends LoggedRobot {
         break;
       default:
         // defaulting to comp is probably safer?
-        ROBOT_EDITION = RobotEdition.COMP;
+        ROBOT_EDITION = RobotEdition.ALPHA;
     }
   }
 
