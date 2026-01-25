@@ -14,6 +14,7 @@ import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
@@ -33,14 +34,17 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
-  public TurretSubsystem() {}
+  public TurretSubsystem(FlywheelIO flywheelIO) {
+    this.flywheelIO = flywheelIO;
+  }
 
   private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
   private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    flywheelIO.updateInputs(flywheelInputs);
+    Logger.processInputs("Shooter/Flywheel", flywheelInputs);
   }
 
   @Override
