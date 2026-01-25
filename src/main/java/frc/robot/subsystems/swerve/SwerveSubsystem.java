@@ -611,7 +611,8 @@ public class SwerveSubsystem extends SubsystemBase {
           Translation2d robotHubVec =
               FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
           // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
-          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+              .plus(Rotation2d.kCW_90deg);
         },
         xVel,
         yVel);
