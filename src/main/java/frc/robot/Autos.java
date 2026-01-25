@@ -143,6 +143,9 @@ public class Autos {
           autoCommand.andThen(
               Commands.print("Running path: " + path.toString()).andThen(runPath(path, routine)));
     }
+
+    routine.active().whileTrue(autoCommand);
+
     return routine.cmd();
   }
 
@@ -251,15 +254,14 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine("Depot Score Clim Auto");
     Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
     // Will always need to reset odo at the start of a routine
-    Command autoCommand =
-        paths[0]
-            .getTrajectory(routine)
-            .resetOdometry()
-            .andThen(shootPreload()); // shoot preload then do the paths
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
+    // shoot preload then do the paths
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
+
+    routine.active().whileTrue(autoCommand);
 
     return routine.cmd();
   }
@@ -273,6 +275,8 @@ public class Autos {
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
 
+    routine.active().whileTrue(autoCommand);
+
     return routine.cmd();
   }
 
@@ -285,6 +289,8 @@ public class Autos {
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
 
+    routine.active().whileTrue(autoCommand);
+
     return routine.cmd();
   }
 
@@ -296,6 +302,8 @@ public class Autos {
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
+
+    routine.active().whileTrue(autoCommand);
 
     return routine.cmd();
   }
