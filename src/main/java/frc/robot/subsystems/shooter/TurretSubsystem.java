@@ -34,8 +34,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
-  public TurretSubsystem(FlywheelIO flywheelIO) {
+  public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO) {
     this.flywheelIO = flywheelIO;
+    this.hoodIO = hoodIO;
 
   }
 
