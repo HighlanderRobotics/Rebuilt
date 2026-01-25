@@ -27,11 +27,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
+import frc.robot.subsystems.swerve.constants.CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
@@ -66,10 +68,9 @@ public class SwerveSubsystem extends SubsystemBase {
   // decide which set of swerve constants to use based on robot edition
   // defaulting to comp is probably safer?
   public static final SwerveConstants SWERVE_CONSTANTS =
-      // Robot.ROBOT_EDITION == RobotEdition.ALPHA
-      //     ? new AlphaSwerveConstants()
-      //     : new CompBotSwerveConstants();
-      new AlphaSwerveConstants();
+      Robot.ROBOT_EDITION == RobotEdition.ALPHA
+          ? new AlphaSwerveConstants()
+          : new CompBotSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
