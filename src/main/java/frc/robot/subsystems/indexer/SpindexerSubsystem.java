@@ -54,19 +54,15 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     this.indexRollerIO = indexRollerIO;
   }
 
-  @Override
-  public boolean isFull() {
-    return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
-  }
 
   @Override
   public boolean isEmpty() {
-    return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
+    return !secondCANRangeInputs.isDetected;
   }
 
   @Override
-  public boolean isPartiallyFull() {
-    return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
+  public boolean isNotEmpty() {
+    return secondCANRangeInputs.isDetected;
   }
 
   @Override
