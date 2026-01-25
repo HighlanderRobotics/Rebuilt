@@ -259,7 +259,12 @@ public class Robot extends LoggedRobot {
       case COMP:
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
-        shooter = new TurretSubsystem(new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore));
+        shooter = 
+        new TurretSubsystem(
+          ROBOT_MODE == RobotMode.REAL
+          ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
+          : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(),canivore));
+
         climber = new ClimberSubsystem(); // TODO climber
         break;
     }
