@@ -4,6 +4,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import frc.robot.utils.FieldUtils;
@@ -11,6 +14,8 @@ import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
+
+  public static double LATENCY_COMPENSATION_SECS = 0.03; // TODO tune latency comp
 
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
 
@@ -67,6 +72,29 @@ public class AutoAim {
             30,
             1.36,
             Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12) / 1.36));
+  }
+
+  // im sorry kevin
+
+  private static final InterpolatingTreeMap<Double, Rotation2d> velocityHoodAngleMap =
+      new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), Rotation2d::interpolate);
+
+  static {
+    velocityHoodAngleMap.put(Units.inchesToMeters(24 + 17) / 1.46, Rotation2d.fromDegrees(8));
+    velocityHoodAngleMap.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12) / 1.55, Rotation2d.fromDegrees(6));
+    velocityHoodAngleMap.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12) / 1.54, Rotation2d.fromDegrees(10.5));
+    velocityHoodAngleMap.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12) / 1.54, Rotation2d.fromDegrees(14.5));
+    velocityHoodAngleMap.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12) / 1.52, Rotation2d.fromDegrees(18));
+    velocityHoodAngleMap.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12) / 1.46, Rotation2d.fromDegrees(21.5));
+    velocityHoodAngleMap.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12) / 1.35, Rotation2d.fromDegrees(24.5));
+    velocityHoodAngleMap.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12) / 1.36, Rotation2d.fromDegrees(28));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -162,11 +190,8 @@ public class AutoAim {
 
   // }
   // brooooo
-  public static Rotation2d getSOTMYawfr(Pose2d robot, ChassisSpeeds fieldChassisSpeeds) {
-    // V_ball-ground = V_ball-robot + V_robot-ground (relative motion)
-    Translation2d V_RobotGround =
-        new Translation2d(
-            fieldChassisSpeeds.vxMetersPerSecond, fieldChassisSpeeds.vyMetersPerSecond);
+
+  public static Translation2d getBallGroundVector(Pose2d robot, ChassisSpeeds fieldChassisSpeeds) {
     Translation2d robotToHub = FieldUtils.getCurrentHubTranslation().minus(robot.getTranslation());
     double ballGroundVelocity = AutoAim.HUB_SHOT_TREE.calculateShot(robot).groundVelocity();
     double v_x = robotToHub.getX() * ballGroundVelocity * robotToHub.getAngle().getCos();
@@ -177,6 +202,28 @@ public class AutoAim {
             * Math.signum(robotToHub.getY());
     Logger.recordOutput("angle", robotToHub.getAngle());
     Translation2d V_BallGround = new Translation2d(v_x, v_y);
+    return V_BallGround;
+  }
+
+  public static Rotation2d getSOTMYawfr(Pose2d robot, ChassisSpeeds fieldChassisSpeeds) {
+    ChassisSpeeds robotRelativeSpeeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(fieldChassisSpeeds, robot.getRotation());
+    // calculate latency compensated pose
+    Pose2d compensatedPose =
+        robot.exp(
+            new Twist2d(
+                robotRelativeSpeeds.vxMetersPerSecond * LATENCY_COMPENSATION_SECS,
+                robotRelativeSpeeds.vyMetersPerSecond * LATENCY_COMPENSATION_SECS,
+                robotRelativeSpeeds.omegaRadiansPerSecond * LATENCY_COMPENSATION_SECS));
+
+    // note that this is a position vector not velocity
+    Translation2d robotToHub =
+        FieldUtils.getCurrentHubTranslation().minus(compensatedPose.getTranslation());
+    // V_ball-ground = V_ball-robot + V_robot-ground (relative motion)
+    Translation2d V_RobotGround =
+        new Translation2d(
+            fieldChassisSpeeds.vxMetersPerSecond, fieldChassisSpeeds.vyMetersPerSecond);
+    Translation2d V_BallGround = AutoAim.getBallGroundVector(compensatedPose, fieldChassisSpeeds);
     Translation2d V_BallRobot = V_BallGround.minus(V_RobotGround);
 
     Rotation2d rot = V_BallRobot.getAngle();
@@ -187,16 +234,30 @@ public class AutoAim {
       // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
       rot = Rotation2d.fromRadians(Math.atan2(robotToHub.getY(), robotToHub.getX()));
     }
-    Pose2d pose = new Pose2d(robot.getTranslation(), rot);
-    Logger.recordOutput("what this bastard is supposed to be doing", pose);
+    Pose2d poseSetpoint = new Pose2d(robot.getTranslation(), rot);
+    Logger.recordOutput("what this bastard is supposed to be doing", poseSetpoint);
     Logger.recordOutput(
-        "Autoaim/Target viz", pose.transformBy(new Transform2d(10, 0, new Rotation2d())));
+        "Autoaim/Target viz", poseSetpoint.transformBy(new Transform2d(10, 0, new Rotation2d())));
     Logger.recordOutput("hi we are still alive", Logger.getTimestamp());
     // new Pose2d(V_BallGround.times(-1), rot));
     return rot;
   }
 
-  // public static Rotation2d getSOTMPitchfr(Pose2d robot, ChassisSpeeds fieldChassisSpeeds) {
+  public static Rotation2d getSOTMPitchfr(Pose2d robot, ChassisSpeeds fieldChassisSpeeds) {
 
-  // }
+    ChassisSpeeds robotRelativeSpeeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(fieldChassisSpeeds, robot.getRotation());
+    // calculate latency compensated pose
+    Pose2d compensatedPose =
+        robot.exp(
+            new Twist2d(
+                robotRelativeSpeeds.vxMetersPerSecond * LATENCY_COMPENSATION_SECS,
+                robotRelativeSpeeds.vyMetersPerSecond * LATENCY_COMPENSATION_SECS,
+                robotRelativeSpeeds.omegaRadiansPerSecond * LATENCY_COMPENSATION_SECS));
+
+    Translation2d V_BallGround = AutoAim.getBallGroundVector(compensatedPose, fieldChassisSpeeds);
+    double groundVelocity = V_BallGround.getNorm();
+    Rotation2d hoodAngle = velocityHoodAngleMap.get(groundVelocity);
+    return hoodAngle;
+  }
 }

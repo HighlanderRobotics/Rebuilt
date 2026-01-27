@@ -341,9 +341,9 @@ public class Robot extends LoggedRobot {
         swerve.driveOpenLoopFieldRelative(
             () ->
                 new ChassisSpeeds(
-                        modifyJoystick(-1 * driver.getLeftX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                         modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                        modifyJoystick(driver.getLeftX())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                         modifyJoystick(driver.getRightX())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
