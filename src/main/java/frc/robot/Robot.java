@@ -427,7 +427,7 @@ public class Robot extends LoggedRobot {
             Commands.runOnce(
                 () ->
                     swerve.setYaw(
-                        DriverStation.getAlliance().equals(Alliance.Blue)
+                        DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
                             // ? Rotation2d.kCW_90deg
                             // : Rotation2d.kCCW_90deg)));
                             ? Rotation2d.kZero
