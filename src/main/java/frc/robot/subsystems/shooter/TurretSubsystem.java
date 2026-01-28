@@ -5,6 +5,8 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
@@ -65,5 +67,24 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command testShoot() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'testShoot'");
+  }
+
+  @Override
+  public Command runCurrentZeroing() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'runCurrentZeroing'");
+  }
+
+  @Override
+  public Command shootOTM(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> fieldRelRobotVelocity) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'shootOTM'");
+  }
+
+  @Override
+  public Rotation2d getHoodSetpoint() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
   }
 }

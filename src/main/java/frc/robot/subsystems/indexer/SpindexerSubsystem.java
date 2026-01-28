@@ -58,4 +58,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'rest'");
   }
+
+  @Override
+  public boolean firstBeambreak() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'firstBeambreak'");
+  }
 }

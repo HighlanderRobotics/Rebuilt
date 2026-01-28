@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Superstructure.SuperState;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -76,41 +77,24 @@ public class Robot extends LoggedRobot {
   }
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
-  // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
-  public static final RobotEdition ROBOT_EDITION;
-  public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
-  public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
+  public static final RobotEdition ROBOT_EDITION = RobotEdition.ALPHA;
 
-  // for replay to work properly this needs to match the edition in the log
-  static {
-    switch (ROBOT_MODE) {
-      case REAL:
-        switch (RobotController.getSerialNumber()) {
-          case "023D2BD2":
-            ROBOT_EDITION = RobotEdition.ALPHA;
-            break;
-          case "2": // TODO get comp rio serial number
-            ROBOT_EDITION = RobotEdition.COMP;
-            break;
-          default:
-            // defaulting to comp is probably safer?
-            ROBOT_EDITION = RobotEdition.COMP;
-        }
-        break;
-      case SIM:
-        // you're gonna have to just lock in on this
-        ROBOT_EDITION = SIM_ROBOT_EDITION;
-        break;
-      case REPLAY:
-        // you're gonna have to just lock in on this
-        ROBOT_EDITION = REPLAY_ROBOT_EDITION;
-        break;
+  // public static final RobotEdition ROBOT_EDITION;
 
-      default:
-        // TODO change to comp once there is a comp bot
-        ROBOT_EDITION = RobotEdition.ALPHA;
-    }
-  }
+  // // TODO get rio serial numbers
+  // static {
+  //   switch (RobotController.getSerialNumber()) {
+  //     case "1":
+  //       ROBOT_EDITION = RobotEdition.ALPHA;
+  //       break;
+  //     case "2":
+  //       ROBOT_EDITION = RobotEdition.COMP;
+  //       break;
+  //     default:
+  //       // defaulting to comp is probably safer?
+  //       ROBOT_EDITION = RobotEdition.COMP;
+  //   }
+  // }
 
   /**
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
@@ -177,7 +161,7 @@ public class Robot extends LoggedRobot {
 
   // Assign non-superstructure triggers
   @AutoLogOutput(key = "Superstructure/Autoaim Request")
-  private Trigger autoAimReq = driver.rightBumper().or(driver.leftBumper());
+  private Trigger autoAimReq;
 
   // Auto stuff
   private final Autos autos;
@@ -284,6 +268,13 @@ public class Robot extends LoggedRobot {
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+    autoAimReq =
+        driver
+            .leftBumper()
+            .or(
+                () ->
+                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                        || Superstructure.getState() == SuperState.SCORE);
     // if this is alpha, we won't have assigned a climber yet
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
@@ -354,6 +345,7 @@ public class Robot extends LoggedRobot {
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
+    shooter.setDefaultCommand(shooter.rest());
     swerve.setDefaultCommand(
         swerve.driveOpenLoopFieldRelative(
             () ->
@@ -365,8 +357,16 @@ public class Robot extends LoggedRobot {
                         modifyJoystick(driver.getRightX())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                     .times(-1)));
+    // swerve.faceHubSOTM(
+    //     () ->
+    //         modifyJoystick(driver.getLeftX())
+    //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //     () ->
+    //         modifyJoystick(driver.getLeftY())
+    //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
+    //             * -1));
 
-    addControllerBindings();
+    addControllerBindings(indexer, shooter);
 
     // Auto things
     autos = new Autos(swerve);
@@ -427,7 +427,7 @@ public class Robot extends LoggedRobot {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.02);
   }
 
-  private void addControllerBindings() {
+  private void addControllerBindings(Indexer indexer, Shooter shooter) {
     // heading reset
     driver
         .leftStick()
@@ -436,24 +436,38 @@ public class Robot extends LoggedRobot {
             Commands.runOnce(
                 () ->
                     swerve.setYaw(
-                        DriverStation.getAlliance().equals(Alliance.Blue)
+                        DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
                             // ? Rotation2d.kCW_90deg
                             // : Rotation2d.kCCW_90deg)));
                             ? Rotation2d.kZero
                             : Rotation2d.k180deg)));
 
-    // TODO: ACTUAL BUTTON BINDING
-    driver
-        .leftBumper()
-        .whileTrue(
-            swerve.faceHub(
-                () ->
-                    modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+    // autoaim (alpha)
+    autoAimReq.whileTrue(
+        // swerve.faceHubSOTM(
+        //     () ->
+        //         modifyJoystick(driver.getLeftY())
+        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+        //     () ->
+        //         modifyJoystick(driver.getLeftX())
+        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+        swerve.faceHubSOTM(
+            () ->
+                -1
+                    * modifyJoystick(driver.getLeftY())
+                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+            () ->
+                -1
+                    * modifyJoystick(driver.getLeftX())
+                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
     // TODO add binding for climb
+
+    // current zero shooter hood
+    driver.b().whileTrue(shooter.runCurrentZeroing());
+
+    new Trigger(() -> indexer.firstBeambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.1));
+
+    new Trigger(() -> indexer.isFull()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
     // ---zeroing stuff---
 

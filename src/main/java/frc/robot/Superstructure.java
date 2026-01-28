@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -16,6 +20,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.FeedTargets;
+import frc.robot.utils.autoaim.AutoAim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -50,6 +55,8 @@ public class Superstructure {
   @AutoLogOutput(key = "Scoring/Scoring Active")
   public boolean isScoringActive =
       isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
+
+  public boolean practice = true;
 
   // its litterly possible
 
@@ -231,7 +238,8 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         intake.rest(),
         indexer.rest(), /*shooter.shoot(swerve::getPose)*/
-        shooter.testShoot());
+        shooter.shootOTM(swerve::getPose, swerve::getVelocityFieldRelative));
+    // shooter.testShoot());
 
     bindCommands(
         SuperState.SPIN_UP_FEED,
@@ -244,7 +252,8 @@ public class Superstructure {
         SuperState.SCORE,
         intake.rest(),
         indexer.kick(), /*shooter.shoot(swerve::getPose)*/
-        shooter.testShoot());
+        shooter.shootOTM(swerve::getPose, swerve::getVelocityFieldRelative));
+    // shooter.testShoot());
 
     bindCommands(SuperState.SCORE_FLOW, intake.intake(), indexer.kick(), shooter.testShoot());
 
@@ -268,6 +277,22 @@ public class Superstructure {
   public void periodic() {
     Logger.recordOutput("Superstructure/Superstructure State", state);
     Logger.recordOutput("Superstructure/State Timer", stateTimer.get());
+
+    // this really should be in robot.java but i cooked myself with the robot selecting thing
+    Logger.recordOutput(
+        "shooter sotm viz",
+        new Pose3d(swerve.getPose())
+            .transformBy(
+                new Transform3d(
+                    new Translation3d(0, 0, 0.5),
+                    new Rotation3d(
+                        0,
+                        ((Math.PI / 2)
+                                - AutoAim.getSOTMPitchfr(
+                                        swerve.getPose(), swerve.getVelocityFieldRelative())
+                                    .getRadians())
+                            * -1,
+                        0))));
   }
 
   /**
@@ -402,6 +427,6 @@ public class Superstructure {
   }
 
   public boolean canScore() {
-    return isOurShift() && inScoringArea();
+    return isOurShift() && inScoringArea() && practice;
   }
 }
