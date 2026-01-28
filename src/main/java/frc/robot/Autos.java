@@ -296,7 +296,7 @@ public class Autos {
 
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoPL, Path.PLtoCL};
+    Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoPR, Path.PRtoCR};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {

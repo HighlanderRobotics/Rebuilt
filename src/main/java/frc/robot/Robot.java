@@ -559,9 +559,7 @@ public class Robot extends LoggedRobot {
   public void simulationPeriodic() {}
 
   @Override
-  public void disabledInit() {
-    addAutos();
-  }
+  public void disabledInit() {}
 
   @Override
   public void disabledPeriodic() {}
