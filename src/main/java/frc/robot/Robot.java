@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Superstructure.SuperState;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -160,7 +161,7 @@ public class Robot extends LoggedRobot {
 
   // Assign non-superstructure triggers
   @AutoLogOutput(key = "Superstructure/Autoaim Request")
-  private Trigger autoAimReq = driver.rightBumper().or(driver.leftBumper());
+  private Trigger autoAimReq;
 
   // Auto stuff
   private final Autos autos;
@@ -267,6 +268,13 @@ public class Robot extends LoggedRobot {
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+    autoAimReq =
+        driver
+            .leftBumper()
+            .or(
+                () ->
+                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                        || Superstructure.getState() == SuperState.SCORE);
     // if this is alpha, we won't have assigned a climber yet
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
@@ -435,25 +443,23 @@ public class Robot extends LoggedRobot {
                             : Rotation2d.k180deg)));
 
     // autoaim (alpha)
-    driver
-        .leftBumper()
-        .whileTrue(
-            // swerve.faceHubSOTM(
-            //     () ->
-            //         modifyJoystick(driver.getLeftY())
-            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-            //     () ->
-            //         modifyJoystick(driver.getLeftX())
-            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-            swerve.faceHubSOTM(
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+    autoAimReq.whileTrue(
+        // swerve.faceHubSOTM(
+        //     () ->
+        //         modifyJoystick(driver.getLeftY())
+        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+        //     () ->
+        //         modifyJoystick(driver.getLeftX())
+        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+        swerve.faceHubSOTM(
+            () ->
+                -1
+                    * modifyJoystick(driver.getLeftY())
+                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+            () ->
+                -1
+                    * modifyJoystick(driver.getLeftX())
+                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
     // TODO add binding for climb
 
     // current zero shooter hood
