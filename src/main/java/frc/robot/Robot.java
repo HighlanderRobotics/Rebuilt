@@ -446,10 +446,12 @@ public class Robot extends LoggedRobot {
             //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
             swerve.faceHubSOTM(
                 () ->
-                    modifyJoystick(driver.getLeftX())
+                    -1
+                        * modifyJoystick(driver.getLeftY())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 () ->
-                    modifyJoystick(-1 * driver.getLeftY())
+                    -1
+                        * modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
     // TODO add binding for climb
 
