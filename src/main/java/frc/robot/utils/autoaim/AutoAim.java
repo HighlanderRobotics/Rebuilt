@@ -15,7 +15,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
-  public static double LATENCY_COMPENSATION_SECS = 1; // TODO tune latency comp
+  public static double LATENCY_COMPENSATION_SECS = 0.6; // TODO tune latency comp
 
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
 
@@ -196,7 +196,7 @@ public class AutoAim {
     double ballGroundVelocity = AutoAim.HUB_SHOT_TREE.calculateShot(robot).groundVelocity();
     double v_x = ballGroundVelocity * robotToHub.getAngle().getCos();
     double v_y =
-        ballGroundVelocity * robotToHub.getAngle().getSin() * Math.signum(robotToHub.getY());
+        ballGroundVelocity * robotToHub.getAngle().getSin(); // * Math.signum(robotToHub.getY());
     Logger.recordOutput("angle", robotToHub.getAngle());
     Translation2d V_BallGround = new Translation2d(v_x, v_y);
     return V_BallGround;
