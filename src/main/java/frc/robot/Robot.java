@@ -337,6 +337,7 @@ public class Robot extends LoggedRobot {
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
+    shooter.setDefaultCommand(shooter.rest());
     swerve.setDefaultCommand(
         swerve.driveOpenLoopFieldRelative(
             () ->
@@ -456,7 +457,7 @@ public class Robot extends LoggedRobot {
     // TODO add binding for climb
 
     // current zero shooter hood
-    driver.b().onTrue(shooter.runCurrentZeroing());
+    driver.b().whileTrue(shooter.runCurrentZeroing());
 
     new Trigger(() -> indexer.firstBeambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.1));
 
