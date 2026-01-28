@@ -15,7 +15,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
-  public static double LATENCY_COMPENSATION_SECS = 0.02; // TODO tune latency comp
+  public static double LATENCY_COMPENSATION_SECS = 1; // TODO tune latency comp
 
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
 
