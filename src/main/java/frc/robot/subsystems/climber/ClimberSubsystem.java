@@ -24,8 +24,6 @@ public class ClimberSubsystem extends SubsystemBase {
 ClimberIO climberIO;
 ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
 
-  public ClimberSubsystem() {}
-
   @Override
   public void periodic() {
     climberIO.updateInputs(climberInputs);
@@ -38,11 +36,10 @@ public ClimberSubsystem(ClimberIO climberIO) {
   this.climberIO = climberIO;
 }
 
-//not sure about these implementations, some issues with "static reference to non-static method"
 public Command climbUp() {
   return this.run(
     () -> {
-      ClimberIO.setClimberPosition(MAX_ANGLE);
+      climberIO.setClimberPosition(MAX_ANGLE);
     });
     
 }
@@ -50,7 +47,7 @@ public Command climbUp() {
 public Command climbDown() {
   return this.run(
     () -> {
-      ClimberIO.setClimberPosition(MIN_ANGLE);
+      climberIO.setClimberPosition(MIN_ANGLE);
     });
     
 }

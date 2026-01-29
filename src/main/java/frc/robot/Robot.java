@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
+import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.LindexerSubsystem;
@@ -260,7 +261,7 @@ public class Robot extends LoggedRobot {
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
         shooter = new TurretSubsystem();
-        climber = new ClimberSubsystem(); // TODO climber
+        climber = new ClimberSubsystem();
         break;
     }
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
@@ -270,7 +271,7 @@ public class Robot extends LoggedRobot {
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
     if (climber == null)
-      climber = new ClimberSubsystem(); // TODO new ClimberSubsystem(new ClimberIO() {}) and such
+      climber = new ClimberSubsystem(new ClimberIO(canivore) {});
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
