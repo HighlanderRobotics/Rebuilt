@@ -250,6 +250,7 @@ public class Autos {
   // TODO: score at the start of each auto
   // specific paths:
   // no idea what to name them
+  // FOCUS ON THIS TODAY!!!!
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Clim Auto");
     Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
@@ -297,6 +298,20 @@ public class Autos {
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
     Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoPR, Path.PRtoCR};
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getTestAuto() {
+    final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
+    Path[] paths = {Path.PLtoD};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {

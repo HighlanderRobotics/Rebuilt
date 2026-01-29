@@ -491,6 +491,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
+    autoChooser.addOption("Test Auto", autos.getTestAuto());
     // Sysid Autos
     // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
