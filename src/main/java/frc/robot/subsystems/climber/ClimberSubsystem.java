@@ -15,20 +15,21 @@ import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase {
   //todo: find actual constants
-  public static final double GEAR_RATIO = (45.0 / 1.0);
-  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(180);
-  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(0);
-  public static final double MAX_ACCELERATION = 10.0;
-  public static final double MAX_VELOCITY = 2.0;
+  public static double GEAR_RATIO = (45.0 / 1.0);
+  public static Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(180);
+  public static Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(0);
+  public static double MAX_ACCELERATION = 10.0;
+  public static double MAX_VELOCITY = 2.0;
 
 ClimberIO climberIO;
-ClimberIOInputsAutoLogged ClimberIOInputs = new ClimberIOInputsAutoLogged();
+ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
 
   public ClimberSubsystem() {}
 
   @Override
   public void periodic() {
     climberIO.updateInputs(climberInputs);
+  Logger.processInputs("Climber", climberInputs);
   }
 
 //member variables here?
@@ -41,7 +42,7 @@ public ClimberSubsystem(ClimberIO climberIO) {
 public Command climbUp() {
   return this.run(
     () -> {
-      ClimberIO.setClimberPosition(MAX_ANGLE)
+      ClimberIO.setClimberPosition(MAX_ANGLE);
     });
     
 }
@@ -49,7 +50,7 @@ public Command climbUp() {
 public Command climbDown() {
   return this.run(
     () -> {
-      ClimberIO.setClimberPosition(MIN_ANGLE)
+      ClimberIO.setClimberPosition(MIN_ANGLE);
     });
     
 }

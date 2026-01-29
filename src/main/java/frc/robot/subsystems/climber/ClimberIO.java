@@ -12,14 +12,17 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Frequency;
+import frc.robot.subsystems.shooter.HoodIO;
 
 public class ClimberIO {
 
@@ -35,7 +38,7 @@ public class ClimberIO {
 
     protected final TalonFX climberMotor;
 
-    private final StatusSignal<Angle> motorPosition;
+    private final StatusSignal<Angle> motorPositionRotations;
     private final StatusSignal<AngularVelocity> angularVelocityRotsPerSec;
     private final StatusSignal<Current> statorCurrentAmps;
     private final StatusSignal<Current> supplyCurrentAmps;
@@ -46,29 +49,30 @@ public class ClimberIO {
     private PositionVoltage positionVoltage = new PositionVoltage(0.0) .withEnableFOC(true);
     private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0) .withEnableFOC(true);
 
+    private Rotation2d climberSetpoint = Rotation2d.kZero;
+
 
 public ClimberIO(CANBus canBus) {
     //todo: set correct motor ID
     climberMotor = new TalonFX(30, canBus);
-    climberMotor.getConfigurator().apply(ClimberIO.getConfigurator());
+    climberMotor.getConfigurator().apply(ClimberIO.getClimberConfiguration());
         
     angularVelocityRotsPerSec = climberMotor.getVelocity();
     supplyCurrentAmps = climberMotor.getSupplyCurrent();
     motorVoltage = climberMotor.getMotorVoltage();
     statorCurrentAmps = climberMotor.getStatorCurrent();
     motorTemp = climberMotor.getDeviceTemp();
-    motorPosition = climberMotor.getPosition();
+    motorPositionRotations = climberMotor.getPosition();
 
-    //complaining about frequency syntax for some reason
     BaseStatusSignal.setUpdateFrequencyForAll(
-        frequencyHz:50.0,
+        50.0,
         angularVelocityRotsPerSec,
         supplyCurrentAmps,
         motorVoltage,
         statorCurrentAmps,
         motorTemp,
-        motorPosition
-        climberMotor.optimizeBusUtilization());
+        motorPositionRotations);
+    climberMotor.optimizeBusUtilization();
  }
 
 public static TalonFXConfiguration getClimberConfiguration() {
@@ -83,7 +87,7 @@ public static TalonFXConfiguration getClimberConfiguration() {
 
     //todo: tune 
     config.Slot0.kS = 0.0;
-    config.Slot0.KG = 0.0;
+    config.Slot0.kG = 0.0;
     config.Slot0.kV = 0.0;
     config.Slot0.kP = 0.0;
     config.Slot0.kD = 0.0;
@@ -97,6 +101,7 @@ public static TalonFXConfiguration getClimberConfiguration() {
 }
 
 public void setClimberPosition(Rotation2d climberPosition) {
+    climberSetpoint = climberPosition;
     climberMotor.setControl(positionVoltage.withPosition(climberPosition.getRotations()));
 }
 
@@ -110,7 +115,7 @@ public void setClimberVelocity(double climberVelocity) {
 
 public void updateInputs(ClimberIOInputs inputs) {
   BaseStatusSignal.refreshAll(
-    motorPosition,
+    motorPositionRotations,
     angularVelocityRotsPerSec,
     statorCurrentAmps,
     supplyCurrentAmps,
@@ -120,10 +125,10 @@ public void updateInputs(ClimberIOInputs inputs) {
   inputs.motorPositionRotations = 
       Rotation2d.fromRotations(motorPositionRotations.getValueAsDouble());
   inputs.motorVoltage = motorVoltage.getValueAsDouble();
-  inputs.motorTempC = motorTempC.getValueAsDouble();
-  inputs.motorSupplyCurrentAmps = motorSupplyCurrentAmps.getValueAsDouble();
-  inputs.motorStatorCurrentAmps = motorStatorCurrentAmps.getValueAsDouble();
-  inputs.motorVelocityMetersPerSec = motorVelocityMetersPerSec.getValueAsDouble();
+  inputs.motorTempC = motorTemp.getValueAsDouble();
+  inputs.motorSupplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
+  inputs.motorStatorCurrentAmps = statorCurrentAmps.getValueAsDouble();
+  inputs.motorVelocityMetersPerSec = angularVelocityRotsPerSec.getValueAsDouble();
 }
 }
   
