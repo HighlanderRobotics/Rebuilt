@@ -159,6 +159,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
     firstCANRangeIO.updateInputs(firstCANRangeInputs);
     Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
     secondCANRangeIO.updateInputs(secondCANRangeInputs);

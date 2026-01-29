@@ -14,40 +14,40 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class ExtensionSubsystem extends SubsystemBase {
   public static final double GEAR_RATIO = 2.0;
 
   
 
 
-  private RollerIO io;
-  private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
+  private ExtensionIO io;
+  private ExtensionIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
   private SysIdRoutine intakeRollerSysid =
       new SysIdRoutine(
-          new Config(null, null, null, (state) -> Logger.recordOutput("Intake/SysID State", state)),
-          new Mechanism((volts) -> io.setRollerVoltage(volts.in(Volts)), null, this));
+          new Config(null, null, null, (state) -> Logger.recordOutput("Extension/SysID State", state)),
+          new Mechanism((volts) -> io.setExtensionVoltage(volts.in(Volts)), null, this));
 
-  public IntakeSubsystem(RollerIO io) {
+  public ExtensionSubsystem(ExtensionIO io) {
     this.io = io;
   }
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Intake", inputs);
+    Logger.processInputs("Extension", inputs);
   }
 
   // TODO get actual values
-  public Command intake() {
-    return this.run(() -> io.setRollerVoltage(5));
+  public Command extend() {
+    return this.run(() -> io.setExtensionVoltage(5));
   }
 
-  public Command outake() {
-    return this.run(() -> io.setRollerVoltage(-2));
+  public Command contract() {
+    return this.run(() -> io.setExtensionVoltage(-2));
   }
 
-  public Command rest() {
-    return this.run(() -> io.setRollerVoltage(0));
+  public Command stop() {
+    return this.run(() -> io.setExtensionVoltage(0));
   }
 
   public Command runRollerSysid() {
@@ -58,7 +58,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeRollerSysid.dynamic(Direction.kReverse));
   }
 
-  public static TalonFXConfiguration getIntakeConfig() {
+  public static TalonFXConfiguration getExtensionConfig() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
