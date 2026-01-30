@@ -605,6 +605,18 @@ public class SwerveSubsystem extends SubsystemBase {
         yVel);
   }
 
+  public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(
+        () -> {
+          Translation2d robotHubVec =
+              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+        },
+        xVel,
+        yVel);
+  }
+
   public boolean isInAutoAimTolerance(Pose2d target) {
     return isInTolerance(
         target, AutoAlign.TRANSLATION_TOLERANCE_METERS, AutoAlign.ROTATION_TOLERANCE_RADIANS);
