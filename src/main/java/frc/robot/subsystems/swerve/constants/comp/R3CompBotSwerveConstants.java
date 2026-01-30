@@ -3,7 +3,7 @@ package frc.robot.subsystems.swerve.constants.comp;
 import edu.wpi.first.math.util.Units;
 
 public class R3CompBotSwerveConstants extends R1CompBotSwerveConstants {
-    @Override
+  @Override
   public double getMaxLinearSpeed() {
     // From https://www.swervedrivespecialties.com/collections/kits/products/mk5n-swerve-module
     // SDS Mk5n, R3 ratio, no FOC (because FOC is disabled if we're going fast enough)

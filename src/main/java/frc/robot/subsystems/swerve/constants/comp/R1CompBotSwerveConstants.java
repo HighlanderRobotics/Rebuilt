@@ -13,7 +13,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
@@ -91,8 +90,7 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   // TODO: CANCODER OFFSETS
   @Override
   public ModuleConstants getFrontLeftModuleConstants() {
-    return new ModuleConstants(
-        0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(0.0));
+    return new ModuleConstants(0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(0.0));
   }
 
   @Override
@@ -102,8 +100,7 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
 
   @Override
   public ModuleConstants getBackLeftModuleConstants() {
-    return new ModuleConstants(
-        2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.0));
+    return new ModuleConstants(2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.0));
   }
 
   @Override
