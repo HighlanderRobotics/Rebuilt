@@ -21,6 +21,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double EXTENDED_POSITION_METERS = MAX_EXTENSION_METERS;
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
+  public static final double ROLLER_GEAR_RATIO = 34 / 15;
 
   private final LinearRackIO rackIO;
   private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
@@ -96,6 +97,29 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     // TODO: TUNE
     config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
     config.MotionMagic.MotionMagicAcceleration = 30.0;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getRollerMotorConfig() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
+
+    // Converts rotational motion to linear motion
+    config.Feedback.SensorToMechanismRatio = ROLLER_GEAR_RATIO;
+
+    config.Slot0.kS = 0.0;
+    config.Slot0.kV = 0.0;
+    config.Slot0.kP = 0.0;
+    config.Slot0.kD = 0.0;
+
+    // TODO: TUNE
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     return config;
   }
