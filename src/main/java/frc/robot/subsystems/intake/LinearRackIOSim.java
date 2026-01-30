@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
-public class LinearSlideIOSim extends LinearSlideIO {
+public class LinearRackIOSim extends LinearRackIO {
   // TODO: SHOULD THIS BE AN ELEVATOR?
   ElevatorSim physicsSim =
       new ElevatorSim(
@@ -21,7 +21,7 @@ public class LinearSlideIOSim extends LinearSlideIO {
   private TalonFXSimState talonSim;
   private double lastLoopTime = 0.0;
 
-  public LinearSlideIOSim(int motorId, CANBus canBus, TalonFXConfiguration config) {
+  public LinearRackIOSim(int motorId, CANBus canBus, TalonFXConfiguration config) {
     super(motorId, canBus, config);
 
     this.talonSim = motor.getSimState();

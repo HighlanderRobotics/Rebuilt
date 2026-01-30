@@ -14,10 +14,10 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
-public class LinearSlideIO {
+public class LinearRackIO {
 
   @AutoLog
-  public static class LinearSlideIOInputs {
+  public static class LinearRackIOInputs {
     public double positionMeters = 0.0;
     public double velocityMetersPerSecond = 0.0;
     public double voltage = 0.0;
@@ -43,7 +43,7 @@ public class LinearSlideIO {
 
   private double setpointMeters = 0.0;
 
-  public LinearSlideIO(int motorID, CANBus canBus, TalonFXConfiguration config) {
+  public LinearRackIO(int motorID, CANBus canBus, TalonFXConfiguration config) {
     this.motor = new TalonFX(motorID, canBus);
 
     positionMeters = motor.getPosition();
@@ -66,7 +66,7 @@ public class LinearSlideIO {
     motor.getConfigurator().apply(config);
   }
 
-  public void updateInputs(LinearSlideIOInputs inputs) {
+  public void updateInputs(LinearRackIOInputs inputs) {
     inputs.positionMeters = positionMeters.getValueAsDouble();
     inputs.velocityMetersPerSecond = velocityMetersPerSecond.getValueAsDouble();
     inputs.voltage = voltage.getValueAsDouble();

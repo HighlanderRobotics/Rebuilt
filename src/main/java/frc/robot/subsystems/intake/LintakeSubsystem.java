@@ -4,17 +4,16 @@
 
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
@@ -23,14 +22,14 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
 
-  private final LinearSlideIO rackIO;
-  private LinearSlideIOInputsAutoLogged rackIOInputs = new LinearSlideIOInputsAutoLogged();
+  private final LinearRackIO rackIO;
+  private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
 
   private final RollerIO rollerIO;
   private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
 
   /** Creates a new LintakeSubsystem. */
-  public LintakeSubsystem(LinearSlideIO rackIO, RollerIO rollerIO) {
+  public LintakeSubsystem(LinearRackIO rackIO, RollerIO rollerIO) {
     this.rackIO = rackIO;
     this.rollerIO = rollerIO;
   }
@@ -78,7 +77,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
 
     // Converts rotational motion to linear motion
-    config.Feedback.SensorToMechanismRatio = RACK_GEAR_RATIO * (Math.PI * RACK_PINION_DIAMETER_METERS);
+    config.Feedback.SensorToMechanismRatio =
+        RACK_GEAR_RATIO * (Math.PI * RACK_PINION_DIAMETER_METERS);
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static; // Maybe don't need this?
     config.Slot0.kG = 0.0;
@@ -87,7 +87,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     config.Slot0.kP = 0.0;
     config.Slot0.kD = 0.0;
 
-     // TODO: TUNE
+    // TODO: TUNE
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
