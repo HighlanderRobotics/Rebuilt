@@ -6,6 +6,10 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -14,7 +18,7 @@ public class LinearRackIOSim extends LinearRackIO {
   // TODO: SHOULD THIS BE AN ELEVATOR?
   ElevatorSim physicsSim =
       new ElevatorSim(
-          null, null, getSetpointMeters(), getSetpointMeters(), false, getSetpointMeters());
+          LinearSystemId.createElevatorSystem(DCMotor.getKrakenX44Foc(1), Units.lbsToKilograms(10.0), LintakeSubsystem.RACK_PINION_DIAMETER_METERS / 2, LintakeSubsystem.RACK_GEAR_RATIO), DCMotor.getKrakenX44Foc(1), 0.0, LintakeSubsystem.MAX_EXTENSION_METERS, false, 0.0);
 
   private static final double SIM_LOOP_PERIOD = 0.002; // 2 ms
   private Notifier notifier;
@@ -40,10 +44,11 @@ public class LinearRackIOSim extends LinearRackIO {
               physicsSim.setInputVoltage(talonSim.getMotorVoltage());
               physicsSim.update(deltaTime);
 
+              // I think these should be multiplied?
               talonSim.setRawRotorPosition(
-                  physicsSim.getPositionMeters() * 1.0); // TODO: GEAR RATIO
+                  physicsSim.getPositionMeters() * (LintakeSubsystem.RACK_GEAR_RATIO * (Math.PI * LintakeSubsystem.RACK_PINION_DIAMETER_METERS)));
               talonSim.setRotorVelocity(
-                  physicsSim.getVelocityMetersPerSecond() * 1.0); // TODO: GEAR RATIO
+                  physicsSim.getVelocityMetersPerSecond() * (LintakeSubsystem.RACK_GEAR_RATIO * (Math.PI * LintakeSubsystem.RACK_PINION_DIAMETER_METERS)));
             });
 
     notifier.startPeriodic(SIM_LOOP_PERIOD);
