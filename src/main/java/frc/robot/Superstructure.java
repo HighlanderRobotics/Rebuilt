@@ -5,13 +5,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.indexer.IndexerSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.FeedTargets;
@@ -46,14 +47,20 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/State")
   private static SuperState state = SuperState.IDLE;
 
+  @AutoLogOutput(key = "Scoring/Scoring Active")
+  public boolean isScoringActive =
+      isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
+
+  // its litterly possible
+
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
 
   private final SwerveSubsystem swerve;
-  private final IndexerSubsystem indexer;
-  private final IntakeSubsystem intake;
-  private final ShooterSubsystem shooter;
+  private final Indexer indexer;
+  private final Intake intake;
+  private final Shooter shooter;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -67,8 +74,8 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq;
 
-  @AutoLogOutput(key = "Superstructure/Flowstate Request")
-  private Trigger flowReq;
+  // @AutoLogOutput(key = "Superstructure/Flowstate Request")
+  // private Trigger flowReq;
 
   @AutoLogOutput(key = "Superstructure/Anti Jam Req")
   private Trigger antiJamReq;
@@ -87,9 +94,9 @@ public class Superstructure {
   /** Creates a new Superstructure. */
   public Superstructure(
       SwerveSubsystem swerve,
-      IndexerSubsystem indexer,
-      IntakeSubsystem intake,
-      ShooterSubsystem shooter,
+      Indexer indexer,
+      Intake intake,
+      Shooter shooter,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
@@ -115,77 +122,88 @@ public class Superstructure {
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
-            .and(() -> shouldFeed == false)
+            .and(() -> canScore())
             .or(Autos.autoScoreReq); // Maybe should include if its our turn?
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    feedReq =
-        driver
-            .rightBumper()
-            .and(DriverStation::isTeleop)
-            .and(() -> shouldFeed == true)
-            .or(Autos.autoFeedReq);
+    feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
 
-    flowReq = driver.leftTrigger().and(driver.rightTrigger());
+    // flowReq = driver.leftTrigger().and(driver.rightTrigger());
 
     antiJamReq = driver.a().or(operator.a());
 
-    isFull = new Trigger(indexer::isFull);
+    isFull = new Trigger(indexer::isFull).debounce(0.5); // TODO tune
 
     isEmpty = new Trigger(indexer::isEmpty);
   }
 
   private void addTransitions() {
-    bindTransition(SuperState.IDLE, SuperState.INTAKE, intakeReq);
+    bindTransition(SuperState.IDLE, SuperState.INTAKE, intakeReq.and(scoreReq.negate()));
 
     bindTransition(SuperState.INTAKE, SuperState.IDLE, intakeReq.negate().and(isEmpty));
 
     bindTransition(
-        SuperState.INTAKE, SuperState.READY, (intakeReq.negate().and(isEmpty.negate())).or(isFull));
+        SuperState.INTAKE,
+        SuperState.READY,
+        (intakeReq.negate().and(scoreReq.negate()).and(isEmpty.negate())));
+    // .or(isFull));
 
-    bindTransition(SuperState.INTAKE, SuperState.SPIN_UP_FEED, feedReq);
+    // bindTransition(SuperState.INTAKE, SuperState.SPIN_UP_FEED, feedReq);
 
-    bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq.and(isFull.negate()));
+    bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq);
+    // .and(isFull.negate()));
 
     bindTransition(SuperState.READY, SuperState.SPIN_UP_SCORE, scoreReq);
 
     bindTransition(
         SuperState.SPIN_UP_SCORE,
         SuperState.SCORE,
-        new Trigger(shooter::atFlywheelVelocitySetpoint));
+        new Trigger(shooter::atFlywheelVelocitySetpoint)
+            .debounce(0.5)
+            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.5))
+            .and(() -> stateTimer.hasElapsed(0.5)));
 
-    bindTransition(
-        SuperState.SPIN_UP_FEED, SuperState.FEED, new Trigger(shooter::atFlywheelVelocitySetpoint));
+    // bindTransition(
+    //     SuperState.SPIN_UP_FEED,
+    //     SuperState.FEED,
+    //     new Trigger(shooter::atFlywheelVelocitySetpoint)
+    //         .and(() -> stateTimer.hasElapsed(0.2))
+    //         .and(shooter::atHoodSetpoint));
 
-    bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
+    // bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
 
-    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty);
+    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty.debounce(0.5).and(scoreReq.negate()));
 
     // FEED_FLOW transitions
-    {
-      bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
+    // {
+    //   bindTransition(SuperState.FEED, SuperState.FEED_FLOW, intakeReq.and(feedReq));
 
-      bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate().and(feedReq));
+    //   bindTransition(SuperState.FEED_FLOW, SuperState.FEED, intakeReq.negate().and(feedReq));
 
-      bindTransition(
-          SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(isEmpty.negate()));
+    //   bindTransition(
+    //       SuperState.FEED_FLOW, SuperState.READY, flowReq.negate().and(isEmpty.negate()));
 
-      // No so sure about the end condition here.
-      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty));
-    }
+    //   // No so sure about the end condition here.
+    //   bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty));
+    // }
 
     // SCORE_FLOW transitions
     {
-      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
+      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, scoreReq.and(intakeReq));
 
-      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate().and(scoreReq));
+      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, intakeReq.negate().and(scoreReq));
 
       bindTransition(
-          SuperState.SCORE_FLOW, SuperState.READY, flowReq.negate().and(isEmpty.negate()));
+          SuperState.SCORE_FLOW,
+          SuperState.READY,
+          intakeReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
 
       // No so sure about the end condition here.
-      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, flowReq.negate().and(isEmpty));
+      bindTransition(
+          SuperState.SCORE_FLOW,
+          SuperState.IDLE,
+          intakeReq.negate().and(scoreReq.negate()).and(isEmpty));
     }
 
     // Transition from any state to SPIT for anti jamming
@@ -206,11 +224,14 @@ public class Superstructure {
     bindCommands(
         SuperState.READY,
         intake.rest(),
-        indexer.index(),
+        indexer.rest(),
         shooter.rest()); // Maybe index at slower speed?
 
     bindCommands(
-        SuperState.SPIN_UP_SCORE, intake.rest(), indexer.rest(), shooter.shoot(swerve::getPose));
+        SuperState.SPIN_UP_SCORE,
+        intake.rest(),
+        indexer.rest(), /*shooter.shoot(swerve::getPose)*/
+        shooter.testShoot());
 
     bindCommands(
         SuperState.SPIN_UP_FEED,
@@ -220,10 +241,12 @@ public class Superstructure {
             swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
 
     bindCommands(
-        SuperState.SCORE, intake.rest(), indexer.indexToShoot(), shooter.shoot(swerve::getPose));
+        SuperState.SCORE,
+        intake.rest(),
+        indexer.kick(), /*shooter.shoot(swerve::getPose)*/
+        shooter.testShoot());
 
-    bindCommands(
-        SuperState.SCORE_FLOW, intake.intake(), indexer.index(), shooter.shoot(swerve::getPose));
+    bindCommands(SuperState.SCORE_FLOW, intake.intake(), indexer.kick(), shooter.testShoot());
 
     bindCommands(
         SuperState.FEED,
@@ -239,7 +262,7 @@ public class Superstructure {
         indexer.index(),
         shooter.feed(swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose()));
 
-    bindCommands(SuperState.SPIT, intake.outake(), indexer.outtake(), shooter.spit());
+    bindCommands(SuperState.SPIT, intake.outtake(), indexer.spit(), shooter.spit());
   }
 
   public void periodic() {
@@ -326,5 +349,59 @@ public class Superstructure {
 
   public boolean stateIsIdle() {
     return getState() == SuperState.IDLE;
+  }
+
+  private Alliance getStartingAlliance() {
+    String gameData = DriverStation.getGameSpecificMessage();
+    // gives first inactive alliance
+    if (gameData.length() > 0) {
+      switch (gameData.charAt(0)) {
+        case 'B':
+          return Alliance.Red;
+        case 'R':
+          return Alliance.Blue;
+        default:
+          return Alliance.Blue;
+      }
+    } else {
+      // not sure
+      return Alliance.Blue;
+    }
+  }
+
+  private int getCurrentShift() {
+    double timeLeftinMatch = Timer.getMatchTime();
+    // may be a nicer way to do this
+    if (105.00 <= timeLeftinMatch && timeLeftinMatch <= 130.00) {
+      return 1;
+    } else if (80.00 <= timeLeftinMatch && timeLeftinMatch <= 105.00) {
+      return 2;
+    } else if ((55.00 <= timeLeftinMatch && timeLeftinMatch <= 80.00)) {
+      return 3;
+    } else if ((30.00 <= timeLeftinMatch && timeLeftinMatch <= 55.00)) {
+      return 4;
+    } else {
+      return 0;
+    }
+  }
+
+  public boolean isOurShift() {
+    // only cant score when its the others turn, otherwise everyone can
+    if (getStartingAlliance() == DriverStation.getAlliance().orElse(Alliance.Blue)) {
+      return !(getCurrentShift() == 2 || getCurrentShift() == 4);
+    } else {
+      return !(getCurrentShift() == 1 || getCurrentShift() == 3);
+    }
+  }
+
+  public boolean inScoringArea() {
+    return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+            && (swerve.getPose().getX() <= 4.6914191246032715)
+        || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            && (swerve.getPose().getX() >= 11.889562606811523));
+  }
+
+  public boolean canScore() {
+    return isOurShift() && inScoringArea();
   }
 }

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Robot.RobotType;
+import frc.robot.Robot.RobotMode;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -78,7 +78,7 @@ public class Autos {
             true,
             swerve,
             (traj, edge) -> {
-              if (Robot.ROBOT_TYPE != RobotType.REAL)
+              if (Robot.ROBOT_MODE != RobotMode.REAL)
                 Logger.recordOutput(
                     "Choreo/Active Traj",
                     DriverStation.getAlliance().isPresent()
