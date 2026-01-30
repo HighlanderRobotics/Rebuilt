@@ -257,7 +257,8 @@ public class Robot extends LoggedRobot {
         // note that the climber is not instantiated here
         break;
       case COMP:
-        indexer = new SpindexerSubsystem(
+        indexer =
+            new SpindexerSubsystem(
                 canivore,
                 (ROBOT_MODE == RobotMode.REAL)
                     ? new RollerIO(9, SpindexerSubsystem.getIndexerConfigs(), canivore)

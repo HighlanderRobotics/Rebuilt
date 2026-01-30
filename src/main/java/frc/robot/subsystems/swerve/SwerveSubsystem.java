@@ -605,7 +605,7 @@ public class SwerveSubsystem extends SubsystemBase {
         yVel);
   }
 
-    public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
+  public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
         () -> {
           Translation2d robotHubVec =

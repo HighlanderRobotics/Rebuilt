@@ -51,7 +51,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     this.indexRollerIO = indexRollerIO;
   }
 
-
   @Override
   public boolean isEmpty() {
     return !CANRangeInputs.isDetected;
