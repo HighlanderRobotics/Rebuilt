@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.swerve.constants;
+package frc.robot.subsystems.swerve.constants.comp;
 
 import static edu.wpi.first.units.Units.Pound;
 
@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
 import frc.robot.components.camera.Camera.CameraConstants;
+import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
 
 /** Add your docs here. */
