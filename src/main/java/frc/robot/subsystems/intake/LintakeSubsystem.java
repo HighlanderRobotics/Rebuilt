@@ -4,34 +4,58 @@
 
 package frc.robot.subsystems.intake;
 
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.components.rollers.RollerIO;
+import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
+  private final LinearSlideIO rackIO;
+  private LinearSlideIOInputsAutoLogged rackIOInputs = new LinearSlideIOInputsAutoLogged();
+
+  private final RollerIO rollerIO;
+  private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
+
   /** Creates a new LintakeSubsystem. */
-  public LintakeSubsystem() {}
+  public LintakeSubsystem(LinearSlideIO rackIO, RollerIO rollerIO) {
+    this.rackIO = rackIO;
+    this.rollerIO = rollerIO;
+  }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    rackIO.updateInputs(rackIOInputs);
+    Logger.processInputs("Intake/Rack", rackIOInputs);
+
+    rollerIO.updateInputs(rollerIOInputs);
+    Logger.processInputs("Intake/Rollers", rollerIOInputs);
   }
 
   @Override
   public Command intake() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'intake'");
+    return this.run(() -> {
+      rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
+      rollerIO.setRollerVoltage(10.0);
+    });
   }
 
   @Override
   public Command outtake() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'outtake'");
+    return this.run(() -> {
+      rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
+      rollerIO.setRollerVoltage(10.0);
+    });
   }
 
   @Override
   public Command rest() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'rest'");
+    return this.run(() -> {
+      rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
+      rollerIO.setRollerVoltage(0.0);
+    });
   }
 }
