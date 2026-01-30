@@ -17,17 +17,15 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-/** Lindexer = Linear Indexer. !! ALPHA !! */
+/** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
-  private CANrangeIOReal firstCANRangeIO;
-  private CANrangeIOReal secondCANRangeIO;
+  private CANrangeIOReal CANRangeIO;
 
   private RollerIO indexRollerIO;
 
-  CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
-  CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
+  CANrangeIOInputsAutoLogged CANRangeInputs = new CANrangeIOInputsAutoLogged();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
@@ -49,20 +47,19 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    firstCANRangeIO = new CANrangeIOReal(0, canbus, 10);
-    secondCANRangeIO = new CANrangeIOReal(1, canbus, 10);
+    CANRangeIO = new CANrangeIOReal(0, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
 
 
   @Override
   public boolean isEmpty() {
-    return !secondCANRangeInputs.isDetected;
+    return !CANRangeInputs.isDetected;
   }
 
   @Override
   public boolean isNotEmpty() {
-    return secondCANRangeInputs.isDetected;
+    return CANRangeInputs.isDetected;
   }
 
   @Override
@@ -154,10 +151,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   @Override
   public void periodic() {
-    firstCANRangeIO.updateInputs(firstCANRangeInputs);
-    Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
-    secondCANRangeIO.updateInputs(secondCANRangeInputs);
-    Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
+    CANRangeIO.updateInputs(CANRangeInputs);
+    Logger.processInputs("Indexer/First Beambreak", CANRangeInputs);
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);
