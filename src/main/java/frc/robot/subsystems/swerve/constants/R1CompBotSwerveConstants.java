@@ -21,7 +21,7 @@ import frc.robot.components.camera.Camera.CameraConstants;
 import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
 
 /** Add your docs here. */
-public class CompBotSwerveConstants extends SwerveConstants {
+public class R1CompBotSwerveConstants extends SwerveConstants {
 
   // TODO!!!
   @Override

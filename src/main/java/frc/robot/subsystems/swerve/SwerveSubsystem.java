@@ -33,7 +33,7 @@ import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
-import frc.robot.subsystems.swerve.constants.CompBotSwerveConstants;
+import frc.robot.subsystems.swerve.constants.R1CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
@@ -70,7 +70,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static final SwerveConstants SWERVE_CONSTANTS =
       Robot.ROBOT_EDITION == RobotEdition.ALPHA
           ? new AlphaSwerveConstants()
-          : new CompBotSwerveConstants();
+          : new R1CompBotSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
