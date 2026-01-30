@@ -11,6 +11,11 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double MAX_EXTENSION_METERS = Units.inchesToMeters(16.0);
@@ -64,5 +69,34 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
           rollerIO.setRollerVoltage(0.0);
         });
+  }
+
+  public static TalonFXConfiguration getRackMotorConfig() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
+
+    // Converts rotational motion to linear motion
+    config.Feedback.SensorToMechanismRatio = RACK_GEAR_RATIO * (Math.PI * RACK_PINION_DIAMETER_METERS);
+
+    config.Slot0.GravityType = GravityTypeValue.Elevator_Static; // Maybe don't need this?
+    config.Slot0.kG = 0.0;
+    config.Slot0.kS = 0.0;
+    config.Slot0.kV = 0.0;
+    config.Slot0.kP = 0.0;
+    config.Slot0.kD = 0.0;
+
+     // TODO: TUNE
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    // TODO: TUNE
+    config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
+    config.MotionMagic.MotionMagicAcceleration = 30.0;
+
+    return config;
   }
 }
