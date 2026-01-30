@@ -25,10 +25,11 @@ public class ShooterSubsystem extends SubsystemBase {
   public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(0);
+  public static double TURRET_GEAR_RATIO = (12.0/42.0)*(16.0/32.0)*(10.0/85.0);
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
-  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0; // TODO: TUNE
+  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
 
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
@@ -51,7 +52,7 @@ public class ShooterSubsystem extends SubsystemBase {
               (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state)),
           new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
 
-  /** Creates a new HoodSubsystem. */
+
   public ShooterSubsystem(HoodIO hoodIO, FlywheelIO flywheelIO) {
     this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
@@ -84,7 +85,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command rest() {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(Rotation2d.kZero); // TODO: TUNE TUCKED POSITION IF NEEDED
+          hoodIO.setHoodPosition(Rotation2d.kZero);
           flywheelIO.setFlywheelVoltage(0.0);
         });
   }
@@ -94,7 +95,7 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> {
           hoodIO.setHoodPosition(Rotation2d.kZero);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
-        }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
+        });
   }
 
   public Command setHoodPositionCommand(Supplier<Rotation2d> hoodPosition) {
@@ -117,7 +118,7 @@ public class ShooterSubsystem extends SubsystemBase {
             .until(
                 () ->
                     hoodInputs.hoodPositionRotations.getDegrees()
-                        > (HOOD_MAX_ROTATION.getDegrees() - 5)), // Stop before endstop
+                        > (HOOD_MAX_ROTATION.getDegrees() - 5)), 
         hoodSysid
             .quasistatic(Direction.kReverse)
             .until(
