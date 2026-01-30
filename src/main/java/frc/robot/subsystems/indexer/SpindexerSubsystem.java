@@ -47,7 +47,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    CANRangeIO = new CANrangeIOReal(0, canbus, 10);
+    CANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
 
