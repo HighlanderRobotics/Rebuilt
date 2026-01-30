@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -278,12 +279,13 @@ public class Robot extends LoggedRobot {
         break;
       case COMP:
         indexer = new SpindexerSubsystem();
-        // TODO: MOTOR IDS
+        // TODO: CAN IDS AND FOVs
         intake =
             (ROBOT_MODE == RobotMode.REAL)
                 ? new LintakeSubsystem(
                     new LinearRackIO(50, canivore, LintakeSubsystem.getRackMotorConfig()),
-                    new RollerIO(51, LintakeSubsystem.getRollerMotorConfig(), canivore))
+                    new RollerIO(51, LintakeSubsystem.getRollerMotorConfig(), canivore),
+                    new CANrangeIOReal(10, canivore, 10))
                 : new LintakeSubsystem(
                     new LinearRackIOSim(50, canivore, LintakeSubsystem.getRackMotorConfig()),
                     new RollerIOSim(
@@ -296,7 +298,8 @@ public class Robot extends LoggedRobot {
                                 LintakeSubsystem.ROLLER_GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
-                        canivore));
+                        canivore),
+                    new CANrangeIOReal(10, canivore, 10));
         shooter = new TurretSubsystem();
         climber = new ClimberSubsystem(); // TODO climber
         break;

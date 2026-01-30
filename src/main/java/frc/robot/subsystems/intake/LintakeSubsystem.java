@@ -11,6 +11,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.components.canrange.CANrangeIO;
+import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
@@ -29,10 +31,14 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   private final RollerIO rollerIO;
   private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
 
+  private final CANrangeIO canRangeIO;
+  private CANrangeIOInputsAutoLogged canRangeIOInputs = new CANrangeIOInputsAutoLogged();
+
   /** Creates a new LintakeSubsystem. */
-  public LintakeSubsystem(LinearRackIO rackIO, RollerIO rollerIO) {
+  public LintakeSubsystem(LinearRackIO rackIO, RollerIO rollerIO, CANrangeIO canRangeIO) {
     this.rackIO = rackIO;
     this.rollerIO = rollerIO;
+    this.canRangeIO = canRangeIO;
   }
 
   @Override
@@ -42,6 +48,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
     rollerIO.updateInputs(rollerIOInputs);
     Logger.processInputs("Intake/Rollers", rollerIOInputs);
+
+    canRangeIO.updateInputs(canRangeIOInputs);
+    Logger.processInputs("Intake/CANRange", canRangeIOInputs);
   }
 
   @Override
@@ -69,6 +78,10 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
           rollerIO.setRollerVoltage(0.0);
         });
+  }
+
+  public boolean getCanRangeIsDetected() {
+    return canRangeIOInputs.isDetected;
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {
