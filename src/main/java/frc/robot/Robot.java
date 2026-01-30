@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,6 +46,7 @@ import frc.robot.subsystems.shooter.HoodIO;
 import frc.robot.subsystems.shooter.HoodIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretIO;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
@@ -277,7 +279,7 @@ public class Robot extends LoggedRobot {
       case COMP:
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
-        shooter = new TurretSubsystem();
+        shooter = new TurretSubsystem(new TurretIO(TurretIO.getTurretConfiguration(), canivore));
         climber = new ClimberSubsystem(); // TODO climber
         break;
     }

@@ -5,42 +5,67 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
+  public TurretIO turretIO;
+  public TurretIOInputsAutoLogged turretIOInputs = new TurretIOInputsAutoLogged();
+
   /** Creates a new TurretSubsystem. */
-  public TurretSubsystem() {}
+  public TurretSubsystem(TurretIO turretIO) {
+    this.turretIO = turretIO;
+  }
 
   @Override
   public void periodic() {
+    turretIO.updateInputs(turretIOInputs);
+    Logger.processInputs("Shooter/Turret", turretIOInputs);
     // This method will be called once per scheduler run
   }
 
   @Override
   public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'shoot'");
+    return this.run(
+        () -> {
+          turretIO.setTurretPosition(new Rotation2d());
+          // TODO:Find the reall number
+
+        });
   }
 
   @Override
   public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'feed'");
+    return this.run(
+        () -> {
+          turretIO.setTurretPosition(new Rotation2d());
+          // TODO:Find the reall number
+
+        });
   }
 
   @Override
   public Command rest() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'rest'");
+    return this.run(
+        () -> {
+          turretIO.setTurretPosition(new Rotation2d());
+          // TODO:Find the reall number
+
+        });
   }
 
   @Override
   public Command spit() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'spit'");
+    return this.run(
+        () -> {
+          turretIO.setTurretPosition(new Rotation2d());
+          // TODO:Find the reall number
+
+        });
   }
 
   @Override
@@ -63,7 +88,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command testShoot() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'testShoot'");
+    return this.run(
+        () -> {
+          turretIO.setTurretPosition(new Rotation2d());
+          // TODO:Find the reall number
+
+        });
   }
 }
