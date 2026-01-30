@@ -36,6 +36,8 @@ import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
 import frc.robot.subsystems.intake.FintakeSubsystem;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.LinearRackIO;
+import frc.robot.subsystems.intake.LinearRackIOSim;
 import frc.robot.subsystems.intake.LintakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -276,7 +278,25 @@ public class Robot extends LoggedRobot {
         break;
       case COMP:
         indexer = new SpindexerSubsystem();
-        intake = new LintakeSubsystem();
+        // TODO: MOTOR IDS
+        intake =
+            (ROBOT_MODE == RobotMode.REAL)
+                ? new LintakeSubsystem(
+                    new LinearRackIO(50, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new RollerIO(51, LintakeSubsystem.getRollerMotorConfig(), canivore))
+                : new LintakeSubsystem(
+                    new LinearRackIOSim(50, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new RollerIOSim(
+                        51,
+                        LintakeSubsystem.getRollerMotorConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.001,
+                                LintakeSubsystem.ROLLER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore));
         shooter = new TurretSubsystem();
         climber = new ClimberSubsystem(); // TODO climber
         break;
