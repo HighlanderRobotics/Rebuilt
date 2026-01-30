@@ -5,8 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.TreeMap;
 
 public class InterpolatingShotTree {
-  private record ShotData(
-      Rotation2d hoodRotation, double flywheelVelocityRotPerSec, double flightTimeSec) {}
+  public record ShotData(Rotation2d hoodAngle, double flywheelVelocityRotPerSec) {}
 
   private final TreeMap<Double, ShotData> map = new TreeMap<>();
 
@@ -88,10 +87,9 @@ public class InterpolatingShotTree {
     return new ShotData(
         Rotation2d.fromRadians(
             MathUtil.interpolate(
-                startValue.hoodRotation().getRadians(), endValue.hoodRotation().getRadians(), t)),
+                startValue.hoodAngle().getRadians(), endValue.hoodAngle().getRadians(), t)),
         MathUtil.interpolate(
-            startValue.flywheelVelocityRotPerSec(), endValue.flywheelVelocityRotPerSec(), t),
-        MathUtil.interpolate(startValue.flightTimeSec(), endValue.flightTimeSec(), t));
+            startValue.flywheelVelocityRotPerSec(), endValue.flywheelVelocityRotPerSec(), t));
   }
 
   /**

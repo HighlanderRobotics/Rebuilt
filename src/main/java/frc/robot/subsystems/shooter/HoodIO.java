@@ -18,10 +18,12 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class HoodIO {
   /** Creates a new HoodIOReal. */
@@ -33,11 +35,13 @@ public class HoodIO {
     public double hoodSupplyCurrentAmp = 0.0;
     public double hoodVoltage = 0.0;
     public double hoodTempC = 0.0;
+    // For sysid
+    public double hoodRotations = 0.0;
   }
 
   protected TalonFX hoodMotor;
 
-  private final BaseStatusSignal hoodPositionRotations;
+  private final StatusSignal<Angle> hoodPositionRotations;
   private final BaseStatusSignal hoodAngularVelocity;
   private final StatusSignal<Voltage> hoodVoltage;
   private final StatusSignal<Current> hoodStatorCurrent;
@@ -46,6 +50,8 @@ public class HoodIO {
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
+
+  private Rotation2d hoodSetpoint = Rotation2d.kZero;
 
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
     hoodMotor = new TalonFX(11, canbus);
@@ -82,13 +88,13 @@ public class HoodIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
 
-    config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-    config.Slot0.kS = 0.24;
-    config.Slot0.kG = 0.56;
-    config.Slot0.kV = 0.6;
-    config.Slot0.kP = 110.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kS = 0.055;
+    config.Slot0.kG = 0.445;
+    config.Slot0.kV = 1.45;
+    config.Slot0.kP = 35;
+    config.Slot0.kD = 0.25;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -102,6 +108,7 @@ public class HoodIO {
   }
 
   public void setHoodPosition(Rotation2d hoodPosition) {
+    hoodSetpoint = hoodPosition;
     hoodMotor.setControl(positionVoltage.withPosition(hoodPosition.getRotations()));
   }
 
@@ -118,11 +125,22 @@ public class HoodIO {
         hoodSupplyCurrent,
         hoodTemp);
 
-    inputs.hoodPositionRotations = Rotation2d.fromRadians(hoodPositionRotations.getValueAsDouble());
+    inputs.hoodPositionRotations =
+        Rotation2d.fromRotations(hoodPositionRotations.getValueAsDouble());
     inputs.hoodAngularVelocity = hoodAngularVelocity.getValueAsDouble();
     inputs.hoodVoltage = hoodVoltage.getValueAsDouble();
     inputs.hoodStatorCurrentAmps = hoodStatorCurrent.getValueAsDouble();
     inputs.hoodSupplyCurrentAmp = hoodSupplyCurrent.getValueAsDouble();
     inputs.hoodTempC = hoodTemp.getValueAsDouble();
+    inputs.hoodRotations = hoodPositionRotations.getValueAsDouble();
+  }
+
+  @AutoLogOutput(key = "Shooter/Hood/Setpoint")
+  public Rotation2d getHoodSetpoint() {
+    return hoodSetpoint;
+  }
+
+  public void resetEncoder(Rotation2d rotations) {
+    hoodMotor.setPosition(rotations.getRotations());
   }
 }

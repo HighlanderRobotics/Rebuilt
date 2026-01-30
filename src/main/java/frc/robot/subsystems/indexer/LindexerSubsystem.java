@@ -17,7 +17,8 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-public class IndexerSubsystem extends SubsystemBase {
+/** Lindexer = Linear Indexer. !! ALPHA !! */
+public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
   private CANrangeIOReal firstCANRangeIO;
@@ -39,68 +40,68 @@ public class IndexerSubsystem extends SubsystemBase {
               null,
               null,
               null,
-              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state)),
+              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
           new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
   public static final double KICKER_GEAR_RATIO = 2.0;
 
-  public IndexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
+  public LindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    firstCANRangeIO = new CANrangeIOReal(0, canbus);
-    secondCANRangeIO = new CANrangeIOReal(1, canbus);
+    firstCANRangeIO = new CANrangeIOReal(0, canbus, 10);
+    secondCANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
 
+  @Override
   public boolean isFull() {
     return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
-  public Command stopKicker() {
-    return this.run(() -> kickerIO.setRollerVoltage(0));
-  }
-  ;
-
-  public Command shoot() {
-    return this.run(() -> kickerIO.setRollerVoltage(0));
-  }
-  ;
-
-  public boolean isFull(boolean firstBeamBreak, boolean secondBeamBreak) {
-    if (firstBeamBreak && secondBeamBreak) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
+  @Override
   public boolean isEmpty() {
     return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
   }
 
+  @Override
   public boolean isPartiallyFull() {
     return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
   }
 
+  @Override
   public Command index() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(5);
+          indexRollerIO.setRollerVoltage(7);
+          kickerIO.setRollerVoltage(7);
         });
   }
 
-  public Command score() {
+  @Override
+  public Command kick() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(10);
+          indexRollerIO.setRollerVoltage(12);
+          kickerIO.setRollerVoltage(-7);
         });
   }
 
-  public Command outtake() {
+  @Override
+  public Command spit() {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(-5);
+          kickerIO.setRollerVoltage(-5);
+        });
+  }
+
+  @Override
+  public Command rest() {
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(0.0);
+          kickerIO.setRollerVoltage(0.0);
         });
   }
 
@@ -109,7 +110,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
@@ -134,7 +135,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Converts angular motion to linear motion
     config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
@@ -164,7 +165,7 @@ public class IndexerSubsystem extends SubsystemBase {
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);
-    Logger.processInputs("Intake/Kicker", kickerInputs);
+    Logger.processInputs("Indexer/Kicker", kickerInputs);
   }
 
   public Command runRollerSysId() {

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Robot.RobotType;
+import frc.robot.Robot.RobotMode;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -25,7 +25,8 @@ public class Autos {
   // mehhhhhhh
   private static boolean autoPreScore;
   private static boolean autoScore;
-  private static boolean autoIntakeCoral;
+  private static boolean autoIntake;
+  private static boolean autoFeed;
 
   // private static boolean autoIntakeAlgae;
 
@@ -37,9 +38,12 @@ public class Autos {
   public static Trigger autoScoreReq =
       new Trigger(() -> autoScore).and(DriverStation::isAutonomous);
 
-  @AutoLogOutput(key = "Superstructure/Auto Coral Intake Request")
-  public static Trigger autoIntakeCoralReq =
-      new Trigger(() -> autoIntakeCoral).and(DriverStation::isAutonomous);
+  @AutoLogOutput(key = "Superstructure/Auto Intake Request")
+  public static Trigger autoIntakeReq =
+      new Trigger(() -> autoIntake).and(DriverStation::isAutonomous);
+
+  @AutoLogOutput(key = "Superstructure/Auto Feed Request")
+  public static Trigger autoFeedReq = new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
 
   public enum PathEndType {
     PLACEHOLDER;
@@ -74,7 +78,7 @@ public class Autos {
             true,
             swerve,
             (traj, edge) -> {
-              if (Robot.ROBOT_TYPE != RobotType.REAL)
+              if (Robot.ROBOT_MODE != RobotMode.REAL)
                 Logger.recordOutput(
                     "Choreo/Active Traj",
                     DriverStation.getAlliance().isPresent()
