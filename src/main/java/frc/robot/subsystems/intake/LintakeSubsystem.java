@@ -4,13 +4,11 @@
 
 package frc.robot.subsystems.intake;
 
-
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
@@ -37,25 +35,28 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public Command intake() {
-    return this.run(() -> {
-      rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
-      rollerIO.setRollerVoltage(10.0);
-    });
+    return this.run(
+        () -> {
+          rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
+          rollerIO.setRollerVoltage(10.0);
+        });
   }
 
   @Override
   public Command outtake() {
-    return this.run(() -> {
-      rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
-      rollerIO.setRollerVoltage(10.0);
-    });
+    return this.run(
+        () -> {
+          rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
+          rollerIO.setRollerVoltage(10.0);
+        });
   }
 
   @Override
   public Command rest() {
-    return this.run(() -> {
-      rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
-      rollerIO.setRollerVoltage(0.0);
-    });
+    return this.run(
+        () -> {
+          rackIO.setPositionSetpoint(0.0); // TODO: EXTENDED POSITION
+          rollerIO.setRollerVoltage(0.0);
+        });
   }
 }
