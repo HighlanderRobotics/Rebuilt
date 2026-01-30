@@ -19,6 +19,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.autoaim.AutoAim;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -238,7 +239,12 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         intake.rest(),
         indexer.rest(), /*shooter.shoot(swerve::getPose)*/
-        shooter.shootOTM(swerve::getPose, swerve::getVelocityFieldRelative));
+        shooter.shoot(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    swerve.getPose(),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative())));
     // shooter.testShoot());
 
     bindCommands(
@@ -252,7 +258,12 @@ public class Superstructure {
         SuperState.SCORE,
         intake.rest(),
         indexer.kick(), /*shooter.shoot(swerve::getPose)*/
-        shooter.shootOTM(swerve::getPose, swerve::getVelocityFieldRelative));
+        shooter.shoot(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    swerve.getPose(),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative())));
     // shooter.testShoot());
 
     bindCommands(SuperState.SCORE_FLOW, intake.intake(), indexer.kick(), shooter.testShoot());
@@ -286,13 +297,7 @@ public class Superstructure {
                 new Transform3d(
                     new Translation3d(0, 0, 0.5),
                     new Rotation3d(
-                        0,
-                        ((Math.PI / 2)
-                                - AutoAim.getSOTMPitchfr(
-                                        swerve.getPose(), swerve.getVelocityFieldRelative())
-                                    .getRadians())
-                            * -1,
-                        0))));
+                        0, ((Math.PI / 2) - shooter.getHoodSetpoint().getRadians()) * -1, 0))));
   }
 
   /**

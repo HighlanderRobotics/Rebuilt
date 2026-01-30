@@ -6,9 +6,9 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
 
 /** Add your docs here. */
@@ -18,7 +18,7 @@ public interface Shooter extends Subsystem {
    * Sets hood angle and flywheel velocity based on distance from hub from the shot map + current
    * pose
    */
-  public Command shoot(Supplier<Pose2d> robotPoseSupplier);
+  public Command shoot(Supplier<ShotData> shotDataSupplier);
 
   /**
    * Sets hood angle and flywheel velocity based on distance from hub from the feed map + current
@@ -49,9 +49,6 @@ public interface Shooter extends Subsystem {
    * position.
    */
   public Command runCurrentZeroing();
-
-  public Command shootOTM(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> fieldRelRobotVelocity);
 
   public Rotation2d getHoodSetpoint();
 }

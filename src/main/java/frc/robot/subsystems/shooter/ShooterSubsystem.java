@@ -10,7 +10,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -86,33 +85,13 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  @Override
-  public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
+  public Command shoot(Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
-          ShotData shotData =
-              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
-          hoodSetpoint = shotData.hoodAngle();
-          hoodIO.setHoodPosition(shotData.hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-        });
-  }
-
-  @Override
-  public Command shootOTM(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> fieldRelRobotVelocity) {
-    return this.run(
-        () -> {
-          // InterceptSolution sol =
-          //     ShootOnTheFlyCalculator.solveShootOnTheFly(
-          //         robotPoseSupplier.get(), fieldRelRobotVelocity.get(), 10, 0.01);
-          // hoodIO.setHoodPosition(sol.shotData().hoodAngle());
-          // flywheelIO.setMotionProfiledFlywheelVelocity(sol.shotData().flywheelVelocityRotPerSec());
-          Rotation2d rot =
-              AutoAim.getSOTMPitchfr(robotPoseSupplier.get(), fieldRelRobotVelocity.get());
-          hoodSetpoint = rot;
-          hoodIO.setHoodPosition(rot);
-          flywheelIO.setMotionProfiledFlywheelVelocity(30);
+          hoodSetpoint = shotDataSupplier.get().hoodAngle();
+          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(
+              shotDataSupplier.get().flywheelVelocityRotPerSec());
         });
   }
 

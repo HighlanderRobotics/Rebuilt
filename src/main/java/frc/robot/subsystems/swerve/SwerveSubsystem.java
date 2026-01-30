@@ -11,7 +11,6 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -602,46 +601,28 @@ public class SwerveSubsystem extends SubsystemBase {
                         AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
   }
 
-  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
-    return driveWithHeadingSnap(
-        () -> {
-          Translation2d robotHubVec =
-              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
-          // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
-          // Logger.recordOutput("robot hub vec", robotHubVec);
-          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
-          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-              .plus(Rotation2d.kCW_90deg);
-        },
-        xVel,
-        yVel);
-  }
+  // public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(
+  //       () -> {
+  //         Translation2d robotHubVec =
+  //             FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+  //         // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
+  //         // Logger.recordOutput("robot hub vec", robotHubVec);
+  //         // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+  //         return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+  //             .plus(Rotation2d.kCW_90deg);
+  //       },
+  //       xVel,
+  //       yVel);
+  // }
 
   // public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
   //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
   // xVel, yVel);
   // }
-  public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
-        () -> {
-          // Translation2d robotHubVec =
-          //     ShootOnTheFlyCalculator.calculateEffectiveTargetLocation(
-          //             () -> getPose(),
-          //             () -> getVelocityFieldRelative(),
-          //             // () -> getChassisAccelerations(),
-          //             5,
-          //             0.01)
-          //         .getTranslation()
-          //         .minus(getPose().getTranslation());
-          // Rotation2d rot =
-          //     Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-          //         .plus(Rotation2d.kCW_90deg);
-          // Logger.recordOutput("Autoaim/Target Rotation", rot);
-          // return rot;
-          return AutoAim.getSOTMYawfr(getPose(), getVelocityFieldRelative());
-        },
-        xVel,
-        yVel);
+        () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {

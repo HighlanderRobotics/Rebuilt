@@ -451,7 +451,7 @@ public class Robot extends LoggedRobot {
         //     () ->
         //         modifyJoystick(driver.getLeftX())
         //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-        swerve.faceHubSOTM(
+        swerve.faceHub(
             () ->
                 -1
                     * modifyJoystick(driver.getLeftY())
