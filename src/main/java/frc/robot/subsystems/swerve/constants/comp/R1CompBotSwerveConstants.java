@@ -65,7 +65,7 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
 
   @Override
   public double getMaxLinearAcceleration() {
-    // Calculated in Choreo
+    // Calculated in Choreo for R1 ratio
     return 9.056;
   }
 
