@@ -93,6 +93,9 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Is Empty")
   private Trigger isEmpty;
 
+  @AutoLogOutput(key = "Superstructure/Can Score")
+  private boolean canScore = canScore();
+
   private boolean shouldFeed = false;
 
   // @AutoLogOutput(key = "Superstructure/At Extension?")
@@ -420,10 +423,11 @@ public class Superstructure {
   }
 
   public boolean inScoringArea() {
-    return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-            && (swerve.getPose().getX() <= 4.6914191246032715)
-        || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            && (swerve.getPose().getX() >= 11.889562606811523));
+    return true;
+    // (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+    //         && (swerve.getPose().getX() <= 4.6914191246032715)
+    //     || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+    //         && (swerve.getPose().getX() >= 11.889562606811523));
   }
 
   public boolean canScore() {

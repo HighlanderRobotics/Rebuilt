@@ -190,17 +190,15 @@ public class Autos {
   public Command scorePath(Path path, AutoRoutine routine) {
     // path align and score
     return Commands.sequence(
-        path.getTrajectory(routine)
-            .cmd()
-            .until(
-                routine.observe(
-                    path.getTrajectory(routine)
-                        .atTime(
-                            path.getTrajectory(routine).getRawTrajectory().getTotalTime()
-                                - (0.3)))),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+        // .getRawTrajectory().getTotalTime()
+        //  - (0.3)))),
         setAutoScoreReqTrue(),
         waitUntilEmpty(),
-        setAutoScoreReqFalse());
+        setAutoScoreReqFalse(),
+        Commands.print(
+            "score done")); //// TODO i think something in here is not quite right like not
+    // returning to finish other paths
   }
 
   // feeding and intake could prob be improved
@@ -253,7 +251,7 @@ public class Autos {
   // FOCUS ON THIS TODAY!!!!
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Clim Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
+    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL};
     // Will always need to reset odo at the start of a routine
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
     // shoot preload then do the paths
@@ -261,22 +259,28 @@ public class Autos {
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
+    // maybe a better fix but rn scoring disrupts so im jsut making it finish the entire routine
+    autoCommand =
+        autoCommand.andThen(runPath(Path.PLtoCL, routine).andThen(Commands.print("CLIMB")));
 
-    routine.active().whileTrue(autoCommand);
+    routine.active().onTrue(autoCommand);
 
     return routine.cmd();
   }
 
   public Command getOutpostScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Score Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoPR, Path.PRtoCR};
+    Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoPR};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
-      autoCommand = autoCommand.andThen(runPath(p, routine));
+      autoCommand = autoCommand.andThen(runPath(p, routine)).andThen(Commands.print("scorin"));
     }
+    // maybe a better fix but rn scoring disrupts so im jsut making it finish the entire routine
+    autoCommand =
+        autoCommand.andThen(runPath(Path.PRtoCR, routine).andThen(Commands.print("CLIMB")));
 
-    routine.active().whileTrue(autoCommand);
+    routine.active().onTrue(autoCommand);
 
     return routine.cmd();
   }
