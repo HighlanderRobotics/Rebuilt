@@ -51,7 +51,6 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import java.util.Optional;
 import java.util.Set;
-import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -184,7 +183,6 @@ public class Robot extends LoggedRobot {
   private Optional<Alliance> lastAlliance = Optional.empty();
   @AutoLogOutput boolean haveAutosGenerated = false;
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
-
 
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")

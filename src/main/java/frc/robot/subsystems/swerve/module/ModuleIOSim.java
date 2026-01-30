@@ -6,7 +6,6 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.maplesim.MaplePhoenixUtil;
-
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 
 public class ModuleIOSim extends ModuleIOReal {
