@@ -36,7 +36,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public TurretSubsystem(FlywheelIO flywheelIO) {
     this.flywheelIO = flywheelIO;
-
   }
 
   private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
@@ -46,6 +45,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public void periodic() {
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
+  
   }
 
   @Override
