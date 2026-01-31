@@ -193,11 +193,10 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         // .getRawTrajectory().getTotalTime()
         //  - (0.3)))),
-         //setAutoScoreReqTrue(),
-         //waitUntilEmpty(),
-        // setAutoScoreReqFalse(),
-        Commands.print(
-            "score in auto")); 
+        setAutoScoreReqTrue(),
+        waitUntilEmpty(),
+        setAutoScoreReqFalse(),
+        Commands.print("score in auto"));
   }
 
   // feeding and intake could prob be improved
@@ -271,7 +270,7 @@ public class Autos {
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
-    } 
+    }
 
     routine.active().onTrue(autoCommand);
 
@@ -323,6 +322,6 @@ public class Autos {
   public Command waitUntilEmpty() {
     // TODO wait till robot empty / done scoring
     // return null;
-    return Commands.waitSeconds(0.5);
+    return Commands.waitSeconds(5.0);
   }
 }
