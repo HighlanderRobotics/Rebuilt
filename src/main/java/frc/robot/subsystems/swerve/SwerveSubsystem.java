@@ -625,6 +625,12 @@ public class SwerveSubsystem extends SubsystemBase {
         () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
   }
 
+  public boolean isFacingHub() {
+    Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
   public boolean isInAutoAimTolerance(Pose2d target) {
     return isInTolerance(
         target, AutoAlign.TRANSLATION_TOLERANCE_METERS, AutoAlign.ROTATION_TOLERANCE_RADIANS);

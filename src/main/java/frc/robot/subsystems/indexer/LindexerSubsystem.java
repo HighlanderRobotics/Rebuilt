@@ -144,12 +144,10 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kP = 0;
     config.Slot0.kD = 0;
 
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimit = 60.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
 
     return config;
   }

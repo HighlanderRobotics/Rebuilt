@@ -169,8 +169,10 @@ public class Superstructure {
         SuperState.SCORE,
         new Trigger(shooter::atFlywheelVelocitySetpoint)
             .debounce(0.2)
-            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.2))
-            .and(() -> stateTimer.hasElapsed(0.2)));
+            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.3))
+            // .and(() -> stateTimer.hasElapsed(0.2))
+            .and(() -> swerve.isFacingHub())
+            .debounce(0.1));
 
     // bindTransition(
     //     SuperState.SPIN_UP_FEED,
