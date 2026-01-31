@@ -55,7 +55,7 @@ public class HoodIO {
 
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
     hoodMotor = new TalonFX(11, canbus);
-    hoodMotor.getConfigurator().apply(HoodIO.getHoodAlphaConfiguration());
+    hoodMotor.getConfigurator().apply(talonFXConfiguration);
 
     hoodPositionRotations = hoodMotor.getPosition();
     hoodAngularVelocity = hoodMotor.getVelocity();
@@ -114,7 +114,7 @@ public class HoodIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO_C;
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO_C;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 

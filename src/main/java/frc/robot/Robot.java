@@ -240,7 +240,7 @@ public class Robot extends LoggedRobot {
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getHoodAlphaConfiguration(), canivore)
-                    : new HoodIOSim(canivore),
+                    : new HoodIOSim(canivore,HoodIO.getHoodAlphaConfiguration(),ShooterSubsystem.HOOD_GEAR_RATIO_A),
                 ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
                     : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
@@ -270,7 +270,7 @@ public class Robot extends LoggedRobot {
                     : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getHoodCompConfiguration(), canivore)
-                    : new HoodIOSim(canivore));
+                    : new HoodIOSim(canivore, HoodIO.getHoodCompConfiguration(),TurretSubsystem.HOOD_GEAR_RATIO_C));
 
         climber = new ClimberSubsystem(); // TODO climber
         break;
@@ -300,6 +300,10 @@ public class Robot extends LoggedRobot {
     // log if we have uncommitted changes
     switch (BuildConstants.DIRTY) {
       case 0:
+
+
+
+
         Logger.recordMetadata("GitDirty", "All changes committed");
         break;
       case 1:
