@@ -55,7 +55,7 @@ public class HoodIO {
 
   public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
     hoodMotor = new TalonFX(11, canbus);
-    hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
+    hoodMotor.getConfigurator().apply(HoodIO.getHoodAlphaConfiguration());
 
     hoodPositionRotations = hoodMotor.getPosition();
     hoodAngularVelocity = hoodMotor.getVelocity();
@@ -75,7 +75,7 @@ public class HoodIO {
     hoodMotor.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getHoodConfiguration() {
+  public static TalonFXConfiguration getHoodAlphaConfiguration() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -86,7 +86,7 @@ public class HoodIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO_A;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
@@ -101,6 +101,35 @@ public class HoodIO {
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
 
     return config;
+  }
+
+  public static TalonFXConfiguration getHoodCompConfiguration(){
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO_C;
+
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+    config.Slot0.kS = 0;
+    config.Slot0.kG = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+
+    return config;
+
   }
 
   public void setHoodVoltage(double hoodVoltage) {

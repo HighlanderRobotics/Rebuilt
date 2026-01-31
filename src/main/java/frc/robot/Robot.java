@@ -239,7 +239,7 @@ public class Robot extends LoggedRobot {
         shooter =
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
+                    ? new HoodIO(HoodIO.getHoodAlphaConfiguration(), canivore)
                     : new HoodIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
@@ -269,7 +269,7 @@ public class Robot extends LoggedRobot {
                     ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
                     : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
+                    ? new HoodIO(HoodIO.getHoodCompConfiguration(), canivore)
                     : new HoodIOSim(canivore));
 
         climber = new ClimberSubsystem(); // TODO climber

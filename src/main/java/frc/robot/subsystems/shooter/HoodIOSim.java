@@ -17,7 +17,7 @@ public class HoodIOSim extends HoodIO {
   private final DCMotorSim hoodPhysicsSim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(
-              DCMotor.getKrakenX44Foc(1), 0.01, ShooterSubsystem.HOOD_GEAR_RATIO),
+              DCMotor.getKrakenX44Foc(1), 0.01, ShooterSubsystem.HOOD_GEAR_RATIO_A),
           DCMotor.getKrakenX44Foc(1));
 
   // will get updated when i get specs
@@ -27,7 +27,7 @@ public class HoodIOSim extends HoodIO {
   private double lastSimTime = 0.0;
 
   public HoodIOSim(CANBus canbus) {
-    super(HoodIO.getHoodConfiguration(), canbus);
+    super(HoodIO.getHoodAlphaConfiguration(), canbus);
     hoodMotorSim = hoodMotor.getSimState();
     hoodMotorSim.setMotorType(MotorType.KrakenX44);
     hoodMotorSim.Orientation = ChassisReference.Clockwise_Positive;
@@ -47,9 +47,9 @@ public class HoodIOSim extends HoodIO {
               // rotor position stuff added later when i have access to onshape
 
               hoodMotorSim.setRawRotorPosition(
-                  hoodPhysicsSim.getAngularPositionRad() * (ShooterSubsystem.HOOD_GEAR_RATIO));
+                  hoodPhysicsSim.getAngularPositionRad() * (ShooterSubsystem.HOOD_GEAR_RATIO_A));
               hoodMotorSim.setRotorVelocity(
-                  hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * ShooterSubsystem.HOOD_GEAR_RATIO);
+                  hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * ShooterSubsystem.HOOD_GEAR_RATIO_A);
             });
     simNotifier.startPeriodic(simLoopPeriod);
   }
