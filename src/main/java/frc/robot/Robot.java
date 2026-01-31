@@ -242,8 +242,8 @@ public class Robot extends LoggedRobot {
                     ? new HoodIO(HoodIO.getHoodAlphaConfiguration(), canivore)
                     : new HoodIOSim(canivore,HoodIO.getHoodAlphaConfiguration(),ShooterSubsystem.HOOD_GEAR_RATIO_A),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
+                    ? new FlywheelIO(FlywheelIO.getFlywheelAlphaConfiguration(), canivore)
+                    : new FlywheelIOSim(FlywheelIO.getFlywheelAlphaConfiguration(), canivore, ShooterSubsystem.FLYWHEEL_GEAR_RATIO));
 
         intake =
             new FintakeSubsystem(
@@ -266,8 +266,8 @@ public class Robot extends LoggedRobot {
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore),
+                    ? new FlywheelIO(FlywheelIO.getFlywheelCompConfiguration(), canivore)
+                    : new FlywheelIOSim(FlywheelIO.getFlywheelCompConfiguration(), canivore, TurretSubsystem.FLYWHEEL_GEAR_RATIO_C),
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getHoodCompConfiguration(), canivore)
                     : new HoodIOSim(canivore, HoodIO.getHoodCompConfiguration(),TurretSubsystem.HOOD_GEAR_RATIO_C));

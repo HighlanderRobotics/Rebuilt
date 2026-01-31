@@ -22,18 +22,21 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 /** Add your docs here. */
 public class FlywheelIOSim extends FlywheelIO {
   TalonFXSimState leaderFxSimState;
-  DCMotorSim physicsSim =
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(
-              DCMotor.getKrakenX60Foc(2), 0.0136, ShooterSubsystem.FLYWHEEL_GEAR_RATIO),
-          DCMotor.getKrakenX60Foc(2));
+  DCMotorSim physicsSim; 
+      
 
   private final double simLoopPeriod = 0.002;
   private Notifier simNotifier;
   private double lastSimTime = 0.0;
 
-  public FlywheelIOSim(TalonFXConfiguration config, CANBus canbus) {
+  public FlywheelIOSim(TalonFXConfiguration config, CANBus canbus, double gearRatio) {
+
     super(config, canbus);
+    physicsSim = 
+      new DCMotorSim(
+          LinearSystemId.createDCMotorSystem(
+              DCMotor.getKrakenX60Foc(2), 0.0136, gearRatio),
+          DCMotor.getKrakenX60Foc(2));
     leaderFxSimState = flywheelLeader.getSimState();
     leaderFxSimState.setMotorType(MotorType.KrakenX60);
     leaderFxSimState.Orientation = ChassisReference.CounterClockwise_Positive;
@@ -51,9 +54,9 @@ public class FlywheelIOSim extends FlywheelIO {
               physicsSim.update(deltaTime);
 
               leaderFxSimState.setRawRotorPosition(
-                  physicsSim.getAngularPosition().in(Rotations) * physicsSim.getGearing());
+                  physicsSim.getAngularPosition().in(Rotations) * gearRatio);
               leaderFxSimState.setRotorVelocity(
-                  physicsSim.getAngularVelocity().in(RotationsPerSecond) * physicsSim.getGearing());
+                  physicsSim.getAngularVelocity().in(RotationsPerSecond) * gearRatio);
             });
 
     simNotifier.startPeriodic(simLoopPeriod);
