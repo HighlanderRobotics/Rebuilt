@@ -267,7 +267,10 @@ public class Robot extends LoggedRobot {
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
+                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
+                    : new HoodIOSim(canivore));
 
         climber = new ClimberSubsystem(); // TODO climber
         break;
