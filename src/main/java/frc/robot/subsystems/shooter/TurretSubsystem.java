@@ -46,6 +46,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public void periodic() {
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
+    
   
   }
 
