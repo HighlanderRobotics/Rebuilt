@@ -662,6 +662,12 @@ public class SwerveSubsystem extends SubsystemBase {
     return estimator.getEstimatedPosition();
   }
 
+  @AutoLogOutput(key = "Autoaim/Distance To Hub")
+  public static double distanceToHub(Pose2d pose) {
+    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    return distance;
+  }
+
   public Pose3d getPose3d() {
     return new Pose3d(getPose());
   }

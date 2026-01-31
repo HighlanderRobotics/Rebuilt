@@ -116,6 +116,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
+          // flywheelIO.setMotionProfiledFlywheelVelocity(30);
         });
   }
 

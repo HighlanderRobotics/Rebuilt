@@ -168,9 +168,9 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         SuperState.SCORE,
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .debounce(0.5)
-            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.5))
-            .and(() -> stateTimer.hasElapsed(0.5)));
+            .debounce(0.2)
+            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.2))
+            .and(() -> stateTimer.hasElapsed(0.2)));
 
     // bindTransition(
     //     SuperState.SPIN_UP_FEED,
@@ -266,7 +266,16 @@ public class Superstructure {
                     swerve.getVelocityFieldRelative())));
     // shooter.testShoot());
 
-    bindCommands(SuperState.SCORE_FLOW, intake.intake(), indexer.kick(), shooter.testShoot());
+    bindCommands(
+        SuperState.SCORE_FLOW,
+        intake.intake(),
+        indexer.kick(),
+        shooter.shoot(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    swerve.getPose(),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative())));
 
     bindCommands(
         SuperState.FEED,

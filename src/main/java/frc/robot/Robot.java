@@ -221,7 +221,7 @@ public class Robot extends LoggedRobot {
                         MotorType.KrakenX44,
                         canivore),
                 (ROBOT_MODE == RobotMode.REAL)
-                    ? new RollerIO(10, LindexerSubsystem.getIndexerConfigs(), canivore)
+                    ? new RollerIO(10, LindexerSubsystem.getKickerConfigs(), canivore)
                     : new RollerIOSim(
                         10,
                         LindexerSubsystem.getKickerConfigs(),

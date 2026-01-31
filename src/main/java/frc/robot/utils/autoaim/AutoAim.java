@@ -12,7 +12,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
-  public static double LATENCY_COMPENSATION_SECS = 0.6; // TODO tune latency comp
+  public static double LATENCY_COMPENSATION_SECS = 0.1; // 0.6; // TODO tune latency comp
   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
 
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
@@ -77,7 +77,9 @@ public class AutoAim {
     Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
 
     Translation2d robotHubVec = vtarget.minus(robotPose.getTranslation());
-    Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+    Rotation2d rot =
+        Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+            .plus(Rotation2d.k180deg);
     Logger.recordOutput("Autoaim/Target Rotation", rot);
     // TODO make this not be backwards when it's going directly at the target lol
     return rot;
