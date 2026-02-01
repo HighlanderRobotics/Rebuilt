@@ -14,7 +14,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -210,7 +209,7 @@ public class AlphaSwerveConstants extends SwerveConstants {
 
   @Override
   public MotorType getDriveMotorType() {
-      return MotorType.KrakenX60;
+    return MotorType.KrakenX60;
   }
 
   @Override

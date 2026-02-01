@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -140,12 +139,14 @@ public abstract class SwerveConstants {
 
   /**
    * The motor type of the swerve turn motors (i.e. x44 vs x60)
+   *
    * @return
    */
   public abstract MotorType getTurnMotorType();
 
   /**
    * The motor type of the swerve drive motors (i.e. x44 vs x60)
+   *
    * @return
    */
   public abstract MotorType getDriveMotorType();
