@@ -6,6 +6,7 @@ package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.BooleanSupplier;
 
 /** Spindexer = SPINning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
@@ -48,7 +49,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick() {
+  public Command kick(BooleanSupplier shooterAtSetpoint) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'kick'");
   }

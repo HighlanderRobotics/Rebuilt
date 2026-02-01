@@ -153,7 +153,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
   public boolean atHoodSetpoint() {
     return MathUtil.isNear(
-        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
+        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 5);
   }
 
   @Override

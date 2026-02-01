@@ -7,13 +7,15 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
-  public static double LATENCY_COMPENSATION_SECS = 0.1; // 0.6; // TODO tune latency comp
-  public static double SPIN_UP_SECS = 0.3; // TODO tune spinup time
+  public static double LATENCY_COMPENSATION_SECS =
+      new LoggedTunableNumber("Latency time", 0.0).getAsDouble(); // 0.6; // TODO tune latency comp
+  public static double SPIN_UP_SECS = 0.25; // TODO tune spinup time
 
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
 

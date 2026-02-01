@@ -168,11 +168,10 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         SuperState.SCORE,
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .debounce(0.2)
-            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.3))
+            .debounce(0.1)
+            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
             // .and(() -> stateTimer.hasElapsed(0.2))
-            .and(() -> swerve.isFacingHub())
-            .debounce(0.1));
+            .and(new Trigger(swerve::isFacingHub).debounce(0.07)));
 
     // bindTransition(
     //     SuperState.SPIN_UP_FEED,
@@ -259,7 +258,10 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE,
         intake.rest(),
-        indexer.kick(), /*shooter.shoot(swerve::getPose)*/
+        indexer.kick(
+            () ->
+                shooter.atFlywheelVelocitySetpoint()
+                    && shooter.atHoodSetpoint()), /*shooter.shoot(swerve::getPose)*/
         shooter.shoot(
             () ->
                 AutoAim.getCompensatedSOTMShotData(
@@ -271,7 +273,7 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE_FLOW,
         intake.intake(),
-        indexer.kick(),
+        indexer.kick(() -> shooter.atFlywheelVelocitySetpoint() && shooter.atHoodSetpoint()),
         shooter.shoot(
             () ->
                 AutoAim.getCompensatedSOTMShotData(

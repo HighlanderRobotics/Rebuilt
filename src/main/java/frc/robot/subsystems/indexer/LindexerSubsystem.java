@@ -15,6 +15,7 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 /** Lindexer = Linear Indexer. !! ALPHA !! */
@@ -79,11 +80,16 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick() {
+  public Command kick(BooleanSupplier shooterAtSetpoint) {
     return this.run(
         () -> {
+          // if (shooterAtSetpoint.getAsBoolean()) {
           indexRollerIO.setRollerVoltage(12);
           kickerIO.setRollerVoltage(-7);
+          // } else {
+          //   indexRollerIO.setRollerVoltage(0);
+          //   kickerIO.setRollerVoltage(0);
+          // }
         });
   }
 
