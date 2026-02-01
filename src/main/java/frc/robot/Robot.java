@@ -47,6 +47,7 @@ import frc.robot.subsystems.shooter.HoodIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.TurretIO;
+import frc.robot.subsystems.shooter.TurretIOSim;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
@@ -279,7 +280,12 @@ public class Robot extends LoggedRobot {
       case COMP:
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
-        shooter = new TurretSubsystem(new TurretIO(TurretIO.getTurretConfiguration(), canivore));
+        shooter = 
+        new TurretSubsystem(
+          ROBOT_MODE == RobotMode.REAL
+          ? new TurretIO(TurretIO.getTurretConfiguration(), canivore)
+          : new TurretIOSim(TurretIO.getTurretConfiguration(), canivore)
+        );
         climber = new ClimberSubsystem(); // TODO climber
         break;
     }
