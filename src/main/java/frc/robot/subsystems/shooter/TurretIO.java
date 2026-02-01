@@ -27,10 +27,10 @@ public class TurretIO {
   public static class TurretIOInputs {
     public Rotation2d turretPositionRotations = new Rotation2d();
     public double turretStatorCurrentAmps = 0.0;
+    public double velocityRotationsPerSec  = 0.0;
     public double turretSupplyCurrentAmps = 0.0;
     public double turretVoltage = 0.0;
     public double turretTempC = 0.0;
-    // _TODO: Input reall values
   }
 
   protected TalonFX turretMotor;
