@@ -76,7 +76,7 @@ public class TurretIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.TURRET_GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.TURRET_GEAR_RATIO;
 
     // config.Slot0.GravityType = GravityTypeValue.Arm_Cosine; Potentially need, maybe not tho.
 

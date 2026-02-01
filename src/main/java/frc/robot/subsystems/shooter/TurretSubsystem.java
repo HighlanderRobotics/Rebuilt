@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
+
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
+  public static double TURRET_GEAR_RATIO = (12.0 / 42.0) * (16.0 / 32.0) * (10.0 / 85.0);
   public TurretIO turretIO;
   public TurretIOInputsAutoLogged turretIOInputs = new TurretIOInputsAutoLogged();
 
