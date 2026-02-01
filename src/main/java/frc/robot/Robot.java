@@ -272,9 +272,11 @@ public class Robot extends LoggedRobot {
         driver
             .leftBumper()
             .or(
-                () ->
-                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
-                        || Superstructure.getState() == SuperState.SCORE);
+                new Trigger(
+                        () ->
+                            Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                                || Superstructure.getState() == SuperState.SCORE)
+                    .and(() -> isTeleopEnabled()));
     // if this is alpha, we won't have assigned a climber yet
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
@@ -585,7 +587,10 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    // TODO
+    superstructure.resetStateForAuto(SuperState.READY);
+  }
 
   @Override
   public void autonomousPeriodic() {}

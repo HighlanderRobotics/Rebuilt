@@ -60,41 +60,39 @@ public class Autos {
     // D for depot
     // O for outpost
     // C for climb
-    // S  was going to  be for scoreing pos but i think we will just score
+    // S  was going to  be for scoring
     // F for feeding poses
-    // I for intake???
-
-    // may have to rethink naming to some extent and add more poses
-
+    // I for intake
     DtoFL("D", "FL", Action.FEED),
-    FLMtoPL("FLM", "PL", Action.SCORE),
+    FLMtoSL("FLM", "SL", Action.SCORE),
     FLtoFLM("FL", "FLM", Action.FEED),
-    FLtoPL("FL", "PL", Action.SCORE),
-    FRMtoPR("FRM", "PR", Action.SCORE),
+    FLtoSL("FL", "SL", Action.SCORE),
+    FRMtoSR("FRM", "SR", Action.SCORE),
     FRtoFRM("FR", "FRM", Action.FEED),
-    FRtoPR("FR", "PR", Action.SCORE),
+    FRtoSR("FR", "SR", Action.SCORE),
     OtoFR("O", "FR", Action.FEED),
-    PLtoCL("PL", "CL", Action.CLIMB),
-    PLtoCM("PL", "CM", Action.CLIMB),
-    PLtoD("PL", "D", Action.INTAKE),
-    PLtoFL("PL", "FL", Action.FEED),
-    PRtoCM("PR", "CM", Action.CLIMB),
-    PRtoCR("PR", "CR", Action.CLIMB),
-    PRtoFR("PR", "FR", Action.FEED),
+    SLtoCL("SL", "CL", Action.CLIMB),
+    SLtoCM("SL", "CM", Action.CLIMB),
+    SLtoFL("SL", "FL", Action.FEED),
+    SRtoCM("SR", "CM", Action.CLIMB),
+    SRtoCR("SR", "CR", Action.CLIMB),
+    SRtoFR("SR", "FR", Action.FEED),
+    //starting paths
     PRtoO("PR", "O", Action.INTAKE),
+    PLtoD("PL", "D", Action.INTAKE),
     // idk seperate intake and feed so action is included makes it easier for me but they use the
     // same
     // trajectories so i dont have to make new paths
     DtoIL("D", "FL", Action.INTAKE),
-    ILMtoPL("FLM", "PL", Action.SCORE),
+    ILMtoSL("FLM", "SL", Action.SCORE),
     ILtoILM("FL", "FLM", Action.INTAKE),
-    ILtoPL("FL", "PL", Action.SCORE),
-    IRMtoPR("FRM", "PR", Action.SCORE),
+    ILtoSL("FL", "SL", Action.SCORE),
+    IRMtoSR("FRM", "SR", Action.SCORE),
     IRtoIRM("FR", "FRM", Action.INTAKE),
-    IRtoPR("FR", "PR", Action.SCORE),
+    IRtoSR("FR", "SR", Action.SCORE),
     OtoIR("O", "FR", Action.INTAKE),
-    PLtoIL("PL", "FL", Action.INTAKE),
-    PRtoIR("PR", "FR", Action.INTAKE);
+    SLtoIL("SL", "FL", Action.INTAKE),
+    SRtoIR("SR", "FR", Action.INTAKE);
 
     private final String start;
     private final String end;
@@ -243,16 +241,10 @@ public class Autos {
     return Commands.runOnce(() -> autoClimb = false);
   }
 
-  // TODO: score at the start of each auto
-  // specific paths:
-  // no idea what to name them
-  // FOCUS ON THIS TODAY!!!!
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoPL, Path.PLtoCL};
-    // Will always need to reset odo at the start of a routine
+    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoSL, Path.SLtoCL};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
-    // shoot preload then do the paths
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -265,7 +257,7 @@ public class Autos {
 
   public Command getOutpostScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Score Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoPR, Path.PRtoCR};
+    Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoSR, Path.SRtoCR};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
@@ -279,7 +271,7 @@ public class Autos {
 
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoPL, Path.PLtoCL};
+    Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoSL, Path.SLtoCL};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
@@ -293,7 +285,7 @@ public class Autos {
 
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoPR, Path.PRtoCR};
+    Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoSR, Path.SRtoCR};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
@@ -322,6 +314,6 @@ public class Autos {
   public Command waitUntilEmpty() {
     // TODO wait till robot empty / done scoring
     // return null;
-    return Commands.waitSeconds(5.0);
+    return Commands.waitSeconds(3.0);
   }
 }
