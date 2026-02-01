@@ -7,6 +7,8 @@ package frc.robot.subsystems.swerve.constants;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Mass;
 import frc.robot.components.camera.Camera.CameraConstants;
@@ -127,6 +129,16 @@ public class CompBotSwerveConstants extends SwerveConstants {
   public TalonFXConfiguration getTurnConfig(int cancoderID) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'getTurnConfiguration'");
+  }
+
+  @Override
+  public MotorType getDriveMotorType() {
+    return MotorType.KrakenX60;
+  }
+
+  @Override
+  public MotorType getTurnMotorType() {
+      return MotorType.KrakenX44;
   }
 
   @Override
