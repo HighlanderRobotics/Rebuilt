@@ -13,6 +13,8 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
@@ -189,6 +191,16 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   @Override
   public boolean getTurnMotorInverted() {
     return false; // Checked this on a module
+  }
+
+  @Override
+  public MotorType getTurnMotorType() {
+    return MotorType.KrakenX44;
+  }
+
+  @Override
+  public MotorType getDriveMotorType() {
+    return MotorType.KrakenX60;
   }
 
   @Override
