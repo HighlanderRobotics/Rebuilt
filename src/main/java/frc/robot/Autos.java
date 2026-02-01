@@ -64,9 +64,11 @@ public class Autos {
     // F for feeding poses
     // I for intake
     DtoFL("D", "FL", Action.FEED),
+    FLMtoCL("FLM", "CL", Action.CLIMB),
     FLMtoSL("FLM", "SL", Action.SCORE),
     FLtoFLM("FL", "FLM", Action.FEED),
     FLtoSL("FL", "SL", Action.SCORE),
+    FRMtoCR("FRM", "CR", Action.CLIMB),
     FRMtoSR("FRM", "SR", Action.SCORE),
     FRtoFRM("FR", "FRM", Action.FEED),
     FRtoSR("FR", "SR", Action.SCORE),
@@ -77,12 +79,11 @@ public class Autos {
     SRtoCM("SR", "CM", Action.CLIMB),
     SRtoCR("SR", "CR", Action.CLIMB),
     SRtoFR("SR", "FR", Action.FEED),
-    //starting paths
+    // starting paths
     PRtoO("PR", "O", Action.INTAKE),
     PLtoD("PL", "D", Action.INTAKE),
     // idk seperate intake and feed so action is included makes it easier for me but they use the
-    // same
-    // trajectories so i dont have to make new paths
+    // same trajectories so I dont have to make new paths
     DtoIL("D", "FL", Action.INTAKE),
     ILMtoSL("FLM", "SL", Action.SCORE),
     ILtoILM("FL", "FLM", Action.INTAKE),
@@ -271,7 +272,7 @@ public class Autos {
 
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoSL, Path.SLtoCL};
+    Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoCL};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
@@ -285,7 +286,7 @@ public class Autos {
 
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoSR, Path.SRtoCR};
+    Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoCR};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().andThen(shootPreload());
 
     for (Path p : paths) {
