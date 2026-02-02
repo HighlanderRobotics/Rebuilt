@@ -606,23 +606,28 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
-    Pose2d RobotPose = getPose();
-    if(
-      ((Math.abs(RobotPose.getX() - 4.6) < 2) || Math.abs(RobotPose.getX() - 11.9) < 2) 
-      && 
-      (( RobotPose.getY() > 5 && RobotPose.getY() < 6) || (RobotPose.getY() > 2 && RobotPose.getY() < 3)))
-      {
-        Rotation2d target;
-        if(RobotPose.getRotation().getDegrees() <= 90 || RobotPose.getRotation().getDegrees() >= 270){
-          target = Rotation2d.kZero;
+        return driveWithHeadingSnap(
+        () -> {
+        if(getPose().getRotation().getDegrees() <= 90 || getPose().getRotation().getDegrees() >= 270){
+          return Rotation2d.kZero;
         } else {
-          target = Rotation2d.k180deg;
+          return Rotation2d.k180deg;
         }
-        return driveWithHeadingSnap(() -> target, xVel, yVel);
-      } else {
-        return null;
+        },
+        xVel,
+        yVel);
       }
-    
+
+    public boolean isCloseToBump(){
+    if(
+      ((Math.abs(getPose().getX() - 4.62) < 2) || (Math.abs(getPose().getX() - 11.91) < 2))
+      &&
+      ((getPose().getY() > 5.04 && getPose().getY() < 6.07) || (getPose().getY() > 2 && getPose().getY() < 3.01)))
+      {
+        return true;
+      } else {
+        return false;
+      }
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {
