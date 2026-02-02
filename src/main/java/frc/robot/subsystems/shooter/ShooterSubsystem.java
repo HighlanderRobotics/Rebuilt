@@ -23,9 +23,8 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-/** Fixed shooter. !! ALPHA !! */
 public class ShooterSubsystem extends SubsystemBase implements Shooter {
-  public static double HOOD_GEAR_RATIO = 24.230769;
+  public static double HOOD_GEAR_RATIO = 147.0 / 13.0;
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
 
@@ -183,5 +182,11 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   @Override
   public Command zeroHood() {
     return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
+  }
+
+  @Override
+  public void close() throws Exception {
+    flywheelIO.close();
+    hoodIO.close();
   }
 }

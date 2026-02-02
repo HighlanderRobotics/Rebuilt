@@ -25,7 +25,7 @@ import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
-public class HoodIO {
+public class HoodIO implements AutoCloseable {
   /** Creates a new HoodIOReal. */
   @AutoLog
   public static class HoodIOInputs {
@@ -142,5 +142,10 @@ public class HoodIO {
 
   public void resetEncoder(Rotation2d rotations) {
     hoodMotor.setPosition(rotations.getRotations());
+  }
+
+  @Override
+  public void close() throws Exception {
+    hoodMotor.close();
   }
 }

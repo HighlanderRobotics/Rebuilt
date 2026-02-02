@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -19,7 +20,7 @@ import frc.robot.utils.FieldUtils.FeedTargets;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Superstructure {
+public class Superstructure implements AutoCloseable {
 
   /** We should have a state for every single action the robot will perform. */
   public enum SuperState {
@@ -110,6 +111,35 @@ public class Superstructure {
     stateTimer.start();
   }
 
+  // Used for testing
+  public Superstructure(
+      SwerveSubsystem swerve,
+      Indexer indexer,
+      Intake intake,
+      Shooter shooter,
+      Trigger scoreReq,
+      Trigger intakeReq,
+      Trigger feedReq,
+      Trigger antiJamReq,
+      Trigger isFull,
+      Trigger isEmpty) {
+    this.swerve = swerve;
+    this.intake = intake;
+    this.indexer = indexer;
+    this.shooter = shooter;
+    this.scoreReq = scoreReq;
+    this.intakeReq = intakeReq;
+    this.feedReq = feedReq;
+    this.antiJamReq = antiJamReq;
+    this.isFull = isFull;
+    this.isEmpty = isEmpty;
+    this.driver = null;
+    this.operator = null;
+
+    addTransitions();
+    addCommands();
+  }
+
   private void addTriggers() {
     // Toggles for feeding
     operator.leftBumper().onTrue(Commands.runOnce(() -> shouldFeed = true));
@@ -144,7 +174,7 @@ public class Superstructure {
         (intakeReq.negate().and(scoreReq.negate()).and(isEmpty.negate())));
     // .or(isFull));
 
-    // bindTransition(SuperState.INTAKE, SuperState.SPIN_UP_FEED, feedReq);
+    bindTransition(SuperState.READY, SuperState.SPIN_UP_FEED, feedReq);
 
     bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq);
     // .and(isFull.negate()));
@@ -344,6 +374,15 @@ public class Superstructure {
 
   public boolean stateIsIdle() {
     return getState() == SuperState.IDLE;
+  }
+
+  @Override
+  public void close() throws Exception {
+    intake.close();
+    shooter.close();
+    indexer.close();
+    swerve.close();
+    Superstructure.state = SuperState.IDLE;
   }
 
   private Alliance getStartingAlliance() {

@@ -165,4 +165,9 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
   }
+
+  @Override
+  public void close() throws Exception {
+      // No-op rn bc nothing to close
+  }
 }

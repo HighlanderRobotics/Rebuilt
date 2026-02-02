@@ -24,7 +24,7 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 /** Add your docs here. */
-public class FlywheelIO {
+public class FlywheelIO implements AutoCloseable {
 
   @AutoLog
   public static class FlywheelIOInputs {
@@ -182,5 +182,11 @@ public class FlywheelIO {
   @AutoLogOutput(key = "Shooter/Setpoint")
   public double getSetpointRotPerSec() {
     return velocitySetpointRotPerSec;
+  }
+
+  @Override
+  public void close() {
+    flywheelFollower.close();
+    flywheelLeader.close();
   }
 }

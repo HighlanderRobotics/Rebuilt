@@ -7,7 +7,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** Add your docs here. */
-public interface Intake {
+public interface Intake extends AutoCloseable {
   /** Run balls towards the shooter */
   public Command intake();
 

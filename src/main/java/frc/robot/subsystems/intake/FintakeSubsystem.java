@@ -81,4 +81,9 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
 
     return config;
   }
+
+  @Override
+  public void close() throws Exception {
+    io.close();
+  }
 }

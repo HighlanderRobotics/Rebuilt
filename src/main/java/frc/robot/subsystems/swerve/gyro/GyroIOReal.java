@@ -58,4 +58,9 @@ public class GyroIOReal implements GyroIO {
   public void setYaw(Rotation2d yaw) {
     pigeon.setYaw(yaw.getDegrees());
   }
+
+  @Override
+  public void close() throws Exception {
+    pigeon.close();
+  }
 }

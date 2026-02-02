@@ -66,4 +66,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'testShoot'");
   }
+
+  @Override
+  public void close() throws Exception {
+      // No-op rn bc nothing to close
+  }
 }

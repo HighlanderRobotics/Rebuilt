@@ -46,4 +46,9 @@ public class CameraIOReal implements CameraIO {
   public CameraConstants getCameraConstants() {
     return constants;
   }
+
+  @Override
+  public void close() throws Exception {
+    camera.close();
+  }
 }

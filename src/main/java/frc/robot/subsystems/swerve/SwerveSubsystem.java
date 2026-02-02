@@ -64,7 +64,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveSubsystem extends SubsystemBase {
+public class SwerveSubsystem extends SubsystemBase implements AutoCloseable {
   // decide which set of swerve constants to use based on robot edition
   // defaulting to comp is probably safer?
   public static final SwerveConstants SWERVE_CONSTANTS =
@@ -748,5 +748,16 @@ public class SwerveSubsystem extends SubsystemBase {
     SimulatedArena.getInstance().simulationPeriodic();
     // Log simulated pose
     Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
+  }
+
+  @Override
+  public void close() throws Exception {
+    for (Module module : modules) {
+      module.close();
+    }
+    gyroIO.close();
+    for (Camera camera : cameras) {
+      camera.close();
+    }
   }
 }

@@ -17,8 +17,8 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-/** Lindexer = Linear Indexer. !! ALPHA !! */
 public class LindexerSubsystem extends SubsystemBase implements Indexer {
+  // Add actual CanBus
 
   public static final double GEAR_RATIO = 2.0;
   private CANrangeIOReal firstCANRangeIO;
@@ -169,5 +169,11 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.quasistatic(Direction.kReverse),
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
+  }
+
+  @Override
+  public void close() throws Exception {
+    indexRollerIO.close();
+    kickerIO.close();
   }
 }
