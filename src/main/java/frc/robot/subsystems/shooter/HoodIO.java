@@ -103,7 +103,7 @@ public class HoodIO {
     return config;
   }
 
-  public static TalonFXConfiguration getHoodCompConfiguration(){
+  public static TalonFXConfiguration getHoodCompConfiguration() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -129,7 +129,6 @@ public class HoodIO {
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
 
     return config;
-
   }
 
   public void setHoodVoltage(double hoodVoltage) {

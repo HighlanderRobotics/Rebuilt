@@ -119,7 +119,7 @@ public class FlywheelIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO_A;
 
     config.Slot0.kS = 0.43477;
     config.Slot0.kV = 0.144;

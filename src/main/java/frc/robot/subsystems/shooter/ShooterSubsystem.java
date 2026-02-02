@@ -26,11 +26,11 @@ import org.littletonrobotics.junction.Logger;
 /** Fixed shooter. !! ALPHA !! */
 public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public static double HOOD_GEAR_RATIO_A = 24.230769;
-  
+
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
 
-  public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
+  public static double FLYWHEEL_GEAR_RATIO_A = 28.0 / 24.0;
 
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
 

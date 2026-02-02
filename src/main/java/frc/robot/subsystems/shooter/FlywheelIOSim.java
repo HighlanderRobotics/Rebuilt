@@ -22,8 +22,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 /** Add your docs here. */
 public class FlywheelIOSim extends FlywheelIO {
   TalonFXSimState leaderFxSimState;
-  DCMotorSim physicsSim; 
-      
+  DCMotorSim physicsSim;
 
   private final double simLoopPeriod = 0.002;
   private Notifier simNotifier;
@@ -32,11 +31,10 @@ public class FlywheelIOSim extends FlywheelIO {
   public FlywheelIOSim(TalonFXConfiguration config, CANBus canbus, double gearRatio) {
 
     super(config, canbus);
-    physicsSim = 
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(
-              DCMotor.getKrakenX60Foc(2), 0.0136, gearRatio),
-          DCMotor.getKrakenX60Foc(2));
+    physicsSim =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), 0.0136, gearRatio),
+            DCMotor.getKrakenX60Foc(2));
     leaderFxSimState = flywheelLeader.getSimState();
     leaderFxSimState.setMotorType(MotorType.KrakenX60);
     leaderFxSimState.Orientation = ChassisReference.CounterClockwise_Positive;

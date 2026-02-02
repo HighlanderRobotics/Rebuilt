@@ -20,12 +20,11 @@ import org.littletonrobotics.junction.Logger;
 public class TurretSubsystem extends SubsystemBase implements Shooter {
   /** Creates a new TurretSubsystem. */
   public static double HOOD_GEAR_RATIO_C = 58.96875;
+
   public static double FLYWHEEL_GEAR_RATIO_C = 0.84615384615;
 
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
-
-  
 
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
 
@@ -49,7 +48,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
     hoodIO.updateInputs(hoodInputs);
     Logger.processInputs("Shooter/Hood", hoodInputs);
-    
   }
 
   @Override

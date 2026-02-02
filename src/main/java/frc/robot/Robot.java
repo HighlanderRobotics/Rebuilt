@@ -183,9 +183,9 @@ public class Robot extends LoggedRobot {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
 
-    Indexer indexer = null;
-    Intake intake = null;
-    Shooter shooter = null;
+  Indexer indexer = null;
+  Intake intake = null;
+  Shooter shooter = null;
 
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
@@ -240,10 +240,16 @@ public class Robot extends LoggedRobot {
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getHoodAlphaConfiguration(), canivore)
-                    : new HoodIOSim(canivore,HoodIO.getHoodAlphaConfiguration(),ShooterSubsystem.HOOD_GEAR_RATIO_A),
+                    : new HoodIOSim(
+                        canivore,
+                        HoodIO.getHoodAlphaConfiguration(),
+                        ShooterSubsystem.HOOD_GEAR_RATIO_A),
                 ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(FlywheelIO.getFlywheelAlphaConfiguration(), canivore)
-                    : new FlywheelIOSim(FlywheelIO.getFlywheelAlphaConfiguration(), canivore, ShooterSubsystem.FLYWHEEL_GEAR_RATIO));
+                    : new FlywheelIOSim(
+                        FlywheelIO.getFlywheelAlphaConfiguration(),
+                        canivore,
+                        ShooterSubsystem.FLYWHEEL_GEAR_RATIO_A));
 
         intake =
             new FintakeSubsystem(
@@ -267,10 +273,16 @@ public class Robot extends LoggedRobot {
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(FlywheelIO.getFlywheelCompConfiguration(), canivore)
-                    : new FlywheelIOSim(FlywheelIO.getFlywheelCompConfiguration(), canivore, TurretSubsystem.FLYWHEEL_GEAR_RATIO_C),
+                    : new FlywheelIOSim(
+                        FlywheelIO.getFlywheelCompConfiguration(),
+                        canivore,
+                        TurretSubsystem.FLYWHEEL_GEAR_RATIO_C),
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getHoodCompConfiguration(), canivore)
-                    : new HoodIOSim(canivore, HoodIO.getHoodCompConfiguration(),TurretSubsystem.HOOD_GEAR_RATIO_C));
+                    : new HoodIOSim(
+                        canivore,
+                        HoodIO.getHoodCompConfiguration(),
+                        TurretSubsystem.HOOD_GEAR_RATIO_C));
 
         climber = new ClimberSubsystem(); // TODO climber
         break;
@@ -300,10 +312,6 @@ public class Robot extends LoggedRobot {
     // log if we have uncommitted changes
     switch (BuildConstants.DIRTY) {
       case 0:
-
-
-
-
         Logger.recordMetadata("GitDirty", "All changes committed");
         break;
       case 1:
@@ -477,11 +485,12 @@ public class Robot extends LoggedRobot {
     // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
     // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
     // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    autoChooser.addOption("Pitcheck/Intake ", Commands.sequence(
-      intake.intake().withTimeout(1),
-      intake.rest().withTimeout(1),
-      intake.outtake().withTimeout(1))
-    );
+    autoChooser.addOption(
+        "Pitcheck/Intake ",
+        Commands.sequence(
+            intake.intake().withTimeout(1),
+            intake.rest().withTimeout(1),
+            intake.outtake().withTimeout(1)));
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }

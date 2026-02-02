@@ -16,33 +16,20 @@ public class HoodIOSim extends HoodIO {
   TalonFXSimState hoodMotorSim;
 
   private final DCMotorSim hoodPhysicsSim;
-      
+
   // will get updated when i get specs
 
   private final double simLoopPeriod = 0.002; // 2 ms
   private Notifier simNotifier = null;
   private double lastSimTime = 0.0;
 
-
- 
- 
-
-  
-
-
-
-
-
-  
-
-  public HoodIOSim(CANBus canbus, TalonFXConfiguration config, double gearRatio ) {
+  public HoodIOSim(CANBus canbus, TalonFXConfiguration config, double gearRatio) {
     super(config, canbus);
     hoodPhysicsSim =
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(
-              DCMotor.getKrakenX44Foc(1), 0.01,gearRatio),
-          DCMotor.getKrakenX44Foc(1));
-  
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 0.01, gearRatio),
+            DCMotor.getKrakenX44Foc(1));
+
     hoodMotorSim = hoodMotor.getSimState();
     hoodMotorSim.setMotorType(MotorType.KrakenX44);
     hoodMotorSim.Orientation = ChassisReference.Clockwise_Positive;
@@ -60,18 +47,13 @@ public class HoodIOSim extends HoodIO {
               hoodPhysicsSim.update(deltaTime);
 
               // rotor position stuff added later when i have access to onshape
-          
-                hoodMotorSim.setRawRotorPosition(
+
+              hoodMotorSim.setRawRotorPosition(
                   hoodPhysicsSim.getAngularPositionRad() * (gearRatio));
-                hoodMotorSim.setRotorVelocity(
+              hoodMotorSim.setRotorVelocity(
                   hoodPhysicsSim.getAngularVelocityRPM() / 60.0 * gearRatio);
-                
-            
-           
-                
             });
-            
+
     simNotifier.startPeriodic(simLoopPeriod);
   }
 }
-
