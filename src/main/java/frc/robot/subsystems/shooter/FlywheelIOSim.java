@@ -28,9 +28,10 @@ public class FlywheelIOSim extends FlywheelIO {
   private Notifier simNotifier;
   private double lastSimTime = 0.0;
 
-  public FlywheelIOSim(TalonFXConfiguration config, CANBus canbus, double gearRatio) {
+  public FlywheelIOSim(
+      TalonFXConfiguration config, CANBus canbus, double gearRatio, int leaderID, int followerID) {
 
-    super(config, canbus);
+    super(config, canbus, leaderID, followerID);
     physicsSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(2), 0.0136, gearRatio),

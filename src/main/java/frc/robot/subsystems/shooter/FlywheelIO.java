@@ -66,9 +66,9 @@ public class FlywheelIO {
 
   // todo: tune acceleration
 
-  public FlywheelIO(TalonFXConfiguration config, CANBus canbus) {
-    flywheelLeader = new TalonFX(12, canbus);
-    flywheelFollower = new TalonFX(13, canbus);
+  public FlywheelIO(TalonFXConfiguration config, CANBus canbus, int leaderID, int followerID) {
+    flywheelLeader = new TalonFX(leaderID, canbus);
+    flywheelFollower = new TalonFX(followerID, canbus);
 
     flywheelLeader.getConfigurator().apply(config);
     flywheelFollower.getConfigurator().apply(config);
@@ -113,13 +113,13 @@ public class FlywheelIO {
     flywheelFollower.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getFlywheelAlphaConfiguration() {
+  public static TalonFXConfiguration getAlphaFlywheel() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO_A;
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
 
     config.Slot0.kS = 0.43477;
     config.Slot0.kV = 0.144;
@@ -136,13 +136,13 @@ public class FlywheelIO {
     return config;
   }
 
-  public static TalonFXConfiguration getFlywheelCompConfiguration() {
+  public static TalonFXConfiguration getCompFlywheel() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO_C;
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
 
     config.Slot0.kS = 0;
     config.Slot0.kV = 0;

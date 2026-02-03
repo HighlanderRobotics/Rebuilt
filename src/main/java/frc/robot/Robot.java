@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
-import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
@@ -150,7 +149,6 @@ public class Robot extends LoggedRobot {
   private final LEDSubsystem leds;
 
   // climber only exists for the comp bot - this is accounted for later
-  private ClimberSubsystem climber;
 
   private final Superstructure superstructure;
 
@@ -182,10 +180,6 @@ public class Robot extends LoggedRobot {
   static {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
-
-  Indexer indexer = null;
-  Intake intake = null;
-  Shooter shooter = null;
 
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
@@ -239,17 +233,17 @@ public class Robot extends LoggedRobot {
         shooter =
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getHoodAlphaConfiguration(), canivore)
+                    ? new HoodIO(HoodIO.getAlphaHood(), canivore, 11)
                     : new HoodIOSim(
-                        canivore,
-                        HoodIO.getHoodAlphaConfiguration(),
-                        ShooterSubsystem.HOOD_GEAR_RATIO_A),
+                        canivore, HoodIO.getAlphaHood(), ShooterSubsystem.HOOD_GEAR_RATIO, 11),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getFlywheelAlphaConfiguration(), canivore)
+                    ? new FlywheelIO(FlywheelIO.getAlphaFlywheel(), canivore, 12, 13)
                     : new FlywheelIOSim(
-                        FlywheelIO.getFlywheelAlphaConfiguration(),
+                        FlywheelIO.getAlphaFlywheel(),
                         canivore,
-                        ShooterSubsystem.FLYWHEEL_GEAR_RATIO_A));
+                        ShooterSubsystem.FLYWHEEL_GEAR_RATIO,
+                        11,
+                        12));
 
         intake =
             new FintakeSubsystem(
@@ -272,19 +266,19 @@ public class Robot extends LoggedRobot {
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getFlywheelCompConfiguration(), canivore)
+                    ? new FlywheelIO(FlywheelIO.getCompFlywheel(), canivore, 12, 13)
                     : new FlywheelIOSim(
-                        FlywheelIO.getFlywheelCompConfiguration(),
+                        FlywheelIO.getCompFlywheel(),
                         canivore,
-                        TurretSubsystem.FLYWHEEL_GEAR_RATIO_C),
+                        TurretSubsystem.FLYWHEEL_GEAR_RATIO,
+                        11,
+                        12),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getHoodCompConfiguration(), canivore)
+                    ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
-                        canivore,
-                        HoodIO.getHoodCompConfiguration(),
-                        TurretSubsystem.HOOD_GEAR_RATIO_C));
+                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
 
-        climber = new ClimberSubsystem(); // TODO climber
+        // TODO climber
         break;
     }
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
@@ -293,8 +287,6 @@ public class Robot extends LoggedRobot {
     // if this is alpha, we won't have assigned a climber yet
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
-    if (climber == null)
-      climber = new ClimberSubsystem(); // TODO new ClimberSubsystem(new ClimberIO() {}) and such
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -479,21 +471,13 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
-
-    // Sysid Autos
-    // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-    // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-    // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    autoChooser.addOption(
-        "Pitcheck/Intake ",
-        Commands.sequence(
-            intake.intake().withTimeout(1),
-            intake.rest().withTimeout(1),
-            intake.outtake().withTimeout(1)));
-    haveAutosGenerated = true;
-    System.out.println("Done generating autos");
   }
+
+  // Sysid Autos
+  // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+  // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+  // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+  // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
   @Override
   public void robotPeriodic() {

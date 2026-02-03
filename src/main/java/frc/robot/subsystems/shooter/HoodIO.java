@@ -53,8 +53,8 @@ public class HoodIO {
 
   private Rotation2d hoodSetpoint = Rotation2d.kZero;
 
-  public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
-    hoodMotor = new TalonFX(11, canbus);
+  public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus, int deviceID) {
+    hoodMotor = new TalonFX(deviceID, canbus);
     hoodMotor.getConfigurator().apply(talonFXConfiguration);
 
     hoodPositionRotations = hoodMotor.getPosition();
@@ -75,7 +75,7 @@ public class HoodIO {
     hoodMotor.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getHoodAlphaConfiguration() {
+  public static TalonFXConfiguration getAlphaHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -86,7 +86,7 @@ public class HoodIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO_A;
+    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
@@ -103,7 +103,7 @@ public class HoodIO {
     return config;
   }
 
-  public static TalonFXConfiguration getHoodCompConfiguration() {
+  public static TalonFXConfiguration getCompHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -114,7 +114,7 @@ public class HoodIO {
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO_C;
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 

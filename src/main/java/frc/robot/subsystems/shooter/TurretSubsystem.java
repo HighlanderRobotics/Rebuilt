@@ -5,10 +5,13 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -19,20 +22,24 @@ import org.littletonrobotics.junction.Logger;
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
   /** Creates a new TurretSubsystem. */
-  public static double HOOD_GEAR_RATIO_C = 58.96875;
+  public static double HOOD_GEAR_RATIO = 58.96875;
 
-  public static double FLYWHEEL_GEAR_RATIO_C = 0.84615384615;
+  public static double FLYWHEEL_GEAR_RATIO = 0.84615384615;
 
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
+  public static double CURRENT_ZERO_THRESHOLD = 30.0;
 
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
+  double currentFilterValue = 0.0;
 
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
+
+  private LinearFilter currentFilter = LinearFilter.movingAverage(10);
 
   public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO) {
     this.flywheelIO = flywheelIO;
@@ -48,6 +55,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
     hoodIO.updateInputs(hoodInputs);
     Logger.processInputs("Shooter/Hood", hoodInputs);
+
+    currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
   }
 
   @Override
@@ -78,7 +87,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command spit() {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(Rotation2d.kZero);
+          hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
@@ -102,6 +111,13 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @Override
   public Command zeroHood() {
     return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
+  }
+
+  public Command runCurrentZeroing() {
+    return this.run(() -> hoodIO.setHoodVoltage(-3.0))
+        .until(
+            new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD).debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
   }
 
   @Override

@@ -23,8 +23,8 @@ public class HoodIOSim extends HoodIO {
   private Notifier simNotifier = null;
   private double lastSimTime = 0.0;
 
-  public HoodIOSim(CANBus canbus, TalonFXConfiguration config, double gearRatio) {
-    super(config, canbus);
+  public HoodIOSim(CANBus canbus, TalonFXConfiguration config, double gearRatio, int deviceID) {
+    super(config, canbus, deviceID);
     hoodPhysicsSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 0.01, gearRatio),
