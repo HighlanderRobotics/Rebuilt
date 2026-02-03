@@ -261,7 +261,7 @@ public class Robot extends LoggedRobot {
         indexer = new SpindexerSubsystem();
         intake = new LintakeSubsystem();
         shooter = new TurretSubsystem();
-        climber = new ClimberSubsystem();
+        climber = new ClimberSubsystem(new ClimberIO(canivore));
         break;
     }
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
@@ -271,7 +271,7 @@ public class Robot extends LoggedRobot {
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
     if (climber == null)
-      climber = new ClimberSubsystem(new ClimberIO(canivore) {});
+      //climber = new EmptyClimberSubsystem(new ClimberIO(canivore) {});
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);

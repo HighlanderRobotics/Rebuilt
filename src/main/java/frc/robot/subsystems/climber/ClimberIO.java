@@ -28,7 +28,7 @@ public class ClimberIO {
 
     @AutoLog
     public static class ClimberIOInputs {
-        public Rotation2d motorPositionRotations = new Rotation2d();
+        public double climberPosition = 0.0;
         public double motorVelocityMetersPerSec = 0.0;
         public double motorStatorCurrentAmps = 0.0;
         public double motorSupplyCurrentAmps = 0.0;
@@ -49,7 +49,7 @@ public class ClimberIO {
     private PositionVoltage positionVoltage = new PositionVoltage(0.0) .withEnableFOC(true);
     private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0) .withEnableFOC(true);
 
-    private Rotation2d climberSetpoint = Rotation2d.kZero;
+    private double climberSetpoint = 0.0;
 
 
 public ClimberIO(CANBus canBus) {
@@ -100,9 +100,9 @@ public static TalonFXConfiguration getClimberConfiguration() {
     return config;
 }
 
-public void setClimberPosition(Rotation2d climberPosition) {
+public void setClimberPosition(double climberPosition) {
     climberSetpoint = climberPosition;
-    climberMotor.setControl(positionVoltage.withPosition(climberPosition.getRotations()));
+    climberMotor.setControl(positionVoltage.withPosition(climberSetpoint));
 }
 
 public void setClimberVoltage(double climberVoltage) {

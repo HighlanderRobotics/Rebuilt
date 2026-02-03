@@ -16,8 +16,7 @@ import org.littletonrobotics.junction.Logger;
 public class ClimberSubsystem extends SubsystemBase {
   //todo: find actual constants
   public static double GEAR_RATIO = (45.0 / 1.0);
-  public static Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(180);
-  public static Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(0);
+  public static double MAX_EXTENSION_METERS = 0.2413;
   public static double MAX_ACCELERATION = 10.0;
   public static double MAX_VELOCITY = 2.0;
 
@@ -39,15 +38,21 @@ public ClimberSubsystem(ClimberIO climberIO) {
 public Command climbUp() {
   return this.run(
     () -> {
-      climberIO.setClimberPosition(MAX_ANGLE);
+      climberIO.setClimberPosition(MAX_EXTENSION_METERS);
+      wait(1000);
+      climberIO.setClimberPosition(0.0);
+      // TODO figure out how to correctly implement
     });
     
 }
 
 public Command climbDown() {
-  return this.run(
+ return this.run(
     () -> {
-      climberIO.setClimberPosition(MIN_ANGLE);
+      climberIO.setClimberPosition(MAX_EXTENSION_METERS);
+      wait(1000);
+      climberIO.setClimberPosition(0.0);
+      // TODO figure out how to correctly implement
     });
     
 }
