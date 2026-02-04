@@ -84,7 +84,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     return this.run(
         () -> {
           // if (shooterAtSetpoint.getAsBoolean()) {
-          indexRollerIO.setRollerVoltage(12);
+          indexRollerIO.setRollerVoltage(10);
           kickerIO.setRollerVoltage(-7);
           // } else {
           //   indexRollerIO.setRollerVoltage(0);

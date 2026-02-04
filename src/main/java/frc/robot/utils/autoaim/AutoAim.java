@@ -15,7 +15,7 @@ public class AutoAim {
 
   public static double LATENCY_COMPENSATION_SECS =
       new LoggedTunableNumber("Latency time", 0.0).getAsDouble(); // 0.6; // TODO tune latency comp
-  public static double SPIN_UP_SECS = 0.25; // TODO tune spinup time
+  //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
 
   public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
 
@@ -33,7 +33,7 @@ public class AutoAim {
         new ShotData(Rotation2d.fromDegrees(14.5), 30, 1.54));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
-        new ShotData(Rotation2d.fromDegrees(18), 30, 1.52));
+        new ShotData(Rotation2d.fromDegrees(18.25), 30, 1.52));
     HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
         new ShotData(Rotation2d.fromDegrees(21.5), 30, 1.46));
@@ -109,10 +109,18 @@ public class AutoAim {
     Pose2d compensatedPose =
         robotPose.exp(
             new Twist2d(
-                robotRelativeSpeeds.vxMetersPerSecond * (LATENCY_COMPENSATION_SECS + SPIN_UP_SECS),
-                robotRelativeSpeeds.vyMetersPerSecond * (LATENCY_COMPENSATION_SECS + SPIN_UP_SECS),
+                robotRelativeSpeeds.vxMetersPerSecond
+                    * (LATENCY_COMPENSATION_SECS
+                    //  + SPIN_UP_SECS
+                    ),
+                robotRelativeSpeeds.vyMetersPerSecond
+                    * (LATENCY_COMPENSATION_SECS
+                    //  + SPIN_UP_SECS
+                    ),
                 robotRelativeSpeeds.omegaRadiansPerSecond
-                    * (LATENCY_COMPENSATION_SECS + SPIN_UP_SECS)));
+                    * (LATENCY_COMPENSATION_SECS
+                    // + SPIN_UP_SECS
+                    )));
     return getSOTMShotData(compensatedPose, targetTranslation, fieldRelativeSpeeds);
   }
 }

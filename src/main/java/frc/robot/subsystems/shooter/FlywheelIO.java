@@ -124,7 +124,7 @@ public class FlywheelIO {
     config.Slot0.kS = 0.43477;
     config.Slot0.kV = 0.144;
     config.Slot0.kA = 0.016433;
-    config.Slot0.kP = 0.1;
+    config.Slot0.kP = 0.37;
     config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 70.0;
