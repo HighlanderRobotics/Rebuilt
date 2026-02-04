@@ -1,5 +1,5 @@
 {
- "name":"PLtoD",
+ "name":"PLTtoD",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -15,7 +15,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"3.7620644569396973 m", "val":3.7620644569396977}, "y":{"exp":"7.357067584991455 m", "val":7.357067584991455}, "heading":{"exp":"SL.heading", "val":3.141592653589793}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"3.7620644569396973 m", "val":3.7620644569396977}, "y":{"exp":"7.357067584991455 m", "val":7.357067584991455}, "heading":{"exp":"SLT.heading", "val":3.141592653589793}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.1236233711242676 m", "val":2.1236233711242676}, "y":{"exp":"6.343014240264893 m", "val":6.343014240264893}, "heading":{"exp":"3.141592653589793 rad", "val":3.141592653589793}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"D.x", "val":0.8098713755607605}, "y":{"exp":"D.y", "val":6.312607765197754}, "heading":{"exp":"D.heading", "val":3.141592653589793}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[

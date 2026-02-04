@@ -1,5 +1,5 @@
 {
- "name":"FLMtoSL",
+ "name":"FLMtoSLT",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -19,7 +19,7 @@
     {"x":{"exp":"FLM.x", "val":7.82036542892456}, "y":{"exp":"FLM.y", "val":4.503572463989258}, "heading":{"exp":"FLM.heading", "val":-1.5707963267948966}, "intervals":215, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.714456081390381 m", "val":6.714456081390381}, "y":{"exp":"7.341778755187988 m", "val":7.341778755187988}, "heading":{"exp":"-3.116906638819587 rad", "val":-3.116906638819587}, "intervals":152, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"4.465227127075195 m", "val":4.465227127075195}, "y":{"exp":"7.376699447631836 m", "val":7.376699447631836}, "heading":{"exp":"3.127229582083786 rad", "val":3.127229582083786}, "intervals":112, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"SL.x", "val":2.814626932144165}, "y":{"exp":"SL.y", "val":7.330637454986572}, "heading":{"exp":"SL.heading", "val":3.141592653589793}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"SLT.x", "val":2.814626932144165}, "y":{"exp":"SLT.y", "val":7.330637454986572}, "heading":{"exp":"SLT.heading", "val":3.141592653589793}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

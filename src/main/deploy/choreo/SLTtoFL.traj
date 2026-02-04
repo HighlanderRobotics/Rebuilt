@@ -1,5 +1,5 @@
 {
- "name":"SLtoFL",
+ "name":"SLTtoFL",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -16,7 +16,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"SL.x", "val":2.814626932144165}, "y":{"exp":"SL.y", "val":7.330637454986572}, "heading":{"exp":"SL.heading", "val":3.141592653589793}, "intervals":34, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"SLT.x", "val":2.814626932144165}, "y":{"exp":"SLT.y", "val":7.330637454986572}, "heading":{"exp":"SLT.heading", "val":3.141592653589793}, "intervals":34, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"5.304653644561768 m", "val":5.304653644561768}, "y":{"exp":"7.37657356262207 m", "val":7.37657356262207}, "heading":{"exp":"3.141592653589793 rad", "val":3.141592653589793}, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"7.739718437194824 m", "val":7.739718437194824}, "y":{"exp":"6.998943328857422 m", "val":6.998943328857422}, "heading":{"exp":"-1.650627593283163 rad", "val":-1.650627593283163}, "intervals":16, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"FL.x", "val":7.82036542892456}, "y":{"exp":"FL.y", "val":5.865901947021484}, "heading":{"exp":"FL.heading", "val":-1.5707963267948966}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
