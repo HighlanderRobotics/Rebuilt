@@ -240,7 +240,7 @@ public class Robot extends LoggedRobot {
                         MotorType.KrakenX44,
                         canivore),
                 (ROBOT_MODE == RobotMode.REAL)
-                    ? new RollerIO(10, LindexerSubsystem.getIndexerConfigs(), canivore)
+                    ? new RollerIO(10, LindexerSubsystem.getKickerConfigs(), canivore)
                     : new RollerIOSim(
                         10,
                         LindexerSubsystem.getKickerConfigs(),
@@ -278,7 +278,33 @@ public class Robot extends LoggedRobot {
         // note that the climber is not instantiated here
         break;
       case COMP:
-        indexer = new SpindexerSubsystem();
+        indexer =
+            new SpindexerSubsystem(
+                canivore,
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(9, SpindexerSubsystem.getIndexerConfigs(), canivore)
+                    : new RollerIOSim(
+                        9,
+                        SpindexerSubsystem.getIndexerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1), 0.003, SpindexerSubsystem.GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore),
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(10, SpindexerSubsystem.getKickerConfigs(), canivore)
+                    : new RollerIOSim(
+                        10,
+                        SpindexerSubsystem.getKickerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.00001,
+                                SpindexerSubsystem.KICKER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore));
         // TODO: CAN IDS AND FOVs
         intake =
             (ROBOT_MODE == RobotMode.REAL)

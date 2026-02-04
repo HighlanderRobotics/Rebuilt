@@ -9,6 +9,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -55,6 +56,16 @@ public class SeahorseSwerveConstants extends SwerveConstants {
   @Override
   public int getGyroID() {
     return 0;
+  }
+
+  @Override
+  public MotorType getDriveMotorType() {
+    return MotorType.KrakenX60;
+  }
+
+  @Override
+  public MotorType getTurnMotorType() {
+    return MotorType.KrakenX60;
   }
 
   public Pigeon2Configuration getGyroConfig() {
