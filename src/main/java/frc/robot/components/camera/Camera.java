@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Robot;
-import frc.robot.Robot.RobotType;
+import frc.robot.Robot.RobotMode;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.Tracer;
 import java.util.NoSuchElementException;
@@ -106,7 +106,7 @@ public class Camera {
     if (result.getTargets().size() < 1) {
       return Optional.empty();
     }
-    if (Robot.ROBOT_TYPE != RobotType.REAL)
+    if (Robot.ROBOT_MODE != RobotMode.REAL)
       Logger.recordOutput(
           "Vision/" + io.getName() + "/Best Distance",
           result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());

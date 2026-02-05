@@ -1,0 +1,43 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.subsystems.shooter;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import java.util.function.Supplier;
+
+/** Add your docs here. */
+public interface Shooter {
+
+  /**
+   * Sets hood angle and flywheel velocity based on distance from hub from the shot map + current
+   * pose
+   */
+  public Command shoot(Supplier<Pose2d> robotPoseSupplier);
+
+  /**
+   * Sets hood angle and flywheel velocity based on distance from hub from the feed map + current
+   * pose + feed target
+   */
+  public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget);
+
+  /** Not running (set to 0) */
+  public Command rest();
+
+  /** Run balls out from the shooter. This is for antijamming the robot */
+  public Command spit();
+
+  /** Check if flywheel has spun up to desired speed */
+  public boolean atFlywheelVelocitySetpoint();
+
+  /** Check if hood is at its desired position */
+  public boolean atHoodSetpoint();
+
+  /** Reset hood encoder to its minimum position */
+  public Command zeroHood();
+
+  /** Shoots based on dashboard numbers. For testing only */
+  public Command testShoot();
+}

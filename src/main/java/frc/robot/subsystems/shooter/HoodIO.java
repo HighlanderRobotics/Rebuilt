@@ -14,13 +14,16 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class HoodIO {
   /** Creates a new HoodIOReal. */
@@ -32,11 +35,13 @@ public class HoodIO {
     public double hoodSupplyCurrentAmp = 0.0;
     public double hoodVoltage = 0.0;
     public double hoodTempC = 0.0;
+    // For sysid
+    public double hoodRotations = 0.0;
   }
 
   protected TalonFX hoodMotor;
 
-  private final BaseStatusSignal hoodPositionRotations;
+  private final StatusSignal<Angle> hoodPositionRotations;
   private final BaseStatusSignal hoodAngularVelocity;
   private final StatusSignal<Voltage> hoodVoltage;
   private final StatusSignal<Current> hoodStatorCurrent;
@@ -46,9 +51,11 @@ public class HoodIO {
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
 
-  public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
-    hoodMotor = new TalonFX(11, canbus);
-    hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
+  private Rotation2d hoodSetpoint = Rotation2d.kZero;
+
+  public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus, int deviceID) {
+    hoodMotor = new TalonFX(deviceID, canbus);
+    hoodMotor.getConfigurator().apply(talonFXConfiguration);
 
     hoodPositionRotations = hoodMotor.getPosition();
     hoodAngularVelocity = hoodMotor.getVelocity();
@@ -68,7 +75,7 @@ public class HoodIO {
     hoodMotor.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getHoodConfiguration() {
+  public static TalonFXConfiguration getAlphaHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -81,13 +88,41 @@ public class HoodIO {
 
     config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
 
-    // config.Slot0.GravityType = GravityTypeValue.Arm_Cosine; Potentially need, maybe not tho.
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kV = 1.1;
-    config.Slot0.kP = 5.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kS = 0.055;
+    config.Slot0.kG = 0.445;
+    config.Slot0.kV = 1.45;
+    config.Slot0.kP = 35;
+    config.Slot0.kD = 0.25;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getCompHood() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO;
+
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+    config.Slot0.kS = 0;
+    config.Slot0.kG = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -101,6 +136,7 @@ public class HoodIO {
   }
 
   public void setHoodPosition(Rotation2d hoodPosition) {
+    hoodSetpoint = hoodPosition;
     hoodMotor.setControl(positionVoltage.withPosition(hoodPosition.getRotations()));
   }
 
@@ -117,11 +153,22 @@ public class HoodIO {
         hoodSupplyCurrent,
         hoodTemp);
 
-    inputs.hoodPositionRotations = Rotation2d.fromRadians(hoodPositionRotations.getValueAsDouble());
+    inputs.hoodPositionRotations =
+        Rotation2d.fromRotations(hoodPositionRotations.getValueAsDouble());
     inputs.hoodAngularVelocity = hoodAngularVelocity.getValueAsDouble();
     inputs.hoodVoltage = hoodVoltage.getValueAsDouble();
     inputs.hoodStatorCurrentAmps = hoodStatorCurrent.getValueAsDouble();
     inputs.hoodSupplyCurrentAmp = hoodSupplyCurrent.getValueAsDouble();
     inputs.hoodTempC = hoodTemp.getValueAsDouble();
+    inputs.hoodRotations = hoodPositionRotations.getValueAsDouble();
+  }
+
+  @AutoLogOutput(key = "Shooter/Hood/Setpoint")
+  public Rotation2d getHoodSetpoint() {
+    return hoodSetpoint;
+  }
+
+  public void resetEncoder(Rotation2d rotations) {
+    hoodMotor.setPosition(rotations.getRotations());
   }
 }
