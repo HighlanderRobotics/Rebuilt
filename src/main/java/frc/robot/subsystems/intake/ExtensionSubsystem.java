@@ -23,7 +23,7 @@ public class ExtensionSubsystem extends SubsystemBase {
   private ExtensionIO io;
   private ExtensionIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
-  private SysIdRoutine intakeRollerSysid =
+  private SysIdRoutine ExtensionRollerSysid =
       new SysIdRoutine(
           new Config(null, null, null, (state) -> Logger.recordOutput("Extension/SysID State", state)),
           new Mechanism((volts) -> io.setExtensionVoltage(volts.in(Volts)), null, this));
@@ -34,7 +34,7 @@ public class ExtensionSubsystem extends SubsystemBase {
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Extension", inputs);
+    Logger.processInputs("Intake/Extension", inputs);
   }
 
   // TODO get actual values
@@ -50,7 +50,7 @@ public class ExtensionSubsystem extends SubsystemBase {
     return this.run(() -> io.setExtensionVoltage(0));
   }
 
-  public Command runRollerSysid() {
+  public Command runExtensionSysid() {
     return Commands.sequence(
         intakeRollerSysid.quasistatic(Direction.kForward),
         intakeRollerSysid.quasistatic(Direction.kReverse),
