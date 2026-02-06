@@ -8,10 +8,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Superstructure;
+import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -144,4 +147,33 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
   }
+
+  @Override
+  public boolean isFacingTarget() {
+    return false; // TODO turret facing hub
+  }
+  // public boolean isFacingTarget() {
+  //   switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
+  //     case SCORE:
+  //       return isFacingHub();
+  //     case FEED:
+  //       return isFacingFeedTarget();
+  //     default:
+  //       return false;
+  //   }
+  // }
+
+  // public boolean isFacingHub() {
+  //   Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+  //   return MathUtil.isNear(
+  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  // }
+
+  // public boolean isFacingFeedTarget() {
+  //   Translation2d feedTarget =
+  //       FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
+  //   Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
+  //   return MathUtil.isNear(
+  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  // }
 }

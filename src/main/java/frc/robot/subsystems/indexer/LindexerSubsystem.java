@@ -55,16 +55,6 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public boolean isEmpty() {
-    return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
-  }
-
-  @Override
-  public boolean isNotEmpty() {
-    return secondCANRangeInputs.isDetected;
-  }
-
-  @Override
   public Command index() {
     return this.run(
         () -> {

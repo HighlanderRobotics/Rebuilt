@@ -22,7 +22,7 @@ import org.littletonrobotics.junction.Logger;
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
-  private CANrangeIOReal CANRangeIO;
+  private CANrangeIOReal CANRangeIO; // TODO remove :/
 
   private RollerIO indexRollerIO;
 
@@ -50,16 +50,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     this.kickerIO = kickerIO;
     CANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return !CANRangeInputs.isDetected;
-  }
-
-  @Override
-  public boolean isNotEmpty() {
-    return CANRangeInputs.isDetected;
   }
 
   @Override

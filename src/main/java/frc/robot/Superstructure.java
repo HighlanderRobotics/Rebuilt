@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Robot.RobotEdition;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
@@ -69,8 +70,6 @@ public class Superstructure {
   public boolean isScoringActive =
       isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
 
-  public boolean practice = true;
-
   // its litterly possible
 
   private SuperState prevState = SuperState.IDLE;
@@ -91,17 +90,10 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Intake Request")
   private Trigger intakeReq;
 
-  // @AutoLogOutput(key = "Superstructure/Feed Request")
-  // private Trigger feedReq;
-
-  // @AutoLogOutput(key = "Superstructure/Flowstate Request")
-  // private Trigger flowReq;
-
   @AutoLogOutput(key = "Superstructure/Anti Jam Req")
   private Trigger antiJamReq;
 
-  // @AutoLogOutput(key = "Superstructure/Shot Target")
-  private ShotTarget shotTarget = ShotTarget.SCORE;
+  private static ShotTarget shotTarget = ShotTarget.SCORE;
 
   @AutoLogOutput(key = "Superstructure/Score Request")
   private Trigger scoreReq = new Trigger(() -> shotTarget == ShotTarget.SCORE);
@@ -115,9 +107,13 @@ public class Superstructure {
   private Trigger flowReq = new Trigger(() -> flowState);
 
   @AutoLogOutput(key = "Superstructure/Feed Target")
-  private FeedTarget feedTarget = FeedTarget.LEFT;
+  private static FeedTarget feedTarget = FeedTarget.LEFT;
 
+  // spun up + hood at setpoint + pointing at target
   private Trigger readyTrigger;
+
+  @AutoLogOutput(key = "Superstructure/Operator Override?")
+  private boolean override;
 
   /** Creates a new Superstructure. */
   public Superstructure(
@@ -153,6 +149,9 @@ public class Superstructure {
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
     operator.rightBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.RIGHT));
 
+    operator.leftTrigger().onTrue(Commands.runOnce(() -> override = true));
+    operator.rightTrigger().onTrue(Commands.runOnce(() -> override = false));
+
     shootReq =
         driver
             .rightTrigger()
@@ -170,8 +169,15 @@ public class Superstructure {
             .debounce(0.1)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
             .and(
-                new Trigger(swerve::isFacingHub)
-                    .debounce(0.07)); // TODO change to not be swerve for comp
+                new Trigger(
+                        () -> {
+                          if (Robot.ROBOT_EDITION == RobotEdition.ALPHA) {
+                            return swerve.isFacingTarget();
+                          } else {
+                            return shooter.isFacingTarget();
+                          }
+                        })
+                    .debounce(0.07));
   }
 
   private void addTransitions() {
@@ -469,6 +475,14 @@ public class Superstructure {
   }
 
   public boolean canScore() {
-    return isOurShift() && inScoringArea() && practice;
+    return (isOurShift() || !DriverStation.isFMSAttached()) && (inScoringArea() || override);
+  }
+
+  public static ShotTarget getShotTarget() {
+    return shotTarget;
+  }
+
+  public static FeedTarget getFeedTarget() {
+    return feedTarget;
   }
 }

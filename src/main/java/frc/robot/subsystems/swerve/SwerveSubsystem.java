@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
+import frc.robot.Superstructure;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
@@ -49,6 +50,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Samples;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
@@ -614,8 +616,27 @@ public class SwerveSubsystem extends SubsystemBase {
         () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
   }
 
+  public boolean isFacingTarget() {
+    switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
+      case SCORE:
+        return isFacingHub();
+      case FEED:
+        return isFacingFeedTarget();
+      default:
+        return false;
+    }
+  }
+
   public boolean isFacingHub() {
     Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
+  public boolean isFacingFeedTarget() {
+    Translation2d feedTarget =
+        FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
+    Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
     return MathUtil.isNear(
         target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   }

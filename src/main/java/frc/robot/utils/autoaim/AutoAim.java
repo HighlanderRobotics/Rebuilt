@@ -77,13 +77,15 @@ public class AutoAim {
       Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose) {
     double tof = HUB_SHOT_TREE.calculateShot(robotPose, target).timeOfFlightSecs();
     Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
+    return getTargetRotation(vtarget, robotPose);
+  }
 
-    Translation2d robotHubVec = vtarget.minus(robotPose.getTranslation());
+  public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
+    Translation2d robotToTarget = target.minus(robotPose.getTranslation());
     Rotation2d rot =
-        Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+        Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()))
             .plus(Rotation2d.k180deg);
     Logger.recordOutput("Autoaim/Target Rotation", rot);
-    // TODO make this not be backwards when it's going directly at the target lol
     return rot;
   }
 

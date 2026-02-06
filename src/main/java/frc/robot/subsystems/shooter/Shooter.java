@@ -51,4 +51,6 @@ public interface Shooter extends Subsystem {
   public Command runCurrentZeroing();
 
   public Rotation2d getHoodSetpoint();
+
+  public boolean isFacingTarget();
 }
