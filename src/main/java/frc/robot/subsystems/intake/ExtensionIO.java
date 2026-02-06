@@ -11,9 +11,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import org.littletonrobotics.junction.AutoLog;
 
 public class ExtensionIO {
-
+  @AutoLog
   public static class ExtensionIOInputs {
     public double ExtensionVoltage = 0.0;
     public double ExtensionStatorCurrent = 0.0;

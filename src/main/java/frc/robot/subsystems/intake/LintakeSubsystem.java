@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
@@ -21,7 +20,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   private ExtensionIO io;
   // private RollerIO io;
-  private ExtensionIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
+  private ExtensionIOInputsAutoLogged inputs = new ExtensionIOInputsAutoLogged();
   // private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
   private SysIdRoutine ExtensionSysid =
