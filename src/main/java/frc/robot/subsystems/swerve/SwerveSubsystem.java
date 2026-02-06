@@ -52,7 +52,6 @@ import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
-import frc.robot.utils.rusthoundsSOTM.ChassisAccelerations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -136,8 +135,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveDriveSimulation swerveSimulation =
       new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
-
-  private ChassisSpeeds prevFieldRelVelocities;
 
   public SwerveSubsystem(CANBus canbus) {
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
@@ -276,15 +273,6 @@ public class SwerveSubsystem extends SubsystemBase {
           Tracer.trace("Update vision", this::updateVision);
 
           Logger.recordOutput("Current Hub Pose", FieldUtils.getCurrentHubPose());
-
-          prevFieldRelVelocities = getVelocityFieldRelative();
-          Logger.recordOutput(
-              "Chassis Accelerations/X", this.getChassisAccelerations().axMetersPerSecondSquared);
-          Logger.recordOutput(
-              "Chassis Accelerations/Y", this.getChassisAccelerations().ayMetersPerSecondSquared);
-          Logger.recordOutput(
-              "Chassis Accelerations/Omega",
-              this.getChassisAccelerations().omegaRadiansPerSecondSquared);
         });
   }
 
@@ -717,10 +705,6 @@ public class SwerveSubsystem extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Velocity Field Relative")
   public ChassisSpeeds getVelocityFieldRelative() {
     return ChassisSpeeds.fromRobotRelativeSpeeds(getVelocityRobotRelative(), getRotation());
-  }
-
-  public ChassisAccelerations getChassisAccelerations() {
-    return new ChassisAccelerations(getVelocityFieldRelative(), prevFieldRelVelocities, 0.020);
   }
 
   public boolean isNotMoving() {

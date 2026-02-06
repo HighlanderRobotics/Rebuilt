@@ -245,11 +245,7 @@ public class Superstructure {
   }
 
   private void addCommands() {
-    bindCommands(
-        SuperState.IDLE,
-        intake.rest(),
-        indexer.rest(),
-        shooter.rest()); // Maybe the indexer should be indexing?
+    bindCommands(SuperState.IDLE, intake.rest(), indexer.rest(), shooter.rest());
 
     bindCommands(SuperState.INTAKE, intake.intake(), indexer.index(), shooter.rest());
 
@@ -257,54 +253,55 @@ public class Superstructure {
         SuperState.SPIN_UP_FEED,
         intake.rest(),
         indexer.rest(),
-        shooter.feed(
-            swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
+
     bindCommands(
         SuperState.FEED,
         intake.rest(),
         indexer.index(),
-        shooter.feed(
-            swerve::getPose,
-            () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: ADD SOME SELECTION LOGIC
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
 
     bindCommands(
         SuperState.SPIN_UP_FEED_FLOW,
         intake.intake(),
         indexer.index(),
-        shooter.feed(
-            swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose())); // TODO: SELECTION LOGIC
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
+
     bindCommands(
         SuperState.FEED_FLOW,
         intake.intake(),
         indexer.kick(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.BLUE_BACK_RIGHT.getPose()));
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
+
     bindCommands(
         SuperState.SPIN_UP_SCORE,
         intake.rest(),
         indexer.rest(),
-        shooter.shoot(
+        shooter.score(
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative())));
     // shooter.testShoot());
+
     bindCommands(
         SuperState.SCORE,
         intake.rest(),
         indexer.kick(),
-        shooter.shoot(
+        shooter.score(
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative())));
     // shooter.testShoot());
+
     bindCommands(
         SuperState.SPIN_UP_SCORE_FLOW,
         intake.rest(),
         indexer.kick(),
-        shooter.shoot(
+        shooter.score(
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
@@ -315,7 +312,7 @@ public class Superstructure {
         SuperState.SCORE_FLOW,
         intake.intake(),
         indexer.kick(),
-        shooter.shoot(
+        shooter.score(
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),

@@ -130,7 +130,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  public Command shoot(Supplier<ShotData> shotDataSupplier) {
+  public Command score(Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
