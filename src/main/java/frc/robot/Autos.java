@@ -96,10 +96,10 @@ public class Autos {
     FRMtoMR("FRM", "MR", Action.FEED),
     MLtoCL("ML", "CL", Action.CLIMB),
     MRtoCR("MR", "CR", Action.CLIMB),
-    DtoR("DT", "R", Action.SCORE),
-    RtoFL("R", "FL", Action.FEED);
-
-
+    DtoRL("DT", "RL", Action.SCORE),
+    RLtoFL("RL", "FL", Action.FEED),
+    OtoRR("OT", "RR", Action.SCORE),
+    RRtoFR("RR", "FR", Action.FEED);
 
     private final String start;
     private final String end;
@@ -299,7 +299,7 @@ public class Autos {
 
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoR, Path.RtoFL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
+    Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoFL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
@@ -313,7 +313,7 @@ public class Autos {
 
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
+    Path[] paths = {Path.PRtoO, Path.OtoRR, Path.RRtoFR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
