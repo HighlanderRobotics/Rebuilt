@@ -5,7 +5,6 @@
 package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.function.BooleanSupplier;
 
 /** Add your docs here. */
 public interface Indexer {

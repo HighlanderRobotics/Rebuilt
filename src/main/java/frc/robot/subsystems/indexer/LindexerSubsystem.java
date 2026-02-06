@@ -15,7 +15,6 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 /** Lindexer = Linear Indexer. !! ALPHA !! */

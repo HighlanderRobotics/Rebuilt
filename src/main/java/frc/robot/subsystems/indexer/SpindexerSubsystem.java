@@ -15,8 +15,8 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import org.littletonrobotics.junction.Logger;
 import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 
 /** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
@@ -148,6 +148,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
     return config;
   }
+
   public Command kick(BooleanSupplier shooterAtSetpoint) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'kick'");
