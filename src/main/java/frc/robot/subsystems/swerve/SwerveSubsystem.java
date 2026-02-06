@@ -11,6 +11,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -32,8 +33,8 @@ import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
-import frc.robot.subsystems.swerve.constants.CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
+import frc.robot.subsystems.swerve.constants.comp.R1CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.swerve.gyro.GyroIOReal;
@@ -71,7 +72,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static final SwerveConstants SWERVE_CONSTANTS =
       Robot.ROBOT_EDITION == RobotEdition.ALPHA
           ? new AlphaSwerveConstants()
-          : new CompBotSwerveConstants();
+          : new R1CompBotSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
@@ -411,7 +412,7 @@ public class SwerveSubsystem extends SubsystemBase {
     for (int i = 0; i < optimizedStates.length; i++) {
       if (openLoop) {
         // Heuristic to enable/disable FOC
-        // enables FOC if the robot is moving at 90% of drivetrain max speed
+        // enables FOC if the robot is moving at less than 90% of drivetrain max speed
         final boolean focEnable =
             Math.sqrt(
                     Math.pow(this.getVelocityRobotRelative().vxMetersPerSecond, 2)
@@ -629,6 +630,18 @@ public class SwerveSubsystem extends SubsystemBase {
     Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
     return MathUtil.isNear(
         target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
+  public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(
+        () -> {
+          Translation2d robotHubVec =
+              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+        },
+        xVel,
+        yVel);
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {

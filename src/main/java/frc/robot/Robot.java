@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
-import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
@@ -77,24 +76,41 @@ public class Robot extends LoggedRobot {
   }
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
-  public static final RobotEdition ROBOT_EDITION = RobotEdition.ALPHA;
+  // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
+  public static final RobotEdition ROBOT_EDITION;
+  public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
+  public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
 
-  // public static final RobotEdition ROBOT_EDITION;
+  // for replay to work properly this needs to match the edition in the log
+  static {
+    switch (ROBOT_MODE) {
+      case REAL:
+        switch (RobotController.getSerialNumber()) {
+          case "023D2BD2":
+            ROBOT_EDITION = RobotEdition.ALPHA;
+            break;
+          case "2": // TODO get comp rio serial number
+            ROBOT_EDITION = RobotEdition.COMP;
+            break;
+          default:
+            // defaulting to comp is probably safer?
+            ROBOT_EDITION = RobotEdition.COMP;
+        }
+        break;
+      case SIM:
+        // you're gonna have to just lock in on this
+        ROBOT_EDITION = SIM_ROBOT_EDITION;
+        break;
+      case REPLAY:
+        // you're gonna have to just lock in on this
+        ROBOT_EDITION = REPLAY_ROBOT_EDITION;
+        break;
 
-  // // TODO get rio serial numbers
-  // static {
-  //   switch (RobotController.getSerialNumber()) {
-  //     case "1":
-  //       ROBOT_EDITION = RobotEdition.ALPHA;
-  //       break;
-  //     case "2":
-  //       ROBOT_EDITION = RobotEdition.COMP;
-  //       break;
-  //     default:
-  //       // defaulting to comp is probably safer?
-  //       ROBOT_EDITION = RobotEdition.COMP;
-  //   }
-  // }
+      default:
+        // TODO change to comp once there is a comp bot
+        ROBOT_EDITION = RobotEdition.ALPHA;
+    }
+  }
 
   /**
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
@@ -152,7 +168,6 @@ public class Robot extends LoggedRobot {
   private final LEDSubsystem leds;
 
   // climber only exists for the comp bot - this is accounted for later
-  private ClimberSubsystem climber;
 
   private final Superstructure superstructure;
 
@@ -237,11 +252,17 @@ public class Robot extends LoggedRobot {
         shooter =
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
-                    : new HoodIOSim(canivore),
+                    ? new HoodIO(HoodIO.getAlphaHood(), canivore, 11)
+                    : new HoodIOSim(
+                        canivore, HoodIO.getAlphaHood(), ShooterSubsystem.HOOD_GEAR_RATIO, 11),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
+                    ? new FlywheelIO(FlywheelIO.getAlphaFlywheel(), canivore, 12, 13)
+                    : new FlywheelIOSim(
+                        FlywheelIO.getAlphaFlywheel(),
+                        canivore,
+                        ShooterSubsystem.FLYWHEEL_GEAR_RATIO,
+                        11,
+                        12));
 
         intake =
             new FintakeSubsystem(
@@ -259,10 +280,50 @@ public class Robot extends LoggedRobot {
         // note that the climber is not instantiated here
         break;
       case COMP:
-        indexer = new SpindexerSubsystem();
+        indexer =
+            new SpindexerSubsystem(
+                canivore,
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(9, SpindexerSubsystem.getIndexerConfigs(), canivore)
+                    : new RollerIOSim(
+                        9,
+                        SpindexerSubsystem.getIndexerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1), 0.003, SpindexerSubsystem.GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore),
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(10, SpindexerSubsystem.getKickerConfigs(), canivore)
+                    : new RollerIOSim(
+                        10,
+                        SpindexerSubsystem.getKickerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.00001,
+                                SpindexerSubsystem.KICKER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore));
         intake = new LintakeSubsystem();
-        shooter = new TurretSubsystem();
-        climber = new ClimberSubsystem(); // TODO climber
+        shooter =
+            new TurretSubsystem(
+                ROBOT_MODE == RobotMode.REAL
+                    ? new FlywheelIO(FlywheelIO.getCompFlywheel(), canivore, 12, 13)
+                    : new FlywheelIOSim(
+                        FlywheelIO.getCompFlywheel(),
+                        canivore,
+                        TurretSubsystem.FLYWHEEL_GEAR_RATIO,
+                        11,
+                        12),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
+                    : new HoodIOSim(
+                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
+
+        // TODO climber
         break;
     }
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
@@ -278,8 +339,6 @@ public class Robot extends LoggedRobot {
     // if this is alpha, we won't have assigned a climber yet
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
-    if (climber == null)
-      climber = new ClimberSubsystem(); // TODO new ClimberSubsystem(new ClimberIO() {}) and such
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -467,7 +526,7 @@ public class Robot extends LoggedRobot {
 
     new Trigger(() -> indexer.firstBeambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.1));
 
-    new Trigger(() -> indexer.isFull()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    // new Trigger(() -> indexer.isFull()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
     // ---zeroing stuff---
 
@@ -487,15 +546,13 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
-
-    // Sysid Autos
-    // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-    // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-    // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    haveAutosGenerated = true;
-    System.out.println("Done generating autos");
   }
+
+  // Sysid Autos
+  // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+  // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+  // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+  // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
   @Override
   public void robotPeriodic() {

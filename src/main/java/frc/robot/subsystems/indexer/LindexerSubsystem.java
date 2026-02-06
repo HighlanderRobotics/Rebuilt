@@ -56,18 +56,13 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public boolean isFull() {
-    return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
-  }
-
-  @Override
   public boolean isEmpty() {
     return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
   }
 
   @Override
-  public boolean isPartiallyFull() {
-    return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
+  public boolean isNotEmpty() {
+    return secondCANRangeInputs.isDetected;
   }
 
   @Override
@@ -80,7 +75,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick(BooleanSupplier shooterAtSetpoint) {
+  public Command kick() {
     return this.run(
         () -> {
           // if (shooterAtSetpoint.getAsBoolean()) {

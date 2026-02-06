@@ -10,11 +10,9 @@ import java.util.function.BooleanSupplier;
 /** Add your docs here. */
 public interface Indexer {
 
-  public boolean isFull();
-
   public boolean isEmpty();
 
-  public boolean isPartiallyFull();
+  public boolean isNotEmpty();
 
   /** Run indexer towards shooter and kicker away from shooter */
   public Command index();
@@ -24,7 +22,7 @@ public interface Indexer {
 
   /** Run both indexer and kicker towards the shooter */
   // public Command kick();
-  public Command kick(BooleanSupplier shooterAtSetpoint);
+  public Command kick();
 
   /** Not running (set to 0) */
   public Command rest();

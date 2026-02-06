@@ -88,9 +88,6 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Anti Jam Req")
   private Trigger antiJamReq;
 
-  @AutoLogOutput(key = "Superstructure/Is Full")
-  private Trigger isFull;
-
   @AutoLogOutput(key = "Superstructure/Is Empty")
   private Trigger isEmpty;
 
@@ -140,8 +137,6 @@ public class Superstructure {
     // flowReq = driver.leftTrigger().and(driver.rightTrigger());
 
     antiJamReq = driver.a().or(operator.a());
-
-    isFull = new Trigger(indexer::isFull).debounce(0.5); // TODO tune
 
     isEmpty = new Trigger(indexer::isEmpty);
   }
@@ -258,10 +253,7 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE,
         intake.rest(),
-        indexer.kick(
-            () ->
-                shooter.atFlywheelVelocitySetpoint()
-                    && shooter.atHoodSetpoint()), /*shooter.shoot(swerve::getPose)*/
+        indexer.kick(), /*shooter.shoot(swerve::getPose)*/
         shooter.shoot(
             () ->
                 AutoAim.getCompensatedSOTMShotData(
@@ -273,7 +265,7 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE_FLOW,
         intake.intake(),
-        indexer.kick(() -> shooter.atFlywheelVelocitySetpoint() && shooter.atHoodSetpoint()),
+        indexer.kick(),
         shooter.shoot(
             () ->
                 AutoAim.getCompensatedSOTMShotData(
