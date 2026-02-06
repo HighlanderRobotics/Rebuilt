@@ -50,7 +50,9 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
+import frc.robot.utils.rusthoundsSOTM.ChassisAccelerations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -134,6 +136,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveDriveSimulation swerveSimulation =
       new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
+
+  private ChassisSpeeds prevFieldRelVelocities;
 
   public SwerveSubsystem(CANBus canbus) {
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
@@ -272,6 +276,15 @@ public class SwerveSubsystem extends SubsystemBase {
           Tracer.trace("Update vision", this::updateVision);
 
           Logger.recordOutput("Current Hub Pose", FieldUtils.getCurrentHubPose());
+
+          prevFieldRelVelocities = getVelocityFieldRelative();
+          Logger.recordOutput(
+              "Chassis Accelerations/X", this.getChassisAccelerations().axMetersPerSecondSquared);
+          Logger.recordOutput(
+              "Chassis Accelerations/Y", this.getChassisAccelerations().ayMetersPerSecondSquared);
+          Logger.recordOutput(
+              "Chassis Accelerations/Omega",
+              this.getChassisAccelerations().omegaRadiansPerSecondSquared);
         });
   }
 
@@ -357,23 +370,22 @@ public class SwerveSubsystem extends SubsystemBase {
       cameraPoses[i] = cameras[i].getPose();
     }
     // only do all this logging stuff if we're not irl for performance
-    if (Robot.ROBOT_MODE != RobotMode.REAL) {
-      Logger.recordOutput("Vision/Camera Poses", cameraPoses);
-      Pose3d[] arr = new Pose3d[cameras.length];
-      for (int k = 0; k < cameras.length; k++) {
-        // honetsly not sure if this distinction is the way to go but
-        if (Robot.ROBOT_MODE == RobotMode.SIM)
-          // If we're in sim, use the maplesim pose to calculate vision
-          arr[k] =
-              new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
-                  .transformBy(cameras[k].getCameraConstants().robotToCamera());
-        else {
-          // if we're in replay, use whatever the pose was
-          arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
-        }
+
+    Logger.recordOutput("Vision/Camera Poses", cameraPoses);
+    Pose3d[] arr = new Pose3d[cameras.length];
+    for (int k = 0; k < cameras.length; k++) {
+      // honetsly not sure if this distinction is the way to go but
+      if (Robot.ROBOT_MODE == RobotMode.SIM)
+        // If we're in sim, use the maplesim pose to calculate vision
+        arr[k] =
+            new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
+                .transformBy(cameras[k].getCameraConstants().robotToCamera());
+      else {
+        // if we're in replay, use whatever the pose was
+        arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
       }
-      Logger.recordOutput("Vision/Camera Poses on Robot", arr);
     }
+    Logger.recordOutput("Vision/Camera Poses on Robot", arr);
   }
 
   /**
@@ -590,19 +602,34 @@ public class SwerveSubsystem extends SubsystemBase {
                         AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
   }
 
+  // public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(
+  //       () -> {
+  //         Translation2d robotHubVec =
+  //             FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+  //         // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
+  //         // Logger.recordOutput("robot hub vec", robotHubVec);
+  //         // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+  //         return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+  //             .plus(Rotation2d.kCW_90deg);
+  //       },
+  //       xVel,
+  //       yVel);
+  // }
+
+  // public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
+  // xVel, yVel);
+  // }
   public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
-        () -> {
-          Translation2d robotHubVec =
-              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
-          // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
-          // Logger.recordOutput("robot hub vec", robotHubVec);
-          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
-          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-              .plus(Rotation2d.kCW_90deg);
-        },
-        xVel,
-        yVel);
+        () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
+  }
+
+  public boolean isFacingHub() {
+    Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   }
 
   public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
@@ -654,6 +681,12 @@ public class SwerveSubsystem extends SubsystemBase {
     return estimator.getEstimatedPosition();
   }
 
+  @AutoLogOutput(key = "Autoaim/Distance To Hub")
+  public static double distanceToHub(Pose2d pose) {
+    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    return distance;
+  }
+
   public Pose3d getPose3d() {
     return new Pose3d(getPose());
   }
@@ -684,6 +717,10 @@ public class SwerveSubsystem extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Velocity Field Relative")
   public ChassisSpeeds getVelocityFieldRelative() {
     return ChassisSpeeds.fromRobotRelativeSpeeds(getVelocityRobotRelative(), getRotation());
+  }
+
+  public ChassisAccelerations getChassisAccelerations() {
+    return new ChassisAccelerations(getVelocityFieldRelative(), prevFieldRelVelocities, 0.020);
   }
 
   public boolean isNotMoving() {

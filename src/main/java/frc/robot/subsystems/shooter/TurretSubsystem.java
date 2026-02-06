@@ -57,6 +57,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Hood", hoodInputs);
 
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
+    // This method will be called once per scheduler run
   }
 
   @Override
@@ -129,14 +130,18 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  @Override
-  public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
+  public Command shoot(Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
-          ShotData shotData =
-              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
-          hoodIO.setHoodPosition(shotData.hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(
+              shotDataSupplier.get().flywheelVelocityRotPerSec());
         });
+  }
+
+  @Override
+  public Rotation2d getHoodSetpoint() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
   }
 }

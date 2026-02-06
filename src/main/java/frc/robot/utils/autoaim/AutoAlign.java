@@ -11,10 +11,10 @@ import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoAlign {
-  static final double MAX_ANGULAR_SPEED = 10.0;
-  static final double MAX_ANGULAR_ACCELERATION = 10.0;
-  static final double MAX_TRANSLATIONAL_SPEED = 3.0;
-  static final double MAX_TRANSLATIONAL_ACCELERATION = 4.0;
+  static final double MAX_ANGULAR_SPEED = 15.614;
+  static final double MAX_ANGULAR_ACCELERATION = 47.613;
+  static final double MAX_TRANSLATIONAL_SPEED = 5.678;
+  static final double MAX_TRANSLATIONAL_ACCELERATION = 14.715;
   public static final Constraints DEFAULT_TRANSLATIONAL_CONSTRAINTS =
       new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION);
   public static final Constraints DEFAULT_ANGULAR_CONSTRAINTS =
@@ -29,20 +29,11 @@ public class AutoAlign {
 
   // Velocity controllers
   static final ProfiledPIDController VX_CONTROLLER =
-      new ProfiledPIDController(
-          10.0,
-          0.01,
-          0.02,
-          new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION));
+      new ProfiledPIDController(10.0, 0.01, 0.02, DEFAULT_TRANSLATIONAL_CONSTRAINTS);
   static final ProfiledPIDController VY_CONTROLLER =
-      new ProfiledPIDController(
-          10.0,
-          0.01,
-          0.02,
-          new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION));
+      new ProfiledPIDController(10.0, 0.01, 0.02, DEFAULT_TRANSLATIONAL_CONSTRAINTS);
   static final ProfiledPIDController HEADING_CONTROLLER =
-      new ProfiledPIDController(
-          6.0, 0.0, 0.0, new Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION));
+      new ProfiledPIDController(5.0, 0.0, 0.0, DEFAULT_ANGULAR_CONSTRAINTS);
 
   static {
     HEADING_CONTROLLER.enableContinuousInput(-Math.PI, Math.PI);

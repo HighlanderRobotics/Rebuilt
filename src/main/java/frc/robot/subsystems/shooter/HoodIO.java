@@ -47,6 +47,7 @@ public class HoodIO {
   private final StatusSignal<Current> hoodStatorCurrent;
   private final StatusSignal<Current> hoodSupplyCurrent;
   private final StatusSignal<Temperature> hoodTemp;
+
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
@@ -77,10 +78,6 @@ public class HoodIO {
 
   public static TalonFXConfiguration getAlphaHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
