@@ -14,7 +14,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -34,7 +33,7 @@ import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
 /** Add your docs here. */
 public class R1CompBotSwerveConstants extends SwerveConstants {
 
-@Override
+  @Override
   public CameraConstants[] getCameraConstants() {
     // TODO all these numbers need to be redone :thumbsup:
     final Matrix<N3, N3> BACK_LEFT_CAMERA_MATRIX =

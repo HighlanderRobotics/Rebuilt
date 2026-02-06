@@ -25,12 +25,13 @@ public class Superstructure {
   public enum SuperState {
     IDLE,
     INTAKE,
-    READY,
     SPIN_UP_FEED,
     FEED,
+    SPIN_UP_FEED_FLOW,
     FEED_FLOW,
     SPIN_UP_SCORE,
     SCORE,
+    SPIN_UP_SCORE_FLOW,
     SCORE_FLOW,
     SPIT;
     public final Trigger trigger;
@@ -42,6 +43,11 @@ public class Superstructure {
     public Trigger getTrigger() {
       return trigger;
     }
+  }
+
+  public enum ShotTarget {
+    SCORE,
+    FEED
   }
 
   @AutoLogOutput(key = "Superstructure/State")
@@ -65,14 +71,14 @@ public class Superstructure {
   private final CommandXboxControllerSubsystem operator;
 
   // Declare triggers
-  @AutoLogOutput(key = "Superstructure/Score Request")
-  private Trigger scoreReq;
+  @AutoLogOutput(key = "Superstructure/Shoot Request")
+  private Trigger shootReq;
 
   @AutoLogOutput(key = "Superstructure/Intake Request")
   private Trigger intakeReq;
 
-  @AutoLogOutput(key = "Superstructure/Feed Request")
-  private Trigger feedReq;
+  // @AutoLogOutput(key = "Superstructure/Feed Request")
+  // private Trigger feedReq;
 
   // @AutoLogOutput(key = "Superstructure/Flowstate Request")
   // private Trigger flowReq;
@@ -80,10 +86,11 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Anti Jam Req")
   private Trigger antiJamReq;
 
-  @AutoLogOutput(key = "Superstructure/Is Empty")
-  private Trigger isEmpty;
+  @AutoLogOutput(key = "Superstructure/Shot Target")
+  private ShotTarget shotTarget = ShotTarget.SCORE;
 
-  private boolean shouldFeed = false;
+  @AutoLogOutput(key = "Superstructure/Flow State?")
+  private boolean flowState = false;
 
   // @AutoLogOutput(key = "Superstructure/At Extension?")
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
@@ -112,44 +119,43 @@ public class Superstructure {
 
   private void addTriggers() {
     // Toggles for feeding
-    operator.leftBumper().onTrue(Commands.runOnce(() -> shouldFeed = true));
-    operator.rightBumper().onTrue(Commands.runOnce(() -> shouldFeed = false));
+    operator.x().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.SCORE));
+    operator.y().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.FEED));
 
-    scoreReq =
+    // toggle for flow state
+    operator.a().onTrue(Commands.runOnce(() -> flowState = true));
+    operator.b().onTrue(Commands.runOnce(() -> flowState = false));
+
+    shootReq =
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
             .and(() -> canScore())
-            .or(Autos.autoScoreReq); // Maybe should include if its our turn?
+            .or(Autos.autoScoreReq); // Maybe should include if its our turn? //TODO fix auto
+    // bindings
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
+    // feedReq = driver.rightBumper().and(DriverStation::isTeleop).or(Autos.autoFeedReq);
 
     // flowReq = driver.leftTrigger().and(driver.rightTrigger());
 
     antiJamReq = driver.a().or(operator.a());
-
-    isEmpty = new Trigger(indexer::isEmpty);
   }
 
   private void addTransitions() {
-    bindTransition(SuperState.IDLE, SuperState.INTAKE, intakeReq.and(scoreReq.negate()));
+    bindTransition(SuperState.IDLE, SuperState.INTAKE, intakeReq.and(shootReq.negate()));
 
-    bindTransition(SuperState.INTAKE, SuperState.IDLE, intakeReq.negate().and(isEmpty));
+    bindTransition(SuperState.INTAKE, SuperState.IDLE, intakeReq.negate());
+
+    // the comp bot has no way of knowing if it's idle or ready
+    // which makes me nervous but it's probably fine
+    // anyway that's why we don't have a ready state anymore
 
     bindTransition(
-        SuperState.INTAKE,
-        SuperState.READY,
-        (intakeReq.negate().and(scoreReq.negate()).and(isEmpty.negate())));
-    // .or(isFull));
-
-    // bindTransition(SuperState.INTAKE, SuperState.SPIN_UP_FEED, feedReq);
-
-    bindTransition(SuperState.READY, SuperState.INTAKE, intakeReq);
-    // .and(isFull.negate()));
-
-    bindTransition(SuperState.READY, SuperState.SPIN_UP_SCORE, scoreReq);
+        SuperState.IDLE,
+        SuperState.SPIN_UP_SCORE,
+        shootReq.and(() -> shotTarget == ShotTarget.SCORE).and(() -> !flowState));
 
     bindTransition(
         SuperState.SPIN_UP_SCORE,
@@ -168,7 +174,7 @@ public class Superstructure {
 
     // bindTransition(SuperState.FEED, SuperState.IDLE, isEmpty);
 
-    bindTransition(SuperState.SCORE, SuperState.IDLE, isEmpty.debounce(0.5).and(scoreReq.negate()));
+    bindTransition(SuperState.SCORE, SuperState.IDLE, shootReq.negate());
 
     // FEED_FLOW transitions
     // {
@@ -185,20 +191,20 @@ public class Superstructure {
 
     // SCORE_FLOW transitions
     {
-      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, scoreReq.and(intakeReq));
+      bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, shootReq.and(intakeReq));
 
-      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, intakeReq.negate().and(scoreReq));
+      bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, intakeReq.negate().and(shootReq));
 
       bindTransition(
           SuperState.SCORE_FLOW,
           SuperState.READY,
-          intakeReq.negate().and(scoreReq.negate()).and(isEmpty.negate()));
+          intakeReq.negate().and(shootReq.negate()).and(isEmpty.negate()));
 
       // No so sure about the end condition here.
       bindTransition(
           SuperState.SCORE_FLOW,
           SuperState.IDLE,
-          intakeReq.negate().and(scoreReq.negate()).and(isEmpty));
+          intakeReq.negate().and(shootReq.negate()).and(isEmpty));
     }
 
     // Transition from any state to SPIT for anti jamming
