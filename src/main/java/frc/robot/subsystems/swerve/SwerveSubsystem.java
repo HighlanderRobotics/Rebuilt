@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.Robot.ClimbTarget;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
 import frc.robot.components.camera.Camera;
@@ -50,6 +51,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.autoaim.AutoAlign;
 import java.util.Arrays;
 import java.util.List;
@@ -575,6 +577,11 @@ public class SwerveSubsystem extends SubsystemBase {
     return translateToPose(intermediate)
         .until(() -> isInAutoAimTolerance(intermediate.get()))
         .andThen(translateToPose(target));
+  }
+
+  public Command alignToClimb(Supplier<ClimbTargets> target) {
+    // TODO: Might need tolerance
+    return translateToPose(() -> target.get().getPose());
   }
 
   private Command driveWithHeadingSnap(
