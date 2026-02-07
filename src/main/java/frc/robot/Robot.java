@@ -8,6 +8,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -48,6 +49,8 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -532,6 +535,13 @@ public class Robot extends LoggedRobot {
     // TODO Log mechanism poses
 
     updateAlerts();
+
+    // Log climb poses
+    Logger.recordOutput(
+        "AutoAlign/Climb Targets",
+        Arrays.stream(FieldUtils.ClimbTargets.values())
+            .map(target -> target.getPose())
+            .toArray(Pose2d[]::new));
   }
 
   public void updateAlerts() {

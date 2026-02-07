@@ -58,10 +58,9 @@ public class FieldUtils {
     // Grabbed in Choreo. Needs real testing
     // 3.05 is climber offset
     BLUE_RIGHT(new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg)),
-    BLUE_LEFT(new Pose2d(1.189 - Units.inchesToMeters(3.05) ,2.845, Rotation2d.kCW_90deg)),
+    BLUE_LEFT(new Pose2d(1.189 + Units.inchesToMeters(3.05), 2.845, Rotation2d.kCW_90deg)),
     RED_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_RIGHT.getPose())),
-    RED_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_LEFT.getPose()))
-    ;
+    RED_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_LEFT.getPose()));
 
     private Pose2d targetPose;
 
