@@ -47,9 +47,14 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/State")
   private static SuperState state = SuperState.IDLE;
 
+  @AutoLogOutput(key = "Superstructure/Shift Timer")
+  private double timeLeftInShift = getTimeLeftInShift(getCurrentShift());
+
+  @AutoLogOutput(key = "Superstructure/Current Shift")
+  private int currentShift = getCurrentShift();
+
   @AutoLogOutput(key = "Scoring/Scoring Active")
-  public boolean isScoringActive =
-      isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
+  public boolean isScoringActive = isOurShift(); 
 
   // its litterly possible
 
@@ -84,6 +89,8 @@ public class Superstructure {
   private Trigger isEmpty;
 
   private boolean shouldFeed = false;
+
+  private double timeLeftinMatch = Timer.getMatchTime();
 
   // @AutoLogOutput(key = "Superstructure/At Extension?")
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
@@ -365,19 +372,38 @@ public class Superstructure {
   }
 
   private int getCurrentShift() {
-    double timeLeftinMatch = Timer.getMatchTime();
     // may be a nicer way to do this
-    if (105.00 <= timeLeftinMatch && timeLeftinMatch <= 130.00) {
+    if (210.00 < timeLeftinMatch && timeLeftinMatch <= 220.00) {
+      return 0; // transition shift
+      // My numbers were wrong for some reason not sure
+    } else if (145.00 < timeLeftinMatch && timeLeftinMatch <= 210.00) {
       return 1;
-    } else if (80.00 <= timeLeftinMatch && timeLeftinMatch <= 105.00) {
+    } else if (120.00 < timeLeftinMatch && timeLeftinMatch <= 145.00) {
       return 2;
-    } else if ((55.00 <= timeLeftinMatch && timeLeftinMatch <= 80.00)) {
+    } else if ((55.00 < timeLeftinMatch && timeLeftinMatch <= 120.00)) {
       return 3;
-    } else if ((30.00 <= timeLeftinMatch && timeLeftinMatch <= 55.00)) {
+    } else if ((30.00 < timeLeftinMatch && timeLeftinMatch <= 55.00)) {
       return 4;
     } else {
-      return 0;
+      return 5; // endgame or whatever
     }
+  }
+
+  private double getTimeLeftInShift(int currentShift) {
+    if (currentShift == 0) {
+      timeLeftInShift = timeLeftinMatch - 210.00;
+    } else if (currentShift == 1) {
+      timeLeftInShift = timeLeftinMatch - 145.00;
+    } else if (currentShift == 2) {
+      timeLeftInShift = timeLeftinMatch - 120.00;
+    } else if (currentShift == 3) {
+      timeLeftInShift = timeLeftinMatch - 55.00;
+    } else if (currentShift == 4) {
+      timeLeftInShift = timeLeftinMatch - 30.00;
+    } else {
+      timeLeftInShift = timeLeftinMatch;
+    }
+    return timeLeftInShift;
   }
 
   public boolean isOurShift() {
