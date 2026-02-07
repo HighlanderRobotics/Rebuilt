@@ -30,7 +30,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
 
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(40);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(2);
-  public static double CURRENT_ZERO_THRESHOLD = 30.0; // TODO tune
+  public static double CURRENT_ZERO_THRESHOLD = 30.0;
 
   public static double FLYWHEEL_GEAR_RATIO = 28.0 / 24.0;
 
@@ -86,7 +86,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  public Command shoot(Supplier<ShotData> shotDataSupplier) {
+  public Command score(Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
           hoodSetpoint = shotDataSupplier.get().hoodAngle();
@@ -115,7 +115,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public Command rest() {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
+          hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
           flywheelIO.setFlywheelVoltage(0.0);
           // flywheelIO.setMotionProfiledFlywheelVelocity(30);
         });
@@ -172,4 +172,11 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public Rotation2d getHoodSetpoint() {
     return hoodSetpoint;
   }
+
+  // Only for comp turret
+  @Override
+  public boolean isFacingTarget() {
+    return false;
+  }
+  ;
 }

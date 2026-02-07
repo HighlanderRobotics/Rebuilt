@@ -276,7 +276,8 @@ public class Robot extends LoggedRobot {
                                 DCMotor.getKrakenX44Foc(1), 0.001, FintakeSubsystem.GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
-                        canivore));
+                        canivore),
+                canivore);
         // note that the climber is not instantiated here
         break;
       case COMP:
@@ -425,7 +426,7 @@ public class Robot extends LoggedRobot {
     //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
     //             * -1));
 
-    addControllerBindings(indexer, shooter);
+    addControllerBindings(indexer, shooter, intake);
 
     // Auto things
     autos = new Autos(swerve);
@@ -486,7 +487,7 @@ public class Robot extends LoggedRobot {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.02);
   }
 
-  private void addControllerBindings(Indexer indexer, Shooter shooter) {
+  private void addControllerBindings(Indexer indexer, Shooter shooter, Intake intake) {
     // heading reset
     driver
         .leftStick()
@@ -502,31 +503,34 @@ public class Robot extends LoggedRobot {
                             : Rotation2d.k180deg)));
 
     // autoaim (alpha)
-    autoAimReq.whileTrue(
-        // swerve.faceHubSOTM(
-        //     () ->
-        //         modifyJoystick(driver.getLeftY())
-        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-        //     () ->
-        //         modifyJoystick(driver.getLeftX())
-        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-        swerve.faceHub(
-            () ->
-                -1
-                    * modifyJoystick(driver.getLeftY())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-            () ->
-                -1
-                    * modifyJoystick(driver.getLeftX())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+    autoAimReq
+        .and(() -> ROBOT_EDITION == RobotEdition.ALPHA)
+        .whileTrue(
+            // swerve.faceHubSOTM(
+            //     () ->
+            //         modifyJoystick(driver.getLeftY())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+            //     () ->
+            //         modifyJoystick(driver.getLeftX())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+            swerve.faceHub(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
+    // TODO: autoaim (comp)
+    // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
     // TODO add binding for climb
 
     // current zero shooter hood
     driver.b().whileTrue(shooter.runCurrentZeroing());
 
-    new Trigger(() -> indexer.firstBeambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.1));
-
-    // new Trigger(() -> indexer.isFull()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
     // ---zeroing stuff---
 

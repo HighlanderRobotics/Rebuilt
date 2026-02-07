@@ -130,7 +130,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  public Command shoot(Supplier<ShotData> shotDataSupplier) {
+  public Command score(Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
@@ -144,4 +144,33 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
   }
+
+  @Override
+  public boolean isFacingTarget() {
+    return false; // TODO turret facing hub
+  }
+  // public boolean isFacingTarget() {
+  //   switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
+  //     case SCORE:
+  //       return isFacingHub();
+  //     case FEED:
+  //       return isFacingFeedTarget();
+  //     default:
+  //       return false;
+  //   }
+  // }
+
+  // public boolean isFacingHub() {
+  //   Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+  //   return MathUtil.isNear(
+  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  // }
+
+  // public boolean isFacingFeedTarget() {
+  //   Translation2d feedTarget =
+  //       FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
+  //   Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
+  //   return MathUtil.isNear(
+  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  // }
 }
