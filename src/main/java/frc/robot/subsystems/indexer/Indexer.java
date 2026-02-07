@@ -5,7 +5,6 @@
 package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.function.BooleanSupplier;
 
 /** Add your docs here. */
 public interface Indexer {
@@ -21,7 +20,6 @@ public interface Indexer {
   public Command spit();
 
   /** Run both indexer and kicker towards the shooter */
-  // public Command kick();
   public Command kick();
 
   /** Not running (set to 0) */
