@@ -24,4 +24,6 @@ public interface Indexer {
 
   /** Not running (set to 0) */
   public Command rest();
+
+  public boolean firstBeambreak();
 }
