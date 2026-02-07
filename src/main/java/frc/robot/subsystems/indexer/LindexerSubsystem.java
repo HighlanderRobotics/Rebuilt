@@ -11,11 +11,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
+import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
+import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
-import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
-import frc.robot.components.canrange.CANrangeIOReal;
 
 /** Lindexer = Linear Indexer. !! ALPHA !! */
 public class LindexerSubsystem extends SubsystemBase implements Indexer {
@@ -156,6 +156,4 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
   }
-
-
 }

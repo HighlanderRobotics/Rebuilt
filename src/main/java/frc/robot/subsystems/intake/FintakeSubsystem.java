@@ -11,12 +11,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
+import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
+import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
-
-import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
-import frc.robot.components.canrange.CANrangeIOReal;
 
 /** Fintake = Fixed Intake. !! ALPHA !! */
 public class FintakeSubsystem extends SubsystemBase implements Intake {
@@ -24,9 +23,9 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
 
   private RollerIO io;
   private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
-  
+
   CANrangeIOInputsAutoLogged canrangeInputs = new CANrangeIOInputsAutoLogged();
-  
+
   private CANrangeIOReal canrangeIO;
 
   private SysIdRoutine intakeRollerSysid =
@@ -40,7 +39,7 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
 
   public FintakeSubsystem(RollerIO io, CANBus canbus) {
     this.io = io;
-    
+
     canrangeIO = new CANrangeIOReal(0, canbus, 10);
   }
 
@@ -48,7 +47,7 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
-    
+
     canrangeIO.updateInputs(canrangeInputs);
     Logger.processInputs("Indexer/First Beambreak", canrangeInputs);
   }
@@ -94,7 +93,8 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
 
     return config;
   }
-    /** for controller rumble */
+
+  /** for controller rumble */
   public boolean beambreak() {
     return canrangeInputs.isDetected;
   }

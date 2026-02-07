@@ -276,7 +276,8 @@ public class Robot extends LoggedRobot {
                                 DCMotor.getKrakenX44Foc(1), 0.001, FintakeSubsystem.GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
-                        canivore), canivore);
+                        canivore),
+                canivore);
         // note that the climber is not instantiated here
         break;
       case COMP:
@@ -502,23 +503,25 @@ public class Robot extends LoggedRobot {
                             : Rotation2d.k180deg)));
 
     // autoaim (alpha)
-    autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.ALPHA).whileTrue(
-        // swerve.faceHubSOTM(
-        //     () ->
-        //         modifyJoystick(driver.getLeftY())
-        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-        //     () ->
-        //         modifyJoystick(driver.getLeftX())
-        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-        swerve.faceHub(
-            () ->
-                -1
-                    * modifyJoystick(driver.getLeftY())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-            () ->
-                -1
-                    * modifyJoystick(driver.getLeftX())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+    autoAimReq
+        .and(() -> ROBOT_EDITION == RobotEdition.ALPHA)
+        .whileTrue(
+            // swerve.faceHubSOTM(
+            //     () ->
+            //         modifyJoystick(driver.getLeftY())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+            //     () ->
+            //         modifyJoystick(driver.getLeftX())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+            swerve.faceHub(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
     // TODO: autoaim (comp)
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
