@@ -51,7 +51,6 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -79,7 +78,8 @@ public class Robot extends LoggedRobot {
     COMP
   }
 
-  @AutoLogOutput(key = "Robot/Climb Target") private boolean leftClimbTarget = true;
+  @AutoLogOutput(key = "Robot/Climb Target")
+  private boolean leftClimbTarget = true;
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
@@ -504,24 +504,24 @@ public class Robot extends LoggedRobot {
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
     // TODO add binding for climb
 
-    operator
-      .leftBumper()
-      .onTrue(Commands.runOnce(() -> leftClimbTarget = true));
-    operator
-      .rightBumper()
-      .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
+    operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
+    operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
 
     // TODO: ACTUAL BINDING LOL
     driver
-      .x()
-      .whileTrue(swerve.alignToClimb(() ->
-        ClimbTargets.CLIMB_TARGETS_LIST
-          .stream()
-          .filter(target -> target.getLeftHanded() && leftClimbTarget)
-          .filter(target -> target.isBlueAlliance() && (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue))
-          .findFirst()
-          .get()
-      ));
+        .x()
+        .whileTrue(
+            swerve.alignToClimb(
+                () ->
+                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
+                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
+                        .filter(
+                            target ->
+                                target.isBlueAlliance()
+                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
+                                        == Alliance.Blue))
+                        .findFirst()
+                        .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts

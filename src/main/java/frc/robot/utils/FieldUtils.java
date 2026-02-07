@@ -4,9 +4,6 @@
 
 package frc.robot.utils;
 
-import java.util.Arrays;
-import java.util.List;
-
 import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,6 +11,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.Arrays;
+import java.util.List;
 
 /** Add your docs here. */
 public class FieldUtils {
@@ -61,8 +60,10 @@ public class FieldUtils {
     // Grabbed in Choreo. Needs real testing
     // 3.05 is climber offset
     // TODO: VERIFY POSES
-    BLUE_RIGHT(new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg), false, true),
-    BLUE_LEFT(new Pose2d(1.189 + Units.inchesToMeters(3.05), 2.845, Rotation2d.kCW_90deg), true, true),
+    BLUE_RIGHT(
+        new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg), false, true),
+    BLUE_LEFT(
+        new Pose2d(1.189 + Units.inchesToMeters(3.05), 2.845, Rotation2d.kCW_90deg), true, true),
     RED_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_RIGHT.getPose()), false, false),
     RED_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_LEFT.getPose()), true, false);
 
@@ -88,6 +89,7 @@ public class FieldUtils {
       return isBlueAlliance;
     }
 
-    public static final List<ClimbTargets> CLIMB_TARGETS_LIST = Arrays.stream(ClimbTargets.values()).toList();
+    public static final List<ClimbTargets> CLIMB_TARGETS_LIST =
+        Arrays.stream(ClimbTargets.values()).toList();
   }
 }
