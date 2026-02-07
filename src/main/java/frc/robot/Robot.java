@@ -502,7 +502,7 @@ public class Robot extends LoggedRobot {
                             : Rotation2d.k180deg)));
 
     // autoaim (alpha)
-    autoAimReq.whileTrue(
+    autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.ALPHA).whileTrue(
         // swerve.faceHubSOTM(
         //     () ->
         //         modifyJoystick(driver.getLeftY())
@@ -519,6 +519,9 @@ public class Robot extends LoggedRobot {
                 -1
                     * modifyJoystick(driver.getLeftX())
                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
+    // TODO: autoaim (comp)
+    // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
     // TODO add binding for climb
 
     // current zero shooter hood
