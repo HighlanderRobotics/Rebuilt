@@ -11,22 +11,20 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
-import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
-import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
+import frc.robot.components.canrange.CANrangeIOReal;
 
 /** Lindexer = Linear Indexer. !! ALPHA !! */
 public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
-  private CANrangeIOReal firstCANRangeIO;
   private CANrangeIOReal secondCANRangeIO;
 
   private RollerIO indexRollerIO;
 
-  CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
   CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
@@ -49,7 +47,6 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   public LindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    firstCANRangeIO = new CANrangeIOReal(0, canbus, 10);
     secondCANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
@@ -144,8 +141,6 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   @Override
   public void periodic() {
-    firstCANRangeIO.updateInputs(firstCANRangeInputs);
-    Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
     secondCANRangeIO.updateInputs(secondCANRangeInputs);
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     indexRollerIO.updateInputs(rollerInputs);
@@ -162,8 +157,5 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.dynamic(Direction.kReverse));
   }
 
-  /** for controller rumble */
-  public boolean firstBeambreak() {
-    return firstCANRangeInputs.isDetected;
-  }
+
 }

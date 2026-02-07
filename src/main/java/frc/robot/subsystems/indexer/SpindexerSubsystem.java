@@ -22,11 +22,8 @@ import org.littletonrobotics.junction.Logger;
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
-  private CANrangeIOReal CANRangeIO; // TODO remove :/
 
   private RollerIO indexRollerIO;
-
-  CANrangeIOInputsAutoLogged CANRangeInputs = new CANrangeIOInputsAutoLogged();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
@@ -48,7 +45,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    CANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
   }
 
@@ -146,8 +142,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   @Override
   public void periodic() {
-    CANRangeIO.updateInputs(CANRangeInputs);
-    Logger.processInputs("Indexer/First Beambreak", CANRangeInputs);
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);
@@ -160,11 +154,5 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.quasistatic(Direction.kReverse),
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
-  }
-
-  @Override
-  public boolean firstBeambreak() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'firstBeambreak'");
   }
 }

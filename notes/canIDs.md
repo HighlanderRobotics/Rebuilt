@@ -38,7 +38,7 @@ Back Left Steer (X44) | 5
 Back Right Drive (X60) | 6
 Back Right Steer (X44) | 7
 Lintake Rollers (X44) | 8
-Spindexer Rollers (X44) | 9
+Spindexer Agitator (X44) | 9
 Kicker Rollers (X44) | 10
 Shooter Hood (X44) | 11
 Shooter Flywheel Leader (X60) | 12
