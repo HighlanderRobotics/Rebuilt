@@ -8,6 +8,7 @@ import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -50,6 +51,26 @@ public class FieldUtils {
 
     public Translation2d getTranslation() {
       return targetPose.getTranslation();
+    }
+  }
+
+  public enum ClimbTargets {
+    // Grabbed in Choreo. Needs real testing
+    // 3.05 is climber offset
+    BLUE_RIGHT(new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg)),
+    BLUE_LEFT(new Pose2d(1.189 - Units.inchesToMeters(3.05) ,2.845, Rotation2d.kCW_90deg)),
+    RED_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_RIGHT.getPose())),
+    RED_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_LEFT.getPose()))
+    ;
+
+    private Pose2d targetPose;
+
+    private ClimbTargets(Pose2d pose) {
+      this.targetPose = pose;
+    }
+
+    public Pose2d getPose() {
+      return targetPose;
     }
   }
 }
