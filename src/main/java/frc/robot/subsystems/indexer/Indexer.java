@@ -16,7 +16,6 @@ public interface Indexer {
   public Command spit();
 
   /** Run both indexer and kicker towards the shooter */
-  // public Command kick();
   public Command kick();
 
   /** Not running (set to 0) */
