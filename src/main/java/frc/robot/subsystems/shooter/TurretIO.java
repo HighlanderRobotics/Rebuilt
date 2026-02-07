@@ -23,16 +23,20 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public class TurretIO {
   public static double TURRET_GEAR_RATIO = (42.0 / 12.0) * (32.0 / 16.0) * (85.0 / 10.0);
-  public static double CANCODER_SHARED_GEAR_TO_TURRET_GEAR_RATIO = 85.0 / 10.0;
-  // dont think ts is right
-  // public static double CANCODER_ONE_GEAR_RATIO = (42.0/12)*(24/16);
-  //  public static double CANCODER_TWO_GEAR_RATIO = (42.0/12)*(26/16);
+  // shared gear rotations per motor turn
+  public static double MOTOR_TO_SHARED_GEAR_GEAR_RATIO = (12 / 42) * (16 / 32);
+  // turret rotations per shared gear rotations:
+  public static double CANCODER_SHARED_GEAR_TO_TURRET_GEAR_RATIO = 10.0 / 85.0;
 
   // shared gear roations per encoder rotations
   public static double CANCODER_ONE_GEAR_RATIO = 24.0 / 32.0;
   public static double CANCODER_TWO_GEAR_RATIO = 26.0 / 32.0;
 
-  //todo ID?
+  // idk
+  public static double TURRET_MIN_ROTATIONS = 0.0;
+  public static double TURRET_MAX_ROTATIONS = 0.8;
+
+  // todo ID?
   protected final TalonFX motor = new TalonFX(40, "*");
   private final CANcoderIO cancoderOne;
   private final CANcoderIO cancoderTwo;
@@ -126,34 +130,38 @@ public class TurretIO {
   // todo
   public void resetTurretPosition(Rotation2d turretRotation) {
     // uhh is this right
-    motor.setPosition(turretRotation.getRotations());
+    // clamp between max and min bc it can only go so much
+    motor.setPosition(
+        Math.min(
+            Math.max(turretRotation.getRotations(), TURRET_MIN_ROTATIONS), TURRET_MAX_ROTATIONS));
   }
 
+  //feels dangerously simple
   public Rotation2d getAbsoluteTurretPosition() {
-    // does this account for the gearing before the cancoders ig it wouldnt rlly matter nvm
     Rotation2d cancoder1 = cancoderOneInputs.cancoderPositionRotations;
     Rotation2d cancoder2 = cancoderTwoInputs.cancoderPositionRotations;
 
-    Rotation2d sharedGearFromCan1 = cancoder1.times(CANCODER_ONE_GEAR_RATIO);
-    Rotation2d sharedGearFromCan2 = cancoder2.times(CANCODER_TWO_GEAR_RATIO);
-
     // find difference and wrap to -0.5 and 0.5
-    //bc diff wont exceed 1 and we want it to show like which way it is...
-    //this is the part im less sure about
+    // this is bc diff wont exceed 1 and we want it to show like which direction it is
     double diffRotations =
-        MathUtil.inputModulus(
-            sharedGearFromCan2.getRotations() - sharedGearFromCan1.getRotations(), -0.5, 0.5);
+        MathUtil.inputModulus(cancoder1.getRotations() - cancoder2.getRotations(), -0.5, 0.5);
 
-    // 32/(26-24) = 16 so gearing difference repeats every 16
+    // round bc we only want the full rotations i think
+    // actually im not sure the rounding is nessicary i think we can just find it directly but i
+    // could be wrong
+    // double fullRotations = round(diffRotations * 32 / (26 - 24));
+
+    // 32/(26-24) gearing difference repeats every 16
     // so a full rotation of the shared gear is the difference times 16
-    // because after one rotation the difference is like 2t, then 4t etc
-    // round bc only want the full rotations
-    double fullRotations = Math.round(diffRotations * 32 / (26 - 24));
+    // get shared gear rotations:
 
-    // total roations by adding full rotations to the position you are on that rotation
-    double absoluteRotations = fullRotations + sharedGearFromCan1.getRotations();
+    //don't ask me how i got this number 
+    double absoluteRotations = diffRotations * (24*26)/(32*2);
 
-    // get turret by using absolute roations times the cancoder shared gear
+    // total rotations by adding full rotations to the position you are on that rotation
+    // double absoluteRotations = fullRotations + sharedGearFromCan1.getRotations();
+
+    // get turret by using absolute rotations times the cancoder shared gear
     double turretRotations = absoluteRotations * CANCODER_SHARED_GEAR_TO_TURRET_GEAR_RATIO;
 
     return Rotation2d.fromRotations(turretRotations);
