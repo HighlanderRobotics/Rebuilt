@@ -8,7 +8,12 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -49,6 +54,7 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.LoggedTunableNumber;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -558,6 +564,9 @@ public class Robot extends LoggedRobot {
   // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
   // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
+  private LoggedTunableNumber turretAngle = new LoggedTunableNumber("Turret Angle Rads", 0);
+  private LoggedTunableNumber hoodAngle = new LoggedTunableNumber("Hood angle rads", 0);
+
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
@@ -565,6 +574,35 @@ public class Robot extends LoggedRobot {
     superstructure.periodic();
 
     // TODO Log mechanism poses
+    Pose3d turretPose =
+        new Pose3d(
+            new Translation3d(-0.177413, -0.111702, 0.350341),
+            new Rotation3d(0, 0, turretAngle.getAsDouble()));
+    Logger.recordOutput(
+        "Hood pivot point",
+        new Pose3d(new Translation3d(-0.095638, 0, 0.095123), new Rotation3d()));
+    Logger.recordOutput(
+        "Robot/Mechanism Poses",
+        new Pose3d[] {
+          // Turret
+          turretPose,
+          // Hood
+          new Pose3d(turretPose.getTranslation(), Rotation3d.kZero)
+              .rotateAround(
+                  turretPose.getTranslation().plus(new Translation3d(-0.095638, 0, 0.095123)),
+                  new Rotation3d(0, hoodAngle.getAsDouble(), 0))
+              .transformBy(new Transform3d(Translation3d.kZero, turretPose.getRotation()))
+        });
+    Logger.recordOutput(
+        "Robot/Zeroed Mechanism Poses",
+        new Pose3d[] {
+          // Turret
+          new Pose3d(),
+          // Hood
+          new Pose3d()
+        });
+
+    Logger.recordOutput("Robot/Zero Position", new Pose2d());
 
     updateAlerts();
   }

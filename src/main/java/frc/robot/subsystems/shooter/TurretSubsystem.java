@@ -173,4 +173,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   //   return MathUtil.isNear(
   //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   // }
+
+  // @Override
+  // public double getHoodAngleRads() {
+  //   return hoodInputs.hoodPositionRotations;
+  // }
+
+  // @Override
+  // public double getTurretAngleRads() {
+  //   return 0;
+  // }
 }
