@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Superstructure.FeedTarget;
 
 /** Add your docs here. */
 public class FieldUtils {
@@ -50,6 +51,18 @@ public class FieldUtils {
 
     public Translation2d getTranslation() {
       return targetPose.getTranslation();
+    }
+
+    public static FeedTargets getFeedTarget(FeedTarget target) {
+      if (target == FeedTarget.LEFT) {
+        return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+            ? BLUE_BACK_LEFT
+            : RED_BACK_LEFT;
+      } else {
+        return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+            ? BLUE_BACK_RIGHT
+            : RED_BACK_RIGHT;
+      }
     }
   }
 }

@@ -1,17 +1,42 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.climber;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase {
-  /** Creates a new ClimberSubsystem. */
-  public ClimberSubsystem() {}
+  // todo: find actual constants
+  public static double GEAR_RATIO = (45.0 / 1.0);
+  public static double MAX_EXTENSION_METERS = 0.2413;
+  public static double MAX_ACCELERATION = 10.0;
+  public static double MAX_VELOCITY = 2.0;
+
+  ClimberIO climberIO;
+  ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    climberIO.updateInputs(climberInputs);
+    Logger.processInputs("Climber", climberInputs);
+  }
+
+  // member variables here?
+
+  public ClimberSubsystem(ClimberIO climberIO) {
+    this.climberIO = climberIO;
+  }
+
+  public Command extendClimber() {
+    return this.run(
+        () -> {
+          climberIO.setClimberPosition(MAX_EXTENSION_METERS);
+        });
+  }
+
+  public Command retractClimber() {
+    return this.run(
+        () -> {
+          climberIO.setClimberPosition(0.0);
+        });
   }
 }

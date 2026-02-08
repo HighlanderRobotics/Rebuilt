@@ -136,4 +136,10 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
     return config;
   }
+
+  @Override
+  public boolean beambreak() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'beambreak'");
+  }
 }

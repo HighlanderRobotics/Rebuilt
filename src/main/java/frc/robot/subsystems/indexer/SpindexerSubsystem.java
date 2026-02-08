@@ -11,21 +11,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
-import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
-import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 /** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
-  private CANrangeIOReal CANRangeIO;
 
   private RollerIO indexRollerIO;
-
-  CANrangeIOInputsAutoLogged CANRangeInputs = new CANrangeIOInputsAutoLogged();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
@@ -47,18 +43,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    CANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return !CANRangeInputs.isDetected;
-  }
-
-  @Override
-  public boolean isNotEmpty() {
-    return CANRangeInputs.isDetected;
   }
 
   @Override
@@ -148,10 +133,13 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return config;
   }
 
+  public Command kick(BooleanSupplier shooterAtSetpoint) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'kick'");
+  }
+
   @Override
   public void periodic() {
-    CANRangeIO.updateInputs(CANRangeInputs);
-    Logger.processInputs("Indexer/First Beambreak", CANRangeInputs);
     indexRollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Indexer/Roller", rollerInputs);
     kickerIO.updateInputs(kickerInputs);

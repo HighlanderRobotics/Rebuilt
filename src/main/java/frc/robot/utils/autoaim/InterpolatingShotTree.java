@@ -1,11 +1,14 @@
 package frc.robot.utils.autoaim;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import java.util.TreeMap;
 
 public class InterpolatingShotTree {
-  public record ShotData(Rotation2d hoodAngle, double flywheelVelocityRotPerSec) {}
+  public record ShotData(
+      Rotation2d hoodAngle, double flywheelVelocityRotPerSec, double timeOfFlightSecs) {}
 
   private final TreeMap<Double, ShotData> map = new TreeMap<>();
 
@@ -89,7 +92,8 @@ public class InterpolatingShotTree {
             MathUtil.interpolate(
                 startValue.hoodAngle().getRadians(), endValue.hoodAngle().getRadians(), t)),
         MathUtil.interpolate(
-            startValue.flywheelVelocityRotPerSec(), endValue.flywheelVelocityRotPerSec(), t));
+            startValue.flywheelVelocityRotPerSec(), endValue.flywheelVelocityRotPerSec(), t),
+        MathUtil.interpolate(startValue.timeOfFlightSecs(), endValue.timeOfFlightSecs(), t));
   }
 
   /**
@@ -111,5 +115,17 @@ public class InterpolatingShotTree {
       return 0.0;
     }
     return queryToLower / upperToLower;
+  }
+
+  public ShotData calculateShot(Pose2d pose) {
+    return get(AutoAim.distanceToHub(pose));
+  }
+
+  public ShotData calculateShot(Pose2d robotPose, Translation2d targetTranslation) {
+    return get(robotPose.getTranslation().getDistance(targetTranslation));
+  }
+
+  public ShotData calculateShot(Pose2d robotPose, Pose2d targetPose) {
+    return get(robotPose.getTranslation().getDistance(targetPose.getTranslation()));
   }
 }
