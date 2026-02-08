@@ -329,7 +329,10 @@ public class Robot extends LoggedRobot {
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
         break;
     }
-    climber = ROBOT_EDITION == RobotEdition.ALPHA ? new EmptyClimberSubsystem(canivore) : new ClimberSubsystem(new ClimberIO(canivore));
+    climber =
+        ROBOT_EDITION == RobotEdition.ALPHA
+            ? new EmptyClimberSubsystem(canivore)
+            : new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
