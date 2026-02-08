@@ -573,7 +573,6 @@ public class Robot extends LoggedRobot {
   private LoggedTunableNumber turretAngle = new LoggedTunableNumber("Turret Angle Rads", 0);
   private LoggedTunableNumber hoodAngle = new LoggedTunableNumber("Hood angle rads", 0);
   private LoggedTunableNumber intakeExtension = new LoggedTunableNumber("Intake extension", 0);
-  private LoggedTunableNumber climberExtension = new LoggedTunableNumber("Climber extension", 0);
 
   @Override
   public void robotPeriodic() {
@@ -599,7 +598,7 @@ public class Robot extends LoggedRobot {
               .transformBy(
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123),
-                      new Rotation3d(0, hoodAngle.getAsDouble(), 0)))
+                      new Rotation3d(0, hoodAngle.getAsDouble() * -1, 0)))
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
@@ -611,7 +610,7 @@ public class Robot extends LoggedRobot {
               -(intakeExtension.get() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
               Rotation3d.kZero),
           // Climber
-          new Pose3d(0, 0, climberExtension.getAsDouble(), Rotation3d.kZero)
+          new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
         });
 
     updateAlerts();
