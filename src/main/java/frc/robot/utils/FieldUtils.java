@@ -63,7 +63,8 @@ public class FieldUtils {
     BLUE_RIGHT(
         new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg), false, true),
     BLUE_LEFT(
-        new Pose2d(1.189 + Units.inchesToMeters(3.05), 2.845, Rotation2d.kCW_90deg), true, true),
+      // x2 offset because we need to offset again after rotating 180 deg
+        new Pose2d(1.189 - (Units.inchesToMeters(3.05) * 2) , 2.845, Rotation2d.kCW_90deg), true, true),
     RED_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_RIGHT.getPose()), false, false),
     RED_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_LEFT.getPose()), true, false);
 
