@@ -78,6 +78,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                       .getDistance(feedTarget.get().getTranslation()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          // TODO
+          // turretIO.turretIO.setTurretPosition(shotData.turretRotation());
         });
   }
 
@@ -87,6 +89,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
+          turretIO.setTurretPosition(turretIO.TURRET_MIN_ROTATIONS);
         });
   }
 
@@ -96,6 +99,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
+          turretIO.setTurretPosition(turretIO.TURRET_MIN_ROTATIONS);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
@@ -133,6 +137,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          turretIO.setTurretPosition(turretIO.TURRET_MIN_ROTATIONS);
         });
   }
 
@@ -144,6 +149,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          //TODO
+          // turretIO.Position(shotData.turretRotation());
         });
   }
 }

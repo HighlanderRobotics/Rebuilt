@@ -28,8 +28,8 @@ public class TurretIO {
   public static double CANCODER_ONE_TO_TURRET_GEAR_RATIO = (24.0 / 32.0) * (10.0 / 85.0);
 
   // idk
-  public static double TURRET_MIN_ROTATIONS = 0.0;
-  public static double TURRET_MAX_ROTATIONS = 0.8;
+  public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(0.0);
+  public static Rotation2d TURRET_MAX_ROTATIONS = Rotation2d.fromRotations(0.8);
 
   // todo ID?
   protected final TalonFX motor = new TalonFX(40, "*");
@@ -37,6 +37,26 @@ public class TurretIO {
   private final CANcoderIO cancoderTwo;
   private final CANcoderIOInputsAutoLogged cancoderOneInputs = new CANcoderIOInputsAutoLogged();
   private final CANcoderIOInputsAutoLogged cancoderTwoInputs = new CANcoderIOInputsAutoLogged();
+
+  @AutoLogOutput(key = "Shooter/Turret/Setpoint")
+  public Rotation2d getTurretSetpoint() {
+    return turretSetpoint;
+  }
+
+  @AutoLogOutput(key = "Shooter/Turret/Cancoder One")
+  public Rotation2d getTurretCancoderOne() {
+    return cancoderOneInputs.cancoderPositionRotations;
+  }
+
+  @AutoLogOutput(key = "Shooter/Turret/Cancoder Two")
+  public Rotation2d getTurretCancoderTwo() {
+    return cancoderOneInputs.cancoderPositionRotations;
+  }
+
+  @AutoLogOutput(key = "Shooter/Turret/Turret Rotation")
+  public Rotation2d getTurretRotation() {
+    return getAbsoluteTurretRotations();
+  }
 
   @AutoLog
   public static class TurretIOInputs {
@@ -61,7 +81,6 @@ public class TurretIO {
 
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
-  private Rotation2d turretAbsolutePos = getAbsoluteTurretPosition();
 
   public TurretIO(CANcoderIO cancoderOne, CANcoderIO cancoderTwo) {
     this.cancoderOne = cancoderOne;
@@ -95,11 +114,6 @@ public class TurretIO {
     motor.optimizeBusUtilization();
   }
 
-  public void setPositionAngle(Rotation2d positionAngle) {
-    turretSetpoint = positionAngle;
-    motor.setControl(positionVoltage.withPosition(positionAngle.getRotations()));
-  }
-
   public void updateInputs(TurretIOInputs inputs) {
     BaseStatusSignal.refreshAll(
         positionRotations,
@@ -115,11 +129,8 @@ public class TurretIO {
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
     inputs.supplyCurrentAmp = supplyCurrentAmps.getValueAsDouble();
     inputs.tempCelcius = tempCelcius.getValueAsDouble();
-  }
-
-  @AutoLogOutput(key = "Shooter/Turret/Setpoint")
-  public Rotation2d getTurretSetpoint() {
-    return turretSetpoint;
+    cancoderOne.updateInputs(cancoderOneInputs);
+    cancoderTwo.updateInputs(cancoderTwoInputs);
   }
 
   public static CANcoderConfiguration getCancoderConfigs() {
@@ -132,16 +143,20 @@ public class TurretIO {
     return config;
   }
 
-  // todo
-  public void resetTurretPosition(Rotation2d turretRotation) {
-    // uhh is this right
-    // clamp between max and min bc it can only go so much
-    motor.setPosition(
-        Math.min(
-            Math.max(turretRotation.getRotations(), TURRET_MIN_ROTATIONS), TURRET_MAX_ROTATIONS));
+  public void setTurretPosition(Rotation2d positionAngle) {
+    turretSetpoint = positionAngle;
+    motor.setControl(
+        positionVoltage.withPosition(
+            Math.min(
+                Math.max(positionAngle.getRotations(), TURRET_MIN_ROTATIONS.getRotations()),
+                TURRET_MAX_ROTATIONS.getRotations())));
   }
 
-  public Rotation2d getAbsoluteTurretPosition() {
+  public void resetTurretPosition(Rotation2d turretRotation) {
+    motor.setPosition(turretRotation.getRotations());
+  }
+
+  public Rotation2d getAbsoluteTurretRotations() {
     // give valaues between 0 and 1
     Rotation2d cancoder1 = cancoderOneInputs.cancoderPositionRotations;
     Rotation2d cancoder2 = cancoderTwoInputs.cancoderPositionRotations;
