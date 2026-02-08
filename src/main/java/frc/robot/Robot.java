@@ -578,20 +578,23 @@ public class Robot extends LoggedRobot {
         new Pose3d(
             new Translation3d(-0.177413, -0.111702, 0.350341),
             new Rotation3d(0, 0, turretAngle.getAsDouble()));
-    Logger.recordOutput(
-        "Hood pivot point",
-        new Pose3d(new Translation3d(-0.095638, 0, 0.095123), new Rotation3d()));
+    
     Logger.recordOutput(
         "Robot/Mechanism Poses",
         new Pose3d[] {
           // Turret
           turretPose,
           // Hood
-          new Pose3d(turretPose.getTranslation(), Rotation3d.kZero)
-              .rotateAround(
-                  turretPose.getTranslation().plus(new Translation3d(-0.095638, 0, 0.095123)),
-                  new Rotation3d(0, hoodAngle.getAsDouble(), 0))
-              .transformBy(new Transform3d(Translation3d.kZero, turretPose.getRotation()))
+          turretPose
+              // First transform the hood out to the hood pivot, and rotate by the amount needed
+              .transformBy(
+                  new Transform3d(
+                      new Translation3d(-0.095638, 0, 0.095123),
+                      new Rotation3d(0, hoodAngle.getAsDouble(), 0)))
+              // Then, transform the hood back to the correct location relative to the turret
+              .transformBy(
+                  new Transform3d(
+                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero))
         });
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
