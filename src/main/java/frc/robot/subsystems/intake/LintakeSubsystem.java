@@ -80,10 +80,6 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
         });
   }
 
-  public boolean getCanRangeIsDetected() {
-    return canRangeIOInputs.isDetected;
-  }
-
   public static TalonFXConfiguration getRackMotorConfig() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
