@@ -271,9 +271,9 @@ public class Robot extends LoggedRobot {
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
     if (climber == null)
-      //climber = new EmptyClimberSubsystem(new ClimberIO(canivore) {});
+      // climber = new EmptyClimberSubsystem(new ClimberIO(canivore) {});
 
-    DriverStation.silenceJoystickConnectionWarning(true);
+      DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
 
