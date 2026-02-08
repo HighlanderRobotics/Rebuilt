@@ -51,4 +51,14 @@ public class AutoAim {
     Logger.recordOutput("Autoaim/Distance To Hub", distance);
     return distance;
   }
+
+public static Rotation2d getTargetFacingTurretPosition(Pose2d robotPose, Pose2d targetPose) {
+    double dx = targetPose.getX() - robotPose.getX();
+    double dy = targetPose.getY() - robotPose.getY();
+
+    Rotation2d angleToTarget = new Rotation2d(dx, dy);
+
+    Rotation2d turretAngle = angleToTarget.minus(robotPose.getRotation());
+    return turretAngle;
+  }
 }

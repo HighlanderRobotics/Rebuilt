@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -78,8 +79,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                       .getDistance(feedTarget.get().getTranslation()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          // TODO
-          // turretIO.turretIO.setTurretPosition(shotData.turretRotation());
+          turretIO.setTurretPosition(AutoAim.getTargetFacingTurretPosition(robotPoseSupplier.get(), feedTarget.get()));
         });
   }
 
@@ -149,8 +149,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          //TODO
-          // turretIO.Position(shotData.turretRotation());
+          turretIO.setTurretPosition(AutoAim.getTargetFacingTurretPosition(robotPoseSupplier.get(), FieldUtils.getCurrentHubPose()));
         });
   }
 }
