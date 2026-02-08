@@ -561,7 +561,7 @@ public class Robot extends LoggedRobot {
                                     == (DriverStation.getAlliance().orElse(Alliance.Blue)
                                         == Alliance.Blue))
                         .findFirst()
-                        .get())); 
+                        .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
