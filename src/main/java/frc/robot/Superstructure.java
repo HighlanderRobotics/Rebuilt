@@ -404,4 +404,11 @@ public class Superstructure {
   public boolean canScore() {
     return isOurShift() && inScoringArea();
   }
+
+  public static boolean isShootState() {
+    return state == SuperState.SPIN_UP_SCORE
+        || state == SuperState.SCORE
+        || state == SuperState.SPIN_UP_FEED
+        || state == SuperState.FEED;
+  }
 }
