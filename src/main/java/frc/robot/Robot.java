@@ -31,6 +31,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.climber.EmptyClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
@@ -166,6 +169,7 @@ public class Robot extends LoggedRobot {
   // swervesubsystem decides on its own whether or not to use alpha or comp swerve constants
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
+  private final ClimberSubsystem climber;
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -323,10 +327,12 @@ public class Robot extends LoggedRobot {
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
-
-        // TODO climber
         break;
     }
+    climber =
+        ROBOT_EDITION == RobotEdition.ALPHA
+            ? new EmptyClimberSubsystem(canivore)
+            : new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
@@ -337,9 +343,6 @@ public class Robot extends LoggedRobot {
                 () ->
                     Superstructure.getState() == SuperState.SPIN_UP_SCORE
                         || Superstructure.getState() == SuperState.SCORE);
-    // if this is alpha, we won't have assigned a climber yet
-    // this creates a placeholder "no-operation" climber that will just not do anything, but is not
-    // null (and we need it to be not null)
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -525,7 +528,10 @@ public class Robot extends LoggedRobot {
 
     // TODO: autoaim (comp)
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
-    // TODO add binding for climb
+
+    // TODO ACTUAL BUTTON BINDING FOR CLIMBER
+    driver.x().onTrue(climber.extendClimber());
+    driver.y().onTrue(climber.retractClimber());
 
     // current zero shooter hood
     driver.b().whileTrue(shooter.runCurrentZeroing());
