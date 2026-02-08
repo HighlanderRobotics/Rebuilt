@@ -575,14 +575,16 @@ public class Robot extends LoggedRobot {
 
     superstructure.periodic();
 
-    // TODO Log mechanism poses
+    // TODO: YAW VALUE FROM HARDWARE
     Pose3d turretPose =
         new Pose3d(
             new Translation3d(-0.177413, -0.111702, 0.350341),
             new Rotation3d(0, 0, turretAngle.getAsDouble()));
 
+    // From CAD
     Rotation2d intakeRotation = Rotation2d.fromDegrees(17.329856);
 
+    // TODO: USE MEASURED EXTENSIONS AND ANGLES
     Logger.recordOutput(
         "Robot/Mechanism Poses",
         new Pose3d[] {
