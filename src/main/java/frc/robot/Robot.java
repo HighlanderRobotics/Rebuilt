@@ -581,9 +581,6 @@ public class Robot extends LoggedRobot {
             new Translation3d(-0.177413, -0.111702, 0.350341),
             new Rotation3d(0, 0, turretAngle.getAsDouble()));
 
-    // From CAD
-    Rotation2d intakeRotation = Rotation2d.fromDegrees(17.329856);
-
     // TODO: USE MEASURED EXTENSIONS AND ANGLES
     Logger.recordOutput(
         "Robot/Mechanism Poses",
@@ -603,9 +600,9 @@ public class Robot extends LoggedRobot {
                       new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
           // Intake
           new Pose3d(
-              intakeExtension.get() * intakeRotation.getCos(),
+              intakeExtension.get() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
               0,
-              -(intakeExtension.get() * intakeRotation.getSin()),
+              -(intakeExtension.get() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
               Rotation3d.kZero),
           // Climber
           new Pose3d(0, 0, climberExtension.getAsDouble(), Rotation3d.kZero)
