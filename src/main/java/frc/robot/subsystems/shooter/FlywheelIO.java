@@ -66,9 +66,9 @@ public class FlywheelIO {
 
   // todo: tune acceleration
 
-  public FlywheelIO(TalonFXConfiguration config, CANBus canbus) {
-    flywheelLeader = new TalonFX(12, canbus);
-    flywheelFollower = new TalonFX(13, canbus);
+  public FlywheelIO(TalonFXConfiguration config, CANBus canbus, int leaderID, int followerID) {
+    flywheelLeader = new TalonFX(leaderID, canbus);
+    flywheelFollower = new TalonFX(followerID, canbus);
 
     flywheelLeader.getConfigurator().apply(config);
     flywheelFollower.getConfigurator().apply(config);
@@ -113,7 +113,7 @@ public class FlywheelIO {
     flywheelFollower.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getFlywheelConfiguration() {
+  public static TalonFXConfiguration getAlphaFlywheel() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -124,8 +124,31 @@ public class FlywheelIO {
     config.Slot0.kS = 0.43477;
     config.Slot0.kV = 0.144;
     config.Slot0.kA = 0.016433;
-    config.Slot0.kP = 0.1;
+    config.Slot0.kP = 0.37;
     config.Slot0.kD = 0.0;
+
+    config.CurrentLimits.StatorCurrentLimit = 70.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+
+    config.MotionMagic.MotionMagicAcceleration = 100.0;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getCompFlywheel() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
+
+    config.Slot0.kS = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kA = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;

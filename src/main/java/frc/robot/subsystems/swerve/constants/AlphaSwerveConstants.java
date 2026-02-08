@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -64,13 +65,13 @@ public class AlphaSwerveConstants extends SwerveConstants {
             "Front_Right",
             new Transform3d(
                 new Translation3d(
-                    Units.inchesToMeters(-9.859),
+                    Units.inchesToMeters(9.859),
                     Units.inchesToMeters(-9.665),
                     Units.inchesToMeters(8.844)),
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
                     Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(63.835 + 180))),
+                    Units.degreesToRadians(63.835 - 90))),
             FRONT_RIGHT_CAMERA_MATRIX,
             FRONT_RIGHT_DIST_COEFFS);
     final CameraConstants frontLeftCamConstants =
@@ -79,12 +80,12 @@ public class AlphaSwerveConstants extends SwerveConstants {
             new Transform3d(
                 new Translation3d(
                     Units.inchesToMeters(9.859),
-                    Units.inchesToMeters(-9.665),
+                    Units.inchesToMeters(9.665),
                     Units.inchesToMeters(8.844)),
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
                     Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(-63.835))),
+                    Units.degreesToRadians(90 - 63.835))),
             FRONT_LEFT_CAMERA_MATRIX,
             FRONT_LEFT_DIST_COEFFS);
 
@@ -94,12 +95,12 @@ public class AlphaSwerveConstants extends SwerveConstants {
             new Transform3d(
                 new Translation3d(
                     Units.inchesToMeters(-9.859),
-                    Units.inchesToMeters(9.665),
+                    Units.inchesToMeters(-9.665),
                     Units.inchesToMeters(8.844)),
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
                     Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(-63.835 + 180))),
+                    Units.degreesToRadians(-63.835 - 90))),
             BACK_RIGHT_CAMERA_MATRIX,
             BACK_RIGHT_DIST_COEFFS);
     final CameraConstants backLeftCamConstants =
@@ -107,13 +108,13 @@ public class AlphaSwerveConstants extends SwerveConstants {
             "Back_Left",
             new Transform3d(
                 new Translation3d(
-                    Units.inchesToMeters(9.859),
+                    Units.inchesToMeters(-9.859),
                     Units.inchesToMeters(9.665),
                     Units.inchesToMeters(8.844)),
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
                     Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(63.835))),
+                    Units.degreesToRadians(63.835 + 90))),
             BACK_LEFT_CAMERA_MATRIX,
             BACK_LEFT_DIST_COEFFS);
 
@@ -199,6 +200,16 @@ public class AlphaSwerveConstants extends SwerveConstants {
   @Override
   public ModuleConstants getBackRightModuleConstants() {
     return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(-0.205));
+  }
+
+  @Override
+  public MotorType getTurnMotorType() {
+    return MotorType.KrakenX60;
+  }
+
+  @Override
+  public MotorType getDriveMotorType() {
+    return MotorType.KrakenX60;
   }
 
   @Override

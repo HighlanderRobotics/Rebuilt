@@ -55,18 +55,13 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public boolean isFull() {
-    return firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
-  }
-
-  @Override
   public boolean isEmpty() {
     return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
   }
 
   @Override
-  public boolean isPartiallyFull() {
-    return !firstCANRangeInputs.isDetected && secondCANRangeInputs.isDetected;
+  public boolean isNotEmpty() {
+    return secondCANRangeInputs.isDetected;
   }
 
   @Override
@@ -74,7 +69,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     return this.run(
         () -> {
           indexRollerIO.setRollerVoltage(7);
-          kickerIO.setRollerVoltage(7);
+          kickerIO.setRollerVoltage(5.5);
         });
   }
 
@@ -82,8 +77,13 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   public Command kick() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(12);
+          // if (shooterAtSetpoint.getAsBoolean()) {
+          indexRollerIO.setRollerVoltage(10);
           kickerIO.setRollerVoltage(-7);
+          // } else {
+          //   indexRollerIO.setRollerVoltage(0);
+          //   kickerIO.setRollerVoltage(0);
+          // }
         });
   }
 
@@ -120,12 +120,10 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kP = 0;
     config.Slot0.kD = 0;
 
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimit = 60.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
 
     return config;
   }
@@ -146,12 +144,10 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kP = 0;
     config.Slot0.kD = 0;
 
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimit = 60.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
-    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
 
     return config;
   }
@@ -174,5 +170,10 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.quasistatic(Direction.kReverse),
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
+  }
+
+  /** for controller rumble */
+  public boolean firstBeambreak() {
+    return firstCANRangeInputs.isDetected;
   }
 }

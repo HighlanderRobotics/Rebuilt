@@ -33,8 +33,8 @@ import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
-import frc.robot.subsystems.swerve.constants.CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
+import frc.robot.subsystems.swerve.constants.comp.R1CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.swerve.gyro.GyroIOReal;
@@ -50,6 +50,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +71,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static final SwerveConstants SWERVE_CONSTANTS =
       Robot.ROBOT_EDITION == RobotEdition.ALPHA
           ? new AlphaSwerveConstants()
-          : new CompBotSwerveConstants();
+          : new R1CompBotSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
@@ -357,23 +358,22 @@ public class SwerveSubsystem extends SubsystemBase {
       cameraPoses[i] = cameras[i].getPose();
     }
     // only do all this logging stuff if we're not irl for performance
-    if (Robot.ROBOT_MODE != RobotMode.REAL) {
-      Logger.recordOutput("Vision/Camera Poses", cameraPoses);
-      Pose3d[] arr = new Pose3d[cameras.length];
-      for (int k = 0; k < cameras.length; k++) {
-        // honetsly not sure if this distinction is the way to go but
-        if (Robot.ROBOT_MODE == RobotMode.SIM)
-          // If we're in sim, use the maplesim pose to calculate vision
-          arr[k] =
-              new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
-                  .transformBy(cameras[k].getCameraConstants().robotToCamera());
-        else {
-          // if we're in replay, use whatever the pose was
-          arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
-        }
+
+    Logger.recordOutput("Vision/Camera Poses", cameraPoses);
+    Pose3d[] arr = new Pose3d[cameras.length];
+    for (int k = 0; k < cameras.length; k++) {
+      // honetsly not sure if this distinction is the way to go but
+      if (Robot.ROBOT_MODE == RobotMode.SIM)
+        // If we're in sim, use the maplesim pose to calculate vision
+        arr[k] =
+            new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
+                .transformBy(cameras[k].getCameraConstants().robotToCamera());
+      else {
+        // if we're in replay, use whatever the pose was
+        arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
       }
-      Logger.recordOutput("Vision/Camera Poses on Robot", arr);
     }
+    Logger.recordOutput("Vision/Camera Poses on Robot", arr);
   }
 
   /**
@@ -400,7 +400,7 @@ public class SwerveSubsystem extends SubsystemBase {
     for (int i = 0; i < optimizedStates.length; i++) {
       if (openLoop) {
         // Heuristic to enable/disable FOC
-        // enables FOC if the robot is moving at 90% of drivetrain max speed
+        // enables FOC if the robot is moving at less than 90% of drivetrain max speed
         final boolean focEnable =
             Math.sqrt(
                     Math.pow(this.getVelocityRobotRelative().vxMetersPerSecond, 2)
@@ -590,16 +590,43 @@ public class SwerveSubsystem extends SubsystemBase {
                         AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
   }
 
+  // public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(
+  //       () -> {
+  //         Translation2d robotHubVec =
+  //             FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+  //         // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
+  //         // Logger.recordOutput("robot hub vec", robotHubVec);
+  //         // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+  //         return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+  //             .plus(Rotation2d.kCW_90deg);
+  //       },
+  //       xVel,
+  //       yVel);
+  // }
+
+  // public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
+  // xVel, yVel);
+  // }
   public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(
+        () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
+  }
+
+  public boolean isFacingHub() {
+    Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
+  public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
         () -> {
           Translation2d robotHubVec =
               FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
-          // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
-          // Logger.recordOutput("robot hub vec", robotHubVec);
           // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
-          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-              .plus(Rotation2d.kCW_90deg);
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
         },
         xVel,
         yVel);
@@ -640,6 +667,12 @@ public class SwerveSubsystem extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
     return estimator.getEstimatedPosition();
+  }
+
+  @AutoLogOutput(key = "Autoaim/Distance To Hub")
+  public static double distanceToHub(Pose2d pose) {
+    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    return distance;
   }
 
   public Pose3d getPose3d() {
