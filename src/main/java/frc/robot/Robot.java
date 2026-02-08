@@ -566,6 +566,7 @@ public class Robot extends LoggedRobot {
 
   private LoggedTunableNumber turretAngle = new LoggedTunableNumber("Turret Angle Rads", 0);
   private LoggedTunableNumber hoodAngle = new LoggedTunableNumber("Hood angle rads", 0);
+  private LoggedTunableNumber intakeExtension = new LoggedTunableNumber("Intake extension", 0);
 
   @Override
   public void robotPeriodic() {
@@ -578,7 +579,9 @@ public class Robot extends LoggedRobot {
         new Pose3d(
             new Translation3d(-0.177413, -0.111702, 0.350341),
             new Rotation3d(0, 0, turretAngle.getAsDouble()));
-    
+
+    Rotation2d intakeRotation = Rotation2d.fromDegrees(17.329856);
+
     Logger.recordOutput(
         "Robot/Mechanism Poses",
         new Pose3d[] {
@@ -594,7 +597,13 @@ public class Robot extends LoggedRobot {
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
-                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero))
+                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
+          // Intake
+          new Pose3d(
+              intakeExtension.get() * intakeRotation.getCos(),
+              0,
+              -(intakeExtension.get() * intakeRotation.getSin()),
+              Rotation3d.kZero)
         });
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
@@ -602,6 +611,7 @@ public class Robot extends LoggedRobot {
           // Turret
           new Pose3d(),
           // Hood
+          new Pose3d(),
           new Pose3d()
         });
 
