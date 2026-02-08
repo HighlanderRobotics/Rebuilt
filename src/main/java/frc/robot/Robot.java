@@ -184,6 +184,8 @@ public class Robot extends LoggedRobot {
   @AutoLogOutput boolean haveAutosGenerated = false;
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Autos");
 
+  @AutoLogOutput(key = "Shooter/Hood/Has Zeroed") private boolean hoodZeroed = false;
+
   // temporarily override map with empty map to avoid collisions with reefscape elements
   // unfortunately this also turns off collisions with walls but that's fine
   // TODO update once rebuilt is added to maplesim
@@ -528,7 +530,16 @@ public class Robot extends LoggedRobot {
     // TODO add binding for climb
 
     // current zero shooter hood
-    driver.b().whileTrue(shooter.runCurrentZeroing());
+    new Trigger(() -> !hoodZeroed)
+      .or(driver.b())
+      .whileTrue(shooter.runCurrentZeroing().finallyDo(interrupted -> {
+        if (!interrupted) {
+          hoodZeroed = true;
+        }
+        else {
+          hoodZeroed = false;
+        }
+      }));
 
     new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
