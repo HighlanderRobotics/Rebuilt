@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -9,6 +10,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -124,6 +126,16 @@ public class TurretIO {
   @AutoLogOutput(key = "Shooter/Turret/Setpoint")
   public Rotation2d getTurretSetpoint() {
     return turretSetpoint;
+  }
+
+  public static CANcoderConfiguration getCancoderConfigs() {
+    CANcoderConfiguration config = new CANcoderConfiguration();
+
+    config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    config.MagnetSensor.MagnetOffset = 0.0;
+    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
+
+    return config;
   }
 
   // todo

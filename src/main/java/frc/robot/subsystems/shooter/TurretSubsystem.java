@@ -40,11 +40,15 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
+  TurretIO turretIO;
+  TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
+
   private LinearFilter currentFilter = LinearFilter.movingAverage(10);
 
-  public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO) {
+  public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO, TurretIO turretIO) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
+    this.turretIO = turretIO;
   }
 
   private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
@@ -56,6 +60,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
     hoodIO.updateInputs(hoodInputs);
     Logger.processInputs("Shooter/Hood", hoodInputs);
+    turretIO.updateInputs(turretInputs);
+    Logger.processInputs("Shooter/Turret", turretInputs);
 
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
   }

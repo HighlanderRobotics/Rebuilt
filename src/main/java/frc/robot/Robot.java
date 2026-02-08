@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.components.cancoder.CANcoderIOReal;
+import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.indexer.Indexer;
@@ -45,6 +47,7 @@ import frc.robot.subsystems.shooter.HoodIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.TurretIO;
+import frc.robot.subsystems.shooter.TurretIOSim;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
@@ -321,7 +324,13 @@ public class Robot extends LoggedRobot {
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
-                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
+                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                ROBOT_MODE == RobotMode.REAL
+                    // TODO id's
+                    ? new TurretIO(
+                        new CANcoderIOReal(30, TurretIO.getCancoderConfigs(), canivore),
+                        new CANcoderIOReal(31, TurretIO.getCancoderConfigs(), canivore))
+                    : new TurretIOSim(new CANcoderIOSim(), new CANcoderIOSim()));
 
         // TODO climber
         break;
