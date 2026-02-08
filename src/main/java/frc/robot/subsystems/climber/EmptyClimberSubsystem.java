@@ -12,11 +12,13 @@ public class EmptyClimberSubsystem extends ClimberSubsystem {
     super(new ClimberIO(canbus));
   }
 
-  public Command climbUp() {
+  @Override
+  public Command extendClimber() {
     return this.idle();
   }
 
-  public Command climbDown() {
+  @Override
+  public Command retractClimber() {
     return this.idle();
   }
 }

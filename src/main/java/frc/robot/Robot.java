@@ -32,6 +32,7 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.climber.EmptyClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
@@ -270,10 +271,9 @@ public class Robot extends LoggedRobot {
     // if this is alpha, we won't have assigned a climber yet
     // this creates a placeholder "no-operation" climber that will just not do anything, but is not
     // null (and we need it to be not null)
-    if (climber == null)
-      // climber = new EmptyClimberSubsystem(new ClimberIO(canivore) {});
+    if (climber == null) climber = new EmptyClimberSubsystem(canivore);
 
-      DriverStation.silenceJoystickConnectionWarning(true);
+    DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
 
@@ -436,7 +436,10 @@ public class Robot extends LoggedRobot {
                 () ->
                     modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-    // TODO add binding for climb
+
+    // TODO ACTUAL BUTTON BINDING FOR CLIMBER
+    driver.x().onTrue(climber.extendClimber());
+    driver.y().onTrue(climber.retractClimber());
 
     // ---zeroing stuff---
 
