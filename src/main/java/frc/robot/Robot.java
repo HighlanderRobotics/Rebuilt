@@ -437,13 +437,11 @@ public class Robot extends LoggedRobot {
             })
         .onTrue(
             Commands.runOnce(() -> addAutos())
-                .alongWith(Commands.runOnce(() -> stupidstupidtest()))
                 .alongWith(
                     leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0)
                         .withTimeout(1.0)
                         .ignoringDisable(true)));
     // TODO tbh idk if the leds will work here
-
     // Add autos when first connecting to DS
     new Trigger(
             () ->
@@ -532,23 +530,31 @@ public class Robot extends LoggedRobot {
 
   // TODO: delete stupidstupidtest
   private void stupidstupidtest() {
-    for (int i = -20; i <= 20; i++) {
-      double cancoder1 = i;
-      double cancoder2 = cancoder1 * (24.0 / 26.0);
+    for (int i = 0; i <= 60; i++) {
+      double cancoder1 = 0.25 * (i % 4);
+      double cancoder2 = 0.25 * (i % 4) - ((2.0 / 26.0) * i / 4.0);
+      if (cancoder2 < 0) {
+        cancoder2 = 1 + cancoder2;
+      }
+      double diffRotations = 0.0;
 
-      double diffRotations =
-          cancoder2 - cancoder1; // MathUtil.inputModulus(cancoder2 - cancoder1, -0.5, 0.5);
+      if (cancoder1 >= cancoder2) {
+        diffRotations = cancoder1 - cancoder2;
+      } else {
+        diffRotations = (cancoder1 + 1) - cancoder2;
+      }
+      // MathUtil.inputModulus(cancoder2 - cancoder1, -0.5, 0.5);
 
-      double absoluteRotations = diffRotations * (24.0 * 26.0) / (32.0 * 2.0);
+      double absoluteRotationsCan1 = diffRotations * (26.0 / 2.0);
+      // (24.0 * 26.0) / (32.0 * 2.0);
 
-      double turretRotations =
-          absoluteRotations * TurretIO.CANCODER_SHARED_GEAR_TO_TURRET_GEAR_RATIO;
+      double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_ONE_TO_TURRET_GEAR_RATIO;
 
       System.out.println(i);
       System.out.println("can 1 rot: " + cancoder1);
       System.out.println("can 2 rot: " + cancoder2);
       System.out.println("diff: " + diffRotations);
-      System.out.println("shared gear: " + absoluteRotations);
+      System.out.println("absolute rots can 1: " + absoluteRotationsCan1);
       System.out.println("turret rot: " + turretRotations);
       System.out.println(" ");
     }

@@ -24,14 +24,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public class TurretIO {
   public static double TURRET_GEAR_RATIO = (42.0 / 12.0) * (32.0 / 16.0) * (85.0 / 10.0);
-  // shared gear rotations per motor turn
-  public static double MOTOR_TO_SHARED_GEAR_GEAR_RATIO = (12 / 42) * (16 / 32);
-  // turret rotations per shared gear rotations:
-  public static double CANCODER_SHARED_GEAR_TO_TURRET_GEAR_RATIO = 10.0 / 85.0;
 
-  // shared gear roations per encoder rotations
-  public static double CANCODER_ONE_GEAR_RATIO = 24.0 / 32.0;
-  public static double CANCODER_TWO_GEAR_RATIO = 26.0 / 32.0;
+  public static double CANCODER_ONE_TO_TURRET_GEAR_RATIO = (24.0 / 32.0) * (10.0 / 85.0);
 
   // idk
   public static double TURRET_MIN_ROTATIONS = 0.0;
@@ -147,33 +141,27 @@ public class TurretIO {
             Math.max(turretRotation.getRotations(), TURRET_MIN_ROTATIONS), TURRET_MAX_ROTATIONS));
   }
 
-  // feels dangerously simple
   public Rotation2d getAbsoluteTurretPosition() {
+    // give valaues between 0 and 1
     Rotation2d cancoder1 = cancoderOneInputs.cancoderPositionRotations;
     Rotation2d cancoder2 = cancoderTwoInputs.cancoderPositionRotations;
 
-    // find difference and wrap to -0.5 and 0.5
-    // this is bc diff wont exceed 1 and we want it to show like which direction it is
+    // if can one is bigger than can 2 its simply can1-can2
+    // otherwise can1 + 1 - can2 because we want how much behind can1 it is
     double diffRotations =
-        cancoder1.getRotations() - cancoder2.getRotations(); // modulus thing , -0.5, 0.5);
+        (cancoder1.getRotations() >= cancoder2.getRotations())
+            ? cancoder1.getRotations() - cancoder2.getRotations()
+            : (cancoder1.getRotations() + 1) - cancoder2.getRotations();
 
-    // round bc we only want the full rotations i think
-    // actually im not sure the rounding is nessicary i think we can just find it directly but i
-    // could be wrong
-    // double fullRotations = round(diffRotations * 32 / (26 - 24));
+    // keeping track of how many total rots can1 is doing using the diff with can 2
+    // which is just diff times 26/2 because every 13 turns they both reach some full amount of rots
+    // bc gear ratio
+    double absoluteRotationsCan1 = diffRotations * (26.0 / 2.0);
 
-    // 32/(26-24) gearing difference repeats every 16
-    // so a full rotation of the shared gear is the difference times 16
-    // get shared gear rotations:
-
-    // don't ask me how i got this number
-    double absoluteRotations = diffRotations * (24 * 26) / (32 * 2);
-
-    // total rotations by adding full rotations to the position you are on that rotation
-    // double absoluteRotations = fullRotations + sharedGearFromCan1.getRotations();
-
-    // get turret by using absolute rotations times the cancoder shared gear
-    double turretRotations = absoluteRotations * CANCODER_SHARED_GEAR_TO_TURRET_GEAR_RATIO;
+    // turret maxes out at like 11 can 1 rotations anyways so it should work up to there and i
+    // tested
+    // multiply abs can1 rots by the gear ratio
+    double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_ONE_TO_TURRET_GEAR_RATIO;
 
     return Rotation2d.fromRotations(turretRotations);
   }
