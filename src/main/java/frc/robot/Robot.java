@@ -183,9 +183,9 @@ public class Robot extends LoggedRobot {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
 
-    Indexer indexer = null;
-    Intake intake = null;
-    Shooter shooter = null;
+  Indexer indexer = null;
+  Intake intake = null;
+  Shooter shooter = null;
 
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
@@ -470,11 +470,12 @@ public class Robot extends LoggedRobot {
     // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
     // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
     // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    autoChooser.addOption("Pitcheck/Intake ", Commands.sequence(
-      intake.intake().withTimeout(1),
-      intake.rest().withTimeout(1),
-      intake.outtake().withTimeout(1))
-    );
+    autoChooser.addOption(
+        "Pitcheck/Intake ",
+        Commands.sequence(
+            intake.intake().withTimeout(1),
+            intake.rest().withTimeout(1),
+            intake.outtake().withTimeout(1)));
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }

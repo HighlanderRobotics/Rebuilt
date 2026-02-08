@@ -40,6 +40,10 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
     Logger.processInputs("Intake", inputs);
   }
 
+  public double getRollerVoltage() {
+    return inputs.appliedVoltage;
+  }
+
   @Override
   public Command intake() {
     return this.run(() -> io.setRollerVoltage(10));
