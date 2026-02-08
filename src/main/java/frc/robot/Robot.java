@@ -315,17 +315,17 @@ public class Robot extends LoggedRobot {
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore));
-        // TODO: CAN IDS AND FOVs
+        // TODO: FOVs
         intake =
             (ROBOT_MODE == RobotMode.REAL)
                 ? new LintakeSubsystem(
-                    new LinearRackIO(50, canivore, LintakeSubsystem.getRackMotorConfig()),
-                    new RollerIO(51, LintakeSubsystem.getRollerMotorConfig(), canivore),
-                    new CANrangeIOReal(10, canivore, 10))
+                    new LinearRackIO(14, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new RollerIO(8, LintakeSubsystem.getRollerMotorConfig(), canivore),
+                    new CANrangeIOReal(0, canivore, 10))
                 : new LintakeSubsystem(
-                    new LinearRackIOSim(50, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new LinearRackIOSim(14, canivore, LintakeSubsystem.getRackMotorConfig()),
                     new RollerIOSim(
-                        51,
+                        8,
                         LintakeSubsystem.getRollerMotorConfig(),
                         new DCMotorSim(
                             LinearSystemId.createDCMotorSystem(
@@ -335,7 +335,7 @@ public class Robot extends LoggedRobot {
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore),
-                    new CANrangeIOReal(10, canivore, 10));
+                    new CANrangeIOReal(0, canivore, 10));
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
