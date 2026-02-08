@@ -57,6 +57,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Hood", hoodInputs);
 
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
+    // This method will be called once per scheduler run
   }
 
   @Override
@@ -129,14 +130,47 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  @Override
-  public Command shoot(Supplier<Pose2d> robotPoseSupplier) {
+  public Command score(Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
-          ShotData shotData =
-              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
-          hoodIO.setHoodPosition(shotData.hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(
+              shotDataSupplier.get().flywheelVelocityRotPerSec());
         });
   }
+
+  @Override
+  public Rotation2d getHoodSetpoint() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
+  }
+
+  @Override
+  public boolean isFacingTarget() {
+    return false; // TODO turret facing hub
+  }
+  // public boolean isFacingTarget() {
+  //   switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
+  //     case SCORE:
+  //       return isFacingHub();
+  //     case FEED:
+  //       return isFacingFeedTarget();
+  //     default:
+  //       return false;
+  //   }
+  // }
+
+  // public boolean isFacingHub() {
+  //   Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+  //   return MathUtil.isNear(
+  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  // }
+
+  // public boolean isFacingFeedTarget() {
+  //   Translation2d feedTarget =
+  //       FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
+  //   Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
+  //   return MathUtil.isNear(
+  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  // }
 }
