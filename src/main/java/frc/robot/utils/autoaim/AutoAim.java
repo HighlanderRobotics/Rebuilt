@@ -58,6 +58,7 @@ public static Rotation2d getTargetFacingTurretPosition(Pose2d robotPose, Pose2d 
 
     Rotation2d angleToTarget = new Rotation2d(dx, dy);
 
+    //feels right atm but maybe i should check this math tmrw
     Rotation2d turretAngle = angleToTarget.minus(robotPose.getRotation());
     return turretAngle;
   }
