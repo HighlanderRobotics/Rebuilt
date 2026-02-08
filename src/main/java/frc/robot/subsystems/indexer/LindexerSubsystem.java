@@ -21,12 +21,10 @@ import org.littletonrobotics.junction.Logger;
 public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
-  private CANrangeIOReal firstCANRangeIO;
   private CANrangeIOReal secondCANRangeIO;
 
   private RollerIO indexRollerIO;
 
-  CANrangeIOInputsAutoLogged firstCANRangeInputs = new CANrangeIOInputsAutoLogged();
   CANrangeIOInputsAutoLogged secondCANRangeInputs = new CANrangeIOInputsAutoLogged();
 
   RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
@@ -49,19 +47,8 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   public LindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    firstCANRangeIO = new CANrangeIOReal(0, canbus, 10);
     secondCANRangeIO = new CANrangeIOReal(1, canbus, 10);
     this.indexRollerIO = indexRollerIO;
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return !firstCANRangeInputs.isDetected && !secondCANRangeInputs.isDetected;
-  }
-
-  @Override
-  public boolean isNotEmpty() {
-    return secondCANRangeInputs.isDetected;
   }
 
   @Override
@@ -154,8 +141,6 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
 
   @Override
   public void periodic() {
-    firstCANRangeIO.updateInputs(firstCANRangeInputs);
-    Logger.processInputs("Indexer/First Beambreak", firstCANRangeInputs);
     secondCANRangeIO.updateInputs(secondCANRangeInputs);
     Logger.processInputs("Indexer/Second Beambreak", secondCANRangeInputs);
     indexRollerIO.updateInputs(rollerInputs);
@@ -170,10 +155,5 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.quasistatic(Direction.kReverse),
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
-  }
-
-  /** for controller rumble */
-  public boolean firstBeambreak() {
-    return firstCANRangeInputs.isDetected;
   }
 }
