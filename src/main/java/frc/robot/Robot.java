@@ -44,6 +44,7 @@ import frc.robot.subsystems.shooter.HoodIO;
 import frc.robot.subsystems.shooter.HoodIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretIO;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
@@ -427,8 +428,11 @@ public class Robot extends LoggedRobot {
             })
         .onTrue(
             Commands.runOnce(() -> addAutos())
-                .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
-                .ignoringDisable(true));
+                .alongWith(Commands.runOnce(() -> stupidstupidtest()))
+                .alongWith(
+                    leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0)
+                        .withTimeout(1.0)
+                        .ignoringDisable(true)));
     // TODO tbh idk if the leds will work here
 
     // Add autos when first connecting to DS
@@ -515,6 +519,30 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
+  }
+
+  // TODO: delete stupidstupidtest
+  private void stupidstupidtest() {
+    for (int i = -20; i <= 20; i++) {
+      double cancoder1 = i;
+      double cancoder2 = cancoder1 * (24.0 / 26.0);
+
+      double diffRotations =
+          cancoder2 - cancoder1; // MathUtil.inputModulus(cancoder2 - cancoder1, -0.5, 0.5);
+
+      double absoluteRotations = diffRotations * (24.0 * 26.0) / (32.0 * 2.0);
+
+      double turretRotations =
+          absoluteRotations * TurretIO.CANCODER_SHARED_GEAR_TO_TURRET_GEAR_RATIO;
+
+      System.out.println(i);
+      System.out.println("can 1 rot: " + cancoder1);
+      System.out.println("can 2 rot: " + cancoder2);
+      System.out.println("diff: " + diffRotations);
+      System.out.println("shared gear: " + absoluteRotations);
+      System.out.println("turret rot: " + turretRotations);
+      System.out.println(" ");
+    }
   }
 
   // Sysid Autos

@@ -21,6 +21,7 @@ import org.littletonrobotics.junction.Logger;
 
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
+
   /** Creates a new TurretSubsystem. */
   public static double HOOD_GEAR_RATIO = 58.96875;
 

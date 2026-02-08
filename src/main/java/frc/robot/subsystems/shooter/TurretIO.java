@@ -9,7 +9,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -136,7 +135,7 @@ public class TurretIO {
             Math.max(turretRotation.getRotations(), TURRET_MIN_ROTATIONS), TURRET_MAX_ROTATIONS));
   }
 
-  //feels dangerously simple
+  // feels dangerously simple
   public Rotation2d getAbsoluteTurretPosition() {
     Rotation2d cancoder1 = cancoderOneInputs.cancoderPositionRotations;
     Rotation2d cancoder2 = cancoderTwoInputs.cancoderPositionRotations;
@@ -144,7 +143,7 @@ public class TurretIO {
     // find difference and wrap to -0.5 and 0.5
     // this is bc diff wont exceed 1 and we want it to show like which direction it is
     double diffRotations =
-        MathUtil.inputModulus(cancoder1.getRotations() - cancoder2.getRotations(), -0.5, 0.5);
+        cancoder1.getRotations() - cancoder2.getRotations(); // modulus thing , -0.5, 0.5);
 
     // round bc we only want the full rotations i think
     // actually im not sure the rounding is nessicary i think we can just find it directly but i
@@ -155,8 +154,8 @@ public class TurretIO {
     // so a full rotation of the shared gear is the difference times 16
     // get shared gear rotations:
 
-    //don't ask me how i got this number 
-    double absoluteRotations = diffRotations * (24*26)/(32*2);
+    // don't ask me how i got this number
+    double absoluteRotations = diffRotations * (24 * 26) / (32 * 2);
 
     // total rotations by adding full rotations to the position you are on that rotation
     // double absoluteRotations = fullRotations + sharedGearFromCan1.getRotations();
