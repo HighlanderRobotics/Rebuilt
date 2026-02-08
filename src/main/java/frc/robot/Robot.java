@@ -613,6 +613,37 @@ public class Robot extends LoggedRobot {
           new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
         });
 
+    // TODO: ACTUAL SETPOINT
+    Pose3d turretSetpoint = new Pose3d(
+            new Translation3d(-0.177413, -0.111702, 0.350341),
+            new Rotation3d(0, 0, turretAngle.getAsDouble()));
+    // TODO: ACTUAL SETPOINTS
+    Logger.recordOutput(
+        "Robot/Mechanism Setpoints",
+        new Pose3d[] {
+          // Turret
+          turretSetpoint,
+          // Hood
+          turretSetpoint
+              // First transform the hood out to the hood pivot, and rotate by the amount needed
+              .transformBy(
+                  new Transform3d(
+                      new Translation3d(-0.095638, 0, 0.095123),
+                      new Rotation3d(0, hoodAngle.getAsDouble() * -1, 0)))
+              // Then, transform the hood back to the correct location relative to the turret
+              .transformBy(
+                  new Transform3d(
+                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
+          // Intake
+          new Pose3d(
+              intakeExtension.get() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
+              0,
+              -(intakeExtension.get() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
+              Rotation3d.kZero),
+          // Climber
+          new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
+        });
+
     updateAlerts();
   }
 

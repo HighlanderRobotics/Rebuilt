@@ -44,6 +44,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public double getClimberExtensionMeters() {
     // Convert rotations into linear motion
-    return climberInputs.motorPositionRotations.getRotations() * (Math.PI * SPOOL_DIAMETER_METERS);
+    return climberInputs.motorPositionMeters;
+  }
+
+  public double getClimberSetpointMeters() {
+    return climberIO.getClimberSetpointMeters();
   }
 }

@@ -17,12 +17,13 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ClimberIO {
 
   @AutoLog
   public static class ClimberIOInputs {
-    public Rotation2d motorPositionRotations = new Rotation2d();
+    public double motorPositionMeters = 0.0;
     public double motorVelocityMetersPerSec = 0.0;
     public double motorStatorCurrentAmps = 0.0;
     public double motorSupplyCurrentAmps = 0.0;
@@ -32,8 +33,9 @@ public class ClimberIO {
 
   protected final TalonFX climberMotor;
 
-  private final StatusSignal<Angle> motorPositionRotations;
-  private final StatusSignal<AngularVelocity> angularVelocityRotsPerSec;
+  // Rotation -> linear conversion happens in sensor to mech ratio
+  private final StatusSignal<Angle> motorPositionMeters;
+  private final StatusSignal<AngularVelocity> velocityMetersPerSec;
   private final StatusSignal<Current> statorCurrentAmps;
   private final StatusSignal<Current> supplyCurrentAmps;
   private final StatusSignal<Voltage> motorVoltage;
@@ -50,21 +52,21 @@ public class ClimberIO {
     climberMotor = new TalonFX(30, canBus);
     climberMotor.getConfigurator().apply(ClimberIO.getClimberConfiguration());
 
-    angularVelocityRotsPerSec = climberMotor.getVelocity();
+    velocityMetersPerSec = climberMotor.getVelocity();
     supplyCurrentAmps = climberMotor.getSupplyCurrent();
     motorVoltage = climberMotor.getMotorVoltage();
     statorCurrentAmps = climberMotor.getStatorCurrent();
     motorTemp = climberMotor.getDeviceTemp();
-    motorPositionRotations = climberMotor.getPosition();
+    motorPositionMeters = climberMotor.getPosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
-        angularVelocityRotsPerSec,
+        velocityMetersPerSec,
         supplyCurrentAmps,
         motorVoltage,
         statorCurrentAmps,
         motorTemp,
-        motorPositionRotations);
+        motorPositionMeters);
     climberMotor.optimizeBusUtilization();
   }
 
@@ -76,7 +78,7 @@ public class ClimberIO {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // todo: find and make climber gear ratio variable
-    config.Feedback.SensorToMechanismRatio = ClimberSubsystem.GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = ClimberSubsystem.GEAR_RATIO * (Math.PI * ClimberSubsystem.SPOOL_DIAMETER_METERS);
 
     // todo: tune
     config.Slot0.kS = 0.0;
@@ -108,19 +110,23 @@ public class ClimberIO {
 
   public void updateInputs(ClimberIOInputs inputs) {
     BaseStatusSignal.refreshAll(
-        motorPositionRotations,
-        angularVelocityRotsPerSec,
+        motorPositionMeters,
+        velocityMetersPerSec,
         statorCurrentAmps,
         supplyCurrentAmps,
         motorVoltage,
         motorTemp);
 
-    inputs.motorPositionRotations =
-        Rotation2d.fromRotations(motorPositionRotations.getValueAsDouble());
+    inputs.motorPositionMeters = motorPositionMeters.getValueAsDouble();
     inputs.motorVoltage = motorVoltage.getValueAsDouble();
     inputs.motorTempC = motorTemp.getValueAsDouble();
     inputs.motorSupplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
     inputs.motorStatorCurrentAmps = statorCurrentAmps.getValueAsDouble();
-    inputs.motorVelocityMetersPerSec = angularVelocityRotsPerSec.getValueAsDouble();
+    inputs.motorVelocityMetersPerSec = velocityMetersPerSec.getValueAsDouble();
+  }
+
+  @AutoLogOutput(key = "Climber/Setpoint Meters")
+  public double getClimberSetpointMeters() {
+    return climberSetpoint;
   }
 }
