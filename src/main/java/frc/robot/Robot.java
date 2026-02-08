@@ -641,7 +641,7 @@ public class Robot extends LoggedRobot {
               -(intakeExtension.get() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
               Rotation3d.kZero),
           // Climber
-          new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
+          new Pose3d(0, 0, climber.getClimberSetpointMeters(), Rotation3d.kZero)
         });
 
     updateAlerts();
