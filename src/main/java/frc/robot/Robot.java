@@ -607,18 +607,6 @@ public class Robot extends LoggedRobot {
           // Climber
           new Pose3d(0, 0, climberExtension.getAsDouble(), Rotation3d.kZero)
         });
-    Logger.recordOutput(
-        "Robot/Zeroed Mechanism Poses",
-        new Pose3d[] {
-          // Turret
-          new Pose3d(),
-          // Hood
-          new Pose3d(),
-          new Pose3d(),
-          new Pose3d()
-        });
-
-    Logger.recordOutput("Robot/Zero Position", new Pose2d());
 
     updateAlerts();
   }
@@ -682,7 +670,21 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    // Log zeroed poses for mechs and robot for debugging in sim
+    Logger.recordOutput(
+        "Robot/Zeroed Mechanism Poses",
+        new Pose3d[] {
+          // Turret
+          new Pose3d(),
+          // Hood
+          new Pose3d(),
+          new Pose3d(),
+          new Pose3d()
+        });
+
+    Logger.recordOutput("Robot/Zero Position", new Pose2d());
+  }
 
   @Override
   public void disabledInit() {}
