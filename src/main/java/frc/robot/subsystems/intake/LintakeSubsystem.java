@@ -9,8 +9,10 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
@@ -66,7 +68,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command outtake() {
     return this.run(
         () -> {
-          rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          rackIO.setPositionSetpoint(Math.sin(Timer.getFPGATimestamp()) * EXTENDED_POSITION_METERS);
           rollerIO.setRollerVoltage(10.0);
         });
   }
