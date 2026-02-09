@@ -12,7 +12,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
@@ -69,7 +68,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return this.run(
         () -> {
           // Oscillate between 0.5x extension pos and 1x extension pos
-          rackIO.setPositionSetpoint((0.25 * Math.sin(Timer.getFPGATimestamp()) + 0.75) * EXTENDED_POSITION_METERS);
+          rackIO.setPositionSetpoint(
+              (0.25 * Math.sin(Timer.getFPGATimestamp()) + 0.75) * EXTENDED_POSITION_METERS);
           rollerIO.setRollerVoltage(10.0);
         });
   }
