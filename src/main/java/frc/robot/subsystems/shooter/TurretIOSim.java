@@ -20,8 +20,7 @@ public class TurretIOSim extends TurretIO {
   private Notifier simNotifier = null;
   private double lastSimTime = 0.0;
 
-  public TurretIOSim(CANcoderIO can1, CANcoderIO can2) {
-    super(can1, can2);
+  public TurretIOSim() {
     physicsSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(

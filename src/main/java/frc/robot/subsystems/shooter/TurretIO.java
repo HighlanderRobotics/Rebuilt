@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -36,30 +37,6 @@ public class TurretIO {
 
   // todo ID?
   protected final TalonFX motor = new TalonFX(40, "*");
-  private final CANcoderIO cancoderOne;
-  private final CANcoderIO cancoderTwo;
-  private final CANcoderIOInputsAutoLogged cancoderOneInputs = new CANcoderIOInputsAutoLogged();
-  private final CANcoderIOInputsAutoLogged cancoderTwoInputs = new CANcoderIOInputsAutoLogged();
-
-  @AutoLogOutput(key = "Shooter/Turret/Setpoint")
-  public Rotation2d getTurretSetpoint() {
-    return turretSetpoint;
-  }
-
-  @AutoLogOutput(key = "Shooter/Turret/Cancoder One")
-  public Rotation2d getTurretCancoderOne() {
-    return cancoderOneInputs.cancoderPositionRotations;
-  }
-
-  @AutoLogOutput(key = "Shooter/Turret/Cancoder Two")
-  public Rotation2d getTurretCancoderTwo() {
-    return cancoderOneInputs.cancoderPositionRotations;
-  }
-
-  @AutoLogOutput(key = "Shooter/Turret/Turret Rotation")
-  public Rotation2d getTurretRotation() {
-    return getAbsoluteTurretRotations();
-  }
 
   @AutoLog
   public static class TurretIOInputs {
@@ -68,7 +45,7 @@ public class TurretIO {
     public double statorCurrentAmps = 0.0;
     public double supplyCurrentAmp = 0.0;
     public double voltage = 0.0;
-    public double tempCelcius = 0.0;
+    public double tempCelsius = 0.0;
   }
 
   private final StatusSignal<AngularVelocity> angularVelocityRotationsPerSec = motor.getVelocity();
@@ -85,9 +62,7 @@ public class TurretIO {
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
 
-  public TurretIO(CANcoderIO cancoderOne, CANcoderIO cancoderTwo) {
-    this.cancoderOne = cancoderOne;
-    this.cancoderTwo = cancoderTwo;
+  public TurretIO() {
 
     final TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -131,27 +106,14 @@ public class TurretIO {
     inputs.voltage = voltage.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
     inputs.supplyCurrentAmp = supplyCurrentAmps.getValueAsDouble();
-    inputs.tempCelcius = tempCelcius.getValueAsDouble();
-    cancoderOne.updateInputs(cancoderOneInputs);
-    cancoderTwo.updateInputs(cancoderTwoInputs);
-  }
-
-  public static CANcoderConfiguration getCancoderConfigs() {
-    CANcoderConfiguration config = new CANcoderConfiguration();
-
-    config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset = 0.0;
-    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
-
-    return config;
+    inputs.tempCelsius = tempCelcius.getValueAsDouble();
   }
 
   public void setTurretPosition(Rotation2d positionAngle) {
     turretSetpoint = positionAngle;
     motor.setControl(
         positionVoltage.withPosition(
-            Math.min(
-                Math.max(positionAngle.getRotations(), TURRET_MIN_ROTATIONS.getRotations()),
+            MathUtil.clamp(positionAngle.getRotations(), TURRET_MIN_ROTATIONS.getRotations(),
                 TURRET_MAX_ROTATIONS.getRotations())));
   }
 
@@ -159,28 +121,8 @@ public class TurretIO {
     motor.setPosition(turretRotation.getRotations());
   }
 
-  public Rotation2d getAbsoluteTurretRotations() {
-    // give valaues between 0 and 1
-    Rotation2d cancoder1 = cancoderOneInputs.cancoderPositionRotations;
-    Rotation2d cancoder2 = cancoderTwoInputs.cancoderPositionRotations;
-
-    // if can one is bigger than can 2 its simply can1-can2
-    // otherwise can1 + 1 - can2 because we want how much behind can1 it is
-    double diffRotations =
-        (cancoder1.getRotations() >= cancoder2.getRotations())
-            ? cancoder1.getRotations() - cancoder2.getRotations()
-            : (cancoder1.getRotations() + 1) - cancoder2.getRotations();
-
-    // keeping track of how many total rots can1 is doing using the diff with can 2
-    // which is just diff times 26/2 because every 13 turns they both reach some full amount of rots
-    // bc gear ratio
-    double absoluteRotationsCan1 = diffRotations * (26.0 / 2.0);
-
-    // turret maxes out at like 11 can 1 rotations anyways so it should work up to there and i
-    // tested
-    // multiply abs can1 rots by the gear ratio
-    double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_ONE_TO_TURRET_GEAR_RATIO;
-
-    return Rotation2d.fromRotations(turretRotations);
+  @AutoLogOutput(key = "Shooter/Turret/Setpoint")
+  public Rotation2d getTurretSetpoint() {
+    return turretSetpoint;
   }
 }
