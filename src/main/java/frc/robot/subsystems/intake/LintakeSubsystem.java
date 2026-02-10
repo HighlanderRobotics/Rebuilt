@@ -8,7 +8,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -95,8 +94,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   public Command runCurrentZeroing() {
     return this.run(() -> rackIO.setVoltage(3))
-      .until(() -> rackCurrentFilterValue > CURRENT_ZEROING_THRESHOLD)
-      .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+        .until(() -> rackCurrentFilterValue > CURRENT_ZEROING_THRESHOLD)
+        .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
   }
 
   public Command zeroRack() {
