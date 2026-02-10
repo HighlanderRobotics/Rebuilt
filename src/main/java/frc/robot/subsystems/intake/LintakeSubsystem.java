@@ -9,6 +9,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +29,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
   public static final double ROLLER_GEAR_RATIO = 34 / 15;
+  // From CAD
+  public static final Rotation2d INTAKE_ROTATION = Rotation2d.fromDegrees(17.329856);
   public static final double CURRENT_ZEROING_THRESHOLD = 30; // TODO: TUNE
 
   private final LinearRackIO rackIO;
