@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
+import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -44,6 +45,8 @@ import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
 import frc.robot.subsystems.intake.FintakeSubsystem;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.LinearRackIO;
+import frc.robot.subsystems.intake.LinearRackIOSim;
 import frc.robot.subsystems.intake.LintakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -318,7 +321,27 @@ public class Robot extends LoggedRobot {
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore));
-        intake = new LintakeSubsystem();
+        // TODO: FOVs
+        intake =
+            (ROBOT_MODE == RobotMode.REAL)
+                ? new LintakeSubsystem(
+                    new LinearRackIO(14, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new RollerIO(8, LintakeSubsystem.getRollerMotorConfig(), canivore),
+                    new CANrangeIOReal(0, canivore, 10))
+                : new LintakeSubsystem(
+                    new LinearRackIOSim(14, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new RollerIOSim(
+                        8,
+                        LintakeSubsystem.getRollerMotorConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.001,
+                                LintakeSubsystem.ROLLER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore),
+                    new CANrangeIOReal(0, canivore, 10));
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
