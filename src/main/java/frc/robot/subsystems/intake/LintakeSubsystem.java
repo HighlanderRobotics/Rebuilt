@@ -23,7 +23,8 @@ import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
-  public static final double MAX_EXTENSION_METERS = Units.inchesToMeters(16.0);
+  // I'm calling zero fully retracted and 1 fully extended (so that kG works if its needed)
+  public static final double MAX_EXTENSION_METERS = -Units.inchesToMeters(16.0);
   public static final double EXTENDED_POSITION_METERS = MAX_EXTENSION_METERS;
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
@@ -93,13 +94,13 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   public Command runCurrentZeroing() {
-    return this.run(() -> rackIO.setVoltage(-3))
+    return this.run(() -> rackIO.setVoltage(3))
       .until(() -> rackCurrentFilterValue > CURRENT_ZEROING_THRESHOLD)
       .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
   }
 
   public Command zeroRack() {
-    return this.run(() -> rackIO.resetEncoder(0.0));
+    return this.run(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {
