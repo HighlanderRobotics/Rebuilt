@@ -8,9 +8,12 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
@@ -25,6 +28,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
   public static final double ROLLER_GEAR_RATIO = 34 / 15;
+  public static final double CURRENT_ZEROING_THRESHOLD = 30; // TODO: TUNE
 
   private final LinearRackIO rackIO;
   private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
@@ -34,6 +38,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   private final CANrangeIO canRangeIO;
   private CANrangeIOInputsAutoLogged canRangeIOInputs = new CANrangeIOInputsAutoLogged();
+
+  private LinearFilter rackCurrentFilter = LinearFilter.movingAverage(10);
+  private double rackCurrentFilterValue = 0.0;
 
   /** Creates a new LintakeSubsystem. */
   public LintakeSubsystem(LinearRackIO rackIO, RollerIO rollerIO, CANrangeIO canRangeIO) {
@@ -52,6 +59,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
     canRangeIO.updateInputs(canRangeIOInputs);
     Logger.processInputs("Intake/CANRange", canRangeIOInputs);
+
+    rackCurrentFilterValue = rackCurrentFilter.calculate(rackIOInputs.statorCurrentAmps);
   }
 
   @Override
@@ -81,6 +90,16 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
           rollerIO.setRollerVoltage(0.0);
         });
+  }
+
+  public Command runCurrentZeroing() {
+    return this.run(() -> rackIO.setVoltage(-3))
+      .until(() -> rackCurrentFilterValue > CURRENT_ZEROING_THRESHOLD)
+      .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+  }
+
+  public Command zeroRack() {
+    return this.run(() -> rackIO.resetEncoder(0.0));
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {

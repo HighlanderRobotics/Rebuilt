@@ -87,4 +87,8 @@ public class LinearRackIO {
   public double getSetpointMeters() {
     return setpointMeters;
   }
+
+  public void resetEncoder(double positionMeters) {
+    motor.setPosition(positionMeters);
+  }
 }
