@@ -40,4 +40,16 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'beambreak'");
   }
+
+  @Override
+  public Command runRollerSysid() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'runRollerSysid'");
+  }
+
+    @Override
+  public Command runExtensionSysid() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'runExtensionSysid'");
+  }
 }

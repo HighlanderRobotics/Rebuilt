@@ -327,6 +327,7 @@ public class Robot extends LoggedRobot {
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
+                        
         break;
     }
     climber =
@@ -336,6 +337,9 @@ public class Robot extends LoggedRobot {
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+    addCompSysids(climber, indexer, intake, shooter);
+
+
     autoAimReq =
         driver
             .leftBumper()
@@ -559,10 +563,16 @@ public class Robot extends LoggedRobot {
   }
 
   // Sysid Autos
-  // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-  // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-  // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-  // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+  private void addCompSysids(ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
+    autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
+    autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
+    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
+    autoChooser.addOption("Kicker Sysid", indexer.runKickerSysId());
+  }
 
   @Override
   public void robotPeriodic() {

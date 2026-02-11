@@ -246,7 +246,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   //this is very scary and i am scared.
-    public Command runTurretSysid() {
+  @Override
+    public Command runTurretSysid() { //TODO merge turret
     return Commands.sequence(
         turretSysid
             .quasistatic(Direction.kForward)
