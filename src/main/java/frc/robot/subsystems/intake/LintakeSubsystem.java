@@ -23,8 +23,8 @@ import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
-  // I'm calling zero fully retracted and 1 fully extended (so that kG works if its needed)
-  public static final double MAX_EXTENSION_METERS = -Units.inchesToMeters(16.0);
+  // I'm calling zero fully retracted and + fully extended (so that kG works if its needed)
+  public static final double MAX_EXTENSION_METERS = Units.inchesToMeters(16.0);
   public static final double EXTENDED_POSITION_METERS = MAX_EXTENSION_METERS;
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
