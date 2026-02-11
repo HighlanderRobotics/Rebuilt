@@ -99,7 +99,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   public Command zeroRack() {
-    return this.run(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
+    return this.runOnce(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {
