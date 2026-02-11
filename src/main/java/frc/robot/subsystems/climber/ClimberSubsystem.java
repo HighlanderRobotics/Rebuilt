@@ -14,6 +14,8 @@ import static edu.wpi.first.units.Units.Volts;
 import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase {
+  // From CAD
+  public static final double SPOOL_DIAMETER_METERS = Units.inchesToMeters(0.668898);
   // todo: find actual constants
   public static double GEAR_RATIO = (45.0 / 1.0);
   public static double MAX_EXTENSION_METERS = 0.2413;
