@@ -28,12 +28,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-<<<<<<< HEAD
+import frc.robot.Superstructure.SuperState;
 import frc.robot.components.cancoder.CANcoderIOReal;
 import frc.robot.components.cancoder.CANcoderIOSim;
-=======
-import frc.robot.Superstructure.SuperState;
->>>>>>> main
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -333,7 +330,6 @@ public class Robot extends LoggedRobot {
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
-<<<<<<< HEAD
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
                 ROBOT_MODE == RobotMode.REAL
                     // TODO id's
@@ -346,9 +342,6 @@ public class Robot extends LoggedRobot {
                     ? new CANcoderIOReal(30, TurretSubsystem.getCancoderConfigs(), canivore)
                     : new CANcoderIOSim());
         // TODO climber
-=======
-                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
->>>>>>> main
         break;
     }
     climber =

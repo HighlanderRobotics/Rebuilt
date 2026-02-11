@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
-import frc.robot.utils.FieldUtils;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -211,16 +210,32 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
+  @Override
   public Command score(Supplier<ShotData> shotDataSupplier) {
-    return this.run(
-        () -> {
-          ShotData shotData =
-              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
-          hoodIO.setHoodPosition(shotData.hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(
-              AutoAim.getTargetFacingTurretPosition(
-                  robotPoseSupplier.get(), FieldUtils.getCurrentHubPose()));
-        });
+    throw new UnsupportedOperationException("Unimplemented method 'score'");
+    /* return this.run(
+
+    () -> {
+      ShotData shotData =
+          AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
+      hoodIO.setHoodPosition(shotData.hoodAngle());
+      flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+      //turretIO.setTurretPosition(
+        //  AutoAim.getTargetFacingTurretPosition(
+           //   robotPoseSupplier.get(), FieldUtils.getCurrentHubPose()));
+    });
+    */
+  }
+
+  @Override
+  public Rotation2d getHoodSetpoint() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
+  }
+
+  @Override
+  public boolean isFacingTarget() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'isFacingTarget'");
   }
 }
