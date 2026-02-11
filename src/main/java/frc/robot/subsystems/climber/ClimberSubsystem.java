@@ -1,5 +1,7 @@
 package frc.robot.subsystems.climber;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -8,9 +10,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-
-import static edu.wpi.first.units.Units.Volts;
-
 import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase {
@@ -25,7 +24,6 @@ public class ClimberSubsystem extends SubsystemBase {
   ClimberIO climberIO;
   ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
 
-  
   private SysIdRoutine climberSysid =
       new SysIdRoutine(
           new Config(
@@ -61,7 +59,7 @@ public class ClimberSubsystem extends SubsystemBase {
         });
   }
 
-    public Command runClimberSysid() { //TODO after climber unit fix
+  public Command runClimberSysid() { // TODO after climber unit fix
     return Commands.sequence(
         climberSysid
             .quasistatic(Direction.kForward)
@@ -71,10 +69,7 @@ public class ClimberSubsystem extends SubsystemBase {
                         > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))), // Stop before endstop
         climberSysid
             .quasistatic(Direction.kReverse)
-            .until(
-                () ->
-                    climberInputs.motorPositionMeters
-                        < Units.inchesToMeters(1)),
+            .until(() -> climberInputs.motorPositionMeters < Units.inchesToMeters(1)),
         climberSysid
             .dynamic(Direction.kForward)
             .until(
@@ -83,9 +78,6 @@ public class ClimberSubsystem extends SubsystemBase {
                         > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))),
         climberSysid
             .dynamic(Direction.kReverse)
-            .until(
-                () ->
-                    climberInputs.motorPositionMeters
-                        < Units.inchesToMeters(1)));
+            .until(() -> climberInputs.motorPositionMeters < Units.inchesToMeters(1)));
   }
 }

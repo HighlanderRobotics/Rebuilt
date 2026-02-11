@@ -2,15 +2,10 @@ package frc.robot.subsystems.indexer;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.function.BooleanSupplier;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 
 /** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
@@ -42,7 +39,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
           new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
-            private SysIdRoutine kickerSysid =
+  private SysIdRoutine kickerSysid =
       new SysIdRoutine(
           new Config(
               null,
@@ -169,7 +166,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-    public Command runKickerSysId() {
+  public Command runKickerSysId() {
     return Commands.sequence(
         kickerSysid.quasistatic(Direction.kForward),
         kickerSysid.quasistatic(Direction.kReverse),

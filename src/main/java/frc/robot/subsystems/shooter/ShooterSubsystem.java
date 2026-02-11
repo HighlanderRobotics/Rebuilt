@@ -180,7 +180,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
     return false;
   }
 
-    public Command runHoodSysid() {
+  public Command runHoodSysid() {
     return Commands.sequence(
         hoodSysid
             .quasistatic(Direction.kForward)

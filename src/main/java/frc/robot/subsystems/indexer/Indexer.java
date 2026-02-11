@@ -24,5 +24,8 @@ public interface Indexer {
 
   public Command runRollerSysId();
 
-  public default Command runKickerSysId() {return Commands.none();} //alpha also has a kicker but ig we didn't use sysid for that and i'm too lazy to add it just for this
+  public default Command runKickerSysId() {
+    return Commands.none();
+  } // alpha also has a kicker but ig we didn't use sysid for that and i'm too lazy to add it just
+  // for this
 }

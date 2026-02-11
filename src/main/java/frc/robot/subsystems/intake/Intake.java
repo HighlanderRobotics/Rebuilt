@@ -23,5 +23,7 @@ public interface Intake {
 
   public Command runRollerSysid();
 
-  public default Command runExtensionSysid(){return Commands.none();}
+  public default Command runExtensionSysid() {
+    return Commands.none();
+  }
 }

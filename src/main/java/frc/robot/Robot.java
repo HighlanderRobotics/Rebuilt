@@ -350,7 +350,7 @@ public class Robot extends LoggedRobot {
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
-                        
+
         break;
     }
     climber =
@@ -361,7 +361,6 @@ public class Robot extends LoggedRobot {
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
     addCompSysids(climber, indexer, intake, shooter);
-
 
     autoAimReq =
         driver
@@ -586,7 +585,8 @@ public class Robot extends LoggedRobot {
   }
 
   // Sysid Autos
-  private void addCompSysids(ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
+  private void addCompSysids(
+      ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
     autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
     autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());

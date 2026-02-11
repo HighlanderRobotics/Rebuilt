@@ -59,5 +59,7 @@ public interface Shooter extends Subsystem {
 
   public Command runHoodSysid();
 
-  public default Command runTurretSysid() {return Commands.none();}
+  public default Command runTurretSysid() {
+    return Commands.none();
+  }
 }

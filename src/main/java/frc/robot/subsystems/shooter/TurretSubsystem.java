@@ -6,11 +6,6 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,6 +21,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
@@ -49,7 +47,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   private LinearFilter currentFilter = LinearFilter.movingAverage(10);
 
-    private SysIdRoutine hoodSysid =
+  private SysIdRoutine hoodSysid =
       new SysIdRoutine(
           new Config(
               null,
@@ -67,14 +65,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state.toString())),
           new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
 
-    private SysIdRoutine turretSysid =
-      new SysIdRoutine(
-          new Config(
-              null,
-              null,
-              null,
-              (state) -> Logger.recordOutput("Shooter/Turret/SysID State", state.toString())),
-          new Mechanism((voltage) -> turretIO.setVoltage(voltage.in(Volts)), null, this));
+  // private SysIdRoutine turretSysid =
+  //     new SysIdRoutine(
+  //         new Config(
+  //             null,
+  //             null,
+  //             null,
+  //             (state) -> Logger.recordOutput("Shooter/Turret/SysID State", state.toString())),
+  //         new Mechanism((voltage) -> turretIO.setVoltage(voltage.in(Volts)), null, this));
 
   public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO) {
     this.flywheelIO = flywheelIO;
@@ -184,6 +182,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public boolean isFacingTarget() {
     return false; // TODO turret facing hub
   }
+
   // public boolean isFacingTarget() {
   //   switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
   //     case SCORE:
@@ -209,7 +208,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   // }
 
-    public Command runFlywheelSysid() {
+  public Command runFlywheelSysid() {
     return Commands.sequence(
         flywheelSysid.quasistatic(Direction.kForward),
         flywheelSysid.quasistatic(Direction.kReverse),
@@ -245,33 +244,41 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                         < (HOOD_MIN_ROTATION.getDegrees() + 5)));
   }
 
-  //this is very scary and i am scared.
+  // this is very scary and i am scared.
   @Override
-    public Command runTurretSysid() { //TODO merge turret
-    return Commands.sequence(
-        turretSysid
-            .quasistatic(Direction.kForward)
-            .until(
-                () ->
-                    turretInputs.turretPositionRotations.getDegrees()
-                        > (TURRET_MAX_ROTATIONS.getDegrees() - 5) || turretInputs.statorCurrentAmps > 40), // Stop before endstop and hopefully stop if it crashes into the endstop
-        turretSysid
-            .quasistatic(Direction.kReverse)
-            .until(
-                () ->
-                    turretInputs.turretPositionRotations.getDegrees()
-                        < (TURRET_MIN_ROTATIONS.getDegrees() + 5) || turretInputs.statorCurrentAmps > 40),
-        turretSysid
-            .dynamic(Direction.kForward)
-            .until(
-                () ->
-                    turretInputs.turretPositionRotations.getDegrees()
-                        > (TURRET_MAX_ROTATIONS.getDegrees() - 5) || turretInputs.statorCurrentAmps > 40),
-        turretSysid
-            .dynamic(Direction.kReverse)
-            .until(
-                () ->
-                    turretInputs.turretPositionRotations.getDegrees()
-                        < (TURRET_MIN_ROTATIONS.getDegrees() + 5) || turretInputs.statorCurrentAmps > 40));
+  public Command runTurretSysid() { // TODO merge turret
+    return Commands.none();
+    // return Commands.sequence(
+    //     turretSysid
+    //         .quasistatic(Direction.kForward)
+    //         .until(
+    //             () ->
+    //                 turretInputs.turretPositionRotations.getDegrees()
+    //                         > (TURRET_MAX_ROTATIONS.getDegrees() - 5)
+    //                     || turretInputs.statorCurrentAmps
+    //                         > 40), // Stop before endstop and hopefully stop if it crashes into
+    // the
+    //     // endstop
+    //     turretSysid
+    //         .quasistatic(Direction.kReverse)
+    //         .until(
+    //             () ->
+    //                 turretInputs.turretPositionRotations.getDegrees()
+    //                         < (TURRET_MIN_ROTATIONS.getDegrees() + 5)
+    //                     || turretInputs.statorCurrentAmps > 40),
+    //     turretSysid
+    //         .dynamic(Direction.kForward)
+    //         .until(
+    //             () ->
+    //                 turretInputs.turretPositionRotations.getDegrees()
+    //                         > (TURRET_MAX_ROTATIONS.getDegrees() - 5)
+    //                     || turretInputs.statorCurrentAmps > 40),
+    //     turretSysid
+    //         .dynamic(Direction.kReverse)
+    //         .until(
+    //             () ->
+    //                 turretInputs.turretPositionRotations.getDegrees()
+    //                         < (TURRET_MIN_ROTATIONS.getDegrees() + 5)
+    //                     || turretInputs.statorCurrentAmps > 40));
   }
 }
