@@ -170,6 +170,6 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public double getExtensionSetpointMeters() {
-      return rackIO.getSetpointMeters();
+    return rackIO.getSetpointMeters();
   }
 }

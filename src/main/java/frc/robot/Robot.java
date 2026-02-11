@@ -638,7 +638,8 @@ public class Robot extends LoggedRobot {
         });
 
     // TODO: ACTUAL SETPOINT
-    Pose3d turretSetpoint = new Pose3d(
+    Pose3d turretSetpoint =
+        new Pose3d(
             new Translation3d(-0.177413, -0.111702, 0.350341),
             new Rotation3d(0, 0, turretAngle.getAsDouble()));
     // TODO: ACTUAL SETPOINTS

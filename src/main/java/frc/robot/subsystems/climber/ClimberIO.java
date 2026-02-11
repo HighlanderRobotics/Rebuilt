@@ -10,7 +10,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -78,7 +77,8 @@ public class ClimberIO {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // todo: find and make climber gear ratio variable
-    config.Feedback.SensorToMechanismRatio = ClimberSubsystem.GEAR_RATIO * (Math.PI * ClimberSubsystem.SPOOL_DIAMETER_METERS);
+    config.Feedback.SensorToMechanismRatio =
+        ClimberSubsystem.GEAR_RATIO * (Math.PI * ClimberSubsystem.SPOOL_DIAMETER_METERS);
 
     // todo: tune
     config.Slot0.kS = 0.0;
