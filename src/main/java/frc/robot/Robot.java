@@ -80,40 +80,40 @@ public class Robot extends LoggedRobot {
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
-  public static final RobotEdition ROBOT_EDITION;
+  public static final RobotEdition ROBOT_EDITION = RobotEdition.ALPHA;
   public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
 
   // for replay to work properly this needs to match the edition in the log
-  static {
-    switch (ROBOT_MODE) {
-      case REAL:
-        switch (RobotController.getSerialNumber()) {
-          case "023D2BD2":
-            ROBOT_EDITION = RobotEdition.ALPHA;
-            break;
-          case "2": // TODO get comp rio serial number
-            ROBOT_EDITION = RobotEdition.COMP;
-            break;
-          default:
-            // defaulting to comp is probably safer?
-            ROBOT_EDITION = RobotEdition.COMP;
-        }
-        break;
-      case SIM:
-        // you're gonna have to just lock in on this
-        ROBOT_EDITION = SIM_ROBOT_EDITION;
-        break;
-      case REPLAY:
-        // you're gonna have to just lock in on this
-        ROBOT_EDITION = REPLAY_ROBOT_EDITION;
-        break;
+  // static {
+  //   switch (ROBOT_MODE) {
+  //     case REAL:
+  //       switch (RobotController.getSerialNumber()) {
+  //         case "023D2BD2":
+  //           ROBOT_EDITION = RobotEdition.ALPHA;
+  //           break;
+  //         case "2": // TODO get comp rio serial number
+  //           ROBOT_EDITION = RobotEdition.COMP;
+  //           break;
+  //         default:
+  //           // defaulting to comp is probably safer?
+  //           ROBOT_EDITION = RobotEdition.COMP;
+  //       }
+  //       break;
+  //     case SIM:
+  //       // you're gonna have to just lock in on this
+  //       ROBOT_EDITION = SIM_ROBOT_EDITION;
+  //       break;
+  //     case REPLAY:
+  //       // you're gonna have to just lock in on this
+  //       ROBOT_EDITION = REPLAY_ROBOT_EDITION;
+  //       break;
 
-      default:
-        // TODO change to comp once there is a comp bot
-        ROBOT_EDITION = RobotEdition.ALPHA;
-    }
-  }
+  //     default:
+  //       // TODO change to comp once there is a comp bot
+  //       ROBOT_EDITION = RobotEdition.ALPHA;
+  //   }
+  // }
 
   /**
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
