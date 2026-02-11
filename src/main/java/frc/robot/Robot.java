@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
+import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOReal;
 import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.rollers.RollerIO;
@@ -336,11 +337,11 @@ public class Robot extends LoggedRobot {
                     ? new TurretIO()
                     : new TurretIOSim(),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIOReal(30, TurretSubsystem.getCancoderConfigs(), canivore)
-                    : new CANcoderIOSim(),
+                    ? new CANcoderIO(30, TurretSubsystem.getCancoderConfigs(), canivore)
+                    : new CANcoderIOSim(30, TurretSubsystem.getCancoderConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIOReal(30, TurretSubsystem.getCancoderConfigs(), canivore)
-                    : new CANcoderIOSim());
+                    ? new CANcoderIO(30, TurretSubsystem.getCancoderConfigs(), canivore)
+                    : new CANcoderIOSim(30, TurretSubsystem.getCancoderConfigs(), canivore));
         // TODO climber
         break;
     }
