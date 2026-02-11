@@ -2,27 +2,21 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.components.cancoder.CANcoderIO;
-import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -58,6 +52,7 @@ public class TurretIO {
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
+  private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0.0).withEnableFOC(true);
 
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
@@ -112,8 +107,10 @@ public class TurretIO {
   public void setTurretPosition(Rotation2d positionAngle) {
     turretSetpoint = positionAngle;
     motor.setControl(
-        positionVoltage.withPosition(
-            MathUtil.clamp(positionAngle.getRotations(), TURRET_MIN_ROTATIONS.getRotations(),
+        motionMagicVoltage.withPosition(
+            MathUtil.clamp(
+                positionAngle.getRotations(),
+                TURRET_MIN_ROTATIONS.getRotations(),
                 TURRET_MAX_ROTATIONS.getRotations())));
   }
 

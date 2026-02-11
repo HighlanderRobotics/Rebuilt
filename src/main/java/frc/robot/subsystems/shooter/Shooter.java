@@ -34,7 +34,7 @@ public interface Shooter {
 
   /** Check if hood is at its desired position */
   public boolean atHoodSetpoint();
-  
+
   /** Reset hood encoder to its minimum position */
   public Command zeroHood();
 

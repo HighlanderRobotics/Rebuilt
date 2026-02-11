@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOReal;
 import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.rollers.RollerIO;
@@ -329,13 +328,13 @@ public class Robot extends LoggedRobot {
                 ROBOT_MODE == RobotMode.REAL
                     // TODO id's
                     ? new TurretIO()
-                    : new TurretIOSim(), 
-                    ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIOReal(30, TurretSubsystem.getCancoderConfigs(), canivore) 
+                    : new TurretIOSim(),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIOReal(30, TurretSubsystem.getCancoderConfigs(), canivore)
                     : new CANcoderIOSim(),
-                    ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIOReal(30, TurretSubsystem.getCancoderConfigs(), canivore) 
-                    : new CANcoderIOSim());             
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIOReal(30, TurretSubsystem.getCancoderConfigs(), canivore)
+                    : new CANcoderIOSim());
         // TODO climber
         break;
     }
@@ -530,38 +529,6 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
-  }
-
-  // TODO: delete stupidstupidtest
-  private void stupidstupidtest() {
-    for (int i = 0; i <= 60; i++) {
-      double cancoder1 = 0.25 * (i % 4);
-      double cancoder2 = 0.25 * (i % 4) - ((2.0 / 26.0) * i / 4.0);
-      if (cancoder2 < 0) {
-        cancoder2 = 1 + cancoder2;
-      }
-      double diffRotations = 0.0;
-
-      if (cancoder1 >= cancoder2) {
-        diffRotations = cancoder1 - cancoder2;
-      } else {
-        diffRotations = (cancoder1 + 1) - cancoder2;
-      }
-      // MathUtil.inputModulus(cancoder2 - cancoder1, -0.5, 0.5);
-
-      double absoluteRotationsCan1 = diffRotations * (26.0 / 2.0);
-      // (24.0 * 26.0) / (32.0 * 2.0);
-
-      double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_ONE_TO_TURRET_GEAR_RATIO;
-
-      System.out.println(i);
-      System.out.println("can 1 rot: " + cancoder1);
-      System.out.println("can 2 rot: " + cancoder2);
-      System.out.println("diff: " + diffRotations);
-      System.out.println("absolute rots can 1: " + absoluteRotationsCan1);
-      System.out.println("turret rot: " + turretRotations);
-      System.out.println(" ");
-    }
   }
 
   // Sysid Autos

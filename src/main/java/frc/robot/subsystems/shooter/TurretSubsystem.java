@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,9 +23,6 @@ import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 /** Pivoting hooded shooter (turret). !! COMP !! */
 public class TurretSubsystem extends SubsystemBase implements Shooter {
@@ -45,7 +44,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   private final CANcoderIOInputsAutoLogged cancoderOneInputs = new CANcoderIOInputsAutoLogged();
   private final CANcoderIOInputsAutoLogged cancoderTwoInputs = new CANcoderIOInputsAutoLogged();
 
-  //shouldnt this be private final
+  // shouldnt this be private final
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
@@ -57,7 +56,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   private LinearFilter currentFilter = LinearFilter.movingAverage(10);
 
-  public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO, TurretIO turretIO, CANcoderIO cancoderOne, CANcoderIO cancoderTwo) {
+  public TurretSubsystem(
+      FlywheelIO flywheelIO,
+      HoodIO hoodIO,
+      TurretIO turretIO,
+      CANcoderIO cancoderOne,
+      CANcoderIO cancoderTwo) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
     this.turretIO = turretIO;
@@ -82,7 +86,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
   }
 
-   public static CANcoderConfiguration getCancoderConfigs() {
+  public static CANcoderConfiguration getCancoderConfigs() {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
@@ -104,7 +108,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                       .getDistance(feedTarget.get().getTranslation()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(AutoAim.getTargetFacingTurretPosition(robotPoseSupplier.get(), feedTarget.get()));
+          turretIO.setTurretPosition(
+              AutoAim.getTargetFacingTurretPosition(robotPoseSupplier.get(), feedTarget.get()));
         });
   }
 
@@ -114,7 +119,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
-          turretIO.setTurretPosition(turretIO.TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
         });
   }
 
@@ -124,7 +129,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
-          turretIO.setTurretPosition(turretIO.TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
@@ -135,23 +140,20 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     // if can one is bigger than can 2 its simply can1-can2
     // otherwise can1 + 1 - can2 because we want how much behind can1 it is
-    double diffRotations =
-        (cancoder1.getRotations() >= cancoder2.getRotations())
-            ? cancoder1.getRotations() - cancoder2.getRotations()
-            : (cancoder1.getRotations() + 1) - cancoder2.getRotations();
-
+    double diffRotations = (cancoder1.getRotations() - cancoder2.getRotations()) % 1;
     // keeping track of how many total rots can1 is doing using the diff with can2
-    //26/2 because gear difference of 2
+    // 26/2 because gear difference of 2
     double absoluteRotationsCan1 = diffRotations * (26.0 / 2.0);
 
-    // turret maxes out at less then 1 rotation which is like 11 can1 rotations anyways and it should work up to there 
+    // turret maxes out at less then 1 rotation which is like 11 can1 rotations anyways and it
+    // should work up to there
     // multiply abs can1 rots by the gear ratio
     double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_ONE_TO_TURRET_GEAR_RATIO;
 
     return Rotation2d.fromRotations(turretRotations);
   }
 
-   @AutoLogOutput(key = "Shooter/Turret/Turret Absolute Rotation")
+  @AutoLogOutput(key = "Shooter/Turret/Turret Absolute Rotation")
   public Rotation2d getTurretRotation() {
     return getAbsoluteTurretRotations();
   }
@@ -178,7 +180,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         getAbsoluteTurretRotations().getDegrees(), turretIO.getTurretSetpoint().getDegrees(), 1);
   }
 
-   @AutoLogOutput(key = "Shooter/Turret/Cancoder One")
+  @AutoLogOutput(key = "Shooter/Turret/Cancoder One")
   public Rotation2d getTurretCancoderOne() {
     return cancoderOneInputs.cancoderPositionRotations;
   }
@@ -206,7 +208,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          turretIO.setTurretPosition(turretIO.TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
         });
   }
 
@@ -218,7 +220,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(AutoAim.getTargetFacingTurretPosition(robotPoseSupplier.get(), FieldUtils.getCurrentHubPose()));
+          turretIO.setTurretPosition(
+              AutoAim.getTargetFacingTurretPosition(
+                  robotPoseSupplier.get(), FieldUtils.getCurrentHubPose()));
         });
   }
 }

@@ -9,7 +9,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.components.cancoder.CANcoderIO;
 
 public class TurretIOSim extends TurretIO {
   TalonFXSimState motorSim;
