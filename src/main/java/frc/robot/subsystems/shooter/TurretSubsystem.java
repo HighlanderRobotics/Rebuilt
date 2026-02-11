@@ -47,7 +47,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   // shouldnt this be private final
   HoodIO hoodIO;
   HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
-
   FlywheelIO flywheelIO;
   FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
