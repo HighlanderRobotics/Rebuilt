@@ -74,6 +74,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   //             (state) -> Logger.recordOutput("Shooter/Turret/SysID State", state.toString())),
   //         new Mechanism((voltage) -> turretIO.setVoltage(voltage.in(Volts)), null, this));
 
+  //TODO actually correctly set this everywhere
+  private Rotation2d hoodSetpoint = Rotation2d.kZero;
+
   public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
@@ -166,6 +169,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command score(Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
+          hoodSetpoint = shotDataSupplier.get().hoodAngle();
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(
               shotDataSupplier.get().flywheelVelocityRotPerSec());
@@ -174,8 +178,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Rotation2d getHoodSetpoint() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
+    return hoodSetpoint;
   }
 
   @Override

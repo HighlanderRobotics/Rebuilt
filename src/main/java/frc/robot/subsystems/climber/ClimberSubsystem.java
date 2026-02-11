@@ -59,7 +59,7 @@ public class ClimberSubsystem extends SubsystemBase {
         });
   }
 
-  public Command runClimberSysid() { // TODO after climber unit fix
+  public Command runClimberSysid() {
     return Commands.sequence(
         climberSysid
             .quasistatic(Direction.kForward)

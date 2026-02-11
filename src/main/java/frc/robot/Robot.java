@@ -83,7 +83,7 @@ public class Robot extends LoggedRobot {
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
-  public static final RobotEdition ROBOT_EDITION = RobotEdition.ALPHA;
+  public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
   public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
 
