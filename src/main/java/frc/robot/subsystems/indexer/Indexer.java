@@ -9,10 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 /** Add your docs here. */
 public interface Indexer {
 
-  public boolean isEmpty();
-
-  public boolean isNotEmpty();
-
   /** Run indexer towards shooter and kicker away from shooter */
   public Command index();
 
