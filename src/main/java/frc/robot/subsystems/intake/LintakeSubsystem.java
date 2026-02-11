@@ -162,4 +162,14 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public boolean beambreak() {
     return canRangeIOInputs.isDetected;
   }
+
+  @Override
+  public double getExtensionMeters() {
+    return rackIOInputs.positionMeters;
+  }
+
+  @Override
+  public double getExtensionSetpointMeters() {
+      return rackIO.getSetpointMeters();
+  }
 }

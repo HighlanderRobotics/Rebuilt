@@ -98,4 +98,14 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   public boolean beambreak() {
     return canrangeInputs.isDetected;
   }
+
+  @Override
+  public double getExtensionMeters() {
+      return 0;
+  }
+
+  @Override
+  public double getExtensionSetpointMeters() {
+      return 0;
+  }
 }
