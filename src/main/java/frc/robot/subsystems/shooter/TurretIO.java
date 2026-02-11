@@ -49,10 +49,7 @@ public class TurretIO {
   private final StatusSignal<Voltage> voltage = motor.getMotorVoltage();
   private final StatusSignal<Temperature> tempCelcius = motor.getDeviceTemp();
 
-  private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
-  private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
-  private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
-  private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0);
 
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
@@ -107,7 +104,7 @@ public class TurretIO {
   public void setTurretPosition(Rotation2d positionAngle) {
     turretSetpoint = positionAngle;
     motor.setControl(
-        motionMagicVoltage.withPosition(
+        motionMagic.withPosition(
             MathUtil.clamp(
                 positionAngle.getRotations(),
                 TURRET_MIN_ROTATIONS.getRotations(),
