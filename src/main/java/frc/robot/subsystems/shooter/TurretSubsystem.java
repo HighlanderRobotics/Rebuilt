@@ -119,7 +119,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                       .getDistance(feedTarget.get().getTranslation()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(AutoAim.getTurretTargetRotation(FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation(), robotPoseSupplier.get()));
+          turretIO.setTurretPosition(
+              AutoAim.getTurretTargetRotation(
+                  FeedTargets.getFeedTarget(Superstructure.getFeedTarget())
+                      .getPose()
+                      .getTranslation(),
+                  robotPoseSupplier.get()));
         });
   }
 
@@ -181,13 +186,25 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
   public boolean atHoodSetpoint() {
     return MathUtil.isNear(
-        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
+        hoodInputs.hoodPositionRotations.getDegrees(), getHoodSetpoint().getDegrees(), 1);
   }
 
+  @Override
   @AutoLogOutput(key = "Shooter/Turret/At Setpoint")
-  public boolean atTurretSetpoint() {
+  public boolean isFacingTarget() {
     return MathUtil.isNear(
-        getAbsoluteTurretRotations().getDegrees(), turretIO.getTurretSetpoint().getDegrees(), 1);
+        getAbsoluteTurretRotations().getDegrees(), getTurretSetpoint().getDegrees(), 2);
+  }
+
+  @Override
+  @AutoLogOutput(key = "Shooter/Hood/Setpoint")
+  public Rotation2d getHoodSetpoint() {
+    return hoodIO.getHoodSetpoint();
+  }
+
+  @AutoLogOutput(key = "Shooter/Turret/Setpoint")
+  public Rotation2d getTurretSetpoint() {
+    return turretIO.getTurretSetpoint();
   }
 
   @AutoLogOutput(key = "Shooter/Turret/Cancoder 24t position")
@@ -224,25 +241,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public Command score(Supplier<Pose2d> robotPoseSupplier, Supplier<ShotData> shotDataSupplier) {
     return this.run(
-
-    () -> {
-      ShotData shotData =
-          AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
-      hoodIO.setHoodPosition(shotData.hoodAngle());
-      flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-      turretIO.setTurretPosition(AutoAim.getTurretTargetRotation(FieldUtils.getCurrentHubTranslation(), robotPoseSupplier.get()));
-    });
-  }
-
-  @Override
-  public Rotation2d getHoodSetpoint() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
-  }
-
-  @Override
-  public boolean isFacingTarget() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'isFacingTarget'");
+        () -> {
+          ShotData shotData =
+              AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
+          hoodIO.setHoodPosition(shotData.hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          turretIO.setTurretPosition(
+              AutoAim.getTurretTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(), robotPoseSupplier.get()));
+        });
   }
 }
