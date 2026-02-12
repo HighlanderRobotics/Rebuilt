@@ -87,7 +87,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  public Command score(Supplier<ShotData> shotDataSupplier) {
+  public Command score(Supplier<Pose2d> robotPoseSupplier, Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
           hoodSetpoint = shotDataSupplier.get().hoodAngle();
@@ -180,6 +180,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
     return false;
   }
 
+  @Override
   public Command runHoodSysid() {
     return Commands.sequence(
         hoodSysid
@@ -208,6 +209,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
                         < (HOOD_MIN_ROTATION.getDegrees() + 5)));
   }
 
+  @Override
   public Command runFlywheelSysid() {
     return Commands.sequence(
         flywheelSysid.quasistatic(Direction.kForward),
