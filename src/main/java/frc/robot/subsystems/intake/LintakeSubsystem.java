@@ -121,7 +121,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   public Command runCurrentZeroing() {
-    return this.run(() -> rackIO.setVoltage(3))
+    return this.run(() -> rackIO.setVoltage(-3))
         .until(() -> rackCurrentFilterValue > CURRENT_ZEROING_THRESHOLD)
         .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
   }
@@ -134,7 +134,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Converts rotational motion to linear motion
     config.Feedback.SensorToMechanismRatio =

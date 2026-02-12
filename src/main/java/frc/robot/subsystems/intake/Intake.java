@@ -26,4 +26,6 @@ public interface Intake {
   public default Command runExtensionSysid() {
     return Commands.none();
   }
+
+  public Command zeroRack();
 }

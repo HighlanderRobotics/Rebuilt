@@ -430,6 +430,7 @@ public class Robot extends LoggedRobot {
     PhoenixOdometryThread.getInstance().start();
 
     SmartDashboard.putData("Zero Climber", climber.zeroClimber());
+    SmartDashboard.putData("Zero Intake", intake.zeroRack());
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 

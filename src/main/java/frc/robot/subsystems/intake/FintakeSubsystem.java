@@ -98,4 +98,9 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   public boolean beambreak() {
     return canrangeInputs.isDetected;
   }
+
+  @Override
+  public Command zeroRack() {
+    return this.idle();
+  }
 }
