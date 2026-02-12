@@ -284,6 +284,7 @@ public class Superstructure {
         intake.rest(),
         indexer.rest(),
         shooter.score(
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
@@ -296,6 +297,7 @@ public class Superstructure {
         intake.rest(),
         indexer.kick(),
         shooter.score(
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
@@ -308,6 +310,7 @@ public class Superstructure {
         intake.rest(),
         indexer.kick(),
         shooter.score(
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
@@ -319,6 +322,7 @@ public class Superstructure {
         intake.intake(),
         indexer.kick(),
         shooter.score(
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),

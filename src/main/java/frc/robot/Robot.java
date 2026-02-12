@@ -29,6 +29,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
+import frc.robot.components.cancoder.CANcoderIO;
+import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
@@ -51,6 +53,8 @@ import frc.robot.subsystems.shooter.HoodIO;
 import frc.robot.subsystems.shooter.HoodIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretIO;
+import frc.robot.subsystems.shooter.TurretIOSim;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
@@ -349,7 +353,18 @@ public class Robot extends LoggedRobot {
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
-                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
+                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                ROBOT_MODE == RobotMode.REAL
+                    // TODO id's
+                    ? new TurretIO()
+                    : new TurretIOSim(),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIO(30, TurretSubsystem.getCancoder24tConfigs(), canivore)
+                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder24tConfigs(), canivore),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIO(30, TurretSubsystem.getCancoder26tConfigs(), canivore)
+                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder26tConfigs(), canivore));
+        // TODO climber
         break;
     }
     climber =
@@ -471,10 +486,11 @@ public class Robot extends LoggedRobot {
             })
         .onTrue(
             Commands.runOnce(() -> addAutos())
-                .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
-                .ignoringDisable(true));
+                .alongWith(
+                    leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0)
+                        .withTimeout(1.0)
+                        .ignoringDisable(true)));
     // TODO tbh idk if the leds will work here
-
     // Add autos when first connecting to DS
     new Trigger(
             () ->
