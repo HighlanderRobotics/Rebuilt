@@ -74,7 +74,7 @@ public class ClimberIO {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // todo: find and make climber gear ratio variable
     config.Feedback.SensorToMechanismRatio =
