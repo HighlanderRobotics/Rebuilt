@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -46,6 +47,7 @@ public class TurretIO {
   private final StatusSignal<Voltage> voltage = motor.getMotorVoltage();
   private final StatusSignal<Temperature> tempCelcius = motor.getDeviceTemp();
 
+  private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0);
 
   // todo

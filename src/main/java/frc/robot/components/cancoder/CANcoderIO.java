@@ -4,16 +4,14 @@
 
 package frc.robot.components.cancoder;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
-
-import org.littletonrobotics.junction.AutoLog;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
+import org.littletonrobotics.junction.AutoLog;
 
 // for cancoders that aren't on a swerve module (eg arm, intake)
 public class CANcoderIO {

@@ -2,7 +2,6 @@ package frc.robot.components.cancoder;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import edu.wpi.first.math.geometry.Rotation2d;
 

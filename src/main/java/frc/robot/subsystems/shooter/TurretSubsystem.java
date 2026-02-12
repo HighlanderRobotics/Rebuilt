@@ -14,8 +14,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
+import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -38,19 +41,18 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
 
-  private final CANcoderIO cancoderOne;
-  private final CANcoderIO cancoderTwo;
-  private final CANcoderIOInputsAutoLogged cancoderOneInputs = new CANcoderIOInputsAutoLogged();
-  private final CANcoderIOInputsAutoLogged cancoderTwoInputs = new CANcoderIOInputsAutoLogged();
+  private CANcoderIO cancoder24t;
+  private CANcoderIO cancoder26t;
+  private CANcoderIOInputsAutoLogged cancoder24tInputs = new CANcoderIOInputsAutoLogged();
+  private CANcoderIOInputsAutoLogged cancoder26tInputs = new CANcoderIOInputsAutoLogged();
 
-  // shouldnt this be private final
-  HoodIO hoodIO;
-  HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
-  FlywheelIO flywheelIO;
-  FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
+  private HoodIO hoodIO;
+  private HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
+  private FlywheelIO flywheelIO;
+  private FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
-  TurretIO turretIO;
-  TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
+  private TurretIO turretIO;
+  private TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
 
   private LinearFilter currentFilter = LinearFilter.movingAverage(10);
 
@@ -58,13 +60,13 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
       TurretIO turretIO,
-      CANcoderIO cancoderOne,
-      CANcoderIO cancoderTwo) {
+      CANcoderIO cancoder24t,
+      CANcoderIO cancoder26t) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
     this.turretIO = turretIO;
-    this.cancoderOne = cancoderOne;
-    this.cancoderTwo = cancoderTwo;
+    this.cancoder24t = cancoder24t;
+    this.cancoder26t = cancoder26t;
   }
 
   private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Shooter/Test Degrees", 10.0);
@@ -78,13 +80,24 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Hood", hoodInputs);
     turretIO.updateInputs(turretInputs);
     Logger.processInputs("Shooter/Turret", turretInputs);
-    cancoderOne.updateInputs(cancoderOneInputs);
-    cancoderTwo.updateInputs(cancoderTwoInputs);
-
+    cancoder24t.updateInputs(cancoder24tInputs);
+    Logger.processInputs("Shooter/Turret Cancoder24t", cancoder24tInputs);
+    cancoder26t.updateInputs(cancoder26tInputs);
+    Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
   }
 
-  public static CANcoderConfiguration getCancoderConfigs() {
+  public static CANcoderConfiguration getCancoder24tConfigs() {
+    CANcoderConfiguration config = new CANcoderConfiguration();
+
+    config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    config.MagnetSensor.MagnetOffset = 0.0;
+    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
+
+    return config;
+  }
+
+  public static CANcoderConfiguration getCancoder26tConfigs() {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
@@ -106,8 +119,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                       .getDistance(feedTarget.get().getTranslation()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(
-              AutoAim.getTargetFacingTurretPosition(robotPoseSupplier.get(), feedTarget.get()));
+          turretIO.setTurretPosition(AutoAim.getTurretTargetRotation(FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation(), robotPoseSupplier.get()));
         });
   }
 
@@ -133,8 +145,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public Rotation2d getAbsoluteTurretRotations() {
     // give valaues between 0 and 1
-    Rotation2d cancoder1 = cancoderOneInputs.cancoderPositionRotations;
-    Rotation2d cancoder2 = cancoderTwoInputs.cancoderPositionRotations;
+    Rotation2d cancoder1 = cancoder24tInputs.cancoderPositionRotations;
+    Rotation2d cancoder2 = cancoder26tInputs.cancoderPositionRotations;
 
     // if can one is bigger than can 2 its simply can1-can2
     // otherwise can1 + 1 - can2 because we want how much behind can1 it is
@@ -178,14 +190,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         getAbsoluteTurretRotations().getDegrees(), turretIO.getTurretSetpoint().getDegrees(), 1);
   }
 
-  @AutoLogOutput(key = "Shooter/Turret/Cancoder One")
-  public Rotation2d getTurretCancoderOne() {
-    return cancoderOneInputs.cancoderPositionRotations;
+  @AutoLogOutput(key = "Shooter/Turret/Cancoder 24t position")
+  public Rotation2d getTurretCancoder24tPosition() {
+    return cancoder24tInputs.cancoderPositionRotations;
   }
 
-  @AutoLogOutput(key = "Shooter/Turret/Cancoder Two")
-  public Rotation2d getTurretCancoderTwo() {
-    return cancoderOneInputs.cancoderPositionRotations;
+  @AutoLogOutput(key = "Shooter/Turret/Cancoder 26t position")
+  public Rotation2d getTurretCancoder26tPosition() {
+    return cancoder26tInputs.cancoderPositionRotations;
   }
 
   @Override
@@ -210,21 +222,16 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  @Override
-  public Command score(Supplier<ShotData> shotDataSupplier) {
-    throw new UnsupportedOperationException("Unimplemented method 'score'");
-    /* return this.run(
+  public Command score(Supplier<Pose2d> robotPoseSupplier, Supplier<ShotData> shotDataSupplier) {
+    return this.run(
 
     () -> {
       ShotData shotData =
           AutoAim.HUB_SHOT_TREE.get(AutoAim.distanceToHub(robotPoseSupplier.get()));
       hoodIO.setHoodPosition(shotData.hoodAngle());
       flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-      //turretIO.setTurretPosition(
-        //  AutoAim.getTargetFacingTurretPosition(
-           //   robotPoseSupplier.get(), FieldUtils.getCurrentHubPose()));
+      turretIO.setTurretPosition(AutoAim.getTurretTargetRotation(FieldUtils.getCurrentHubTranslation(), robotPoseSupplier.get()));
     });
-    */
   }
 
   @Override
