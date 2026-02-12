@@ -14,10 +14,10 @@ import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase {
   // From CAD
-  public static final double SPOOL_DIAMETER_METERS = Units.inchesToMeters(0.668898);
+  public static final double SPOOL_DIAMETER_METERS = Units.inchesToMeters(1.0);
   // todo: find actual constants
   public static double GEAR_RATIO = (45.0 / 1.0);
-  public static double MAX_EXTENSION_METERS = 0.2413;
+  public static double MAX_EXTENSION_METERS = 0.16748;
   public static double MAX_ACCELERATION = 10.0;
   public static double MAX_VELOCITY = 2.0;
 
@@ -57,6 +57,10 @@ public class ClimberSubsystem extends SubsystemBase {
         () -> {
           climberIO.setClimberPosition(0.0);
         });
+  }
+
+  public Command zeroClimber() {
+    return this.runOnce(() -> climberIO.resetEncoder(0.0)).ignoringDisable(true);
   }
 
   public Command runClimberSysid() {

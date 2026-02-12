@@ -429,6 +429,8 @@ public class Robot extends LoggedRobot {
 
     PhoenixOdometryThread.getInstance().start();
 
+    SmartDashboard.putData("Zero Climber", climber.zeroClimber());
+
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 
     // Set default commands
