@@ -74,7 +74,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   //             (state) -> Logger.recordOutput("Shooter/Turret/SysID State", state.toString())),
   //         new Mechanism((voltage) -> turretIO.setVoltage(voltage.in(Volts)), null, this));
 
-  //TODO actually correctly set this everywhere
+  // TODO actually correctly set this everywhere
   private Rotation2d hoodSetpoint = Rotation2d.kZero;
 
   public TurretSubsystem(FlywheelIO flywheelIO, HoodIO hoodIO) {
