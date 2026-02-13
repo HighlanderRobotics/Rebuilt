@@ -89,6 +89,13 @@ public class AutoAim {
     return rot;
   }
 
+  // this should also adjust for like the turret offset from the robot rotation but like I don't
+  // know what that is
+  public static Rotation2d getTurretTargetRotation(Translation2d target, Pose2d robotPose) {
+    Rotation2d rot = getTargetRotation(target, robotPose).minus(robotPose.getRotation());
+    return rot;
+  }
+
   public static Rotation2d getVirtualHubYaw(ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose) {
     return getVirtualTargetYaw(
         FieldUtils.getCurrentHubTranslation(), fieldRelativeSpeeds, robotPose);
