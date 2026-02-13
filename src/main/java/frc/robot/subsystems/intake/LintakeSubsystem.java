@@ -6,12 +6,9 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -26,6 +23,7 @@ import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
@@ -128,7 +126,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   public Command zeroRack() {
-    return this.runOnce(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
+    return this.runOnce(() -> rackIO.resetEncoder(0));
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {
@@ -149,8 +147,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
     config.Slot0.kP = 420.0;
 
-    // TODO: TUNE
-    config.CurrentLimits.StatorCurrentLimit = 30.0;
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
