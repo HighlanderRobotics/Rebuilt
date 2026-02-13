@@ -156,4 +156,10 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
   }
+
+  @Override
+  public Command testShoot() {
+    // whatever bro
+    return Commands.none();
+  }
 }
