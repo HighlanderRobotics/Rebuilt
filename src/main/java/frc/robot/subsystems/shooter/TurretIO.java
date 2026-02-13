@@ -23,6 +23,7 @@ public class TurretIO {
   public static double TURRET_GEAR_RATIO = (42.0 / 12.0) * (32.0 / 16.0) * (85.0 / 10.0);
 
   public static double CANCODER_24T_TO_TURRET_GEAR_RATIO = (24.0 / 32.0) * (10.0 / 85.0);
+  public static double CANCODER_26T_TO_TURRET_GEAR_RATIO = (26.0 / 32.0) * (10.0 / 85.0);
 
   // idk
   public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(0.0);
@@ -72,12 +73,12 @@ public class TurretIO {
 
     motor.getConfigurator().apply(config);
 
-      angularVelocityRotationsPerSec = motor.getVelocity();
-  positionRotations = motor.getPosition();
-  supplyCurrentAmps = motor.getSupplyCurrent();
-  statorCurrentAmps = motor.getStatorCurrent();
-  voltage = motor.getMotorVoltage();
-  tempCelcius = motor.getDeviceTemp();
+    angularVelocityRotationsPerSec = motor.getVelocity();
+    positionRotations = motor.getPosition();
+    supplyCurrentAmps = motor.getSupplyCurrent();
+    statorCurrentAmps = motor.getStatorCurrent();
+    voltage = motor.getMotorVoltage();
+    tempCelcius = motor.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,

@@ -89,7 +89,8 @@ public class Robot extends LoggedRobot {
   public static final RobotEdition ROBOT_EDITION;
   public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
-  private static final Alert unknownRioAlert = new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
+  private static final Alert unknownRioAlert =
+      new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
 
   // for replay to work properly this needs to match the edition in the log
   static {
@@ -158,7 +159,8 @@ public class Robot extends LoggedRobot {
   private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
 
   private static int lowBatteryCycleCount = 0;
-  private static final double lowBatteryVoltage = 11.8; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
+  private static final double lowBatteryVoltage =
+      11.8; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 
@@ -444,7 +446,8 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot", Commands.parallel(shooter.testShoot(), indexer.testShoot()));
-    SmartDashboard.putData("Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
+    SmartDashboard.putData(
+        "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 

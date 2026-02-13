@@ -99,9 +99,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       new LoggedTunableNumber("Shooter/Test Hood Degrees", 30.0);
   private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
-  private static final Alert cancoder24tDisconnectedAlert = new Alert("24T Cancoder disconnected!", AlertType.kError);
-    private static final Alert cancoder26tDisconnectedAlert = new Alert("26T Cancoder disconnected!", AlertType.kError);
-
+  private static final Alert cancoder24tDisconnectedAlert =
+      new Alert("24T Cancoder disconnected!", AlertType.kError);
+  private static final Alert cancoder26tDisconnectedAlert =
+      new Alert("26T Cancoder disconnected!", AlertType.kError);
 
   public TurretSubsystem(
       FlywheelIO flywheelIO,
@@ -115,19 +116,18 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
 
-    
-        // Starting positions
-        this.cancoder24t.updateInputs(cancoder24tInputs);
-        this.cancoder26t.updateInputs(cancoder26tInputs);
+    // Starting positions
+    this.cancoder24t.updateInputs(cancoder24tInputs);
+    this.cancoder26t.updateInputs(cancoder26tInputs);
 
-        Logger.processInputs("Shooter/Turret Cancoder24t", cancoder24tInputs);
-        Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
+    Logger.processInputs("Shooter/Turret Cancoder24t", cancoder24tInputs);
+    Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
 
-        // Calculate the start angle based on the two encoders
-        Rotation2d startAngle = getCalculatedTurretRotations();
-        Logger.recordOutput("Shooter/Turret/Starting Angle", startAngle);
-        // Set the sensor position to the start angle
-        turretIO.resetTurretEncoder(startAngle);
+    // Calculate the start angle based on the two encoders
+    Rotation2d startAngle = getCalculatedTurretRotations();
+    Logger.recordOutput("Shooter/Turret/Starting Angle", startAngle);
+    // Set the sensor position to the start angle
+    turretIO.resetTurretEncoder(startAngle);
   }
 
   @Override
@@ -145,15 +145,15 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
 
     cancoder24tDisconnectedAlert.set(cancoder24tInputs.connected);
-        cancoder26tDisconnectedAlert.set(cancoder26tInputs.connected);
-
+    cancoder26tDisconnectedAlert.set(cancoder26tInputs.connected);
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset = -0.304199 - 0.15; // 0.696;
+    config.MagnetSensor.MagnetOffset =
+        -0.304199 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1; // 0.696;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -163,7 +163,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset = -0.371 - 0.15; // 0.623;
+    config.MagnetSensor.MagnetOffset =
+        -0.371 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1; // 0.623;x
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -224,6 +225,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         cancoder24t.getRotations() > cancoder26t.getRotations()
             ? cancoder24t.getRotations() - cancoder26t.getRotations()
             : cancoder24t.getRotations() + 1 - cancoder26t.getRotations();
+    Logger.recordOutput(
+        "Turret/Uncorrected diff rotations",
+        cancoder24t.getRotations() - cancoder26t.getRotations());
     Logger.recordOutput("Turret/Diff Rotations", diffRotations);
     // TODO java seems to not know how mod works
     // keeping track of how many total rots can1 is doing using the diff with can2
@@ -235,6 +239,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     // should work up to there
     // multiply abs can1 rots by the gear ratio
     double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO;
+    turretRotations = MathUtil.inputModulus(turretRotations + 0.1, 0, 1);
 
     return Rotation2d.fromRotations(turretRotations);
   }
@@ -414,11 +419,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command resetTurretToPosition(Rotation2d rot) {
-    return this.runOnce(
-        () -> turretIO.resetTurretEncoder(getCalculatedTurretRotations()));
+    return this.runOnce(() -> turretIO.resetTurretEncoder(getCalculatedTurretRotations()));
   }
 
-    /**sets the motor encoder to the position calculated from the encoders */
+  /** sets the motor encoder to the position calculated from the encoders */
   public Command resetTurretToCalculatedPosition() {
     return resetTurretToPosition(getCalculatedTurretRotations());
   }

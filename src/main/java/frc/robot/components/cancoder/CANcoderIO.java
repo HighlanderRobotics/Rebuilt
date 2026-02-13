@@ -14,7 +14,7 @@ import edu.wpi.first.units.measure.Angle;
 import org.littletonrobotics.junction.AutoLog;
 
 // for cancoders that aren't on a swerve module (eg arm, intake)
-//TODO add get bad magnet alert?
+// TODO add get bad magnet alert?
 public class CANcoderIO {
 
   @AutoLog
