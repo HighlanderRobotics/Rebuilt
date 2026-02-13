@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -27,7 +28,7 @@ public class TurretIO {
   public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(0.0);
   public static Rotation2d TURRET_MAX_ROTATIONS = Rotation2d.fromRotations(0.8);
 
-  protected final TalonFX motor = new TalonFX(15, "*");
+  protected final TalonFX motor;
 
   @AutoLog
   public static class TurretIOInputs {
@@ -39,12 +40,12 @@ public class TurretIO {
     public double tempCelsius = 0.0;
   }
 
-  private final StatusSignal<AngularVelocity> angularVelocityRotationsPerSec = motor.getVelocity();
-  private final StatusSignal<Angle> positionRotations = motor.getPosition();
-  private final StatusSignal<Current> supplyCurrentAmps = motor.getSupplyCurrent();
-  private final StatusSignal<Current> statorCurrentAmps = motor.getStatorCurrent();
-  private final StatusSignal<Voltage> voltage = motor.getMotorVoltage();
-  private final StatusSignal<Temperature> tempCelcius = motor.getDeviceTemp();
+  private final StatusSignal<AngularVelocity> angularVelocityRotationsPerSec;
+  private final StatusSignal<Angle> positionRotations;
+  private final StatusSignal<Current> supplyCurrentAmps;
+  private final StatusSignal<Current> statorCurrentAmps;
+  private final StatusSignal<Voltage> voltage;
+  private final StatusSignal<Temperature> tempCelcius;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0);
@@ -52,8 +53,8 @@ public class TurretIO {
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
 
-  public TurretIO() {
-
+  public TurretIO(CANBus canivore) {
+    motor = new TalonFX(15, canivore);
     final TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -70,6 +71,13 @@ public class TurretIO {
     config.Slot0.kD = 0;
 
     motor.getConfigurator().apply(config);
+
+      angularVelocityRotationsPerSec = motor.getVelocity();
+  positionRotations = motor.getPosition();
+  supplyCurrentAmps = motor.getSupplyCurrent();
+  statorCurrentAmps = motor.getStatorCurrent();
+  voltage = motor.getMotorVoltage();
+  tempCelcius = motor.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,

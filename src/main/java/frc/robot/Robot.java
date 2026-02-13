@@ -89,6 +89,7 @@ public class Robot extends LoggedRobot {
   public static final RobotEdition ROBOT_EDITION;
   public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
+  private static final Alert unknownRioAlert = new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
 
   // for replay to work properly this needs to match the edition in the log
   static {
@@ -98,12 +99,13 @@ public class Robot extends LoggedRobot {
           case "023D2BD2":
             ROBOT_EDITION = RobotEdition.ALPHA;
             break;
-          case "0332054A": // TODO get comp rio serial number
+          case "0332054A":
             ROBOT_EDITION = RobotEdition.COMP;
             break;
           default:
             // defaulting to comp is probably safer?
             ROBOT_EDITION = RobotEdition.COMP;
+            unknownRioAlert.set(true);
         }
         break;
       case SIM:
@@ -116,8 +118,7 @@ public class Robot extends LoggedRobot {
         break;
 
       default:
-        // TODO change to comp once there is a comp bot
-        ROBOT_EDITION = RobotEdition.ALPHA;
+        ROBOT_EDITION = RobotEdition.COMP;
     }
   }
 
@@ -157,7 +158,7 @@ public class Robot extends LoggedRobot {
   private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
 
   private static int lowBatteryCycleCount = 0;
-  private static final double lowBatteryVoltage = 11.8; // TODO tune
+  private static final double lowBatteryVoltage = 11.8; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 
@@ -353,14 +354,13 @@ public class Robot extends LoggedRobot {
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
-                ROBOT_MODE == RobotMode.REAL ? new TurretIO() : new TurretIOSim(),
+                ROBOT_MODE == RobotMode.REAL ? new TurretIO(canivore) : new TurretIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
                     : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
                     : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
-        // TODO climber
         break;
     }
     climber =
@@ -444,7 +444,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot", Commands.parallel(shooter.testShoot(), indexer.testShoot()));
-    SmartDashboard.putData("Zero Turret", shooter.zeroTurret().ignoringDisable(true));
+    SmartDashboard.putData("Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 

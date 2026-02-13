@@ -12,6 +12,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -97,6 +99,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       new LoggedTunableNumber("Shooter/Test Hood Degrees", 30.0);
   private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
+  private static final Alert cancoder24tDisconnectedAlert = new Alert("24T Cancoder disconnected!", AlertType.kError);
+    private static final Alert cancoder26tDisconnectedAlert = new Alert("26T Cancoder disconnected!", AlertType.kError);
+
+
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
@@ -108,6 +114,20 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     this.turretIO = turretIO;
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
+
+    
+        // Starting positions
+        this.cancoder24t.updateInputs(cancoder24tInputs);
+        this.cancoder26t.updateInputs(cancoder26tInputs);
+
+        Logger.processInputs("Shooter/Turret Cancoder24t", cancoder24tInputs);
+        Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
+
+        // Calculate the start angle based on the two encoders
+        Rotation2d startAngle = getCalculatedTurretRotations();
+        Logger.recordOutput("Shooter/Turret/Starting Angle", startAngle);
+        // Set the sensor position to the start angle
+        turretIO.resetTurretEncoder(startAngle);
   }
 
   @Override
@@ -123,6 +143,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     cancoder26t.updateInputs(cancoder26tInputs);
     Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
+
+    cancoder24tDisconnectedAlert.set(cancoder24tInputs.connected);
+        cancoder26tDisconnectedAlert.set(cancoder26tInputs.connected);
+
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
@@ -186,7 +210,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
-  public Rotation2d getAbsoluteTurretRotations() {
+  @AutoLogOutput(key = "Shooter/Turret/Turret Calculated Rotation")
+  public Rotation2d getCalculatedTurretRotations() {
     // give valaues between 0 and 1
     Rotation2d cancoder24t = cancoder24tInputs.cancoderPositionRotations;
     Rotation2d cancoder26t = cancoder26tInputs.cancoderPositionRotations;
@@ -214,11 +239,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return Rotation2d.fromRotations(turretRotations);
   }
 
-  @AutoLogOutput(key = "Shooter/Turret/Turret Absolute Rotation")
-  public Rotation2d getTurretRotation() {
-    return getAbsoluteTurretRotations();
-  }
-
   @Override
   @AutoLogOutput(key = "Shooter/At Vel Setpoint")
   public boolean atFlywheelVelocitySetpoint() {
@@ -239,7 +259,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @AutoLogOutput(key = "Shooter/Turret/At Setpoint")
   public boolean isFacingTarget() {
     return MathUtil.isNear(
-        getAbsoluteTurretRotations().getDegrees(), getTurretSetpoint().getDegrees(), 2);
+        getCalculatedTurretRotations().getDegrees(), getTurretSetpoint().getDegrees(), 2);
   }
 
   @Override
@@ -393,8 +413,13 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   // }
 
   @Override
-  public Command zeroTurret() {
+  public Command resetTurretToPosition(Rotation2d rot) {
     return this.runOnce(
-        () -> turretIO.resetTurretEncoder(Rotation2d.kZero.minus(Rotation2d.fromRotations(0.05))));
+        () -> turretIO.resetTurretEncoder(getCalculatedTurretRotations()));
+  }
+
+    /**sets the motor encoder to the position calculated from the encoders */
+  public Command resetTurretToCalculatedPosition() {
+    return resetTurretToPosition(getCalculatedTurretRotations());
   }
 }
