@@ -40,7 +40,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public static double FLYWHEEL_GEAR_RATIO = 0.84615384615;
 
-  public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(73.16);
+  public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(73);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(23.16);
   public static double CURRENT_ZERO_THRESHOLD = 30.0;
 
@@ -93,7 +93,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   private Rotation2d hoodSetpoint = Rotation2d.kZero;
 
   private LoggedTunableNumber testDegrees =
-      new LoggedTunableNumber("Shooter/Test Hood Degrees", 10.0);
+      new LoggedTunableNumber("Shooter/Test Hood Degrees", 30.0);
   private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
   public TurretSubsystem(

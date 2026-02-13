@@ -116,7 +116,6 @@ public class HoodIO {
     config.Slot0.kV = 5.4081;
     config.Slot0.kA = 0.14829;
     config.Slot0.kP = 260.0;
-    
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
