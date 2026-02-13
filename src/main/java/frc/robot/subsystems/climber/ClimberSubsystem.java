@@ -11,7 +11,6 @@ public class ClimberSubsystem extends SubsystemBase {
   // todo: find actual constants
   public static double GEAR_RATIO = (45.0 / 1.0);
   public static double MAX_EXTENSION_METERS = 0.2413;
-  public static double SPOOL_DIAMETER_METERS = Units.inchesToMeters(0.668898);
   public static double MAX_ACCELERATION = 10.0;
   public static double MAX_VELOCITY = 2.0;
 

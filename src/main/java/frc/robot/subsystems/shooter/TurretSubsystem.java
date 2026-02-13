@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
-import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
@@ -247,49 +246,4 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               shotDataSupplier.get().flywheelVelocityRotPerSec());
         });
   }
-
-  @Override
-  public Rotation2d getHoodSetpoint() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getHoodSetpoint'");
-  }
-
-  @Override
-  public boolean isFacingTarget() {
-    return false; // TODO turret facing hub
-  }
-  // public boolean isFacingTarget() {
-  //   switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
-  //     case SCORE:
-  //       return isFacingHub();
-  //     case FEED:
-  //       return isFacingFeedTarget();
-  //     default:
-  //       return false;
-  //   }
-  // }
-
-  // public boolean isFacingHub() {
-  //   Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
-  //   return MathUtil.isNear(
-  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
-  // }
-
-  // public boolean isFacingFeedTarget() {
-  //   Translation2d feedTarget =
-  //       FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
-  //   Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
-  //   return MathUtil.isNear(
-  //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
-  // }
-
-  // @Override
-  // public double getHoodAngleRads() {
-  //   return hoodInputs.hoodPositionRotations;
-  // }
-
-  // @Override
-  // public double getTurretAngleRads() {
-  //   return 0;
-  // }
 }
