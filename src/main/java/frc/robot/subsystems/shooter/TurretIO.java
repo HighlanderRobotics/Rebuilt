@@ -21,14 +21,13 @@ import org.littletonrobotics.junction.AutoLogOutput;
 public class TurretIO {
   public static double TURRET_GEAR_RATIO = (42.0 / 12.0) * (32.0 / 16.0) * (85.0 / 10.0);
 
-  public static double CANCODER_ONE_TO_TURRET_GEAR_RATIO = (24.0 / 32.0) * (10.0 / 85.0);
+  public static double CANCODER_24T_TO_TURRET_GEAR_RATIO = (24.0 / 32.0) * (10.0 / 85.0);
 
   // idk
   public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(0.0);
   public static Rotation2d TURRET_MAX_ROTATIONS = Rotation2d.fromRotations(0.8);
 
-  // todo ID?
-  protected final TalonFX motor = new TalonFX(40, "*");
+  protected final TalonFX motor = new TalonFX(15, "*");
 
   @AutoLog
   public static class TurretIOInputs {
@@ -110,7 +109,7 @@ public class TurretIO {
                 TURRET_MAX_ROTATIONS.getRotations())));
   }
 
-  public void resetTurretPosition(Rotation2d turretRotation) {
+  public void resetTurretEncoder(Rotation2d turretRotation) {
     motor.setPosition(turretRotation.getRotations());
   }
 

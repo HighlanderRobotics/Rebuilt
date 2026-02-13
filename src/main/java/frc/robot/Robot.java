@@ -444,6 +444,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot", Commands.parallel(shooter.testShoot(), indexer.testShoot()));
+    SmartDashboard.putData("Zero Turret", shooter.zeroTurret().ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 

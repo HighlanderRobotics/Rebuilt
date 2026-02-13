@@ -129,8 +129,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset = 0.0;
-    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
+    config.MagnetSensor.MagnetOffset = -0.304199 - 0.15; // 0.696;
+    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
   }
@@ -139,8 +139,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset = 0.0;
-    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
+    config.MagnetSensor.MagnetOffset = -0.371 - 0.15; // 0.623;
+    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
   }
@@ -188,20 +188,28 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public Rotation2d getAbsoluteTurretRotations() {
     // give valaues between 0 and 1
-    Rotation2d cancoder1 = cancoder24tInputs.cancoderPositionRotations;
-    Rotation2d cancoder2 = cancoder26tInputs.cancoderPositionRotations;
+    Rotation2d cancoder24t = cancoder24tInputs.cancoderPositionRotations;
+    Rotation2d cancoder26t = cancoder26tInputs.cancoderPositionRotations;
 
     // if can one is bigger than can 2 its simply can1-can2
     // otherwise can1 + 1 - can2 because we want how much behind can1 it is
-    double diffRotations = (cancoder1.getRotations() - cancoder2.getRotations()) % 1;
+    // double diffRotations = (cancoder24t.getRotations() - cancoder26t.getRotations()) % 1;
+    double diffRotations =
+        // MathUtil.applyDeadband(cancoder24t.getRotations() - cancoder26t.getRotations(), 0.01) > 0
+        cancoder24t.getRotations() > cancoder26t.getRotations()
+            ? cancoder24t.getRotations() - cancoder26t.getRotations()
+            : cancoder24t.getRotations() + 1 - cancoder26t.getRotations();
+    Logger.recordOutput("Turret/Diff Rotations", diffRotations);
+    // TODO java seems to not know how mod works
     // keeping track of how many total rots can1 is doing using the diff with can2
     // 26/2 because gear difference of 2
-    double absoluteRotationsCan1 = diffRotations * (26.0 / 2.0);
+    double absoluteRotationsCan1 = diffRotations * (13.0);
+    Logger.recordOutput("Turret/Absolute Rotations Can 24t", absoluteRotationsCan1);
 
     // turret maxes out at less then 1 rotation which is like 11 can1 rotations anyways and it
     // should work up to there
     // multiply abs can1 rots by the gear ratio
-    double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_ONE_TO_TURRET_GEAR_RATIO;
+    double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO;
 
     return Rotation2d.fromRotations(turretRotations);
   }
@@ -383,4 +391,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   //   return MathUtil.isNear(
   //       target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   // }
+
+  @Override
+  public Command zeroTurret() {
+    return this.runOnce(
+        () -> turretIO.resetTurretEncoder(Rotation2d.kZero.minus(Rotation2d.fromRotations(0.05))));
+  }
 }
