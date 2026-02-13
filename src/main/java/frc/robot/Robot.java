@@ -9,7 +9,6 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Alert;
@@ -452,17 +451,18 @@ public class Robot extends LoggedRobot {
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     shooter.setDefaultCommand(shooter.rest());
-    swerve.setDefaultCommand(
-        swerve.driveOpenLoopFieldRelative(
-            () ->
-                new ChassisSpeeds(
-                        modifyJoystick(driver.getLeftY())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getLeftX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getRightX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-                    .times(-1)));
+    // swerve.setDefaultCommand(
+    //     swerve.driveOpenLoopFieldRelative(
+    //         () ->
+    //             new ChassisSpeeds(
+    //                     modifyJoystick(driver.getLeftY())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //                     modifyJoystick(driver.getLeftX())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //                     modifyJoystick(driver.getRightX())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+    //                 .times(-1)));
+    swerve.setDefaultCommand(swerve.stop());
     // swerve.faceHubSOTM(
     //     () ->
     //         modifyJoystick(driver.getLeftX())

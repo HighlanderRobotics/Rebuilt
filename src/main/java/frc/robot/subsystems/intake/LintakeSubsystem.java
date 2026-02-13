@@ -6,10 +6,12 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -24,12 +26,11 @@ import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
   // I'm calling zero fully retracted and 1 fully extended (so that kG works if its needed)
-  public static final double MAX_EXTENSION_METERS = Units.inchesToMeters(16.0);
+  public static final double MAX_EXTENSION_METERS = Units.inchesToMeters(12.0);
   public static final double EXTENDED_POSITION_METERS = MAX_EXTENSION_METERS;
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
@@ -134,18 +135,19 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Converts rotational motion to linear motion
     config.Feedback.SensorToMechanismRatio =
-        RACK_GEAR_RATIO * (Math.PI * RACK_PINION_DIAMETER_METERS);
+        RACK_GEAR_RATIO / (Math.PI * RACK_PINION_DIAMETER_METERS);
 
-    config.Slot0.GravityType = GravityTypeValue.Elevator_Static; // Maybe don't need this?
-    config.Slot0.kG = 0.0;
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.0;
-    config.Slot0.kP = 0.0;
-    config.Slot0.kD = 0.0;
+    // config.Slot0.GravityType = GravityTypeValue.Elevator_Static; // Maybe don't need this?
+    // config.Slot0.kG = 0.0;
+    config.Slot0.kS = 0.771;
+    config.Slot0.kV = 7.51;
+    config.Slot0.kA = 1.2;
+
+    config.Slot0.kP = 420.0;
 
     // TODO: TUNE
     config.CurrentLimits.StatorCurrentLimit = 30.0;

@@ -16,15 +16,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.FeedTargets;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -278,18 +278,18 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command score(Supplier<Pose2d> robotPoseSupplier, Supplier<ShotData> shotDataSupplier) {
     return this.run(
         () -> {
-                    hoodSetpoint = shotDataSupplier.get().hoodAngle();
+          hoodSetpoint = shotDataSupplier.get().hoodAngle();
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(
               shotDataSupplier.get().flywheelVelocityRotPerSec());
-              turretIO.setTurretPosition(
+          turretIO.setTurretPosition(
               AutoAim.getTurretTargetRotation(
                   FieldUtils.getCurrentHubTranslation(), robotPoseSupplier.get()));
         });
   }
 
   @Override
- public Command runHoodSysid() {
+  public Command runHoodSysid() {
     return Commands.sequence(
         hoodSysid
             .quasistatic(Direction.kForward)
@@ -328,7 +328,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command runTurretSysid() {
-    return Commands.sequence(turretSysid
+    return Commands.sequence(
+        turretSysid
             .quasistatic(Direction.kForward)
             .until(
                 () ->
@@ -351,7 +352,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TurretIO.TURRET_MIN_ROTATIONS.getDegrees() + 5))); 
+                        < (TurretIO.TURRET_MIN_ROTATIONS.getDegrees() + 5)));
   }
 
   // public boolean isFacingTarget() {
