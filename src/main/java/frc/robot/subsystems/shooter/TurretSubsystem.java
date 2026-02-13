@@ -91,6 +91,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   // TODO actually correctly set this everywhere
   private Rotation2d hoodSetpoint = Rotation2d.kZero;
+  private double flywheelVelSetpoint = 0.0;
 
   private LoggedTunableNumber testDegrees =
       new LoggedTunableNumber("Shooter/Test Hood Degrees", 30.0);
@@ -270,7 +271,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command testShoot() {
     return this.run(
         () -> {
+          hoodSetpoint = Rotation2d.fromDegrees(testDegrees.get());
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
         });

@@ -353,16 +353,13 @@ public class Robot extends LoggedRobot {
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                ROBOT_MODE == RobotMode.REAL ? new TurretIO() : new TurretIOSim(),
                 ROBOT_MODE == RobotMode.REAL
-                    // TODO id's
-                    ? new TurretIO()
-                    : new TurretIOSim(),
+                    ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
+                    : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIO(30, TurretSubsystem.getCancoder24tConfigs(), canivore)
-                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder24tConfigs(), canivore),
-                ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIO(30, TurretSubsystem.getCancoder26tConfigs(), canivore)
-                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder26tConfigs(), canivore));
+                    ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
+                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
         // TODO climber
         break;
     }
