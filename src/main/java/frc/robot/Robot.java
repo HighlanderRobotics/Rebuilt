@@ -448,6 +448,11 @@ public class Robot extends LoggedRobot {
         "Test shot", Commands.parallel(shooter.testShoot(), indexer.testShoot()));
     SmartDashboard.putData(
         "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
+    SmartDashboard.putData(
+        "Rezero turret against cancoders",
+        shooter
+            .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+            .ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 

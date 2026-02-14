@@ -65,11 +65,9 @@ public class TurretIO {
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
 
-    config.Slot0.kS = 0;
-    config.Slot0.kG = 0;
-    config.Slot0.kV = 0;
-    config.Slot0.kP = 0;
-    config.Slot0.kD = 0;
+    config.Slot0.kS = 0.45;
+    config.Slot0.kV = 5.7;
+    config.Slot0.kP = 240.0;
 
     motor.getConfigurator().apply(config);
 

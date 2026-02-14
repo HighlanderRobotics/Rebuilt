@@ -211,6 +211,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
+  @Override
   @AutoLogOutput(key = "Shooter/Turret/Turret Calculated Rotation")
   public Rotation2d getCalculatedTurretRotations() {
     // give valaues between 0 and 1

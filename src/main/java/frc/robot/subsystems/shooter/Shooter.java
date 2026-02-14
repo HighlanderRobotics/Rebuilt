@@ -66,4 +66,8 @@ public interface Shooter extends Subsystem {
   public default Command resetTurretToPosition(Rotation2d rot) {
     return Commands.none();
   }
+
+  public default Rotation2d getCalculatedTurretRotations() {
+    return Rotation2d.kZero;
+  }
 }
