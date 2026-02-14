@@ -313,7 +313,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
+          // turretIO.setTurretPosition(Rotation2d.fromDegrees(testTurretAngle.get()));
         });
   }
 

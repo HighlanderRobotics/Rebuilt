@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -65,6 +66,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.LoggedTunableNumber;
+import frc.robot.utils.autoaim.AutoAim;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -471,19 +473,20 @@ public class Robot extends LoggedRobot {
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
-    shooter.setDefaultCommand(shooter.rest());
-    // swerve.setDefaultCommand(
-    //     swerve.driveOpenLoopFieldRelative(
-    //         () ->
-    //             new ChassisSpeeds(
-    //                     modifyJoystick(driver.getLeftY())
-    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-    //                     modifyJoystick(driver.getLeftX())
-    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-    //                     modifyJoystick(driver.getRightX())
-    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-    //                 .times(-1)));
-    swerve.setDefaultCommand(swerve.stop());
+    // shooter.setDefaultCommand(shooter.rest());
+    shooter.setDefaultCommand(shooter.testShoot());
+    swerve.setDefaultCommand(
+        swerve.driveOpenLoopFieldRelative(
+            () ->
+                new ChassisSpeeds(
+                        modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                        modifyJoystick(driver.getLeftX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                        modifyJoystick(driver.getRightX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                    .times(-1)));
+    // swerve.setDefaultCommand(swerve.stop());
     shooter.setDefaultCommand(shooter.rest());
     indexer.setDefaultCommand(indexer.rest());
     // swerve.faceHubSOTM(
@@ -637,7 +640,9 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
     autoChooser.addOption("Kicker Sysid", indexer.runKickerSysId());
   }
-    private LoggedTunableNumber turretAngle = new LoggedTunableNumber("Turret Angle Rads", 0);
+
+  private LoggedTunableNumber turretAngle =
+      new LoggedTunableNumber("Turret Angle Degrees", 0); // sam bro why would this be radians
   private LoggedTunableNumber hoodAngle = new LoggedTunableNumber("Hood angle rads", 0);
   private LoggedTunableNumber intakeExtension = new LoggedTunableNumber("Intake extension", 0);
 
@@ -651,8 +656,22 @@ public class Robot extends LoggedRobot {
     Pose3d turretPose =
         new Pose3d(
             new Translation3d(-0.177413, -0.111702, 0.350341),
-            new Rotation3d(0, 0, turretAngle.getAsDouble()));
-
+            // new Rotation3d(0, 0, Units.degreesToRadians(turretAngle.getAsDouble())));
+            new Rotation3d(
+                0,
+                0,
+                Units.degreesToRadians(
+                    MathUtil.clamp(
+                        AutoAim.getVirtualHubYaw(
+                                swerve.getVelocityFieldRelative(), swerve.getPose())
+                            .plus(Rotation2d.k180deg)
+                            .minus(swerve.getRotation())
+                            // .getRadians()
+                            .getDegrees(),
+                        TurretSubsystem.TURRET_MIN_ROTATIONS.getDegrees(),
+                        TurretSubsystem.TURRET_MAX_ROTATIONS.getDegrees()))));
+    // 0));
+    // ));
     // TODO: USE MEASURED EXTENSIONS AND ANGLES
     Logger.recordOutput(
         "Robot/Mechanism Poses",
@@ -669,7 +688,8 @@ public class Robot extends LoggedRobot {
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
-                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
+                      new Translation3d(-0.095638, 0, 0.095123).times(-1),
+                      new Rotation3d(0, 0, 0))),
           // Intake
           new Pose3d(
               intake.getExtensionMeters() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
