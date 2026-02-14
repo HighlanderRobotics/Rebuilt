@@ -466,7 +466,7 @@ public class Robot extends LoggedRobot {
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     shooter.setDefaultCommand(shooter.rest());
     swerve.setDefaultCommand(
-        swerve.driveOpenLoopRobotRelative(
+        swerve.driveOpenLoopFieldRelative(
             () ->
                 new ChassisSpeeds(
                         modifyJoystick(driver.getLeftY())

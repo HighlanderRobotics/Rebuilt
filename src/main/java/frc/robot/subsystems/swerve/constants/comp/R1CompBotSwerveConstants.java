@@ -199,9 +199,9 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   @Override
   public Pigeon2Configuration getGyroConfig() {
     Pigeon2Configuration config = new Pigeon2Configuration();
-    config.MountPose.MountPosePitch = 0.0;
-    config.MountPose.MountPoseRoll = 0.0;
-    config.MountPose.MountPoseYaw = 0.0;
+    config.MountPose.MountPosePitch = -0.420589417219162;
+    config.MountPose.MountPoseRoll = -179.8539581298828;
+    config.MountPose.MountPoseYaw = -86.66709899902344;
     return config;
   }
 
