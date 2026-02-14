@@ -20,6 +20,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -36,10 +37,11 @@ public class MaplePhoenixUtil {
 
     private final TalonFXSimState talonFXSimState;
 
-    public TalonFXMotorControllerSim(TalonFX talonFX, boolean motorInverted) {
+    public TalonFXMotorControllerSim(TalonFX talonFX, MotorType motorType, boolean motorInverted) {
       this.id = instances++;
 
       this.talonFXSimState = talonFX.getSimState();
+      this.talonFXSimState.setMotorType(motorType);
       talonFXSimState.Orientation =
           motorInverted
               ? ChassisReference.Clockwise_Positive
@@ -66,11 +68,12 @@ public class MaplePhoenixUtil {
 
     public TalonFXMotorControllerWithRemoteCancoderSim(
         TalonFX talonFX,
+        MotorType motorType,
         boolean motorInverted,
         CANcoder cancoder,
         boolean encoderInverted,
         Angle encoderOffset) {
-      super(talonFX, motorInverted);
+      super(talonFX, motorType, motorInverted);
       this.remoteCancoderSimState = cancoder.getSimState();
       this.remoteCancoderSimState.Orientation =
           encoderInverted

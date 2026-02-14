@@ -1,66 +1,156 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.indexer;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static edu.wpi.first.units.Units.Volts;
 
-/** Spindexer = SPINning Indexer. !! COMP !! */
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
+import frc.robot.components.rollers.RollerIO;
+import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
+
+/** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
-  
-  /** Creates a new SpindexerSubsystem. */
-  public SpindexerSubsystem() {}
+  public static final double GEAR_RATIO = 2.0;
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+  private RollerIO indexRollerIO;
 
-  @Override
-  public boolean isFull() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'isFull'");
-  }
+  RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
-  @Override
-  public boolean isEmpty() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'isEmpty'");
-  }
+  RollerIO kickerIO;
+  RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
-  @Override
-  public boolean isPartiallyFull() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'isPartiallyFull'");
+  private SysIdRoutine indexRollerSysid =
+      new SysIdRoutine(
+          new Config(
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
+          new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
+
+  public static final double MAX_ACCELERATION = 10.0;
+  public static final double MAX_VELOCITY = 10.0;
+  public static final double KICKER_GEAR_RATIO = 2.0;
+
+  public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
+    this.kickerIO = kickerIO;
+    this.indexRollerIO = indexRollerIO;
   }
 
   @Override
   public Command index() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'index'");
-  }
-
-  @Override
-  public Command spit() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'spit'");
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(7);
+          kickerIO.setRollerVoltage(7);
+        });
   }
 
   @Override
   public Command kick() {
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(12);
+          kickerIO.setRollerVoltage(-7);
+        });
+  }
+
+  @Override
+  public Command spit() {
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(-5);
+          kickerIO.setRollerVoltage(-5);
+        });
+  }
+
+  @Override
+  public Command rest() {
+    return this.run(
+        () -> {
+          indexRollerIO.setRollerVoltage(0.0);
+          kickerIO.setRollerVoltage(0.0);
+        });
+  }
+
+  public static TalonFXConfiguration getIndexerConfigs() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
+
+    config.Slot0.kS = 0;
+    config.Slot0.kG = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getKickerConfigs() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    // Converts angular motion to linear motion
+    config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
+
+    config.Slot0.kS = 0;
+    config.Slot0.kG = 0;
+    config.Slot0.kV = 0;
+    config.Slot0.kP = 0;
+    config.Slot0.kD = 0;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
+
+    return config;
+  }
+
+  public Command kick(BooleanSupplier shooterAtSetpoint) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'kick'");
   }
 
   @Override
-  public Command rest() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'rest'");
+  public void periodic() {
+    indexRollerIO.updateInputs(rollerInputs);
+    Logger.processInputs("Indexer/Roller", rollerInputs);
+    kickerIO.updateInputs(kickerInputs);
+    Logger.processInputs("Indexer/Kicker", kickerInputs);
   }
-   public double getSpindexerVoltage() {
-    return inputs.appliedVoltage;
+
+  public Command runRollerSysId() {
+    return Commands.sequence(
+        indexRollerSysid.quasistatic(Direction.kForward),
+        indexRollerSysid.quasistatic(Direction.kReverse),
+        indexRollerSysid.dynamic(Direction.kForward),
+        indexRollerSysid.dynamic(Direction.kReverse));
   }
 }
