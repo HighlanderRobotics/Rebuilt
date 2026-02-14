@@ -445,7 +445,11 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Intake", intake.zeroRack().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
-        "Test shot", Commands.parallel(shooter.testShoot(), indexer.testShoot()));
+        "Test shot",
+        Commands.parallel(
+            shooter.testShoot(),
+            Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
+                .andThen(indexer.testShoot())));
     SmartDashboard.putData(
         "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
     SmartDashboard.putData(
