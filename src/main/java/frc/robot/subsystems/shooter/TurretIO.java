@@ -25,10 +25,6 @@ public class TurretIO {
   public static double CANCODER_24T_TO_TURRET_GEAR_RATIO = (24.0 / 32.0) * (10.0 / 85.0);
   public static double CANCODER_26T_TO_TURRET_GEAR_RATIO = (26.0 / 32.0) * (10.0 / 85.0);
 
-  // idk
-  public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(0.0);
-  public static Rotation2d TURRET_MAX_ROTATIONS = Rotation2d.fromRotations(0.8);
-
   protected final TalonFX motor;
 
   @AutoLog
@@ -112,8 +108,8 @@ public class TurretIO {
         motionMagic.withPosition(
             MathUtil.clamp(
                 positionAngle.getRotations(),
-                TURRET_MIN_ROTATIONS.getRotations(),
-                TURRET_MAX_ROTATIONS.getRotations())));
+                TurretSubsystem.TURRET_MIN_ROTATIONS.getRotations(),
+                TurretSubsystem.TURRET_MAX_ROTATIONS.getRotations())));
   }
 
   public void resetTurretEncoder(Rotation2d turretRotation) {

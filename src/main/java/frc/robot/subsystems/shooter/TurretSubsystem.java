@@ -46,6 +46,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(23.16);
   public static double CURRENT_ZERO_THRESHOLD = 30.0;
 
+  public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(-0.719536);
+  public static Rotation2d TURRET_MAX_ROTATIONS = Rotation2d.fromRotations(0.011378);
+
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
 
@@ -207,7 +210,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
-          turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(TURRET_MIN_ROTATIONS);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
@@ -373,25 +376,25 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        > (TurretIO.TURRET_MAX_ROTATIONS.getDegrees() - 5)), // Stop before endstop
+                        > (TURRET_MAX_ROTATIONS.getDegrees() - 5)), // Stop before endstop
         turretSysid
             .quasistatic(Direction.kReverse)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TurretIO.TURRET_MIN_ROTATIONS.getDegrees() + 5)),
+                        < (TURRET_MIN_ROTATIONS.getDegrees() + 5)),
         turretSysid
             .dynamic(Direction.kForward)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        > (TurretIO.TURRET_MAX_ROTATIONS.getDegrees() - 5)),
+                        > (TURRET_MAX_ROTATIONS.getDegrees() - 5)),
         turretSysid
             .dynamic(Direction.kReverse)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TurretIO.TURRET_MIN_ROTATIONS.getDegrees() + 5)));
+                        < (TURRET_MIN_ROTATIONS.getDegrees() + 5)));
   }
 
   // public boolean isFacingTarget() {
