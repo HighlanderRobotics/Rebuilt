@@ -151,7 +151,7 @@ public class FlywheelIO {
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = false; //TODO add current limits back!!!
+    config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
 
     config.MotionMagic.MotionMagicAcceleration = 100.0;

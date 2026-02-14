@@ -242,7 +242,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     double turretRotations = absoluteRotationsCan1 * TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO;
     turretRotations = MathUtil.inputModulus(turretRotations + 0.1, 0, 1);
 
-    return Rotation2d.fromRotations(turretRotations);
+    // offset such that the shooter facing forward is 0
+    return Rotation2d.fromRotations(turretRotations - (325.58 / 360.0));
   }
 
   @Override
