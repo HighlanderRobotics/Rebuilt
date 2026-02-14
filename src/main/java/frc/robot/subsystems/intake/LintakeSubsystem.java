@@ -41,7 +41,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     throw new UnsupportedOperationException("Unimplemented method 'extend'");
   }
 
-  public static double getRollerVoltage() {
+  public double getRollerVoltage() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'getRollerVoltage'");
   }

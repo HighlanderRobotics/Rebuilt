@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Spindexer = SPINning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
+
+  
   /** Creates a new SpindexerSubsystem. */
   public SpindexerSubsystem() {}
 
@@ -57,5 +59,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   public Command rest() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'rest'");
+  }
+   public double getSpindexerVoltage() {
+    return inputs.appliedVoltage;
   }
 }
