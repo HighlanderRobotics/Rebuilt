@@ -171,22 +171,24 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   // TODO: CANCODER OFFSETS
   @Override
   public ModuleConstants getFrontLeftModuleConstants() {
-    return new ModuleConstants(0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(0.224));
+    return new ModuleConstants(
+        0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(-0.22656).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getFrontRightModuleConstants() {
-    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(0.3872));
+    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(-0.388));
   }
 
   @Override
   public ModuleConstants getBackLeftModuleConstants() {
-    return new ModuleConstants(2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.3020));
+    return new ModuleConstants(
+        2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(-0.3).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getBackRightModuleConstants() {
-    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(-0.3303));
+    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(0.3303));
   }
 
   @Override
@@ -255,13 +257,13 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
     turnConfig.Feedback.FeedbackRotorOffset = 0.0;
     // Controls Gains
     // Copied from Kelpie
-    turnConfig.Slot0.kV = ((5800 / 60) / getTurnGearRatio()) / 12;
-    turnConfig.Slot0.kA = 0.031543;
-    turnConfig.Slot0.kS = 0.27;
-    turnConfig.Slot0.kP = 20.0;
-    turnConfig.Slot0.kD = 0.68275;
-    turnConfig.MotionMagic.MotionMagicCruiseVelocity = (5500 / 60) / getTurnGearRatio();
-    turnConfig.MotionMagic.MotionMagicAcceleration = (5500 / 60) / (getTurnGearRatio() * 0.005);
+    turnConfig.Slot0.kV = 1.7; // 0.40034; // ((5800 / 60) / getTurnGearRatio()) / 12;
+    turnConfig.Slot0.kA = 0.10881; // 0.031543;
+    turnConfig.Slot0.kS = 0.7988;
+    turnConfig.Slot0.kP = 250.0; // 0; // 50.13; // 20.0;
+    turnConfig.Slot0.kD = 1.0; // 3; // 0.68275;
+    turnConfig.MotionMagic.MotionMagicCruiseVelocity = (7368 / 60) / getTurnGearRatio();
+    turnConfig.MotionMagic.MotionMagicAcceleration = (7368 / 60) / (getTurnGearRatio() * 0.005);
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
     return turnConfig;
@@ -287,9 +289,10 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
     final var cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.MagnetOffset = cancoderOffset.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection =
-        getTurnMotorInverted()
-            ? SensorDirectionValue.CounterClockwise_Positive
-            : SensorDirectionValue.Clockwise_Positive;
+        // getTurnMotorInverted()
+        //     ? SensorDirectionValue.CounterClockwise_Positive
+        //     : SensorDirectionValue.Clockwise_Positive;
+        SensorDirectionValue.CounterClockwise_Positive;
     return cancoderConfig;
   }
 

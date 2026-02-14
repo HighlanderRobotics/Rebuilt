@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Volts;
 
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.CANBus;
@@ -26,6 +27,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
@@ -114,6 +119,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Alert usingSyncOdoAlert = new Alert("Using Sync Odometry", AlertType.kInfo);
   private Alert missingModuleData = new Alert("Missing Module Data", AlertType.kError);
   private Alert missingGyroData = new Alert("Missing Gyro Data", AlertType.kWarning);
+
+  private final SysIdRoutine turnSysid;
 
   // Maple Sim Stuff
   private final DriveTrainSimulationConfig driveTrainSimConfig =
@@ -241,6 +248,17 @@ public class SwerveSubsystem extends SubsystemBase {
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
       SimulatedArena.getInstance().addDriveTrainSimulation(swerveSimulation);
     }
+
+    this.turnSysid =
+        new SysIdRoutine(
+            new Config(
+                null,
+                null,
+                null,
+                (state) ->
+                    Logger.recordOutput(
+                        "Swerve/" + modules[0].getPrefix() + "/Sysid State", state.toString())),
+            new Mechanism((voltage) -> modules[0].setTurnVoltage(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -790,5 +808,13 @@ public class SwerveSubsystem extends SubsystemBase {
     SimulatedArena.getInstance().simulationPeriodic();
     // Log simulated pose
     Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
+  }
+
+  public Command runTurnSysid() {
+    return Commands.sequence(
+        turnSysid.quasistatic(Direction.kForward),
+        turnSysid.quasistatic(Direction.kReverse),
+        turnSysid.dynamic(Direction.kForward),
+        turnSysid.dynamic(Direction.kReverse));
   }
 }
