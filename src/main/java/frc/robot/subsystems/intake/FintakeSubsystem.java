@@ -103,4 +103,9 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   public Command zeroRack() {
     return this.idle();
   }
+
+  @Override
+  public Command runCurrentZeroing() {
+    return this.idle();
+  }
 }

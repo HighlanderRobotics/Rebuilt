@@ -28,4 +28,6 @@ public interface Intake {
   }
 
   public Command zeroRack();
+
+  public Command runCurrentZeroing();
 }
