@@ -79,12 +79,7 @@ public class ClimberIO {
     config.Feedback.SensorToMechanismRatio =
         ClimberSubsystem.GEAR_RATIO / (Math.PI * ClimberSubsystem.SPOOL_DIAMETER_METERS);
 
-    // todo: tune
-    config.Slot0.kS = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kV = 0.0;
-    config.Slot0.kP = 0.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kP = 600.0;
 
     // todo: find actual current limits
     config.CurrentLimits.StatorCurrentLimit = 50.00;
