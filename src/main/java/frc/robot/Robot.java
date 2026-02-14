@@ -472,6 +472,8 @@ public class Robot extends LoggedRobot {
     //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
     //                 .times(-1)));
     swerve.setDefaultCommand(swerve.stop());
+    shooter.setDefaultCommand(shooter.rest());
+    indexer.setDefaultCommand(indexer.rest());
     // swerve.faceHubSOTM(
     //     () ->
     //         modifyJoystick(driver.getLeftX())

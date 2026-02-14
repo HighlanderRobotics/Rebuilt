@@ -6,9 +6,10 @@ package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /** Add your docs here. */
-public interface Indexer {
+public interface Indexer extends Subsystem {
 
   /** Run indexer towards shooter and kicker away from shooter */
   public Command index();
