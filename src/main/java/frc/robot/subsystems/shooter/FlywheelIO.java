@@ -144,15 +144,15 @@ public class FlywheelIO {
 
     config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
 
-    config.Slot0.kS = 0;
-    config.Slot0.kV = 0;
-    config.Slot0.kA = 0;
-    config.Slot0.kP = 0;
+    config.Slot0.kS = 0.63933;
+    config.Slot0.kV = 0.11582;
+    config.Slot0.kA = 0.020809;
+    config.Slot0.kP = 0.4;
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
 
     config.MotionMagic.MotionMagicAcceleration = 100.0;
 

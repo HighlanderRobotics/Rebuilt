@@ -67,6 +67,14 @@ public class LinearRackIO {
   }
 
   public void updateInputs(LinearRackIOInputs inputs) {
+    BaseStatusSignal.refreshAll(
+        positionMeters,
+        velocityMetersPerSecond,
+        voltage,
+        statorCurrent,
+        supplyCurrent,
+        temperature);
+
     inputs.positionMeters = positionMeters.getValueAsDouble();
     inputs.velocityMetersPerSecond = velocityMetersPerSecond.getValueAsDouble();
     inputs.voltage = voltage.getValueAsDouble();

@@ -108,4 +108,9 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   public double getExtensionSetpointMeters() {
     return 0;
   }
+
+  @Override
+  public Command zeroRack() {
+    return this.idle();
+  }
 }

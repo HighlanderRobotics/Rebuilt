@@ -105,21 +105,17 @@ public class HoodIO {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-    config.Slot0.kS = 0;
-    config.Slot0.kG = 0;
-    config.Slot0.kV = 0;
-    config.Slot0.kP = 0;
-    config.Slot0.kD = 0;
+    config.Slot0.kS = 0.57613;
+    config.Slot0.kG = 0.35748;
+    config.Slot0.kV = 5.4081;
+    config.Slot0.kA = 0.14829;
+    config.Slot0.kP = 260.0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;

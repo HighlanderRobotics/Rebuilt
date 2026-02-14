@@ -10,9 +10,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.utils.LoggedTunableNumber;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -37,9 +40,22 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
           new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
+  private SysIdRoutine kickerSysid =
+      new SysIdRoutine(
+          new Config(
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Indexer/Kicker/SysID State", state.toString())),
+          new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
+
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
   public static final double KICKER_GEAR_RATIO = 2.0;
+
+  private LoggedTunableNumber testKickVolts = new LoggedTunableNumber("Indexer/Kicker Voltage", 10);
+  private LoggedTunableNumber testSpinVolts =
+      new LoggedTunableNumber("Indexer/Spinner Voltage", 10);
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
@@ -98,8 +114,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
@@ -124,8 +140,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
@@ -152,5 +168,23 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.quasistatic(Direction.kReverse),
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
+  }
+
+  @Override
+  public Command runKickerSysId() {
+    return Commands.sequence(
+        kickerSysid.quasistatic(Direction.kForward),
+        kickerSysid.quasistatic(Direction.kReverse),
+        kickerSysid.dynamic(Direction.kForward),
+        kickerSysid.dynamic(Direction.kReverse));
+  }
+
+  @Override
+  public Command testShoot() {
+    return this.run(
+        () -> {
+          kickerIO.setRollerVoltage(testKickVolts.get());
+          indexRollerIO.setRollerVoltage(testSpinVolts.get());
+        });
   }
 }

@@ -27,29 +27,30 @@ Gyro (Pigeon2) | 0
 
 
 # Comp
-Device | CAN ID
------- | ------
-Front Left Drive (X60) | 0
-Front Left Steer (X44) | 1
-Front Right Drive (X60) | 2
-Front Right Steer (X44) | 3
-Back Left Drive (X60) | 4
-Back Left Steer (X44) | 5
-Back Right Drive (X60) | 6
-Back Right Steer (X44) | 7
-Lintake Rollers (X44) | 8
-Spindexer Agitator (X44) | 9
-Kicker Rollers (X44) | 10
-Shooter Hood (X44) | 11
-Shooter Flywheel Leader (X60) | 12
-Shooter Flywheel Follower (X60) | 13
-Lintake Extension (X44) | 14
-Turret Pivot (X44) | 15
+Device | CAN ID | Code
+------ | ------ | ------
+Front Left Drive | 0 | X60-044
+Front Left Steer | 1 | X44-014
+Front Right Drive | 2 | X60-045
+Front Right Steer | 3 | X44-013
+Back Left Drive | 4 | X60-043
+Back Left Steer | 5 | X44-016
+Back Right Drive | 6 | X60-042
+Back Right Steer | 7 | X44-015
+Intake Rollers | 8 | X44-018
+Spindexer Agitator | 9 | X60-046
+Kicker Roller | 10 | X60-051
+Shooter Hood | 11 | X44-002
+Shooter Flywheel Leader (Left) | 12 | X60-052
+Shooter Flywheel Follower (Right) | 13 | X60-047
+intake Extension | 14 | X44-017
+Turret Pivot | 15 | X44-001
+Climber | 16 | X60-049
 Front Left Encoder (CANcoder) | 0
 Front Right Encoder (CANcoder) | 1
 Back Left Encoder (CANcoder) | 2
 Back Right Encoder (CANcoder) | 3
-Turret Encoder (X teeth) (Throughbore CANcoder) | 4
-Turret Encoder (Y teeth) (Throughbore CANcoder) | 5
+Turret Encoder (26 teeth) (Throughbore CANcoder) | 4
+Turret Encoder (24 teeth) (Throughbore CANcoder) | 5
 Intake Beambreak (CANrange) | 0
 Gyro (Pigeon2) | 0

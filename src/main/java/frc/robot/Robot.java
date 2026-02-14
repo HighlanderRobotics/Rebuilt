@@ -34,6 +34,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
+import frc.robot.components.cancoder.CANcoderIO;
+import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
@@ -56,6 +58,8 @@ import frc.robot.subsystems.shooter.HoodIO;
 import frc.robot.subsystems.shooter.HoodIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretIO;
+import frc.robot.subsystems.shooter.TurretIOSim;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
@@ -92,6 +96,8 @@ public class Robot extends LoggedRobot {
   public static final RobotEdition ROBOT_EDITION;
   public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
+  private static final Alert unknownRioAlert =
+      new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
 
   // for replay to work properly this needs to match the edition in the log
   static {
@@ -101,12 +107,13 @@ public class Robot extends LoggedRobot {
           case "023D2BD2":
             ROBOT_EDITION = RobotEdition.ALPHA;
             break;
-          case "2": // TODO get comp rio serial number
+          case "0332054A":
             ROBOT_EDITION = RobotEdition.COMP;
             break;
           default:
             // defaulting to comp is probably safer?
             ROBOT_EDITION = RobotEdition.COMP;
+            unknownRioAlert.set(true);
         }
         break;
       case SIM:
@@ -119,8 +126,7 @@ public class Robot extends LoggedRobot {
         break;
 
       default:
-        // TODO change to comp once there is a comp bot
-        ROBOT_EDITION = RobotEdition.ALPHA;
+        ROBOT_EDITION = RobotEdition.COMP;
     }
   }
 
@@ -160,7 +166,8 @@ public class Robot extends LoggedRobot {
   private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
 
   private static int lowBatteryCycleCount = 0;
-  private static final double lowBatteryVoltage = 11.8; // TODO tune
+  private static final double lowBatteryVoltage =
+      11.8; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 
@@ -356,7 +363,14 @@ public class Robot extends LoggedRobot {
                 ROBOT_MODE == RobotMode.REAL
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
-                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11));
+                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                ROBOT_MODE == RobotMode.REAL ? new TurretIO(canivore) : new TurretIOSim(canivore),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
+                    : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
+                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
         break;
     }
     climber =
@@ -366,6 +380,8 @@ public class Robot extends LoggedRobot {
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+    addCompSysids(climber, indexer, intake, shooter);
+
     autoAimReq =
         driver
             .leftBumper()
@@ -433,23 +449,43 @@ public class Robot extends LoggedRobot {
 
     PhoenixOdometryThread.getInstance().start();
 
+    SmartDashboard.putData("Zero Climber", climber.zeroClimber().ignoringDisable(true));
+    SmartDashboard.putData("Zero Intake", intake.zeroRack().ignoringDisable(true));
+    SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
+    SmartDashboard.putData(
+        "Test shot",
+        Commands.parallel(
+            shooter.testShoot(),
+            Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
+                .andThen(indexer.testShoot())));
+    SmartDashboard.putData(
+        "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
+    SmartDashboard.putData(
+        "Rezero turret against cancoders",
+        shooter
+            .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+            .ignoringDisable(true));
+
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     shooter.setDefaultCommand(shooter.rest());
-    swerve.setDefaultCommand(
-        swerve.driveOpenLoopFieldRelative(
-            () ->
-                new ChassisSpeeds(
-                        modifyJoystick(driver.getLeftY())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getLeftX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getRightX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-                    .times(-1)));
+    // swerve.setDefaultCommand(
+    //     swerve.driveOpenLoopFieldRelative(
+    //         () ->
+    //             new ChassisSpeeds(
+    //                     modifyJoystick(driver.getLeftY())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //                     modifyJoystick(driver.getLeftX())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //                     modifyJoystick(driver.getRightX())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+    //                 .times(-1)));
+    swerve.setDefaultCommand(swerve.stop());
+    shooter.setDefaultCommand(shooter.rest());
+    indexer.setDefaultCommand(indexer.rest());
     // swerve.faceHubSOTM(
     //     () ->
     //         modifyJoystick(driver.getLeftX())
@@ -478,10 +514,11 @@ public class Robot extends LoggedRobot {
             })
         .onTrue(
             Commands.runOnce(() -> addAutos())
-                .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
-                .ignoringDisable(true));
+                .alongWith(
+                    leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0)
+                        .withTimeout(1.0)
+                        .ignoringDisable(true)));
     // TODO tbh idk if the leds will work here
-
     // Add autos when first connecting to DS
     new Trigger(
             () ->
@@ -589,12 +626,18 @@ public class Robot extends LoggedRobot {
   }
 
   // Sysid Autos
-  // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-  // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-  // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-  // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-
-  private LoggedTunableNumber turretAngle = new LoggedTunableNumber("Turret Angle Rads", 0);
+  private void addCompSysids(
+      ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
+    autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
+    autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
+    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
+    autoChooser.addOption("Kicker Sysid", indexer.runKickerSysId());
+  }
+    private LoggedTunableNumber turretAngle = new LoggedTunableNumber("Turret Angle Rads", 0);
   private LoggedTunableNumber hoodAngle = new LoggedTunableNumber("Hood angle rads", 0);
   private LoggedTunableNumber intakeExtension = new LoggedTunableNumber("Intake extension", 0);
 
