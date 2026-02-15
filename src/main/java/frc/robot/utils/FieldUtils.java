@@ -73,12 +73,15 @@ public class FieldUtils {
     // Grabbed in Choreo. Needs real testing
     // 3.05 is climber offset
     // TODO: VERIFY POSES
-    BLUE_RIGHT(
-        new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg), false, true),
     BLUE_LEFT(
+        new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg), true, true),
+    BLUE_RIGHT(
         // x2 offset because we need to offset again after rotating 180 deg
-        new Pose2d(1.189 - (Units.inchesToMeters(3.05) * 2), 2.845, Rotation2d.kCW_90deg),
-        true,
+        new Pose2d(
+            1.189 - (Units.inchesToMeters(3.05) * 2),
+            2.845 + Units.inchesToMeters(1),
+            Rotation2d.kCW_90deg),
+        false,
         true),
     RED_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_RIGHT.getPose()), false, false),
     RED_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_LEFT.getPose()), true, false);
