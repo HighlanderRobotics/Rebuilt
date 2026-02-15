@@ -74,7 +74,12 @@ public class FieldUtils {
     // 3.05 is climber offset
     // TODO: VERIFY POSES
     BLUE_LEFT(
-        new Pose2d(1.189 - Units.inchesToMeters(3.05), 4.658, Rotation2d.kCCW_90deg), true, true),
+        new Pose2d(
+            1.189 - Units.inchesToMeters(3.05),
+            4.658 - Units.inchesToMeters(1),
+            Rotation2d.kCCW_90deg),
+        true,
+        true),
     BLUE_RIGHT(
         // x2 offset because we need to offset again after rotating 180 deg
         new Pose2d(
