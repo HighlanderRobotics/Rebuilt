@@ -2,10 +2,12 @@ package frc.robot.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -17,7 +19,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final double SPOOL_DIAMETER_METERS = Units.inchesToMeters(1.0);
   // todo: find actual constants
   public static double GEAR_RATIO = (45.0 / 1.0);
-  public static double MAX_EXTENSION_METERS = 0.16748;
+  public static double MAX_EXTENSION_METERS = 0.16748 + Units.inchesToMeters(2);
   public static double MAX_ACCELERATION = 10.0;
   public static double MAX_VELOCITY = 2.0;
 
@@ -33,10 +35,17 @@ public class ClimberSubsystem extends SubsystemBase {
               (state) -> Logger.recordOutput("Climber/SysID State", state.toString())),
           new Mechanism((voltage) -> climberIO.setClimberVoltage(voltage.in(Volts)), null, this));
 
+          private   double currentFilterValue = 0.0;
+            private LinearFilter currentFilter = LinearFilter.movingAverage(10);
+            private static final double CURRENT_ZERO_THRESHOLD = 30;
+
+
   @Override
   public void periodic() {
     climberIO.updateInputs(climberInputs);
     Logger.processInputs("Climber", climberInputs);
+        currentFilterValue = currentFilter.calculate(climberInputs.motorStatorCurrentAmps);
+
   }
 
   // member variables here?
@@ -83,5 +92,12 @@ public class ClimberSubsystem extends SubsystemBase {
         climberSysid
             .dynamic(Direction.kReverse)
             .until(() -> climberInputs.motorPositionMeters < Units.inchesToMeters(1)));
+  }
+
+  public Command runCurrentZeroing() {
+    return this.run(() -> climberIO.setClimberVoltage(-3.0))
+        .until(
+            new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD).debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
   }
 }

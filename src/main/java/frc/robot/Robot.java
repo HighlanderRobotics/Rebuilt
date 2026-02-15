@@ -477,8 +477,8 @@ public class Robot extends LoggedRobot {
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                     .times(-1)));
     // swerve.setDefaultCommand(swerve.stop());
-    shooter.setDefaultCommand(shooter.rest());
     indexer.setDefaultCommand(indexer.rest());
+    intake.setDefaultCommand(intake.restRetracted());
     // swerve.faceHubSOTM(
     //     () ->
     //         modifyJoystick(driver.getLeftX())
@@ -590,14 +590,13 @@ public class Robot extends LoggedRobot {
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
 
     // TODO ACTUAL BUTTON BINDING FOR CLIMBER
-    driver.x().onTrue(climber.extendClimber());
-    driver.y().onTrue(climber.retractClimber());
+    driver.x().onTrue(climber.extendClimber().alongWith(intake.climb()));
+    driver.y().onTrue(climber.retractClimber().alongWith(intake.climb()));
 
     // current zero shooter hood
-    driver.b().whileTrue(shooter.runCurrentZeroing());
-    driver.a().whileTrue(intake.runCurrentZeroing());
+    driver.b().whileTrue(shooter.runCurrentZeroing().alongWith(intake.runCurrentZeroing()).alongWith(climber.runCurrentZeroing()));
 
-    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
     // ---zeroing stuff---
 

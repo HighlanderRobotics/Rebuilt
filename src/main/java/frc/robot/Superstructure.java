@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Robot.RobotEdition;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
@@ -168,16 +167,17 @@ public class Superstructure {
         new Trigger(shooter::atFlywheelVelocitySetpoint)
             .debounce(0.1)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
-            .and(
-                new Trigger(
-                        () -> {
-                          if (Robot.ROBOT_EDITION == RobotEdition.ALPHA) {
-                            return swerve.isFacingTarget();
-                          } else {
-                            return shooter.isFacingTarget();
-                          }
-                        })
-                    .debounce(0.07));
+    // .and(
+    //     new Trigger(
+    //             () -> {
+    //               if (Robot.ROBOT_EDITION == RobotEdition.ALPHA) {
+    //                 return swerve.isFacingTarget();
+    //               } else {
+    //                 return shooter.isFacingTarget();
+    //               }
+    //             })
+    //         .debounce(0.07));
+    ;
   }
 
   private void addTransitions() {
@@ -283,27 +283,27 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         intake.rest(),
         indexer.rest(),
-        shooter.score(
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            () ->
-                AutoAim.getCompensatedSOTMShotData(
-                    swerve.getPose(),
-                    FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative())));
-    // shooter.testShoot());
+        // shooter.score(
+        //     () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+        //     () ->
+        //         AutoAim.getCompensatedSOTMShotData(
+        //             swerve.getPose(),
+        //             FieldUtils.getCurrentHubTranslation(),
+        //             swerve.getVelocityFieldRelative())));
+        shooter.testShoot());
 
     bindCommands(
         SuperState.SCORE,
         intake.rest(),
         indexer.kick(),
-        shooter.score(
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            () ->
-                AutoAim.getCompensatedSOTMShotData(
-                    swerve.getPose(),
-                    FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative())));
-    // shooter.testShoot());
+        // shooter.score(
+        //     () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+        //     () ->
+        //         AutoAim.getCompensatedSOTMShotData(
+        //             swerve.getPose(),
+        //             FieldUtils.getCurrentHubTranslation(),
+        //             swerve.getVelocityFieldRelative())));
+        shooter.testShoot());
 
     bindCommands(
         SuperState.SPIN_UP_SCORE_FLOW,

@@ -34,7 +34,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
   public static final double ROLLER_GEAR_RATIO = 34 / 15;
-  public static final double CURRENT_ZEROING_THRESHOLD = 30; // TODO: TUNE
+  public static final double CURRENT_ZEROING_THRESHOLD = 40; // TODO: TUNE
 
   private final LinearRackIO rackIO;
   private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
@@ -217,5 +217,19 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
         extensionSysid
             .dynamic(Direction.kReverse)
             .until(() -> rackIOInputs.positionMeters < Units.inchesToMeters(1)));
+  }
+
+  @Override
+  public Command climb() {
+    return this.run(() -> rackIO.setPositionSetpoint(0));
+  }
+
+  @Override
+  public Command restRetracted() {
+    return this.run(
+        () -> {
+          rackIO.setPositionSetpoint(0);
+          rollerIO.setRollerVoltage(0.0);
+        });
   }
 }
