@@ -156,7 +156,7 @@ public class FlywheelIO {
     config.Slot1.kS = 0.43477;
     config.Slot1.kV = 0.144;
     config.Slot1.kA = 0.016433;
-    config.Slot1.kP = 1000.0;
+    config.Slot1.kP = 160000;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
