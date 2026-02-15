@@ -11,6 +11,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -574,15 +576,25 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   private Command translateWithIntermediatePose(
-      Supplier<Pose2d> target, Supplier<Pose2d> intermediate) {
-    return translateToPose(intermediate)
+      Supplier<Pose2d> target,
+      Supplier<Pose2d> intermediate,
+      Constraints translationalConstraints,
+      Constraints angularConstraints) {
+    return translateToPose(
+            intermediate, () -> new ChassisSpeeds(), translationalConstraints, angularConstraints)
         .until(() -> isInAutoAimTolerance(intermediate.get()))
-        .andThen(translateToPose(target));
+        .andThen(
+            translateToPose(
+                target, () -> new ChassisSpeeds(), translationalConstraints, angularConstraints));
   }
 
   public Command alignToClimb(Supplier<ClimbTargets> target) {
     // TODO: Might need tolerance
-    return translateToPose(() -> target.get().getPose());
+    return translateWithIntermediatePose(
+        () -> target.get().getPose(),
+        () -> target.get().getPose().transformBy(new Transform2d(0.0, 0.1, Rotation2d.kZero)),
+        new TrapezoidProfile.Constraints(1.0, AutoAlign.MAX_TRANSLATIONAL_ACCELERATION),
+        new TrapezoidProfile.Constraints(6.0, AutoAlign.MAX_ANGULAR_ACCELERATION));
   }
 
   private Command driveWithHeadingSnap(
