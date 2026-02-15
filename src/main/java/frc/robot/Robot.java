@@ -90,7 +90,7 @@ public class Robot extends LoggedRobot {
   }
 
   @AutoLogOutput(key = "Robot/Climb Target")
-  private boolean leftClimbTarget = true;
+  private boolean leftClimbTarget = false;
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
@@ -613,17 +613,12 @@ public class Robot extends LoggedRobot {
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
-    // current zero shooter hood
-    driver.b().whileTrue(shooter.runCurrentZeroing());
-
-    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
-
     operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
     operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
 
     // TODO: ACTUAL BINDING LOL
     driver
-        .x()
+        .rightBumper()
         .whileTrue(
             swerve.alignToClimb(
                 () ->
