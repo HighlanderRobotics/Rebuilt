@@ -47,6 +47,10 @@ public interface Shooter extends Subsystem {
   /** Shoots based on dashboard numbers. For testing only */
   public Command testShoot();
 
+  public default Command torqueCurrentTest() {
+    return Commands.none();
+  }
+
   /**
    * Runs the hood backwards until it hits its hard stop and the current spikes, then resets encoder
    * position.

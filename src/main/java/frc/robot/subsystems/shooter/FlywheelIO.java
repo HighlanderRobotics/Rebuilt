@@ -10,6 +10,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -61,6 +62,8 @@ public class FlywheelIO {
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
+  private VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
+      new VelocityTorqueCurrentFOC(0.0).withSlot(1);
 
   private double velocitySetpointRotPerSec = 0.0;
 
@@ -150,6 +153,11 @@ public class FlywheelIO {
     config.Slot0.kP = 0.4;
     config.Slot0.kD = 0;
 
+    config.Slot1.kS = 0.43477;
+    config.Slot1.kV = 0.144;
+    config.Slot1.kA = 0.016433;
+    config.Slot1.kP = 1000.0;
+
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
@@ -166,6 +174,10 @@ public class FlywheelIO {
   public void setMotionProfiledFlywheelVelocity(double flywheelVelocity) {
     velocitySetpointRotPerSec = flywheelVelocity;
     flywheelLeader.setControl(motionMagicVelocityVoltage.withVelocity(flywheelVelocity));
+  }
+
+  public void setTorqueCurrentVel(double flywheelVel) {
+    flywheelLeader.setControl(velocityTorqueCurrentFOC.withVelocity(flywheelVel));
   }
 
   public void stop() { // thought i should add a stop command, dont think i had to though

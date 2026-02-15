@@ -61,7 +61,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.FieldUtils.ClimbTargets;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -456,7 +455,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData(
         "Test shot",
         Commands.parallel(
-            shooter.testShoot(),
+            shooter.torqueCurrentTest(),
             Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
                 .andThen(indexer.testShoot())));
     SmartDashboard.putData(
@@ -620,17 +619,21 @@ public class Robot extends LoggedRobot {
     driver
         .rightBumper()
         .whileTrue(
-            swerve.alignToClimb(
-                () ->
-                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
-                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
-                        .filter(
-                            target ->
-                                target.isBlueAlliance()
-                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
-                                        == Alliance.Blue))
-                        .findFirst()
-                        .get()));
+            Commands.parallel(
+                shooter.torqueCurrentTest(),
+                Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
+                    .andThen(indexer.testShoot())));
+    // swerve.alignToClimb(
+    //     () ->
+    //         ClimbTargets.CLIMB_TARGETS_LIST.stream()
+    //             .filter(target -> target.getLeftHanded() == leftClimbTarget)
+    //             .filter(
+    //                 target ->
+    //                     target.isBlueAlliance()
+    //                         == (DriverStation.getAlliance().orElse(Alliance.Blue)
+    //                             == Alliance.Blue))
+    //             .findFirst()
+    //             .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts

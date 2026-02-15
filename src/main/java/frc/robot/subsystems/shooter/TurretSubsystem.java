@@ -204,15 +204,16 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
           // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
-          turretIO.setTurretPosition(
-              Rotation2d.fromRotations(
-                  MathUtil.clamp(
-                      AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
-                          .plus(Rotation2d.k180deg)
-                          .minus(robotPoseSupplier.get().getRotation())
-                          .getRotations(),
-                      TURRET_MIN_ANGLE.getRotations(),
-                      TURRET_MAX_ANGLE.getRotations())));
+          // turretIO.setTurretPosition(
+          //     Rotation2d.fromRotations(
+          //         MathUtil.clamp(
+          //             AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(),
+          // robotPoseSupplier.get())
+          //                 .plus(Rotation2d.k180deg)
+          //                 .minus(robotPoseSupplier.get().getRotation())
+          //                 .getRotations(),
+          //             TURRET_MIN_ANGLE.getRotations(),
+          //             TURRET_MAX_ANGLE.getRotations())));
         });
   }
 
@@ -327,6 +328,17 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
+        });
+  }
+
+  @Override
+  public Command torqueCurrentTest() {
+    return this.run(
+        () -> {
+          hoodSetpoint = Rotation2d.fromDegrees(testDegrees.get());
+          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelVelSetpoint = testVelocity.get();
+          flywheelIO.setTorqueCurrentVel(testVelocity.get());
         });
   }
 
