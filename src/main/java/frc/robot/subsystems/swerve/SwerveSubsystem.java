@@ -620,9 +620,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public boolean isCloseToBump(){
     if(
-      ((Math.abs(getPose().getX() - 4.62) < 2) || (Math.abs(getPose().getX() - 11.91) < 2))
+      ((Math.abs(getPose().getX() - FieldUtils.BLUE_BUMP1_POS.getX()) < 2) || (Math.abs(getPose().getX() - FieldUtils.RED_BUMP1_POS.getX()) < 2))
       &&
-      ((getPose().getY() > 5.04 && getPose().getY() < 6.07) || (getPose().getY() > 2 && getPose().getY() < 3.01)))
+      ((getPose().getY() > (FieldUtils.BLUE_BUMP2_POS.getY() - 0.515) && getPose().getY() < (FieldUtils.BLUE_BUMP2_POS.getY() + 0.515) || (getPose().getY() > (FieldUtils.RED_BUMP1_POS.getY() - 0.515) && getPose().getY() < (FieldUtils.RED_BUMP1_POS.getY() + 0.515)))))
       {
         return true;
       } else {

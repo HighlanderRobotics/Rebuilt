@@ -436,15 +436,13 @@ public class Robot extends LoggedRobot {
                     modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
-      while(swerve.isCloseToBump()){
-            swerve.bumpAlign(
+      new Trigger(swerve::isCloseToBump).whileTrue(swerve.bumpAlign(
                 () ->
                     modifyJoystick(driver.getLeftY())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 () ->
                     modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed());
-      }
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
     // TODO add binding for climb
 

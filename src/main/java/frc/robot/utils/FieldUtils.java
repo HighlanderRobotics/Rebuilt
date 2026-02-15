@@ -18,6 +18,18 @@ public class FieldUtils {
       new Pose2d(4.686160087585449, 4.030325412750244, Rotation2d.kZero);
   public static final Pose2d RED_HUB_POS = ChoreoAllianceFlipUtil.flip(BLUE_HUB_POS);
 
+    public static final Pose2d BLUE_BUMP1_POS =
+      new Pose2d(4.62, 2.505, Rotation2d.kZero);
+
+    public static final Pose2d BLUE_BUMP2_POS =
+      new Pose2d(4.62, 5.555, Rotation2d.kZero);
+
+    public static final Pose2d RED_BUMP1_POS =
+      new Pose2d(11.91, 2.505, Rotation2d.kZero);
+
+    public static final Pose2d RED_BUMP2_POS =
+      new Pose2d(11.91, 5.555, Rotation2d.kZero);
+
   public static Translation2d getCurrentHubTranslation() {
     return getCurrentHubPose().getTranslation();
   }
