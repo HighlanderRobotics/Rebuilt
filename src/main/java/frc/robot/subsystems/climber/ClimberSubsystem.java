@@ -35,17 +35,15 @@ public class ClimberSubsystem extends SubsystemBase {
               (state) -> Logger.recordOutput("Climber/SysID State", state.toString())),
           new Mechanism((voltage) -> climberIO.setClimberVoltage(voltage.in(Volts)), null, this));
 
-          private   double currentFilterValue = 0.0;
-            private LinearFilter currentFilter = LinearFilter.movingAverage(10);
-            private static final double CURRENT_ZERO_THRESHOLD = 30;
-
+  private double currentFilterValue = 0.0;
+  private LinearFilter currentFilter = LinearFilter.movingAverage(10);
+  private static final double CURRENT_ZERO_THRESHOLD = 30;
 
   @Override
   public void periodic() {
     climberIO.updateInputs(climberInputs);
     Logger.processInputs("Climber", climberInputs);
-        currentFilterValue = currentFilter.calculate(climberInputs.motorStatorCurrentAmps);
-
+    currentFilterValue = currentFilter.calculate(climberInputs.motorStatorCurrentAmps);
   }
 
   // member variables here?
@@ -54,17 +52,17 @@ public class ClimberSubsystem extends SubsystemBase {
     this.climberIO = climberIO;
   }
 
-  public Command extendClimber() {
+  public Command extend() {
     return this.run(
         () -> {
           climberIO.setClimberPosition(MAX_EXTENSION_METERS);
         });
   }
 
-  public Command retractClimber() {
+  public Command retract() {
     return this.run(
         () -> {
-          climberIO.setClimberPosition(0.0);
+          climberIO.setClimberPosition(Units.inchesToMeters(1));
         });
   }
 
@@ -96,8 +94,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public Command runCurrentZeroing() {
     return this.run(() -> climberIO.setClimberVoltage(-3.0))
-        .until(
-            new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD).debounce(0.25))
+        .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
         .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
   }
 }

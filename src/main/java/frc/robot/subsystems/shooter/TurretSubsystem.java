@@ -44,7 +44,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(73);
   public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(23.16);
-  public static double CURRENT_ZERO_THRESHOLD = 30.0;
+  public static double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
 
   public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(-0.719536);
   public static Rotation2d TURRET_MAX_ROTATIONS = Rotation2d.fromRotations(0.011378);
@@ -301,7 +301,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command runCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
-            new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD).debounce(0.25))
+            new Trigger(() -> Math.abs(currentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)
+                .debounce(0.25))
         .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
   }
 

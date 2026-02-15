@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class LinearRackIO {
 
@@ -92,6 +93,7 @@ public class LinearRackIO {
     motor.setControl(motionMagicVoltage.withPosition(setpointMeters));
   }
 
+  @AutoLogOutput(key = "Intake/Setpoint")
   public double getSetpointMeters() {
     return setpointMeters;
   }

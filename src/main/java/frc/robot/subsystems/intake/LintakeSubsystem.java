@@ -34,7 +34,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
   public static final double ROLLER_GEAR_RATIO = 34 / 15;
-  public static final double CURRENT_ZEROING_THRESHOLD = 40; // TODO: TUNE
+  public static final double CURRENT_ZEROING_THRESHOLD = 30; // TODO: TUNE
 
   private final LinearRackIO rackIO;
   private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
@@ -112,7 +112,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public Command rest() {
+  public Command restExtended() {
     return this.run(
         () -> {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
@@ -122,7 +122,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   public Command runCurrentZeroing() {
     return this.run(() -> rackIO.setVoltage(-3))
-        .until(() -> rackCurrentFilterValue > CURRENT_ZEROING_THRESHOLD)
+        .until(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
         .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
   }
 

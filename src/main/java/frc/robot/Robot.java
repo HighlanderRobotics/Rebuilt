@@ -372,7 +372,8 @@ public class Robot extends LoggedRobot {
             : new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
-    superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+    superstructure =
+        new Superstructure(swerve, indexer, intake, shooter, climber, driver, operator);
     addCompSysids(climber, indexer, intake, shooter);
 
     autoAimReq =
@@ -478,7 +479,8 @@ public class Robot extends LoggedRobot {
                     .times(-1)));
     // swerve.setDefaultCommand(swerve.stop());
     indexer.setDefaultCommand(indexer.rest());
-    intake.setDefaultCommand(intake.restRetracted());
+    intake.setDefaultCommand(intake.restExtended());
+    climber.setDefaultCommand(climber.retract());
     // swerve.faceHubSOTM(
     //     () ->
     //         modifyJoystick(driver.getLeftX())
@@ -594,11 +596,13 @@ public class Robot extends LoggedRobot {
     // driver.y().onTrue(climber.retractClimber().alongWith(intake.climb()));
 
     // current zero shooter hood
-    driver.b().whileTrue(
-        Commands.parallel(    
-            shooter.runCurrentZeroing(),
-            intake.runCurrentZeroing(),
-            climber.runCurrentZeroing()));
+    driver
+        .b()
+        .onTrue(
+            Commands.parallel(
+                shooter.runCurrentZeroing(),
+                intake.runCurrentZeroing(),
+                climber.runCurrentZeroing()));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 

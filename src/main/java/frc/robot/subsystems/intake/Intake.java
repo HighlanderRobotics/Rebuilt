@@ -17,7 +17,7 @@ public interface Intake extends Subsystem {
   public Command outtake();
 
   /** Not running (set to 0) */
-  public Command rest();
+  public Command restExtended();
 
   /** for controller rumble */
   public boolean beambreak();

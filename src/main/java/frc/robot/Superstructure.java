@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
@@ -41,7 +42,8 @@ public class Superstructure {
     SCORE_FLOW,
     SPIT,
     PRE_CLIMB,
-    CLIMB;
+    CLIMB,
+    POST_CLIMB;
     public final Trigger trigger;
 
     private SuperState() {
@@ -81,6 +83,7 @@ public class Superstructure {
   private final Indexer indexer;
   private final Intake intake;
   private final Shooter shooter;
+  private final ClimberSubsystem climber;
   private final CommandXboxControllerSubsystem driver;
   private final CommandXboxControllerSubsystem operator;
 
@@ -128,6 +131,7 @@ public class Superstructure {
       Indexer indexer,
       Intake intake,
       Shooter shooter,
+      ClimberSubsystem climber,
       CommandXboxControllerSubsystem driver,
       CommandXboxControllerSubsystem operator) {
     this.swerve = swerve;
@@ -136,6 +140,7 @@ public class Superstructure {
     this.shooter = shooter;
     this.driver = driver;
     this.operator = operator;
+    this.climber = climber;
 
     addTriggers();
     addTransitions();
@@ -171,7 +176,7 @@ public class Superstructure {
 
     antiJamReq = driver.a().or(operator.a());
 
-    //TODO add auto climb req
+    // TODO add auto climb req
     preClimbReq = driver.x();
     climbReq = driver.y();
 
@@ -261,43 +266,51 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
 
-    preClimbReq.onTrue(changeStateTo(SuperState.PRE_CLIMB));
+    (preClimbReq.and(climbReq.negate())).onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
     bindTransition(SuperState.PRE_CLIMB, SuperState.CLIMB, climbReq);
+    bindTransition(
+        SuperState.PRE_CLIMB, SuperState.IDLE, preClimbReq.negate().and(climbReq.negate()));
   }
 
   private void addCommands() {
-    bindCommands(SuperState.IDLE, intake.rest(), indexer.rest(), shooter.rest());
+    bindCommands(
+        SuperState.IDLE, intake.restExtended(), indexer.rest(), shooter.rest(), climber.retract());
 
-    bindCommands(SuperState.INTAKE, intake.intake(), indexer.index(), shooter.rest());
+    bindCommands(
+        SuperState.INTAKE, intake.intake(), indexer.index(), shooter.rest(), climber.retract());
 
     bindCommands(
         SuperState.SPIN_UP_FEED,
-        intake.rest(),
+        intake.restExtended(),
         indexer.rest(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        climber.retract());
 
     bindCommands(
         SuperState.FEED,
-        intake.rest(),
+        intake.restExtended(),
         indexer.index(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        climber.retract());
 
     bindCommands(
         SuperState.SPIN_UP_FEED_FLOW,
         intake.intake(),
         indexer.index(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        climber.retract());
 
     bindCommands(
         SuperState.FEED_FLOW,
         intake.intake(),
         indexer.kick(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()));
+        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        climber.retract());
 
     bindCommands(
         SuperState.SPIN_UP_SCORE,
-        intake.rest(),
+        intake.restExtended(),
         indexer.rest(),
         // shooter.score(
         //     () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
@@ -306,11 +319,12 @@ public class Superstructure {
         //             swerve.getPose(),
         //             FieldUtils.getCurrentHubTranslation(),
         //             swerve.getVelocityFieldRelative())));
-        shooter.testShoot());
+        shooter.testShoot(),
+        climber.retract());
 
     bindCommands(
         SuperState.SCORE,
-        intake.rest(),
+        intake.restExtended(),
         indexer.kick(),
         // shooter.score(
         //     () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
@@ -319,11 +333,12 @@ public class Superstructure {
         //             swerve.getPose(),
         //             FieldUtils.getCurrentHubTranslation(),
         //             swerve.getVelocityFieldRelative())));
-        shooter.testShoot());
+        shooter.testShoot(),
+        climber.retract());
 
     bindCommands(
         SuperState.SPIN_UP_SCORE_FLOW,
-        intake.rest(),
+        intake.restExtended(),
         indexer.kick(),
         shooter.score(
             () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
@@ -331,7 +346,8 @@ public class Superstructure {
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
                     FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative())));
+                    swerve.getVelocityFieldRelative())),
+        climber.retract());
 
     bindCommands(
         SuperState.SCORE_FLOW,
@@ -343,10 +359,29 @@ public class Superstructure {
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
                     FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative())));
+                    swerve.getVelocityFieldRelative())),
+        climber.retract());
 
-    bindCommands(SuperState.SPIT, intake.outtake(), indexer.spit(), shooter.spit());
-    bindCommands(SuperState.PRE_CLIMB, intake.restRetracted(), indexer.rest(), shooter.rest(), climber.extend());
+    bindCommands(
+        SuperState.SPIT, intake.outtake(), indexer.spit(), shooter.spit(), climber.retract());
+    bindCommands(
+        SuperState.PRE_CLIMB,
+        intake.restRetracted(),
+        indexer.rest(),
+        shooter.rest(),
+        climber.extend());
+    bindCommands(
+        SuperState.CLIMB,
+        intake.restRetracted(),
+        indexer.rest(),
+        shooter.rest(),
+        climber.retract());
+    bindCommands(
+        SuperState.POST_CLIMB,
+        intake.restRetracted(),
+        indexer.rest(),
+        shooter.rest(),
+        climber.extend());
   }
 
   public void periodic() {
