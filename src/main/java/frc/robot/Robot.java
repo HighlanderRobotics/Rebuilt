@@ -80,7 +80,7 @@ public class Robot extends LoggedRobot {
   }
 
   @AutoLogOutput(key = "Robot/Climb Target")
-  private boolean leftClimbTarget = true;
+  private boolean leftClimbTarget = true; //TODO change to be operator controller
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
