@@ -23,6 +23,7 @@ import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
@@ -34,7 +35,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
   public static final double ROLLER_GEAR_RATIO = 34 / 15;
-  public static final double CURRENT_ZEROING_THRESHOLD = 30; // TODO: TUNE
+  public static final double CURRENT_ZEROING_THRESHOLD = 35; // TODO: TUNE
 
   private final LinearRackIO rackIO;
   private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
@@ -45,7 +46,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   private final CANrangeIO canRangeIO;
   private CANrangeIOInputsAutoLogged canRangeIOInputs = new CANrangeIOInputsAutoLogged();
 
-  private LinearFilter rackCurrentFilter = LinearFilter.movingAverage(10);
+  private LinearFilter rackCurrentFilter = LinearFilter.movingAverage(5);
+
+  @AutoLogOutput(key = "Intake/Current Filter Value")
   private double rackCurrentFilterValue = 0.0;
 
   private SysIdRoutine intakeRollerSysid;
@@ -121,8 +124,17 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   public Command runCurrentZeroing() {
-    return this.run(() -> rackIO.setVoltage(-3))
-        .until(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
+    // return this.run(() -> rackIO.setVoltage(-5))
+    //     .until(
+    //         new Trigger(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
+    //             .debounce(0.95))
+    //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+    return Commands.deadline(
+            Commands.waitSeconds(0.5)
+                .andThen(
+                    Commands.waitUntil(
+                        () -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)),
+            this.run(() -> rackIO.setVoltage(-3)))
         .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
   }
 

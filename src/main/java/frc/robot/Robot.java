@@ -605,7 +605,7 @@ public class Robot extends LoggedRobot {
     // current zero shooter hood
     driver
         .b()
-        .onTrue(
+        .whileTrue(
             Commands.parallel(
                 shooter.runCurrentZeroing(),
                 intake.runCurrentZeroing(),
