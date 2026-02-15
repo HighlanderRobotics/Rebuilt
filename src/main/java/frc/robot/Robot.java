@@ -8,6 +8,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -59,6 +60,9 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -84,6 +88,9 @@ public class Robot extends LoggedRobot {
     ALPHA,
     COMP
   }
+
+  @AutoLogOutput(key = "Robot/Climb Target")
+  private boolean leftClimbTarget = true;
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
@@ -606,6 +613,29 @@ public class Robot extends LoggedRobot {
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
+    // current zero shooter hood
+    driver.b().whileTrue(shooter.runCurrentZeroing());
+
+    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+
+    operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
+    operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
+
+    // TODO: ACTUAL BINDING LOL
+    driver
+        .x()
+        .whileTrue(
+            swerve.alignToClimb(
+                () ->
+                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
+                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
+                        .filter(
+                            target ->
+                                target.isBlueAlliance()
+                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
+                                        == Alliance.Blue))
+                        .findFirst()
+                        .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
@@ -649,6 +679,13 @@ public class Robot extends LoggedRobot {
     // TODO Log mechanism poses
 
     updateAlerts();
+
+    // Log climb poses
+    Logger.recordOutput(
+        "AutoAlign/Climb Targets",
+        Arrays.stream(FieldUtils.ClimbTargets.values())
+            .map(target -> target.getPose())
+            .toArray(Pose2d[]::new));
   }
 
   public void updateAlerts() {

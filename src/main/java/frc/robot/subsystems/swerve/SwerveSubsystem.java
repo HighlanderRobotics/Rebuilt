@@ -55,6 +55,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Samples;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
@@ -595,6 +596,11 @@ public class SwerveSubsystem extends SubsystemBase {
     return translateToPose(intermediate)
         .until(() -> isInAutoAimTolerance(intermediate.get()))
         .andThen(translateToPose(target));
+  }
+
+  public Command alignToClimb(Supplier<ClimbTargets> target) {
+    // TODO: Might need tolerance
+    return translateToPose(() -> target.get().getPose());
   }
 
   private Command driveWithHeadingSnap(
