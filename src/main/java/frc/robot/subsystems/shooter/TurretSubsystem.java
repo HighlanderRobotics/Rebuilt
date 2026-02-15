@@ -12,6 +12,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,12 +43,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public static double FLYWHEEL_GEAR_RATIO = 0.84615384615;
 
-  public static Rotation2d HOOD_MAX_ROTATION = Rotation2d.fromDegrees(73);
-  public static Rotation2d HOOD_MIN_ROTATION = Rotation2d.fromDegrees(23.16);
+  public static Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
+  public static Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
   public static double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
 
-  public static Rotation2d TURRET_MIN_ROTATIONS = Rotation2d.fromRotations(-0.719536);
-  public static Rotation2d TURRET_MAX_ROTATIONS = Rotation2d.fromRotations(0.011378);
+  public static Rotation2d TURRET_MIN_ANGLE = Rotation2d.fromRotations(-0.719536);
+  public static Rotation2d TURRET_MAX_ANGLE = Rotation2d.fromRotations(0.011378);
 
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
@@ -195,12 +196,23 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command rest() {
+  // TODO make this work with feeding also
+  public Command rest(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(HOOD_MIN_ROTATION); // TODO: TUNE TUCKED POSITION IF NEEDED
+          hoodIO.setHoodPosition(HOOD_MIN_ANGLE); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
           // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(
+              Rotation2d.fromRotations(
+                  MathUtil.clamp(
+                      AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
+                          .plus(Rotation2d.k180deg)
+                          .minus(robotPoseSupplier.get().getRotation())
+                          .getRotations(),
+                      TURRET_MIN_ANGLE.getRotations(),
+                      TURRET_MAX_ANGLE.getRotations())));
         });
   }
 
@@ -208,9 +220,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command spit() {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
+          hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
-          turretIO.setTurretPosition(TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(TURRET_MIN_ANGLE);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
@@ -295,7 +307,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command zeroHood() {
-    return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
+    return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ANGLE));
   }
 
   public Command runCurrentZeroing() {
@@ -339,25 +351,25 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             .until(
                 () ->
                     hoodInputs.hoodPositionRotations.getDegrees()
-                        > (HOOD_MAX_ROTATION.getDegrees() - 5)), // Stop before endstop
+                        > (HOOD_MAX_ANGLE.getDegrees() - 5)), // Stop before endstop
         hoodSysid
             .quasistatic(Direction.kReverse)
             .until(
                 () ->
                     hoodInputs.hoodPositionRotations.getDegrees()
-                        < (HOOD_MIN_ROTATION.getDegrees() + 5)),
+                        < (HOOD_MIN_ANGLE.getDegrees() + 5)),
         hoodSysid
             .dynamic(Direction.kForward)
             .until(
                 () ->
                     hoodInputs.hoodPositionRotations.getDegrees()
-                        > (HOOD_MAX_ROTATION.getDegrees() - 5)),
+                        > (HOOD_MAX_ANGLE.getDegrees() - 5)),
         hoodSysid
             .dynamic(Direction.kReverse)
             .until(
                 () ->
                     hoodInputs.hoodPositionRotations.getDegrees()
-                        < (HOOD_MIN_ROTATION.getDegrees() + 5)));
+                        < (HOOD_MIN_ANGLE.getDegrees() + 5)));
   }
 
   @Override
@@ -377,25 +389,25 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        > (TURRET_MAX_ROTATIONS.getDegrees() - 5)), // Stop before endstop
+                        > (TURRET_MAX_ANGLE.getDegrees() - 5)), // Stop before endstop
         turretSysid
             .quasistatic(Direction.kReverse)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TURRET_MIN_ROTATIONS.getDegrees() + 5)),
+                        < (TURRET_MIN_ANGLE.getDegrees() + 5)),
         turretSysid
             .dynamic(Direction.kForward)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        > (TURRET_MAX_ROTATIONS.getDegrees() - 5)),
+                        > (TURRET_MAX_ANGLE.getDegrees() - 5)),
         turretSysid
             .dynamic(Direction.kReverse)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TURRET_MIN_ROTATIONS.getDegrees() + 5)));
+                        < (TURRET_MIN_ANGLE.getDegrees() + 5)));
   }
 
   // public boolean isFacingTarget() {

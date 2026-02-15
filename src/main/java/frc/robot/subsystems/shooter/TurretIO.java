@@ -108,8 +108,8 @@ public class TurretIO {
         motionMagic.withPosition(
             MathUtil.clamp(
                 positionAngle.getRotations(),
-                TurretSubsystem.TURRET_MIN_ROTATIONS.getRotations(),
-                TurretSubsystem.TURRET_MAX_ROTATIONS.getRotations())));
+                TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
+                TurretSubsystem.TURRET_MAX_ANGLE.getRotations())));
   }
 
   public void resetTurretEncoder(Rotation2d turretRotation) {

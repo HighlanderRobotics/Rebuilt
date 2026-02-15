@@ -275,10 +275,18 @@ public class Superstructure {
 
   private void addCommands() {
     bindCommands(
-        SuperState.IDLE, intake.restExtended(), indexer.rest(), shooter.rest(), climber.retract());
+        SuperState.IDLE,
+        intake.restExtended(),
+        indexer.rest(),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        climber.retract());
 
     bindCommands(
-        SuperState.INTAKE, intake.intake(), indexer.index(), shooter.rest(), climber.retract());
+        SuperState.INTAKE,
+        intake.intake(),
+        indexer.index(),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        climber.retract());
 
     bindCommands(
         SuperState.SPIN_UP_FEED,
@@ -368,19 +376,19 @@ public class Superstructure {
         SuperState.PRE_CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.extend());
     bindCommands(
         SuperState.CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
     bindCommands(
         SuperState.POST_CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.extend());
   }
 
