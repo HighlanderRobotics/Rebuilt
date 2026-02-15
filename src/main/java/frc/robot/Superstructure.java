@@ -39,7 +39,9 @@ public class Superstructure {
     SCORE,
     SPIN_UP_SCORE_FLOW,
     SCORE_FLOW,
-    SPIT;
+    SPIT,
+    PRE_CLIMB,
+    CLIMB;
     public final Trigger trigger;
 
     private SuperState() {
@@ -91,6 +93,12 @@ public class Superstructure {
 
   @AutoLogOutput(key = "Superstructure/Anti Jam Req")
   private Trigger antiJamReq;
+
+  @AutoLogOutput(key = "Superstructure/Pre Climb Req")
+  private Trigger preClimbReq;
+
+  @AutoLogOutput(key = "Superstructure/Climb Req")
+  private Trigger climbReq;
 
   private static ShotTarget shotTarget = ShotTarget.SCORE;
 
@@ -162,6 +170,10 @@ public class Superstructure {
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
     antiJamReq = driver.a().or(operator.a());
+
+    //TODO add auto climb req
+    preClimbReq = driver.x();
+    climbReq = driver.y();
 
     readyTrigger =
         new Trigger(shooter::atFlywheelVelocitySetpoint)
@@ -248,6 +260,10 @@ public class Superstructure {
     antiJamReq.onTrue(changeStateTo(SuperState.SPIT));
 
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
+
+    preClimbReq.onTrue(changeStateTo(SuperState.PRE_CLIMB));
+
+    bindTransition(SuperState.PRE_CLIMB, SuperState.CLIMB, climbReq);
   }
 
   private void addCommands() {
@@ -330,6 +346,7 @@ public class Superstructure {
                     swerve.getVelocityFieldRelative())));
 
     bindCommands(SuperState.SPIT, intake.outtake(), indexer.spit(), shooter.spit());
+    bindCommands(SuperState.PRE_CLIMB, intake.restRetracted(), indexer.rest(), shooter.rest(), climber.extend());
   }
 
   public void periodic() {

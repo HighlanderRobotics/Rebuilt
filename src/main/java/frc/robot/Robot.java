@@ -590,11 +590,15 @@ public class Robot extends LoggedRobot {
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
 
     // TODO ACTUAL BUTTON BINDING FOR CLIMBER
-    driver.x().onTrue(climber.extendClimber().alongWith(intake.climb()));
-    driver.y().onTrue(climber.retractClimber().alongWith(intake.climb()));
+    // driver.x().onTrue(climber.extendClimber().alongWith(intake.climb()));
+    // driver.y().onTrue(climber.retractClimber().alongWith(intake.climb()));
 
     // current zero shooter hood
-    driver.b().whileTrue(shooter.runCurrentZeroing().alongWith(intake.runCurrentZeroing()).alongWith(climber.runCurrentZeroing()));
+    driver.b().whileTrue(
+        Commands.parallel(    
+            shooter.runCurrentZeroing(),
+            intake.runCurrentZeroing(),
+            climber.runCurrentZeroing()));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
