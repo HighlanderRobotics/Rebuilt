@@ -54,8 +54,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   public static final double KICKER_GEAR_RATIO = 2.0;
 
   private LoggedTunableNumber testKickVolts = new LoggedTunableNumber("Indexer/Kicker Voltage", 10);
-  private LoggedTunableNumber testSpinVolts =
-      new LoggedTunableNumber("Indexer/Spinner Voltage", 10);
+  private LoggedTunableNumber testSpinVolts = new LoggedTunableNumber("Indexer/Spinner Voltage", 8);
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;

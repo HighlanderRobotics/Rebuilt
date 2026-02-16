@@ -35,12 +35,14 @@ public class FlywheelIO {
     public double flywheelLeaderVoltage = 0.0;
     public double flywheelLeaderTempC = 0.0;
     public double flywheelLeaderPosition = 0.0;
+    public double flywheelLeaderTorqueCurrent = 0.0;
 
     public double flywheelFollowerVelocityRotationsPerSecond = 0.0;
     public double flywheelFollowerStatorCurrentAmps = 0.0;
     public double flywheelFollowerSupplyCurrentAmp = 0.0;
     public double flywheelFollowerVoltage = 0.0;
     public double flywheelFollowerTempC = 0.0;
+    public double flywheelFollowerTorqueCurrent = 0.0;
   }
 
   protected TalonFX flywheelLeader;
@@ -52,12 +54,14 @@ public class FlywheelIO {
   private final StatusSignal<Current> flywheelLeaderSupplyCurrent;
   private final StatusSignal<Temperature> flywheelLeaderTemp;
   private final StatusSignal<Angle> flywheelLeaderPosition;
+  private final StatusSignal<Current> flywheelLeaderTorqueCurrent;
 
   private final BaseStatusSignal flywheelFollowerVelocity;
   private final StatusSignal<Voltage> flywheelFollowerVoltage;
   private final StatusSignal<Current> flywheelFollowerStatorCurrent;
   private final StatusSignal<Current> flywheelFollowerSupplyCurrent;
   private final StatusSignal<Temperature> flywheelFollowerTemp;
+  private final StatusSignal<Current> flywheelFollowerTorqueCurrent;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
@@ -86,12 +90,14 @@ public class FlywheelIO {
     flywheelLeaderSupplyCurrent = flywheelLeader.getSupplyCurrent();
     flywheelLeaderTemp = flywheelLeader.getDeviceTemp();
     flywheelLeaderPosition = flywheelLeader.getPosition();
+    flywheelLeaderTorqueCurrent = flywheelLeader.getTorqueCurrent();
 
     flywheelFollowerVelocity = flywheelFollower.getVelocity();
     flywheelFollowerVoltage = flywheelFollower.getMotorVoltage();
     flywheelFollowerStatorCurrent = flywheelFollower.getStatorCurrent();
     flywheelFollowerSupplyCurrent = flywheelFollower.getSupplyCurrent();
     flywheelFollowerTemp = flywheelFollower.getDeviceTemp();
+    flywheelFollowerTorqueCurrent = flywheelFollower.getTorqueCurrent();
 
     motionMagicVelocityVoltage =
         new MotionMagicVelocityVoltage(0.0)
@@ -110,8 +116,9 @@ public class FlywheelIO {
         flywheelFollower.getStatorCurrent(),
         flywheelFollower.getSupplyCurrent(),
         flywheelFollower.getDeviceTemp(),
-        flywheelLeaderPosition);
-
+        flywheelLeaderPosition); // position is just for sysid
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100.0, flywheelLeader.getTorqueCurrent(), flywheelFollower.getTorqueCurrent());
     flywheelLeader.optimizeBusUtilization();
     flywheelFollower.optimizeBusUtilization();
   }
@@ -197,13 +204,16 @@ public class FlywheelIO {
         flywheelFollowerStatorCurrent,
         flywheelFollowerSupplyCurrent,
         flywheelFollowerTemp,
-        flywheelLeaderPosition);
+        flywheelLeaderPosition,
+        flywheelLeaderTorqueCurrent,
+        flywheelFollowerTorqueCurrent);
 
     inputs.flywheelLeaderVelocityRotationsPerSecond = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
     inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
     inputs.flywheelLeaderSupplyCurrentAmp = flywheelLeaderSupplyCurrent.getValueAsDouble();
     inputs.flywheelLeaderTempC = flywheelLeaderTemp.getValueAsDouble();
+    inputs.flywheelLeaderTorqueCurrent = flywheelLeaderTorqueCurrent.getValueAsDouble();
 
     inputs.flywheelLeaderPosition = flywheelLeaderPosition.getValueAsDouble();
 
@@ -212,6 +222,7 @@ public class FlywheelIO {
     inputs.flywheelFollowerStatorCurrentAmps = flywheelFollowerStatorCurrent.getValueAsDouble();
     inputs.flywheelFollowerSupplyCurrentAmp = flywheelFollowerSupplyCurrent.getValueAsDouble();
     inputs.flywheelFollowerTempC = flywheelFollowerTemp.getValueAsDouble();
+    inputs.flywheelFollowerTorqueCurrent = flywheelFollowerTorqueCurrent.getValueAsDouble();
   }
 
   @AutoLogOutput(key = "Shooter/Setpoint")
