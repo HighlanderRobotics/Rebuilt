@@ -56,16 +56,18 @@ public class TurretIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.Feedback.SensorToMechanismRatio = TURRET_GEAR_RATIO;
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
 
     config.Slot0.kS = 0.45;
     config.Slot0.kV = 5.7;
     config.Slot0.kP = 240.0;
 
-    config.MotionMagic.MotionMagicAcceleration = 40.0;
-    config.MotionMagic.MotionMagicCruiseVelocity = 40.0;
+    config.MotionMagic.MotionMagicAcceleration = 2.064;
+    config.MotionMagic.MotionMagicCruiseVelocity = 8.0;
 
     motor.getConfigurator().apply(config);
 
