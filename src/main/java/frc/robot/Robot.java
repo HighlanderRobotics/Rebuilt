@@ -616,12 +616,13 @@ public class Robot extends LoggedRobot {
     operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
 
     // TODO: ACTUAL BINDING LOL
+    // test shot
     driver
         .rightBumper()
         .whileTrue(
             Commands.parallel(
                 shooter.torqueCurrentTest(),
-                Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
+                Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.25))
                     .andThen(indexer.testShoot())));
     // swerve.alignToClimb(
     //     () ->

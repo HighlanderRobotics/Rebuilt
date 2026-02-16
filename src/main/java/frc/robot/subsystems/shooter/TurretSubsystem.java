@@ -205,15 +205,16 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           flywheelIO.setFlywheelVoltage(0.0);
           // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
           // turretIO.setTurretPosition(
-          //     Rotation2d.fromRotations(
-          //         MathUtil.clamp(
-          //             AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(),
-          // robotPoseSupplier.get())
-          //                 .plus(Rotation2d.k180deg)
-          //                 .minus(robotPoseSupplier.get().getRotation())
-          //                 .getRotations(),
-          //             TURRET_MIN_ANGLE.getRotations(),
-          //             TURRET_MAX_ANGLE.getRotations())));
+          Logger.recordOutput(
+              "Turret/Setpoint",
+              Rotation2d.fromRotations(
+                  MathUtil.clamp(
+                      AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
+                          .plus(Rotation2d.k180deg)
+                          .minus(robotPoseSupplier.get().getRotation())
+                          .getRotations(),
+                      TURRET_MIN_ANGLE.getRotations(),
+                      TURRET_MAX_ANGLE.getRotations())));
         });
   }
 
