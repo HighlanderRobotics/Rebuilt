@@ -292,28 +292,40 @@ public class Superstructure {
         SuperState.SPIN_UP_FEED,
         intake.restExtended(),
         indexer.rest(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        shooter.feed(
+            swerve::getPose,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+            swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
         SuperState.FEED,
         intake.restExtended(),
         indexer.index(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        shooter.feed(
+            swerve::getPose,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+            swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
         SuperState.SPIN_UP_FEED_FLOW,
         intake.intake(),
         indexer.index(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        shooter.feed(
+            swerve::getPose,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+            swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
         SuperState.FEED_FLOW,
         intake.intake(),
         indexer.kick(),
-        shooter.feed(swerve::getPose, () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
+        shooter.feed(
+            swerve::getPose,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+            swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
@@ -349,12 +361,13 @@ public class Superstructure {
         intake.restExtended(),
         indexer.kick(),
         shooter.score(
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+            swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
                     FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative())),
+                    swerve.getVelocityFieldRelative()),
+            swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
@@ -362,12 +375,13 @@ public class Superstructure {
         intake.intake(),
         indexer.kick(),
         shooter.score(
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
+            swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve.getPose(),
                     FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative())),
+                    swerve.getVelocityFieldRelative()),
+            swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(

@@ -88,7 +88,10 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  public Command score(Supplier<Pose2d> robotPoseSupplier, Supplier<ShotData> shotDataSupplier) {
+  public Command score(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           hoodSetpoint = shotDataSupplier.get().hoodAngle();
@@ -99,7 +102,10 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
+  public Command feed(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<Pose2d> feedTarget,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           ShotData shotData =

@@ -59,8 +59,7 @@ public class TurretIO {
     config.CurrentLimits.StatorCurrentLimit = 40.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     config.Slot0.kS = 0.45;
     config.Slot0.kV = 5.7;

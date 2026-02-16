@@ -1,11 +1,14 @@
 package frc.robot.utils.autoaim;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -74,8 +77,7 @@ public class AutoAim {
   }
 
   public static Rotation2d getVirtualTargetYaw(
-      Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose) {
-    double tof = HUB_SHOT_TREE.calculateShot(robotPose, target).timeOfFlightSecs();
+      Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, double tof) {
     Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
     return getTargetRotation(vtarget, robotPose);
   }
@@ -83,21 +85,42 @@ public class AutoAim {
   public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
     Translation2d robotToTarget = target.minus(robotPose.getTranslation());
     Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-    // .plus(Rotation2d.k180deg);
     Logger.recordOutput("Autoaim/Target Rotation", rot);
     return rot;
   }
 
-  // this should also adjust for like the turret offset from the robot rotation but like I don't
-  // know what that is
-  public static Rotation2d getTurretTargetRotation(Translation2d target, Pose2d robotPose) {
-    Rotation2d rot = getTargetRotation(target, robotPose).minus(robotPose.getRotation());
-    return rot;
+  public static Rotation2d getTurretTargetRotation(
+      Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
+    Pose2d turretPose =
+        robotPose.transformBy(
+            new Transform2d(
+                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.toTranslation2d(), Rotation2d.kZero));
+
+    // get desired rotation to point at target
+    double turretTargetRotations =
+        AutoAim.getVirtualHubYaw(chassisSpeeds, turretPose).getRotations();
+    // rewrap the robot's rotation to be between 0 and 1 instead of -pi and pi
+    double moddedRobotRotation =
+        MathUtil.inputModulus(turretPose.getRotation().getRotations(), 0, 1);
+    Logger.recordOutput(
+        "Swerve/Robot rotation wrapped from 0-1", Rotation2d.fromRotations(moddedRobotRotation));
+    // subtract that from rotation to point at target
+    turretTargetRotations -= moddedRobotRotation;
+    Logger.recordOutput("Turret/Unclamped target", Rotation2d.fromRotations(turretTargetRotations));
+    // clamp between min and max turret angle
+    turretTargetRotations =
+        MathUtil.clamp(
+            turretTargetRotations,
+            TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
+            TurretSubsystem.TURRET_MAX_ANGLE.getRotations());
+    // ship it
+    return Rotation2d.fromRotations(turretTargetRotations);
   }
 
   public static Rotation2d getVirtualHubYaw(ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose) {
+        double tof = HUB_SHOT_TREE.calculateShot(robotPose, FieldUtils.getCurrentHubTranslation()).timeOfFlightSecs();
     return getVirtualTargetYaw(
-        FieldUtils.getCurrentHubTranslation(), fieldRelativeSpeeds, robotPose);
+        FieldUtils.getCurrentHubTranslation(), fieldRelativeSpeeds, robotPose, tof);
   }
 
   public static ShotData getSOTMShotData(

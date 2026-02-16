@@ -20,13 +20,19 @@ public interface Shooter extends Subsystem {
    * Sets hood angle and flywheel velocity based on distance from hub from the shot map + current
    * pose
    */
-  public Command score(Supplier<Pose2d> robotPoseSupplier, Supplier<ShotData> shotDataSupplier);
+  public Command score(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier);
 
   /**
    * Sets hood angle and flywheel velocity based on distance from hub from the feed map + current
    * pose + feed target
    */
-  public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget);
+  public Command feed(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<Pose2d> feedTarget,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier);
 
   /** Not running (set to 0) */
   public Command rest(

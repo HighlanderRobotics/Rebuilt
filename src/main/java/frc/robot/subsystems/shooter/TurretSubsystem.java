@@ -12,6 +12,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -50,6 +51,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static Rotation2d TURRET_MIN_ANGLE = Rotation2d.fromRotations(-0.75); // -0.719536);
   public static Rotation2d TURRET_MAX_ANGLE = Rotation2d.fromRotations(-0.0354); // 0.011378);
 
+  public static Translation3d ROBOT_TO_TURRET_TRANSLATION =
+      new Translation3d(-0.177413, -0.111702, 0.350341);
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
 
@@ -132,6 +135,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.recordOutput("Shooter/Turret/Starting Angle", startAngle);
     // Set the sensor position to the start angle
     turretIO.resetTurretEncoder(startAngle);
+
+    Logger.recordOutput("Turret/Min angle", TURRET_MIN_ANGLE);
+    Logger.recordOutput("Turret/Max angle", TURRET_MAX_ANGLE);
   }
 
   @Override
@@ -175,7 +181,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command feed(Supplier<Pose2d> robotPoseSupplier, Supplier<Pose2d> feedTarget) {
+  public Command feed(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<Pose2d> feedTarget,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           ShotData shotData =
@@ -191,7 +200,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   FeedTargets.getFeedTarget(Superstructure.getFeedTarget())
                       .getPose()
                       .getTranslation(),
-                  robotPoseSupplier.get()));
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
         });
   }
 
@@ -203,28 +213,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
           flywheelIO.setFlywheelVoltage(0.0);
-
-          //get desired rotation to point at target
-          double turretTargetRotations =
-              AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
-                  .getRotations();
-          //rewrap the robot's rotation to be between 0 and 1 instead of -pi and pi
-          double moddedRobotRotation =
-              MathUtil.inputModulus(robotPoseSupplier.get().getRotation().getRotations(), 0, 1);
-          Logger.recordOutput(
-              "Swerve/Robot rotation wrapped from 0-1", Rotation2d.fromRotations(moddedRobotRotation));
-              //subtract that from rotation to point at target
-          turretTargetRotations -= moddedRobotRotation;
-          Logger.recordOutput("Turret/Unclamped target", Rotation2d.fromRotations(turretTargetRotations));
-          //clamp between min and max turret angle
-          turretTargetRotations =
-              MathUtil.clamp(
-                  turretTargetRotations, TURRET_MIN_ANGLE.getRotations(), TURRET_MAX_ANGLE.getRotations());
-          //ship it
-          turretIO.setTurretPosition(Rotation2d.fromRotations(turretTargetRotations));
-
-          Logger.recordOutput("Turret/Min angle", TURRET_MIN_ANGLE);
-          Logger.recordOutput("Turret/Max angle", TURRET_MAX_ANGLE);
+          turretIO.setTurretPosition(
+              AutoAim.getTurretTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
         });
   }
 
@@ -353,7 +346,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
-  public Command score(Supplier<Pose2d> robotPoseSupplier, Supplier<ShotData> shotDataSupplier) {
+  public Command score(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           hoodSetpoint = shotDataSupplier.get().hoodAngle();
@@ -362,7 +358,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               shotDataSupplier.get().flywheelVelocityRotPerSec());
           turretIO.setTurretPosition(
               AutoAim.getTurretTargetRotation(
-                  FieldUtils.getCurrentHubTranslation(), robotPoseSupplier.get()));
+                  FieldUtils.getCurrentHubTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
         });
   }
 
