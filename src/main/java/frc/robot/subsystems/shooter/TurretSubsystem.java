@@ -47,8 +47,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
   public static double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
 
-  public static Rotation2d TURRET_MIN_ANGLE = Rotation2d.fromRotations(-0.719536 + 0.5);
-  public static Rotation2d TURRET_MAX_ANGLE = Rotation2d.fromRotations(0.011378 + 0.5);
+  public static Rotation2d TURRET_MIN_ANGLE = Rotation2d.fromRotations(-0.75); // -0.719536);
+  public static Rotation2d TURRET_MAX_ANGLE = Rotation2d.fromRotations(-0.0354); // 0.011378);
 
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
@@ -148,8 +148,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
     currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
 
-    cancoder24tDisconnectedAlert.set(cancoder24tInputs.connected);
-    cancoder26tDisconnectedAlert.set(cancoder26tInputs.connected);
+    cancoder24tDisconnectedAlert.set(!cancoder24tInputs.connected);
+    cancoder26tDisconnectedAlert.set(!cancoder26tInputs.connected);
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
@@ -204,27 +204,46 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE); // TODO: TUNE TUCKED POSITION IF NEEDED
           flywheelIO.setFlywheelVoltage(0.0);
           // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
-
-          Logger.recordOutput(
-              "Turret unclamped setpoint",
+          double vHubRotations =
               AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
-                  // .plus(Rotation2d.k180deg)
-                  .minus(robotPoseSupplier.get().getRotation())
-                  .getRotations());
-
-          double turretSetpoint =
+                  .getRotations();
+          Logger.recordOutput("virtual hub yaw", Rotation2d.fromRotations(vHubRotations));
+          // vHubRotations += 0.25;
+          // Logger.recordOutput("virtual hub yaw + 0.25", Rotation2d.fromRotations(vHubRotations));
+          double moddedRobotRotation =
+              MathUtil.inputModulus(robotPoseSupplier.get().getRotation().getRotations(), 0, 1);
+          Logger.recordOutput(
+              "modded robot rotation", Rotation2d.fromRotations(moddedRobotRotation));
+          vHubRotations -= moddedRobotRotation;
+          Logger.recordOutput("turret unclamped asfjsld", Rotation2d.fromRotations(vHubRotations));
+          // vHubRotations = MathUtil.inputModulus(vHubRotations + 0.5, 0, 1);
+          vHubRotations =
               MathUtil.clamp(
-                  AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
-                      // .plus(Rotation2d.k180deg)
-                      .minus(robotPoseSupplier.get().getRotation())
-                      .getRotations(),
-                  TURRET_MIN_ANGLE.getRotations(),
-                  TURRET_MAX_ANGLE.getRotations());
-          Logger.recordOutput("turret setpoint", turretSetpoint);
-          turretIO.setTurretPosition(Rotation2d.fromRotations(turretSetpoint));
+                  vHubRotations, TURRET_MIN_ANGLE.getRotations(), TURRET_MAX_ANGLE.getRotations());
+          Logger.recordOutput("turret slkfjsdlkfj", Rotation2d.fromRotations(vHubRotations));
 
-          Logger.recordOutput("Turret min", TURRET_MIN_ANGLE.getRotations());
-          Logger.recordOutput("Turret max", TURRET_MAX_ANGLE.getRotations());
+          // Logger.recordOutput(
+          //     "Turret unclamped setpoint",
+          //     AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
+          //         .minus(Rotation2d.k180deg)
+          //         .minus(robotPoseSupplier.get().getRotation()));
+
+          // double turretSetpoint =
+          //     MathUtil.clamp(
+          //         // MathUtil.inputModulus(
+          //         AutoAim.getVirtualHubYaw(chassisSpeedsSupplier.get(), robotPoseSupplier.get())
+          //             .plus(Rotation2d.k180deg)
+          //             .minus(robotPoseSupplier.get().getRotation())
+          //             .getRotations(),
+          //         // 0,
+          //         // 1),
+          //         TURRET_MIN_ANGLE.getRotations(),
+          //         TURRET_MAX_ANGLE.getRotations());
+          // Logger.recordOutput("turret setpoint", Rotation2d.fromRotations(turretSetpoint));
+          turretIO.setTurretPosition(Rotation2d.fromRotations(vHubRotations));
+
+          Logger.recordOutput("Turret min", TURRET_MIN_ANGLE);
+          Logger.recordOutput("Turret max", TURRET_MAX_ANGLE);
         });
   }
 

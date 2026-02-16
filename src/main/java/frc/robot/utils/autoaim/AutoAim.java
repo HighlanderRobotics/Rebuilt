@@ -82,9 +82,8 @@ public class AutoAim {
 
   public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
     Translation2d robotToTarget = target.minus(robotPose.getTranslation());
-    Rotation2d rot =
-        Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()))
-            .plus(Rotation2d.k180deg);
+    Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
+    // .plus(Rotation2d.k180deg);
     Logger.recordOutput("Autoaim/Target Rotation", rot);
     return rot;
   }
