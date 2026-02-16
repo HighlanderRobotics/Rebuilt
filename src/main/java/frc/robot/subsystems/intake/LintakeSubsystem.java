@@ -160,7 +160,6 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return canRangeIOInputs.isDetected;
   }
 
-  @Override
   public Command extend() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'extend'");

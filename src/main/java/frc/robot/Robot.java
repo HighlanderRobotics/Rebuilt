@@ -378,7 +378,11 @@ public class Robot extends LoggedRobot {
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
-    autoAimReq =
+
+    if (intake instanceof LintakeSubsystem lintake) {
+    new frc.robot.utils.pitcheck.Pitcheck(lintake).pitcheck();
+}
+    autoAimReq =  
         driver
             .leftBumper()
             .or(
