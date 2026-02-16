@@ -9,7 +9,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -106,10 +105,11 @@ public class TurretIO {
     turretSetpoint = positionAngle;
     motor.setControl(
         motionMagic.withPosition(
-            MathUtil.clamp(
-                positionAngle.getRotations(),
-                TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
-                TurretSubsystem.TURRET_MAX_ANGLE.getRotations())));
+            // MathUtil.clamp(
+            //     positionAngle.getRotations(),
+            //     TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
+            //     TurretSubsystem.TURRET_MAX_ANGLE.getRotations())));
+            positionAngle.getRotations()));
   }
 
   public void resetTurretEncoder(Rotation2d turretRotation) {
