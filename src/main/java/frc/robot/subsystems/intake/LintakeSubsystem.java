@@ -166,7 +166,6 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   public double getRollerVoltage() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getRollerVoltage'");
+    return rollerIOInputs.appliedVoltage;
   }
 }

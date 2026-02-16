@@ -379,10 +379,7 @@ public class Robot extends LoggedRobot {
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
 
-    if (intake instanceof LintakeSubsystem lintake) {
-    new frc.robot.utils.pitcheck.Pitcheck(lintake).pitcheck();
-}
-    autoAimReq =  
+    autoAimReq =
         driver
             .leftBumper()
             .or(
