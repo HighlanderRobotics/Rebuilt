@@ -64,6 +64,9 @@ public class TurretIO {
     config.Slot0.kV = 5.7;
     config.Slot0.kP = 240.0;
 
+    config.MotionMagic.MotionMagicAcceleration = 40.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 40.0;
+
     motor.getConfigurator().apply(config);
 
     angularVelocityRotationsPerSec = motor.getVelocity();
