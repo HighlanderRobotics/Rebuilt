@@ -11,6 +11,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -29,12 +31,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
+import frc.robot.Superstructure;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
-import frc.robot.subsystems.swerve.constants.CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
+import frc.robot.subsystems.swerve.constants.comp.R1CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.swerve.gyro.GyroIOReal;
@@ -49,10 +52,11 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Samples;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
+import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
-import frc.robot.utils.rusthoundsSOTM.ChassisAccelerations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +76,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static final SwerveConstants SWERVE_CONSTANTS =
       Robot.ROBOT_EDITION == RobotEdition.ALPHA
           ? new AlphaSwerveConstants()
-          : new CompBotSwerveConstants();
+          : new R1CompBotSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
@@ -136,8 +140,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveDriveSimulation swerveSimulation =
       new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
-
-  private ChassisSpeeds prevFieldRelVelocities;
 
   public SwerveSubsystem(CANBus canbus) {
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
@@ -276,15 +278,6 @@ public class SwerveSubsystem extends SubsystemBase {
           Tracer.trace("Update vision", this::updateVision);
 
           Logger.recordOutput("Current Hub Pose", FieldUtils.getCurrentHubPose());
-
-          prevFieldRelVelocities = getVelocityFieldRelative();
-          Logger.recordOutput(
-              "Chassis Accelerations/X", this.getChassisAccelerations().axMetersPerSecondSquared);
-          Logger.recordOutput(
-              "Chassis Accelerations/Y", this.getChassisAccelerations().ayMetersPerSecondSquared);
-          Logger.recordOutput(
-              "Chassis Accelerations/Omega",
-              this.getChassisAccelerations().omegaRadiansPerSecondSquared);
         });
   }
 
@@ -412,7 +405,7 @@ public class SwerveSubsystem extends SubsystemBase {
     for (int i = 0; i < optimizedStates.length; i++) {
       if (openLoop) {
         // Heuristic to enable/disable FOC
-        // enables FOC if the robot is moving at 90% of drivetrain max speed
+        // enables FOC if the robot is moving at less than 90% of drivetrain max speed
         final boolean focEnable =
             Math.sqrt(
                     Math.pow(this.getVelocityRobotRelative().vxMetersPerSecond, 2)
@@ -583,10 +576,25 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   private Command translateWithIntermediatePose(
-      Supplier<Pose2d> target, Supplier<Pose2d> intermediate) {
-    return translateToPose(intermediate)
+      Supplier<Pose2d> target,
+      Supplier<Pose2d> intermediate,
+      Constraints translationalConstraints,
+      Constraints angularConstraints) {
+    return translateToPose(
+            intermediate, () -> new ChassisSpeeds(), translationalConstraints, angularConstraints)
         .until(() -> isInAutoAimTolerance(intermediate.get()))
-        .andThen(translateToPose(target));
+        .andThen(
+            translateToPose(
+                target, () -> new ChassisSpeeds(), translationalConstraints, angularConstraints));
+  }
+
+  public Command alignToClimb(Supplier<ClimbTargets> target) {
+    // TODO: Might need tolerance
+    return translateWithIntermediatePose(
+        () -> target.get().getPose(),
+        () -> target.get().getPose().transformBy(new Transform2d(0.0, 0.1, Rotation2d.kZero)),
+        new TrapezoidProfile.Constraints(1.0, AutoAlign.MAX_TRANSLATIONAL_ACCELERATION),
+        new TrapezoidProfile.Constraints(6.0, AutoAlign.MAX_ANGULAR_ACCELERATION));
   }
 
   private Command driveWithHeadingSnap(
@@ -602,43 +610,62 @@ public class SwerveSubsystem extends SubsystemBase {
                         AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
   }
 
-  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
-    return driveWithHeadingSnap(
-        () -> {
-          Translation2d robotHubVec =
-              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
-          // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
-          // Logger.recordOutput("robot hub vec", robotHubVec);
-          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
-          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-              .plus(Rotation2d.kCW_90deg);
-        },
-        xVel,
-        yVel);
-  }
+  // public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(
+  //       () -> {
+  //         Translation2d robotHubVec =
+  //             FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+  //         // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
+  //         // Logger.recordOutput("robot hub vec", robotHubVec);
+  //         // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+  //         return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+  //             .plus(Rotation2d.kCW_90deg);
+  //       },
+  //       xVel,
+  //       yVel);
+  // }
 
   // public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
   //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
   // xVel, yVel);
   // }
-  public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(
+        () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
+  }
+
+  public boolean isFacingTarget() {
+    switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
+      case SCORE:
+        return isFacingHub();
+      case FEED:
+        return isFacingFeedTarget();
+      default:
+        return false;
+    }
+  }
+
+  public boolean isFacingHub() {
+    Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
+  public boolean isFacingFeedTarget() {
+    Translation2d feedTarget =
+        FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
+    Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
+  public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
         () -> {
-          // Translation2d robotHubVec =
-          //     ShootOnTheFlyCalculator.calculateEffectiveTargetLocation(
-          //             () -> getPose(),
-          //             () -> getVelocityFieldRelative(),
-          //             // () -> getChassisAccelerations(),
-          //             5,
-          //             0.01)
-          //         .getTranslation()
-          //         .minus(getPose().getTranslation());
-          // Rotation2d rot =
-          //     Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-          //         .plus(Rotation2d.kCW_90deg);
-          // Logger.recordOutput("Autoaim/Target Rotation", rot);
-          // return rot;
-          return AutoAim.getSOTMYawfr(getPose(), getVelocityFieldRelative());
+          Translation2d robotHubVec =
+              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
         },
         xVel,
         yVel);
@@ -681,6 +708,12 @@ public class SwerveSubsystem extends SubsystemBase {
     return estimator.getEstimatedPosition();
   }
 
+  @AutoLogOutput(key = "Autoaim/Distance To Hub")
+  public static double distanceToHub(Pose2d pose) {
+    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    return distance;
+  }
+
   public Pose3d getPose3d() {
     return new Pose3d(getPose());
   }
@@ -711,10 +744,6 @@ public class SwerveSubsystem extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Velocity Field Relative")
   public ChassisSpeeds getVelocityFieldRelative() {
     return ChassisSpeeds.fromRobotRelativeSpeeds(getVelocityRobotRelative(), getRotation());
-  }
-
-  public ChassisAccelerations getChassisAccelerations() {
-    return new ChassisAccelerations(getVelocityFieldRelative(), prevFieldRelVelocities, 0.020);
   }
 
   public boolean isNotMoving() {

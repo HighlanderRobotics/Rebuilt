@@ -8,6 +8,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -29,14 +30,21 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
+import frc.robot.components.cancoder.CANcoderIO;
+import frc.robot.components.cancoder.CANcoderIOSim;
+import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
+import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.climber.EmptyClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
 import frc.robot.subsystems.intake.FintakeSubsystem;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.LinearRackIO;
+import frc.robot.subsystems.intake.LinearRackIOSim;
 import frc.robot.subsystems.intake.LintakeSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -46,10 +54,15 @@ import frc.robot.subsystems.shooter.HoodIO;
 import frc.robot.subsystems.shooter.HoodIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretIO;
+import frc.robot.subsystems.shooter.TurretIOSim;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -76,25 +89,45 @@ public class Robot extends LoggedRobot {
     COMP
   }
 
+  @AutoLogOutput(key = "Robot/Climb Target")
+  private boolean leftClimbTarget = false; // TODO change to be operator controller
+
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
-  public static final RobotEdition ROBOT_EDITION = RobotEdition.ALPHA;
+  // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
+  public static final RobotEdition ROBOT_EDITION;
+  public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
+  public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
 
-  // public static final RobotEdition ROBOT_EDITION;
+  // for replay to work properly this needs to match the edition in the log
+  static {
+    switch (ROBOT_MODE) {
+      case REAL:
+        switch (RobotController.getSerialNumber()) {
+          case "023D2BD2":
+            ROBOT_EDITION = RobotEdition.ALPHA;
+            break;
+          case "2": // TODO get comp rio serial number
+            ROBOT_EDITION = RobotEdition.COMP;
+            break;
+          default:
+            // defaulting to comp is probably safer?
+            ROBOT_EDITION = RobotEdition.COMP;
+        }
+        break;
+      case SIM:
+        // you're gonna have to just lock in on this
+        ROBOT_EDITION = SIM_ROBOT_EDITION;
+        break;
+      case REPLAY:
+        // you're gonna have to just lock in on this
+        ROBOT_EDITION = REPLAY_ROBOT_EDITION;
+        break;
 
-  // // TODO get rio serial numbers
-  // static {
-  //   switch (RobotController.getSerialNumber()) {
-  //     case "1":
-  //       ROBOT_EDITION = RobotEdition.ALPHA;
-  //       break;
-  //     case "2":
-  //       ROBOT_EDITION = RobotEdition.COMP;
-  //       break;
-  //     default:
-  //       // defaulting to comp is probably safer?
-  //       ROBOT_EDITION = RobotEdition.COMP;
-  //   }
-  // }
+      default:
+        // TODO change to comp once there is a comp bot
+        ROBOT_EDITION = RobotEdition.ALPHA;
+    }
+  }
 
   /**
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
@@ -150,9 +183,9 @@ public class Robot extends LoggedRobot {
   // swervesubsystem decides on its own whether or not to use alpha or comp swerve constants
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
+  private final ClimberSubsystem climber;
 
   // climber only exists for the comp bot - this is accounted for later
-  private ClimberSubsystem climber;
 
   private final Superstructure superstructure;
 
@@ -221,7 +254,7 @@ public class Robot extends LoggedRobot {
                         MotorType.KrakenX44,
                         canivore),
                 (ROBOT_MODE == RobotMode.REAL)
-                    ? new RollerIO(10, LindexerSubsystem.getIndexerConfigs(), canivore)
+                    ? new RollerIO(10, LindexerSubsystem.getKickerConfigs(), canivore)
                     : new RollerIOSim(
                         10,
                         LindexerSubsystem.getKickerConfigs(),
@@ -237,11 +270,17 @@ public class Robot extends LoggedRobot {
         shooter =
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getHoodConfiguration(), canivore)
-                    : new HoodIOSim(canivore),
+                    ? new HoodIO(HoodIO.getAlphaHood(), canivore, 11)
+                    : new HoodIOSim(
+                        canivore, HoodIO.getAlphaHood(), ShooterSubsystem.HOOD_GEAR_RATIO, 11),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getFlywheelConfiguration(), canivore)
-                    : new FlywheelIOSim(FlywheelIO.getFlywheelConfiguration(), canivore));
+                    ? new FlywheelIO(FlywheelIO.getAlphaFlywheel(), canivore, 12, 13)
+                    : new FlywheelIOSim(
+                        FlywheelIO.getAlphaFlywheel(),
+                        canivore,
+                        ShooterSubsystem.FLYWHEEL_GEAR_RATIO,
+                        11,
+                        12));
 
         intake =
             new FintakeSubsystem(
@@ -255,16 +294,90 @@ public class Robot extends LoggedRobot {
                                 DCMotor.getKrakenX44Foc(1), 0.001, FintakeSubsystem.GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
-                        canivore));
+                        canivore),
+                canivore);
         // note that the climber is not instantiated here
         break;
       case COMP:
-        indexer = new SpindexerSubsystem();
-        intake = new LintakeSubsystem();
-        shooter = new TurretSubsystem();
-        climber = new ClimberSubsystem(); // TODO climber
+        indexer =
+            new SpindexerSubsystem(
+                canivore,
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(9, SpindexerSubsystem.getIndexerConfigs(), canivore)
+                    : new RollerIOSim(
+                        9,
+                        SpindexerSubsystem.getIndexerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1), 0.003, SpindexerSubsystem.GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore),
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(10, SpindexerSubsystem.getKickerConfigs(), canivore)
+                    : new RollerIOSim(
+                        10,
+                        SpindexerSubsystem.getKickerConfigs(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.00001,
+                                SpindexerSubsystem.KICKER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore));
+        // TODO: FOVs
+        intake =
+            (ROBOT_MODE == RobotMode.REAL)
+                ? new LintakeSubsystem(
+                    new LinearRackIO(14, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new RollerIO(8, LintakeSubsystem.getRollerMotorConfig(), canivore),
+                    new CANrangeIOReal(0, canivore, 10))
+                : new LintakeSubsystem(
+                    new LinearRackIOSim(14, canivore, LintakeSubsystem.getRackMotorConfig()),
+                    new RollerIOSim(
+                        8,
+                        LintakeSubsystem.getRollerMotorConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.001,
+                                LintakeSubsystem.ROLLER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore),
+                    new CANrangeIOReal(0, canivore, 10));
+        shooter =
+            new TurretSubsystem(
+                ROBOT_MODE == RobotMode.REAL
+                    ? new FlywheelIO(FlywheelIO.getCompFlywheel(), canivore, 12, 13)
+                    : new FlywheelIOSim(
+                        FlywheelIO.getCompFlywheel(),
+                        canivore,
+                        TurretSubsystem.FLYWHEEL_GEAR_RATIO,
+                        11,
+                        12),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
+                    : new HoodIOSim(
+                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                ROBOT_MODE == RobotMode.REAL
+                    // TODO id's
+                    ? new TurretIO()
+                    : new TurretIOSim(),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIO(30, TurretSubsystem.getCancoder24tConfigs(), canivore)
+                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder24tConfigs(), canivore),
+                ROBOT_MODE == RobotMode.REAL
+                    ? new CANcoderIO(30, TurretSubsystem.getCancoder26tConfigs(), canivore)
+                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder26tConfigs(), canivore));
+        // TODO climber
         break;
     }
+    climber =
+        ROBOT_EDITION == RobotEdition.ALPHA
+            ? new EmptyClimberSubsystem(canivore)
+            : new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
@@ -272,16 +385,9 @@ public class Robot extends LoggedRobot {
         driver
             .leftBumper()
             .or(
-                new Trigger(
-                        () ->
-                            Superstructure.getState() == SuperState.SPIN_UP_SCORE
-                                || Superstructure.getState() == SuperState.SCORE)
-                    .and(() -> isTeleopEnabled()));
-    // if this is alpha, we won't have assigned a climber yet
-    // this creates a placeholder "no-operation" climber that will just not do anything, but is not
-    // null (and we need it to be not null)
-    if (climber == null)
-      climber = new ClimberSubsystem(); // TODO new ClimberSubsystem(new ClimberIO() {}) and such
+                new Trigger(() ->
+                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                        || Superstructure.getState() == SuperState.SCORE)                    .and(() -> isTeleopEnabled()));
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -368,7 +474,7 @@ public class Robot extends LoggedRobot {
     //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()
     //             * -1));
 
-    addControllerBindings(indexer, shooter);
+    addControllerBindings(indexer, shooter, intake);
 
     // Auto things
     autos = new Autos(swerve);
@@ -387,10 +493,11 @@ public class Robot extends LoggedRobot {
             })
         .onTrue(
             Commands.runOnce(() -> addAutos())
-                .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
-                .ignoringDisable(true));
+                .alongWith(
+                    leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0)
+                        .withTimeout(1.0)
+                        .ignoringDisable(true)));
     // TODO tbh idk if the leds will work here
-
     // Add autos when first connecting to DS
     new Trigger(
             () ->
@@ -429,7 +536,7 @@ public class Robot extends LoggedRobot {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.02);
   }
 
-  private void addControllerBindings(Indexer indexer, Shooter shooter) {
+  private void addControllerBindings(Indexer indexer, Shooter shooter, Intake intake) {
     // heading reset
     driver
         .leftStick()
@@ -445,32 +552,61 @@ public class Robot extends LoggedRobot {
                             : Rotation2d.k180deg)));
 
     // autoaim (alpha)
-    autoAimReq.whileTrue(
-        // swerve.faceHubSOTM(
-        //     () ->
-        //         modifyJoystick(driver.getLeftY())
-        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-        //     () ->
-        //         modifyJoystick(driver.getLeftX())
-        //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-        swerve.faceHubSOTM(
-            () ->
-                -1
-                    * modifyJoystick(driver.getLeftY())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-            () ->
-                -1
-                    * modifyJoystick(driver.getLeftX())
-                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-    // TODO add binding for climb
+    autoAimReq
+        .and(() -> ROBOT_EDITION == RobotEdition.ALPHA)
+        .whileTrue(
+            // swerve.faceHubSOTM(
+            //     () ->
+            //         modifyJoystick(driver.getLeftY())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+            //     () ->
+            //         modifyJoystick(driver.getLeftX())
+            //             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+            swerve.faceHub(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
+    // TODO: autoaim (comp)
+    // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
+
+    // TODO ACTUAL BUTTON BINDING FOR CLIMBER
+    driver.x().onTrue(climber.extendClimber());
+    driver.y().onTrue(climber.retractClimber());
 
     // current zero shooter hood
     driver.b().whileTrue(shooter.runCurrentZeroing());
 
-    new Trigger(() -> indexer.firstBeambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.1));
+    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
-    new Trigger(() -> indexer.isFull()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    // current zero shooter hood
+    driver.b().whileTrue(shooter.runCurrentZeroing());
 
+    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+
+    operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
+    operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
+
+    // TODO: ACTUAL BINDING LOL
+    driver
+        .x()
+        .whileTrue(
+            swerve.alignToClimb(
+                () ->
+                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
+                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
+                        .filter(
+                            target ->
+                                target.isBlueAlliance()
+                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
+                                        == Alliance.Blue))
+                        .findFirst()
+                        .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
@@ -512,6 +648,13 @@ public class Robot extends LoggedRobot {
     // TODO Log mechanism poses
 
     updateAlerts();
+
+    // Log climb poses
+    Logger.recordOutput(
+        "AutoAlign/Climb Targets",
+        Arrays.stream(FieldUtils.ClimbTargets.values())
+            .map(target -> target.getPose())
+            .toArray(Pose2d[]::new));
   }
 
   public void updateAlerts() {
