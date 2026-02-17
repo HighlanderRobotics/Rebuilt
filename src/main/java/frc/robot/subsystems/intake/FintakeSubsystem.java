@@ -22,7 +22,7 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   public static final double GEAR_RATIO = 2.0;
 
   private RollerIO io;
-  private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
+  private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
 
   CANrangeIOInputsAutoLogged canrangeInputs = new CANrangeIOInputsAutoLogged();
 
@@ -45,8 +45,8 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Intake", inputs);
+    io.updateInputs(rollerIOInputs);
+    Logger.processInputs("Intake", rollerIOInputs);
 
     canrangeIO.updateInputs(canrangeInputs);
     Logger.processInputs("Indexer/First Beambreak", canrangeInputs);
@@ -97,5 +97,9 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   /** for controller rumble */
   public boolean beambreak() {
     return canrangeInputs.isDetected;
+  }
+
+  public double getRollerVoltage() {
+    return rollerIOInputs.appliedVoltage;
   }
 }

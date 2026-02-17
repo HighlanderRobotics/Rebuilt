@@ -19,4 +19,6 @@ public interface Intake {
 
   /** for controller rumble */
   public boolean beambreak();
+
+  public double getRollerVoltage();
 }

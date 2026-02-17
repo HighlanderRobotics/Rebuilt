@@ -59,6 +59,7 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.pitcheck.Pitcheck;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -509,6 +510,21 @@ public class Robot extends LoggedRobot {
                 .ignoringDisable(true));
 
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
+    SmartDashboard.putData(
+        "intakeRoller",
+        Commands.sequence(
+            Pitcheck.pitCheck(
+                intake.intake(), () -> MathUtil.isNear(7.0, this.intake.getRollerVoltage(), 1.0)),
+            Pitcheck.pitCheck(
+                intake.outtake(),
+                () -> MathUtil.isNear(-11.0, this.intake.getRollerVoltage(), 1.0)),
+            Pitcheck.pitCheck(
+                intake.rest(), () -> MathUtil.isNear(0.0, this.intake.getRollerVoltage(), 0.5))));
+    SmartDashboard.putData(
+        "spindexer",
+        Commands.sequence(
+            Pitcheck.pitCheck(
+                indexer.kick(), () -> MathUtil.isNear(7.0, this.indexer.getRollerVoltage(), 1.0))));
     // SmartDashboard.putData("Zero hood", shooter.zeroHood().ignoringDisable(true));
     // SmartDashboard.putData("Test Shot", shooter.testShoot());
 
