@@ -107,9 +107,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command outtake() {
     return this.run(
         () -> {
-          // Oscillate between 0.5x extension pos and 1x extension pos
+          // Should oscillate between 0.8x extension pos and 1x extension pos
           rackIO.setPositionSetpoint(
-              (0.25 * Math.sin(Timer.getFPGATimestamp()) + 0.75) * EXTENDED_POSITION_METERS);
+              (0.1 * Math.sin(Timer.getFPGATimestamp() * 6) + 0.9) * EXTENDED_POSITION_METERS);
           rollerIO.setRollerVoltage(10.0);
         });
   }
