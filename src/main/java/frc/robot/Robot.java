@@ -64,6 +64,9 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
+import java.util.Arrays;
 import frc.robot.utils.LoggedTunableNumber;
 import java.util.Optional;
 import java.util.Set;
@@ -90,6 +93,9 @@ public class Robot extends LoggedRobot {
     ALPHA,
     COMP
   }
+
+  @AutoLogOutput(key = "Robot/Climb Target")
+  private boolean leftClimbTarget = false; // TODO change to be operator controller
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
@@ -386,9 +392,11 @@ public class Robot extends LoggedRobot {
         driver
             .leftBumper()
             .or(
-                () ->
-                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
-                        || Superstructure.getState() == SuperState.SCORE);
+                new Trigger(
+                        () ->
+                            Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                                || Superstructure.getState() == SuperState.SCORE)
+                    .and(() -> isTeleopEnabled()));
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -606,6 +614,29 @@ public class Robot extends LoggedRobot {
 
     new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
+    // current zero shooter hood
+    driver.b().whileTrue(shooter.runCurrentZeroing());
+
+    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+
+    operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
+    operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
+
+    // TODO: ACTUAL BINDING LOL
+    driver
+        .x()
+        .whileTrue(
+            swerve.alignToClimb(
+                () ->
+                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
+                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
+                        .filter(
+                            target ->
+                                target.isBlueAlliance()
+                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
+                                        == Alliance.Blue))
+                        .findFirst()
+                        .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
@@ -624,15 +655,23 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
+    autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
+    autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
+    autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
+    autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
+    autoChooser.addOption("Test Auto", autos.getTestAuto());
+    
+    haveAutosGenerated = true;
+    System.out.println("Done generating autos");
   }
 
   // Sysid Autos
-  private void addCompSysids(
+    private void addCompSysids(
       ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
     autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
-    autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
-    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
+      autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
+      autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+      autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
@@ -713,6 +752,13 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
+
+    // Log climb poses
+    Logger.recordOutput(
+        "AutoAlign/Climb Targets",
+        Arrays.stream(FieldUtils.ClimbTargets.values())
+            .map(target -> target.getPose())
+            .toArray(Pose2d[]::new));
   }
 
   public void updateAlerts() {
@@ -791,7 +837,9 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    addAutos();
+  }
 
   @Override
   public void disabledPeriodic() {}
