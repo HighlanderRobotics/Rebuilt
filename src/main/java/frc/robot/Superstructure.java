@@ -284,7 +284,7 @@ public class Superstructure {
     bindCommands(
         SuperState.INTAKE,
         intake.intake(),
-        indexer.index(),
+        indexer.rest(),
         shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
 
