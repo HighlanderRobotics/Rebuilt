@@ -24,4 +24,8 @@ public interface Indexer {
   public double getRollerVoltage();
 
   public double getKickerVoltage();
+
+  public double getRollerStatorCurrent();
+
+  public double getKickerStatorCurrent();
 }

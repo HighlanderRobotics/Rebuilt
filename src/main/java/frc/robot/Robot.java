@@ -531,7 +531,11 @@ public class Robot extends LoggedRobot {
                     indexer.kick(),
                     () ->
                         MathUtil.isNear(7.0, this.indexer.getKickerVoltage(), 1.0)
-                            && MathUtil.isNear(7.0, this.indexer.getRollerVoltage(), 1.0)))));
+                            && MathUtil.isNear(7.0, this.indexer.getRollerVoltage(), 1.0)
+                            && this.indexer.getKickerStatorCurrent()<80.0
+                            && this.indexer.getRollerStatorCurrent()<60.0
+                            //i really dont know if stator current values are for which
+                            ))));
 
     // Reset alert timers
     canInitialErrorTimer.restart();
