@@ -22,4 +22,6 @@ public interface Indexer {
   public Command rest();
 
   public double getRollerVoltage();
+
+  public double getKickerVoltage();
 }

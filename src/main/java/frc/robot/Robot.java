@@ -511,10 +511,13 @@ public class Robot extends LoggedRobot {
 
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
     SmartDashboard.putData(
-        "intakeRoller",
+        "intake",
         Commands.sequence(
             Pitcheck.pitCheck(
-                intake.intake(), () -> MathUtil.isNear(7.0, this.intake.getRollerVoltage(), 1.0)),
+                intake.intake(),
+                () ->
+                    MathUtil.isNear(7.0, this.intake.getRollerVoltage(), 1.0)
+                        && this.intake.getRollerStatorCurrent() < 40.0),
             Pitcheck.pitCheck(
                 intake.outtake(),
                 () -> MathUtil.isNear(-11.0, this.intake.getRollerVoltage(), 1.0)),
@@ -523,10 +526,12 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData(
         "spindexer",
         Commands.sequence(
-            Pitcheck.pitCheck(
-                indexer.kick(), () -> MathUtil.isNear(7.0, this.indexer.getRollerVoltage(), 1.0))));
-    // SmartDashboard.putData("Zero hood", shooter.zeroHood().ignoringDisable(true));
-    // SmartDashboard.putData("Test Shot", shooter.testShoot());
+            Commands.parallel(
+                Pitcheck.pitCheck(
+                    indexer.kick(),
+                    () ->
+                        MathUtil.isNear(7.0, this.indexer.getKickerVoltage(), 1.0)
+                            && MathUtil.isNear(7.0, this.indexer.getRollerVoltage(), 1.0)))));
 
     // Reset alert timers
     canInitialErrorTimer.restart();

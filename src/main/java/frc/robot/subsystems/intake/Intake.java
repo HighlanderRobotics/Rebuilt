@@ -21,4 +21,6 @@ public interface Intake {
   public boolean beambreak();
 
   public double getRollerVoltage();
+
+  public double getRollerStatorCurrent();
 }

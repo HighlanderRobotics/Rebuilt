@@ -42,7 +42,7 @@ public class Pitcheck {
               }
               return false;
             })
-        .withTimeout(2.0)
+        .withTimeout(5.0)
         .andThen(() -> System.out.println("Pitcheck success: " + endstate.getAsBoolean()));
   }
 }

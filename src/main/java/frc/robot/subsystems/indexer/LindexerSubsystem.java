@@ -157,6 +157,10 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.dynamic(Direction.kReverse));
   }
 
+  public double getKickerVoltage() {
+    return kickerInputs.appliedVoltage;
+  }
+
   public double getRollerVoltage() {
     return rollerInputs.appliedVoltage;
   }

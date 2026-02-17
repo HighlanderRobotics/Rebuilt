@@ -157,4 +157,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   public double getRollerVoltage() {
     return rollerInputs.appliedVoltage;
   }
+
+  public double getKickerVoltage() {
+    return kickerInputs.appliedVoltage;
+  }
 }
