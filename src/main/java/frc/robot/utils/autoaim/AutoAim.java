@@ -118,7 +118,10 @@ public class AutoAim {
   }
 
   public static Rotation2d getVirtualHubYaw(ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose) {
-        double tof = HUB_SHOT_TREE.calculateShot(robotPose, FieldUtils.getCurrentHubTranslation()).timeOfFlightSecs();
+    double tof =
+        HUB_SHOT_TREE
+            .calculateShot(robotPose, FieldUtils.getCurrentHubTranslation())
+            .timeOfFlightSecs();
     return getVirtualTargetYaw(
         FieldUtils.getCurrentHubTranslation(), fieldRelativeSpeeds, robotPose, tof);
   }
