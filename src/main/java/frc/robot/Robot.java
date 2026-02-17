@@ -67,7 +67,6 @@ import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import java.util.Arrays;
-import frc.robot.utils.LoggedTunableNumber;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -660,18 +659,18 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
-    
+
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
 
   // Sysid Autos
-    private void addCompSysids(
+  private void addCompSysids(
       ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
     autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
-      autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
-      autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-      autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
+    autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
+    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
