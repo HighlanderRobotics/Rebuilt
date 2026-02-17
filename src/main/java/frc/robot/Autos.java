@@ -25,6 +25,8 @@ public class Autos {
   private static boolean autoIntake;
   private static boolean autoScore;
   private static boolean autoClimb;
+  private static boolean autoAlignClimb;
+  private static boolean leftAuto;
 
   // private static boolean autoIntakeAlgae;
 
@@ -42,6 +44,14 @@ public class Autos {
   @AutoLogOutput(key = "Superstructure/Auto Climb Request")
   public static Trigger autoClimbReq =
       new Trigger(() -> autoClimb).and(DriverStation::isAutonomous);
+
+  @AutoLogOutput(key = "Superstructure/Auto Align Climb Request")
+  public static Trigger autoAlignClimbReq =
+      new Trigger(() -> autoAlignClimb).and(DriverStation::isAutonomous);
+
+  @AutoLogOutput(key = "Superstructure/Auto Left Climb Request")
+  public static Trigger autoLeftClimbReq =
+      new Trigger(() -> leftAuto).and(DriverStation::isAutonomous);
 
   public enum Action {
     FEED,
@@ -188,7 +198,8 @@ public class Autos {
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                                 - (0.3)))),
         setAutoScoreReqFalse(),
-        setAutoClimbReqTrue());
+        // setAutoClimbReqTrue(),
+        setAutoAlignToClimbReqTrue());
   }
 
   public Command feedPath(Path path, AutoRoutine routine) {
@@ -266,13 +277,24 @@ public class Autos {
     return Commands.runOnce(() -> autoClimb = false);
   }
 
+  public Command setAutoAlignToClimbReqTrue() {
+    return Commands.runOnce(() -> autoAlignClimb = true);
+  }
+
+  public Command setleftAutoTrue() {
+    return Commands.runOnce(() -> leftAuto = true);
+  }
+
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
     Path[] paths = {
       Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
     }; // , Path.SLtoCL};
     Command autoCommand =
-        paths[0].getTrajectory(routine).resetOdometry(); // .andThen(shootPreload());
+        paths[0]
+            .getTrajectory(routine)
+            .resetOdometry()
+            .alongWith(setleftAutoTrue()); // .andThen(shootPreload());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -300,7 +322,8 @@ public class Autos {
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
     Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoFL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftAutoTrue());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
