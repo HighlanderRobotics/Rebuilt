@@ -11,7 +11,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -100,21 +99,32 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return this.run(
         () -> {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
-          rollerIO.setRollerVoltage(7.0);
+          rollerIO.setRollerVoltage(9.0);
         });
   }
 
+  // @Override
+  // public Command agitate() {
+  //   return this.run(
+  //       () -> {
+  //         // Should oscillate between 0.8x extension pos and 1x extension pos
+  //         rackIO.setPositionSetpoint(
+  //             (0.3 * Math.sin(Timer.getFPGATimestamp() * 8) + 0.7) * EXTENDED_POSITION_METERS);
+  //         // should this be -? its called outtake
+  //         rollerIO.setRollerVoltage(10.0);
+  //       });
+  // }
+
   @Override
-  public Command outtake() {
-    return this.run(
-        () -> {
-          // Should oscillate between 0.8x extension pos and 1x extension pos
-          rackIO.setPositionSetpoint(
-              (0.175 * Math.sin(Timer.getFPGATimestamp() * 7.5) + 0.825)
-                  * EXTENDED_POSITION_METERS);
-          // should this be -? its called outtake
-          rollerIO.setRollerVoltage(10.0);
-        });
+  public Command agitate() {
+    return Commands.parallel(
+        Commands.sequence(
+                Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS))
+                    .withTimeout(1.0),
+                Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2))
+                    .withTimeout(1.0))
+            .repeatedly(),
+        Commands.runOnce(() -> rollerIO.setRollerVoltage(10.0)));
   }
 
   @Override
