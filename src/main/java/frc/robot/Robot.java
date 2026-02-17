@@ -190,6 +190,7 @@ public class Robot extends LoggedRobot {
   private final ClimberSubsystem climber;
 
   private Intake intake = null;
+  private Shooter shooter = null;
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -236,7 +237,6 @@ public class Robot extends LoggedRobot {
     // break
     // granted this would never actually happen but
     Indexer indexer = null;
-    Shooter shooter = null;
 
     // this looks at the ROBOT_EDITION variable and decides which version of each subsystem to
     // create based on that
@@ -660,16 +660,7 @@ public class Robot extends LoggedRobot {
             new Rotation3d(
                 0,
                 0,
-                Units.degreesToRadians(
-                    MathUtil.clamp(
-                        AutoAim.getVirtualHubYaw(
-                                swerve.getVelocityFieldRelative(), swerve.getPose())
-                            .plus(Rotation2d.k180deg)
-                            .minus(swerve.getRotation())
-                            // .getRadians()
-                            .getDegrees(),
-                        TurretSubsystem.TURRET_MIN_ROTATIONS.getDegrees(),
-                        TurretSubsystem.TURRET_MAX_ROTATIONS.getDegrees()))));
+                shooter.getTurretPosition().getRadians()));
     // 0));
     // ));
     // TODO: USE MEASURED EXTENSIONS AND ANGLES
@@ -684,12 +675,12 @@ public class Robot extends LoggedRobot {
               .transformBy(
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123),
-                      new Rotation3d(0, hoodAngle.getAsDouble() * -1, 0)))
+                      new Rotation3d(0, shooter.getHoodPosition().getRadians() * -1, 0)))
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123).times(-1),
-                      new Rotation3d(0, 0, 0))),
+                      Rotation3d.kZero)),
           // Intake
           new Pose3d(
               intake.getExtensionMeters() * LintakeSubsystem.INTAKE_ROTATION.getCos(),

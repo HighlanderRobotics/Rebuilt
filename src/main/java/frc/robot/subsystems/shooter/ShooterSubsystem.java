@@ -163,6 +163,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
     return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ROTATION));
   }
 
+  @Override
   public Command runCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
@@ -170,8 +171,14 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
         .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
   }
 
+  @Override
   public Rotation2d getHoodSetpoint() {
     return hoodSetpoint;
+  }
+
+  @Override
+  public Rotation2d getHoodPosition() {
+      return hoodInputs.hoodPositionRotations;
   }
 
   // Only for comp turret
