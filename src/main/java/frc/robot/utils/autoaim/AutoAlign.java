@@ -11,10 +11,10 @@ import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoAlign {
-  static final double MAX_ANGULAR_SPEED = 15.614;
-  static final double MAX_ANGULAR_ACCELERATION = 47.613;
-  static final double MAX_TRANSLATIONAL_SPEED = 5.678;
-  static final double MAX_TRANSLATIONAL_ACCELERATION = 14.715;
+  public static final double MAX_ANGULAR_SPEED = 15.614;
+  public static final double MAX_ANGULAR_ACCELERATION = 47.613;
+  public static final double MAX_TRANSLATIONAL_SPEED = 5.678;
+  public static final double MAX_TRANSLATIONAL_ACCELERATION = 14.715;
   public static final Constraints DEFAULT_TRANSLATIONAL_CONSTRAINTS =
       new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION);
   public static final Constraints DEFAULT_ANGULAR_CONSTRAINTS =
