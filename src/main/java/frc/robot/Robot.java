@@ -385,9 +385,11 @@ public class Robot extends LoggedRobot {
         driver
             .leftBumper()
             .or(
-                () ->
-                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
-                        || Superstructure.getState() == SuperState.SCORE);
+                new Trigger(
+                        () ->
+                            Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                                || Superstructure.getState() == SuperState.SCORE)
+                    .and(() -> isTeleopEnabled()));
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -625,13 +627,19 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
+    autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
+    autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
+    autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
+    autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
+    autoChooser.addOption("Test Auto", autos.getTestAuto());
+    // Sysid Autos
+    // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+    // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    haveAutosGenerated = true;
+    System.out.println("Done generating autos");
   }
-
-  // Sysid Autos
-  // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-  // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-  // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-  // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
   @Override
   public void robotPeriodic() {
@@ -713,7 +721,9 @@ public class Robot extends LoggedRobot {
   public void simulationPeriodic() {}
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    addAutos();
+  }
 
   @Override
   public void disabledPeriodic() {}
