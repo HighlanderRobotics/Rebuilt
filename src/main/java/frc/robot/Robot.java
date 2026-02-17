@@ -61,7 +61,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.FieldUtils.ClimbTargets;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -97,6 +96,8 @@ public class Robot extends LoggedRobot {
   public static final RobotEdition ROBOT_EDITION;
   public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
+  private static final Alert unknownRioAlert =
+      new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
 
   // for replay to work properly this needs to match the edition in the log
   static {
@@ -106,12 +107,13 @@ public class Robot extends LoggedRobot {
           case "023D2BD2":
             ROBOT_EDITION = RobotEdition.ALPHA;
             break;
-          case "2": // TODO get comp rio serial number
+          case "0332054A":
             ROBOT_EDITION = RobotEdition.COMP;
             break;
           default:
             // defaulting to comp is probably safer?
             ROBOT_EDITION = RobotEdition.COMP;
+            unknownRioAlert.set(true);
         }
         break;
       case SIM:
@@ -124,8 +126,7 @@ public class Robot extends LoggedRobot {
         break;
 
       default:
-        // TODO change to comp once there is a comp bot
-        ROBOT_EDITION = RobotEdition.ALPHA;
+        ROBOT_EDITION = RobotEdition.COMP;
     }
   }
 
@@ -165,7 +166,8 @@ public class Robot extends LoggedRobot {
   private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
 
   private static int lowBatteryCycleCount = 0;
-  private static final double lowBatteryVoltage = 11.8; // TODO tune
+  private static final double lowBatteryVoltage =
+      11.8; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 
@@ -361,17 +363,13 @@ public class Robot extends LoggedRobot {
                     ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
                     : new HoodIOSim(
                         canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                ROBOT_MODE == RobotMode.REAL ? new TurretIO(canivore) : new TurretIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
-                    // TODO id's
-                    ? new TurretIO()
-                    : new TurretIOSim(),
+                    ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
+                    : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIO(30, TurretSubsystem.getCancoder24tConfigs(), canivore)
-                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder24tConfigs(), canivore),
-                ROBOT_MODE == RobotMode.REAL
-                    ? new CANcoderIO(30, TurretSubsystem.getCancoder26tConfigs(), canivore)
-                    : new CANcoderIOSim(30, TurretSubsystem.getCancoder26tConfigs(), canivore));
-        // TODO climber
+                    ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
+                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
         break;
     }
     climber =
@@ -380,7 +378,10 @@ public class Robot extends LoggedRobot {
             : new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
-    superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+    superstructure =
+        new Superstructure(swerve, indexer, intake, shooter, climber, driver, operator);
+    addCompSysids(climber, indexer, intake, shooter);
+
     autoAimReq =
         driver
             .leftBumper()
@@ -450,12 +451,29 @@ public class Robot extends LoggedRobot {
 
     PhoenixOdometryThread.getInstance().start();
 
+    SmartDashboard.putData("Zero Climber", climber.zeroClimber().ignoringDisable(true));
+    SmartDashboard.putData("Zero Intake", intake.zeroRack().ignoringDisable(true));
+    SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
+    SmartDashboard.putData(
+        "Test shot",
+        Commands.parallel(
+            shooter.torqueCurrentTest(),
+            Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
+                .andThen(indexer.testShoot())));
+    SmartDashboard.putData(
+        "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
+    SmartDashboard.putData(
+        "Rezero turret against cancoders",
+        shooter
+            .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+            .ignoringDisable(true));
+
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
 
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
-    shooter.setDefaultCommand(shooter.rest());
+    shooter.setDefaultCommand(shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative));
     swerve.setDefaultCommand(
         swerve.driveOpenLoopFieldRelative(
             () ->
@@ -467,6 +485,10 @@ public class Robot extends LoggedRobot {
                         modifyJoystick(driver.getRightX())
                             * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                     .times(-1)));
+    // swerve.setDefaultCommand(swerve.stop());
+    indexer.setDefaultCommand(indexer.rest());
+    intake.setDefaultCommand(intake.restExtended());
+    climber.setDefaultCommand(climber.retract());
     // swerve.faceHubSOTM(
     //     () ->
     //         modifyJoystick(driver.getLeftX())
@@ -578,37 +600,43 @@ public class Robot extends LoggedRobot {
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
 
     // TODO ACTUAL BUTTON BINDING FOR CLIMBER
-    driver.x().onTrue(climber.extendClimber());
-    driver.y().onTrue(climber.retractClimber());
+    // driver.x().onTrue(climber.extendClimber().alongWith(intake.climb()));
+    // driver.y().onTrue(climber.retractClimber().alongWith(intake.climb()));
 
     // current zero shooter hood
-    driver.b().whileTrue(shooter.runCurrentZeroing());
+    driver
+        .b()
+        .whileTrue(
+            Commands.parallel(
+                shooter.runCurrentZeroing(),
+                intake.runCurrentZeroing(),
+                climber.runCurrentZeroing()));
 
-    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
-
-    // current zero shooter hood
-    driver.b().whileTrue(shooter.runCurrentZeroing());
-
-    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
     operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
 
     // TODO: ACTUAL BINDING LOL
+    // test shot
     driver
-        .x()
+        .rightBumper()
         .whileTrue(
-            swerve.alignToClimb(
-                () ->
-                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
-                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
-                        .filter(
-                            target ->
-                                target.isBlueAlliance()
-                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
-                                        == Alliance.Blue))
-                        .findFirst()
-                        .get()));
+            Commands.parallel(
+                shooter.torqueCurrentTest(),
+                Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.25))
+                    .andThen(indexer.testShoot())));
+    // swerve.alignToClimb(
+    //     () ->
+    //         ClimbTargets.CLIMB_TARGETS_LIST.stream()
+    //             .filter(target -> target.getLeftHanded() == leftClimbTarget)
+    //             .filter(
+    //                 target ->
+    //                     target.isBlueAlliance()
+    //                         == (DriverStation.getAlliance().orElse(Alliance.Blue)
+    //                             == Alliance.Blue))
+    //             .findFirst()
+    //             .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
@@ -633,12 +661,20 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
     // Sysid Autos
-    // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-    // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-    // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    private void addCompSysids(
+      ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
+    autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
+      autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
+      autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+      autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
+  }
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
+    autoChooser.addOption("Kicker Sysid", indexer.runKickerSysId());
+    autoChooser.addOption("Turn Sysid", swerve.runTurnSysid());
   }
 
   @Override

@@ -47,8 +47,7 @@ public class ClimberIO {
   private double climberSetpoint = 0.0;
 
   public ClimberIO(CANBus canBus) {
-    // todo: set correct motor ID
-    climberMotor = new TalonFX(30, canBus);
+    climberMotor = new TalonFX(16, canBus);
     climberMotor.getConfigurator().apply(ClimberIO.getClimberConfiguration());
 
     velocityMetersPerSec = climberMotor.getVelocity();
@@ -78,14 +77,9 @@ public class ClimberIO {
 
     // todo: find and make climber gear ratio variable
     config.Feedback.SensorToMechanismRatio =
-        ClimberSubsystem.GEAR_RATIO * (Math.PI * ClimberSubsystem.SPOOL_DIAMETER_METERS);
+        ClimberSubsystem.GEAR_RATIO / (Math.PI * ClimberSubsystem.SPOOL_DIAMETER_METERS);
 
-    // todo: tune
-    config.Slot0.kS = 0.0;
-    config.Slot0.kG = 0.0;
-    config.Slot0.kV = 0.0;
-    config.Slot0.kP = 0.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kP = 600.0;
 
     // todo: find actual current limits
     config.CurrentLimits.StatorCurrentLimit = 50.00;
@@ -106,6 +100,10 @@ public class ClimberIO {
 
   public void setClimberVelocity(double climberVelocity) {
     climberMotor.setControl(velocityVoltage.withVelocity(climberVelocity));
+  }
+
+  public void resetEncoder(double positionMeters) {
+    climberMotor.setPosition(positionMeters);
   }
 
   public void updateInputs(ClimberIOInputs inputs) {
