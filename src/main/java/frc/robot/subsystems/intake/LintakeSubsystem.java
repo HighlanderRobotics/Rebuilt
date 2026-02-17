@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -109,7 +110,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
         () -> {
           // Should oscillate between 0.8x extension pos and 1x extension pos
           rackIO.setPositionSetpoint(
-              (0.1 * Math.sin(Timer.getFPGATimestamp() * 6) + 0.9) * EXTENDED_POSITION_METERS);
+              (0.175 * Math.sin(Timer.getFPGATimestamp() * 7.5) + 0.825)
+                  * EXTENDED_POSITION_METERS);
+          // should this be -? its called outtake
           rollerIO.setRollerVoltage(10.0);
         });
   }
@@ -133,13 +136,15 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
             Commands.waitSeconds(0.5)
                 .andThen(
                     Commands.waitUntil(
-                        () -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)),
-            this.run(() -> rackIO.setVoltage(-3)))
+                        new Trigger(
+                                () -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
+                            .debounce(0.25))),
+            this.run(() -> rackIO.setVoltage(5)))
         .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
   }
 
   public Command zeroRack() {
-    return this.runOnce(() -> rackIO.resetEncoder(0));
+    return this.runOnce(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {

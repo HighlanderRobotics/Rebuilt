@@ -606,9 +606,10 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             Commands.parallel(
-                shooter.runCurrentZeroing(),
-                intake.runCurrentZeroing(),
-                climber.runCurrentZeroing()));
+                // shooter.runCurrentZeroing(),
+                intake.runCurrentZeroing()
+                // climber.runCurrentZeroing()
+                ));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 

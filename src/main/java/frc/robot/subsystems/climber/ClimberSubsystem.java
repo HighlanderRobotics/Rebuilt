@@ -7,7 +7,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -25,6 +24,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
   ClimberIO climberIO;
   ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
+
+  // turned off climber
 
   private SysIdRoutine climberSysid =
       new SysIdRoutine(
@@ -55,19 +56,22 @@ public class ClimberSubsystem extends SubsystemBase {
   public Command extend() {
     return this.run(
         () -> {
-          climberIO.setClimberPosition(MAX_EXTENSION_METERS);
+          Commands.none();
+          //  climberIO.setClimberPosition(MAX_EXTENSION_METERS);
         });
   }
 
   public Command retract() {
     return this.run(
         () -> {
-          climberIO.setClimberPosition(Units.inchesToMeters(1));
+          Commands.none();
+          // climberIO.setClimberPosition(Units.inchesToMeters(1));
         });
   }
 
   public Command zeroClimber() {
-    return this.runOnce(() -> climberIO.resetEncoder(0.0)).ignoringDisable(true);
+    return this.runOnce(() -> Commands.none());
+    // climberIO.resetEncoder(0.0)).ignoringDisable(true);
   }
 
   public Command runClimberSysid() {
@@ -93,8 +97,9 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public Command runCurrentZeroing() {
-    return this.run(() -> climberIO.setClimberVoltage(-3.0))
-        .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
-        .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
+    return Commands.none();
+    //  climberIO.setClimberVoltage(-3.0))
+    //     .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
+    //     .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
   }
 }
