@@ -385,9 +385,11 @@ public class Robot extends LoggedRobot {
         driver
             .leftBumper()
             .or(
-                new Trigger(() ->
-                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
-                        || Superstructure.getState() == SuperState.SCORE)                    .and(() -> isTeleopEnabled()));
+                new Trigger(
+                        () ->
+                            Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                                || Superstructure.getState() == SuperState.SCORE)
+                    .and(() -> isTeleopEnabled()));
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -731,8 +733,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    // TODO
-    superstructure.resetStateForAuto(SuperState.READY);
   }
 
   @Override
