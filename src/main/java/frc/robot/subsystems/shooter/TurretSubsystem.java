@@ -280,7 +280,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Rotation2d getHoodPosition() {
-      return hoodInputs.hoodPositionRotations;
+    return hoodInputs.hoodPositionRotations;
   }
 
   @Override
@@ -291,7 +291,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Rotation2d getTurretPosition() {
-      return turretInputs.positionRotations;
+    return turretInputs.positionRotations;
   }
 
   @AutoLogOutput(key = "Shooter/Turret/Cancoder 24t position")

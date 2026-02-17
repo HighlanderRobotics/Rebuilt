@@ -178,7 +178,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Rotation2d getHoodPosition() {
-      return hoodInputs.hoodPositionRotations;
+    return hoodInputs.hoodPositionRotations;
   }
 
   // Only for comp turret

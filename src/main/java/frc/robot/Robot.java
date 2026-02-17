@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -66,7 +65,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.LoggedTunableNumber;
-import frc.robot.utils.autoaim.AutoAim;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -641,11 +639,6 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Kicker Sysid", indexer.runKickerSysId());
   }
 
-  private LoggedTunableNumber turretAngle =
-      new LoggedTunableNumber("Turret Angle Degrees", 0); // sam bro why would this be radians
-  private LoggedTunableNumber hoodAngle = new LoggedTunableNumber("Hood angle rads", 0);
-  private LoggedTunableNumber intakeExtension = new LoggedTunableNumber("Intake extension", 0);
-
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
@@ -657,10 +650,7 @@ public class Robot extends LoggedRobot {
         new Pose3d(
             new Translation3d(-0.177413, -0.111702, 0.350341),
             // new Rotation3d(0, 0, Units.degreesToRadians(turretAngle.getAsDouble())));
-            new Rotation3d(
-                0,
-                0,
-                shooter.getTurretPosition().getRadians()));
+            new Rotation3d(0, 0, shooter.getTurretPosition().getRadians()));
     // 0));
     // ));
     // TODO: USE MEASURED EXTENSIONS AND ANGLES
@@ -679,8 +669,7 @@ public class Robot extends LoggedRobot {
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
-                      new Translation3d(-0.095638, 0, 0.095123).times(-1),
-                      Rotation3d.kZero)),
+                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
           // Intake
           new Pose3d(
               intake.getExtensionMeters() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
@@ -695,7 +684,7 @@ public class Robot extends LoggedRobot {
     Pose3d turretSetpoint =
         new Pose3d(
             new Translation3d(-0.177413, -0.111702, 0.350341),
-            new Rotation3d(0, 0, turretAngle.getAsDouble()));
+            new Rotation3d(0, 0, shooter.getTurretSetpoint().getRadians()));
     // TODO: ACTUAL SETPOINTS
     Logger.recordOutput(
         "Robot/Mechanism Setpoints",
@@ -708,7 +697,7 @@ public class Robot extends LoggedRobot {
               .transformBy(
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123),
-                      new Rotation3d(0, hoodAngle.getAsDouble() * -1, 0)))
+                      new Rotation3d(0, shooter.getHoodSetpoint().getRadians() * -1, 0)))
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
