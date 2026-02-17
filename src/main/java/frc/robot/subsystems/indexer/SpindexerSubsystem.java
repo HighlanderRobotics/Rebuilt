@@ -153,4 +153,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
         indexRollerSysid.dynamic(Direction.kForward),
         indexRollerSysid.dynamic(Direction.kReverse));
   }
+
+  public double getRollerVoltage() {
+    return rollerInputs.appliedVoltage;
+  }
 }
