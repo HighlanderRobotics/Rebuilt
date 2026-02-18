@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -117,14 +118,29 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public Command agitate() {
-    return Commands.parallel(
-        Commands.sequence(
-                Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS))
-                    .until(() -> rackIO.atSetpoint()),
-                Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2))
-                    .until(() -> rackIO.atSetpoint()))
-            .repeatedly(),
-        Commands.runOnce(() -> rollerIO.setRollerVoltage(10.0)));
+    // return Commands.parallel(
+    //     Commands.sequence(
+    //             Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS))
+    //                 .until(() -> rackIO.atSetpoint()),
+    //             Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2))
+    //                 .until(() -> rackIO.atSetpoint()))
+    //         .repeatedly(),
+    //     Commands.run(() -> rollerIO.setRollerVoltage(10.0)));
+    return Commands.sequence(
+            this.run(
+                    () -> {
+                      rackIO.setPositionSetpoint(
+                          EXTENDED_POSITION_METERS - Units.inchesToMeters(1));
+                      rollerIO.setRollerVoltage(10.0);
+                    })
+                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.2)),
+            this.run(
+                    () -> {
+                      rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2);
+                      rollerIO.setRollerVoltage(10.0);
+                    })
+                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.2)))
+        .repeatedly();
   }
 
   @Override
@@ -258,5 +274,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
           rackIO.setPositionSetpoint(0);
           rollerIO.setRollerVoltage(0.0);
         });
+  }
+
+  public boolean atExtensionSetpoint() {
+    return MathUtil.isNear(rackIOInputs.positionMeters, rackIO.getSetpointMeters(), 0.1);
   }
 }
