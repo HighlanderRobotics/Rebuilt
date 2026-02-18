@@ -47,15 +47,16 @@ public class HoodIO {
   private final StatusSignal<Current> hoodStatorCurrent;
   private final StatusSignal<Current> hoodSupplyCurrent;
   private final StatusSignal<Temperature> hoodTemp;
+
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
 
   private Rotation2d hoodSetpoint = Rotation2d.kZero;
 
-  public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus) {
-    hoodMotor = new TalonFX(11, canbus);
-    hoodMotor.getConfigurator().apply(HoodIO.getHoodConfiguration());
+  public HoodIO(TalonFXConfiguration talonFXConfiguration, CANBus canbus, int deviceID) {
+    hoodMotor = new TalonFX(deviceID, canbus);
+    hoodMotor.getConfigurator().apply(talonFXConfiguration);
 
     hoodPositionRotations = hoodMotor.getPosition();
     hoodAngularVelocity = hoodMotor.getVelocity();
@@ -75,12 +76,8 @@ public class HoodIO {
     hoodMotor.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getHoodConfiguration() {
+  public static TalonFXConfiguration getAlphaHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -95,6 +92,30 @@ public class HoodIO {
     config.Slot0.kV = 1.45;
     config.Slot0.kP = 35;
     config.Slot0.kD = 0.25;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getCompHood() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO;
+
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+    config.Slot0.kS = 0.57613;
+    config.Slot0.kG = 0.35748;
+    config.Slot0.kV = 5.4081;
+    config.Slot0.kA = 0.14829;
+    config.Slot0.kP = 260.0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;

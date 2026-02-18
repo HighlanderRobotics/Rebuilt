@@ -24,3 +24,33 @@ Back Right Encoder (CANcoder) | 3
 First Indexer Beambreak (CANrange) | 0
 Second Indexer Beambreak (CANrange) | 1
 Gyro (Pigeon2) | 0
+
+
+# Comp
+Device | CAN ID | Code
+------ | ------ | ------
+Front Left Drive | 0 | X60-044
+Front Left Steer | 1 | X44-014
+Front Right Drive | 2 | X60-045
+Front Right Steer | 3 | X44-013
+Back Left Drive | 4 | X60-043
+Back Left Steer | 5 | X44-016
+Back Right Drive | 6 | X60-042
+Back Right Steer | 7 | X44-015
+Intake Rollers | 8 | X44-018
+Spindexer Agitator | 9 | X60-046
+Kicker Roller | 10 | X60-051
+Shooter Hood | 11 | X44-002
+Shooter Flywheel Leader (Left) | 12 | X60-052
+Shooter Flywheel Follower (Right) | 13 | X60-047
+intake Extension | 14 | X44-017
+Turret Pivot | 15 | X44-001
+Climber | 16 | X60-049
+Front Left Encoder (CANcoder) | 0
+Front Right Encoder (CANcoder) | 1
+Back Left Encoder (CANcoder) | 2
+Back Right Encoder (CANcoder) | 3
+Turret Encoder (26 teeth) (Throughbore CANcoder) | 4
+Turret Encoder (24 teeth) (Throughbore CANcoder) | 5
+Intake Beambreak (CANrange) | 0
+Gyro (Pigeon2) | 0

@@ -58,6 +58,10 @@ public class Module {
         !turnEncoderConnectedDebouncer.calculate(inputs.cancoderConnected));
   }
 
+  public void setTurnVoltage(double volts) {
+    io.setTurnVoltage(volts);
+  }
+
   public void stop() {
     io.setDriveVoltage(0);
   }

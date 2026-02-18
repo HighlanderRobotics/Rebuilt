@@ -10,6 +10,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -34,12 +35,14 @@ public class FlywheelIO {
     public double flywheelLeaderVoltage = 0.0;
     public double flywheelLeaderTempC = 0.0;
     public double flywheelLeaderPosition = 0.0;
+    public double flywheelLeaderTorqueCurrent = 0.0;
 
     public double flywheelFollowerVelocityRotationsPerSecond = 0.0;
     public double flywheelFollowerStatorCurrentAmps = 0.0;
     public double flywheelFollowerSupplyCurrentAmp = 0.0;
     public double flywheelFollowerVoltage = 0.0;
     public double flywheelFollowerTempC = 0.0;
+    public double flywheelFollowerTorqueCurrent = 0.0;
   }
 
   protected TalonFX flywheelLeader;
@@ -51,24 +54,28 @@ public class FlywheelIO {
   private final StatusSignal<Current> flywheelLeaderSupplyCurrent;
   private final StatusSignal<Temperature> flywheelLeaderTemp;
   private final StatusSignal<Angle> flywheelLeaderPosition;
+  private final StatusSignal<Current> flywheelLeaderTorqueCurrent;
 
   private final BaseStatusSignal flywheelFollowerVelocity;
   private final StatusSignal<Voltage> flywheelFollowerVoltage;
   private final StatusSignal<Current> flywheelFollowerStatorCurrent;
   private final StatusSignal<Current> flywheelFollowerSupplyCurrent;
   private final StatusSignal<Temperature> flywheelFollowerTemp;
+  private final StatusSignal<Current> flywheelFollowerTorqueCurrent;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
+  private VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
+      new VelocityTorqueCurrentFOC(0.0).withSlot(1);
 
   private double velocitySetpointRotPerSec = 0.0;
 
   // todo: tune acceleration
 
-  public FlywheelIO(TalonFXConfiguration config, CANBus canbus) {
-    flywheelLeader = new TalonFX(12, canbus);
-    flywheelFollower = new TalonFX(13, canbus);
+  public FlywheelIO(TalonFXConfiguration config, CANBus canbus, int leaderID, int followerID) {
+    flywheelLeader = new TalonFX(leaderID, canbus);
+    flywheelFollower = new TalonFX(followerID, canbus);
 
     flywheelLeader.getConfigurator().apply(config);
     flywheelFollower.getConfigurator().apply(config);
@@ -83,12 +90,14 @@ public class FlywheelIO {
     flywheelLeaderSupplyCurrent = flywheelLeader.getSupplyCurrent();
     flywheelLeaderTemp = flywheelLeader.getDeviceTemp();
     flywheelLeaderPosition = flywheelLeader.getPosition();
+    flywheelLeaderTorqueCurrent = flywheelLeader.getTorqueCurrent();
 
     flywheelFollowerVelocity = flywheelFollower.getVelocity();
     flywheelFollowerVoltage = flywheelFollower.getMotorVoltage();
     flywheelFollowerStatorCurrent = flywheelFollower.getStatorCurrent();
     flywheelFollowerSupplyCurrent = flywheelFollower.getSupplyCurrent();
     flywheelFollowerTemp = flywheelFollower.getDeviceTemp();
+    flywheelFollowerTorqueCurrent = flywheelFollower.getTorqueCurrent();
 
     motionMagicVelocityVoltage =
         new MotionMagicVelocityVoltage(0.0)
@@ -107,13 +116,14 @@ public class FlywheelIO {
         flywheelFollower.getStatorCurrent(),
         flywheelFollower.getSupplyCurrent(),
         flywheelFollower.getDeviceTemp(),
-        flywheelLeaderPosition);
-
+        flywheelLeaderPosition); // position is just for sysid
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100.0, flywheelLeader.getTorqueCurrent(), flywheelFollower.getTorqueCurrent());
     flywheelLeader.optimizeBusUtilization();
     flywheelFollower.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getFlywheelConfiguration() {
+  public static TalonFXConfiguration getAlphaFlywheel() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -124,12 +134,43 @@ public class FlywheelIO {
     config.Slot0.kS = 0.43477;
     config.Slot0.kV = 0.144;
     config.Slot0.kA = 0.016433;
-    config.Slot0.kP = 0.1;
+    config.Slot0.kP = 0.37;
     config.Slot0.kD = 0.0;
 
-    config.CurrentLimits.StatorCurrentLimit = 120.0;
+    config.CurrentLimits.StatorCurrentLimit = 70.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 80.0;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+
+    config.MotionMagic.MotionMagicAcceleration = 100.0;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getCompFlywheel() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
+
+    // slot 0 is for motion profiled velocity
+    config.Slot0.kS = 0.63933;
+    config.Slot0.kV = 0.11582;
+    config.Slot0.kA = 0.020809;
+    config.Slot0.kP = 0.4;
+    config.Slot0.kD = 0;
+
+    // slot 1 is for torque current
+    config.Slot1.kS = 13.0;
+    config.Slot1.kV = 0.8;
+    // config.Slot1.kA = 0.016433;
+    config.Slot1.kP = 2400;
+    config.Slot1.kD = 0.5;
+
+    config.CurrentLimits.StatorCurrentLimit = 120.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
 
     config.MotionMagic.MotionMagicAcceleration = 100.0;
 
@@ -143,6 +184,10 @@ public class FlywheelIO {
   public void setMotionProfiledFlywheelVelocity(double flywheelVelocity) {
     velocitySetpointRotPerSec = flywheelVelocity;
     flywheelLeader.setControl(motionMagicVelocityVoltage.withVelocity(flywheelVelocity));
+  }
+
+  public void setTorqueCurrentVel(double flywheelVel) {
+    flywheelLeader.setControl(velocityTorqueCurrentFOC.withVelocity(flywheelVel));
   }
 
   public void stop() { // thought i should add a stop command, dont think i had to though
@@ -162,13 +207,16 @@ public class FlywheelIO {
         flywheelFollowerStatorCurrent,
         flywheelFollowerSupplyCurrent,
         flywheelFollowerTemp,
-        flywheelLeaderPosition);
+        flywheelLeaderPosition,
+        flywheelLeaderTorqueCurrent,
+        flywheelFollowerTorqueCurrent);
 
     inputs.flywheelLeaderVelocityRotationsPerSecond = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
     inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
     inputs.flywheelLeaderSupplyCurrentAmp = flywheelLeaderSupplyCurrent.getValueAsDouble();
     inputs.flywheelLeaderTempC = flywheelLeaderTemp.getValueAsDouble();
+    inputs.flywheelLeaderTorqueCurrent = flywheelLeaderTorqueCurrent.getValueAsDouble();
 
     inputs.flywheelLeaderPosition = flywheelLeaderPosition.getValueAsDouble();
 
@@ -177,6 +225,7 @@ public class FlywheelIO {
     inputs.flywheelFollowerStatorCurrentAmps = flywheelFollowerStatorCurrent.getValueAsDouble();
     inputs.flywheelFollowerSupplyCurrentAmp = flywheelFollowerSupplyCurrent.getValueAsDouble();
     inputs.flywheelFollowerTempC = flywheelFollowerTemp.getValueAsDouble();
+    inputs.flywheelFollowerTorqueCurrent = flywheelFollowerTorqueCurrent.getValueAsDouble();
   }
 
   @AutoLogOutput(key = "Shooter/Setpoint")

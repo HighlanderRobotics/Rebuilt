@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.swerve.constants;
+package frc.robot.subsystems.swerve.constants.comp;
 
 import static edu.wpi.first.units.Units.Pound;
 
@@ -27,10 +27,11 @@ import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
 import frc.robot.components.camera.Camera.CameraConstants;
+import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
 
 /** Add your docs here. */
-public class AlphaSwerveConstants extends SwerveConstants {
+public class R1CompBotSwerveConstants extends SwerveConstants {
 
   @Override
   public CameraConstants[] getCameraConstants() {
@@ -59,157 +60,135 @@ public class AlphaSwerveConstants extends SwerveConstants {
     final Matrix<N8, N1> FRONT_LEFT_DIST_COEFFS =
         MatBuilder.fill(
             Nat.N8(), Nat.N1(), 0.057, -0.09, -0.001, 0.002, 0.043, -0.002, 0.004, -0.002);
-
-    final CameraConstants frontRightCamConstants =
-        new CameraConstants(
-            "Front_Right",
-            new Transform3d(
-                new Translation3d(
-                    Units.inchesToMeters(9.859),
-                    Units.inchesToMeters(-9.665),
-                    Units.inchesToMeters(8.844)),
-                new Rotation3d(
-                    Units.degreesToRadians(0.0),
-                    Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(63.835 - 90))),
-            FRONT_RIGHT_CAMERA_MATRIX,
-            FRONT_RIGHT_DIST_COEFFS);
     final CameraConstants frontLeftCamConstants =
         new CameraConstants(
             "Front_Left",
             new Transform3d(
-                new Translation3d(
-                    Units.inchesToMeters(9.859),
-                    Units.inchesToMeters(9.665),
-                    Units.inchesToMeters(8.844)),
+                new Translation3d(0.129, 0.339839, 0.201167),
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
-                    Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(90 - 63.835))),
+                    Units.degreesToRadians(-20), // -61.875 - 45 + 90),
+                    Units.degreesToRadians(60))),
             FRONT_LEFT_CAMERA_MATRIX,
             FRONT_LEFT_DIST_COEFFS);
-
-    final CameraConstants backRightCamConstants =
+    final CameraConstants frontRightCamConstants =
         new CameraConstants(
-            "Back_Right",
+            "Front_Right",
             new Transform3d(
-                new Translation3d(
-                    Units.inchesToMeters(-9.859),
-                    Units.inchesToMeters(-9.665),
-                    Units.inchesToMeters(8.844)),
+                new Translation3d(0.129788, -0.339178, 0.203421),
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
-                    Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(-63.835 - 90))),
-            BACK_RIGHT_CAMERA_MATRIX,
-            BACK_RIGHT_DIST_COEFFS);
+                    Units.degreesToRadians(-20), // -61.875 - 45 + 90),
+                    Units.degreesToRadians(-60))),
+            FRONT_RIGHT_CAMERA_MATRIX,
+            FRONT_RIGHT_DIST_COEFFS);
     final CameraConstants backLeftCamConstants =
         new CameraConstants(
             "Back_Left",
             new Transform3d(
-                new Translation3d(
-                    Units.inchesToMeters(-9.859),
-                    Units.inchesToMeters(9.665),
-                    Units.inchesToMeters(8.844)),
+                new Translation3d(-0.293657, 0.284027, 0.205814),
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
-                    Units.degreesToRadians(-90 + 61.875), // -61.875 - 45 + 90),
-                    Units.degreesToRadians(63.835 + 90))),
+                    Units.degreesToRadians(-20), // -61.875 - 45 + 90),
+                    Units.degreesToRadians(110))),
             BACK_LEFT_CAMERA_MATRIX,
             BACK_LEFT_DIST_COEFFS);
+    final CameraConstants backRightCamConstants =
+        new CameraConstants(
+            "Back_Right",
+            new Transform3d(
+                new Translation3d(-0.293657, -0.284027, 0.205814),
+                new Rotation3d(
+                    Units.degreesToRadians(0.0),
+                    Units.degreesToRadians(-20), // -61.875 - 45 + 90),
+                    Units.degreesToRadians(-110))),
+            BACK_RIGHT_CAMERA_MATRIX,
+            BACK_RIGHT_DIST_COEFFS);
 
     return new CameraConstants[] {
-      frontRightCamConstants, frontLeftCamConstants, backRightCamConstants, backLeftCamConstants
+      frontLeftCamConstants, frontRightCamConstants, backLeftCamConstants, backRightCamConstants
     };
+    // TODO maybe we should standardize on this order
   }
 
   @Override
   public String getName() {
-    return "Alpha";
+    return "Comp"; // TODO CHANGE ONCE NAMED
   }
 
   @Override
   public double getTrackWidthX() {
-    return Units.inchesToMeters(20.25);
+    return Units.inchesToMeters(21.75);
   }
 
   @Override
   public double getTrackWidthY() {
-    return Units.inchesToMeters(20.25);
+    return Units.inchesToMeters(21.75);
   }
 
   @Override
   public double getBumperWidth() {
-    return Units.inchesToMeters(33.6);
+    return Units.inchesToMeters(34.6);
   }
 
   @Override
   public double getBumperLength() {
-    return Units.inchesToMeters(33.6);
+    return Units.inchesToMeters(34.6);
   }
 
   @Override
   public double getMaxLinearSpeed() {
-    // From https://www.swervedrivespecialties.com/products/mk4n-swerve-module, L2+ with KrakenX60
-    // and FOC
-    return Units.feetToMeters(17.1);
+    // From https://www.swervedrivespecialties.com/collections/kits/products/mk5n-swerve-module
+    // SDS Mk5n, R1 ratio, no FOC (because FOC is disabled if we're going fast enough)
+    return Units.feetToMeters(14.9);
   }
 
   @Override
   public double getMaxLinearAcceleration() {
-    // copied from kelpie
-    return 14.0;
+    // Calculated in Choreo for R1 ratio
+    return 9.056;
   }
 
   @Override
   public double getDriveGearRatio() {
-    // Taken from https://www.swervedrivespecialties.com/products/mk4n-swerve-module, L2+
-    // configuration
-    return (50.0 / 16.0) * (17.0 / 27.0) * (45.0 / 15.0);
+    // From https://www.swervedrivespecialties.com/collections/kits/products/mk5n-swerve-module
+    // Mk5n, R1 ratio
+    return 7.03;
   }
 
   @Override
   public double getTurnGearRatio() {
-    // For SDS Mk4n
-    return 18.75;
+    // From https://www.swervedrivespecialties.com/collections/kits/products/mk5n-swerve-module
+    return 287 / 11;
   }
 
   @Override
   public Mass getMass() {
-    // this is for JUST the drivebase, battery, and bumpers
-    return Pound.of(91.08);
+    // From CAD (retrieved 1/29/26), with bumpers and battery
+    return Pound.of(121.28);
   }
 
+  // TODO: CANCODER OFFSETS
   @Override
   public ModuleConstants getFrontLeftModuleConstants() {
     return new ModuleConstants(
-        0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(-0.29).plus(Rotation2d.k180deg));
+        0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(-0.22656).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getFrontRightModuleConstants() {
-    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(0.012));
+    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(-0.388));
   }
 
   @Override
   public ModuleConstants getBackLeftModuleConstants() {
     return new ModuleConstants(
-        2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.229).plus(Rotation2d.k180deg));
+        2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(-0.3).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getBackRightModuleConstants() {
-    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(-0.205));
-  }
-
-  @Override
-  public MotorType getTurnMotorType() {
-    return MotorType.KrakenX60;
-  }
-
-  @Override
-  public MotorType getDriveMotorType() {
-    return MotorType.KrakenX60;
+    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(0.3303));
   }
 
   @Override
@@ -220,9 +199,9 @@ public class AlphaSwerveConstants extends SwerveConstants {
   @Override
   public Pigeon2Configuration getGyroConfig() {
     Pigeon2Configuration config = new Pigeon2Configuration();
-    config.MountPose.MountPosePitch = 0.18661323189735413;
-    config.MountPose.MountPoseRoll = -0.706454336643219;
-    config.MountPose.MountPoseYaw = 1.1713746786117554;
+    config.MountPose.MountPosePitch = -0.420589417219162;
+    config.MountPose.MountPoseRoll = -179.8539581298828;
+    config.MountPose.MountPoseYaw = -86.66709899902344;
     return config;
   }
 
@@ -278,16 +257,31 @@ public class AlphaSwerveConstants extends SwerveConstants {
     turnConfig.Feedback.FeedbackRotorOffset = 0.0;
     // Controls Gains
     // Copied from Kelpie
-    turnConfig.Slot0.kV = 0.42962962963; // ((5800 / 60) / getTurnGearRatio()) / 12
-    turnConfig.Slot0.kA = 0.031543;
-    turnConfig.Slot0.kS = 0.27;
-    turnConfig.Slot0.kP = 20.0;
-    turnConfig.Slot0.kD = 0.68275;
-    turnConfig.MotionMagic.MotionMagicCruiseVelocity = (5500 / 60) / getTurnGearRatio();
-    turnConfig.MotionMagic.MotionMagicAcceleration = (5500 / 60) / (getTurnGearRatio() * 0.005);
+    turnConfig.Slot0.kV = 1.7; // 0.40034; // ((5800 / 60) / getTurnGearRatio()) / 12;
+    turnConfig.Slot0.kA = 0.10881; // 0.031543;
+    turnConfig.Slot0.kS = 0.7988;
+    turnConfig.Slot0.kP = 250.0; // 0; // 50.13; // 20.0;
+    turnConfig.Slot0.kD = 1.0; // 3; // 0.68275;
+    turnConfig.MotionMagic.MotionMagicCruiseVelocity = (7368 / 60) / getTurnGearRatio();
+    turnConfig.MotionMagic.MotionMagicAcceleration = (7368 / 60) / (getTurnGearRatio() * 0.005);
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
     return turnConfig;
+  }
+
+  @Override
+  public boolean getTurnMotorInverted() {
+    return false; // Checked this on a module
+  }
+
+  @Override
+  public MotorType getTurnMotorType() {
+    return MotorType.KrakenX44;
+  }
+
+  @Override
+  public MotorType getDriveMotorType() {
+    return MotorType.KrakenX60;
   }
 
   @Override
@@ -295,9 +289,10 @@ public class AlphaSwerveConstants extends SwerveConstants {
     final var cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.MagnetOffset = cancoderOffset.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection =
-        getTurnMotorInverted()
-            ? SensorDirectionValue.CounterClockwise_Positive
-            : SensorDirectionValue.Clockwise_Positive;
+        // getTurnMotorInverted()
+        //     ? SensorDirectionValue.CounterClockwise_Positive
+        //     : SensorDirectionValue.Clockwise_Positive;
+        SensorDirectionValue.CounterClockwise_Positive;
     return cancoderConfig;
   }
 
