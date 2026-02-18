@@ -103,8 +103,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   private double flywheelVelSetpoint = 0.0;
 
   private LoggedTunableNumber testDegrees =
-      new LoggedTunableNumber("Shooter/Test Hood Degrees", 30.0);
-  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 40.0);
+      new LoggedTunableNumber("Shooter/Test Hood Degrees", 50.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 50.0);
 
   private static final Alert cancoder24tDisconnectedAlert =
       new Alert("24T Cancoder disconnected!", AlertType.kError);
@@ -284,9 +284,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   @AutoLogOutput(key = "Shooter/Turret/At Setpoint")
-  public boolean isFacingTarget() {
+  public boolean atTurretSetpoint() {
     return MathUtil.isNear(
-        getCalculatedTurretRotations().getDegrees(), getTurretSetpoint().getDegrees(), 2);
+        turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
   }
 
   @Override
@@ -331,7 +331,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         });
   }
 
@@ -343,6 +343,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setTorqueCurrentVel(testVelocity.get());
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         });
   }
 

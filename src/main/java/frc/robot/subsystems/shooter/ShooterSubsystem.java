@@ -184,7 +184,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
 
   // Only for comp turret
   @Override
-  public boolean isFacingTarget() {
+  public boolean atTurretSetpoint() {
     return false;
   }
 

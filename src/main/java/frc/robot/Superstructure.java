@@ -211,8 +211,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
-    bindTransition(
-          SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
+    bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
     bindTransition(SuperState.SCORE, SuperState.IDLE, shootReq.negate());
 
@@ -225,8 +224,10 @@ public class Superstructure {
 
       bindTransition(SuperState.SPIN_UP_SCORE_FLOW, SuperState.SCORE_FLOW, readyTrigger);
 
-            bindTransition(
-          SuperState.SPIN_UP_SCORE_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
+      bindTransition(
+          SuperState.SPIN_UP_SCORE_FLOW,
+          SuperState.IDLE,
+          intakeReq.negate().and(shootReq.negate()));
 
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
@@ -243,8 +244,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_FEED, SuperState.FEED, readyTrigger);
 
-    bindTransition(
-          SuperState.SPIN_UP_FEED, SuperState.IDLE, shootReq.negate());
+    bindTransition(SuperState.SPIN_UP_FEED, SuperState.IDLE, shootReq.negate());
 
     bindTransition(SuperState.FEED, SuperState.IDLE, shootReq.negate());
 
@@ -257,9 +257,8 @@ public class Superstructure {
 
       bindTransition(SuperState.SPIN_UP_FEED_FLOW, SuperState.FEED_FLOW, readyTrigger);
 
-                  bindTransition(
+      bindTransition(
           SuperState.SPIN_UP_FEED_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
-
 
       bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
@@ -289,7 +288,8 @@ public class Superstructure {
   private void addCommands() {
     bindCommands(
         SuperState.IDLE,
-        intake.restExtended(),
+        // intake.restExtended(),
+        intake.restRetracted(),
         indexer.rest(),
         shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());

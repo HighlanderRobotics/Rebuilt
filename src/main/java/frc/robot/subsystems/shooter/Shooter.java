@@ -65,7 +65,7 @@ public interface Shooter extends Subsystem {
 
   public Rotation2d getHoodSetpoint();
 
-  public boolean isFacingTarget();
+  public boolean atTurretSetpoint();
 
   public Command runFlywheelSysid();
 

@@ -606,8 +606,7 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             Commands.parallel(
-                shooter.runCurrentZeroing(),
-                intake.runCurrentZeroing()
+                shooter.runCurrentZeroing(), intake.runCurrentZeroing()
                 // ,
                 // climber.runCurrentZeroing()
                 ));
@@ -624,7 +623,11 @@ public class Robot extends LoggedRobot {
         .whileTrue(
             Commands.parallel(
                 shooter.torqueCurrentTest(),
-                Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.25))
+                Commands.waitUntil(
+                        new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.5)
+                        // .and(shooter::atTurretSetpoint)
+                        // .debounce(0.25)
+                        )
                     .andThen(indexer.testShoot())));
     // swerve.alignToClimb(
     //     () ->
