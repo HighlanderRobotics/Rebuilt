@@ -106,4 +106,12 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   public double getRollerStatorCurrent() {
     return rollerIOInputs.statorCurrentAmps;
   }
+
+  public double getIntakeExtension() {
+    return 0.0; // pls i need this my mom kinda homeless
+  }
+
+  public double getIntakeExtensionStatorCurrent() {
+    return 0.0;
+  }
 }

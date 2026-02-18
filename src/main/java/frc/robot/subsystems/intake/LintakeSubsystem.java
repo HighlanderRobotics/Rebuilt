@@ -160,16 +160,19 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return canRangeIOInputs.isDetected;
   }
 
-  public Command extend() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'extend'");
-  }
-
   public double getRollerVoltage() {
     return rollerIOInputs.appliedVoltage;
   }
 
   public double getRollerStatorCurrent() {
     return rollerIOInputs.statorCurrentAmps;
+  }
+
+  public double getIntakeExtension() {
+    return rackIOInputs.positionMeters;
+  }
+
+  public double getIntakeExtensionStatorCurrent() {
+    return rackIOInputs.statorCurrentAmps;
   }
 }

@@ -165,10 +165,11 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
     return rollerInputs.appliedVoltage;
   }
 
-    public double getRollerStatorCurrent(){
+  public double getRollerStatorCurrent() {
     return rollerInputs.statorCurrentAmps;
   }
-  public double getKickerStatorCurrent(){
+
+  public double getKickerStatorCurrent() {
     return kickerInputs.statorCurrentAmps;
   }
 }

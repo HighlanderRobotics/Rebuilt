@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 /** Add your docs here. */
 public interface Intake {
+  double MAX_EXTENSION_METERS = 11.57;
+
   /** Run balls towards the shooter */
   public Command intake();
 
@@ -23,4 +25,8 @@ public interface Intake {
   public double getRollerVoltage();
 
   public double getRollerStatorCurrent();
+
+  public double getIntakeExtension();
+
+  public double getIntakeExtensionStatorCurrent();
 }
