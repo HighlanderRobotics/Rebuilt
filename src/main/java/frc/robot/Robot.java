@@ -8,7 +8,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -60,9 +59,7 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
-import frc.robot.utils.FieldUtils;
-import frc.robot.utils.FieldUtils.ClimbTargets;
-import java.util.Arrays;
+import frc.robot.utils.pitcheck.Pitcheck;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -88,9 +85,6 @@ public class Robot extends LoggedRobot {
     ALPHA,
     COMP
   }
-
-  @AutoLogOutput(key = "Robot/Climb Target")
-  private boolean leftClimbTarget = false; // TODO change to be operator controller
 
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
@@ -217,6 +211,10 @@ public class Robot extends LoggedRobot {
   static {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
+
+  Indexer indexer = null;
+  Intake intake = null;
+  Shooter shooter = null;
 
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
@@ -381,15 +379,14 @@ public class Robot extends LoggedRobot {
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure = new Superstructure(swerve, indexer, intake, shooter, driver, operator);
+
     autoAimReq =
         driver
             .leftBumper()
             .or(
-                new Trigger(
-                        () ->
-                            Superstructure.getState() == SuperState.SPIN_UP_SCORE
-                                || Superstructure.getState() == SuperState.SCORE)
-                    .and(() -> isTeleopEnabled()));
+                () ->
+                    Superstructure.getState() == SuperState.SPIN_UP_SCORE
+                        || Superstructure.getState() == SuperState.SCORE);
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -513,8 +510,36 @@ public class Robot extends LoggedRobot {
                 .ignoringDisable(true));
 
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
-    // SmartDashboard.putData("Zero hood", shooter.zeroHood().ignoringDisable(true));
-    // SmartDashboard.putData("Test Shot", shooter.testShoot());
+    SmartDashboard.putData(
+        "intake",
+        Commands.sequence(
+            Pitcheck.pitCheck(
+                intake.intake(),
+                () ->
+                    MathUtil.isNear(7.0, this.intake.getRollerVoltage(), 1.0)
+                    && this.intake.getRollerStatorCurrent() < 40.0
+                    &&MathUtil.isNear(Intake.MAX_EXTENSION_METERS, this.intake.getIntakeExtension(), 1.0)
+                    && this.intake.getIntakeExtensionStatorCurrent() < 30.0),
+            Pitcheck.pitCheck(
+                intake.outtake(),
+                () -> MathUtil.isNear(-11.0, this.intake.getRollerVoltage(), 1.0)
+                && MathUtil.isNear(Intake.MAX_EXTENSION_METERS, this.intake.getIntakeExtension(),1.0)),
+            Pitcheck.pitCheck(
+                intake.rest(), 
+                () -> MathUtil.isNear(0.0, this.intake.getRollerVoltage(), 0.5))));
+    SmartDashboard.putData(
+        "spindexer",
+        Commands.sequence(
+            Commands.parallel(
+                Pitcheck.pitCheck(
+                    indexer.kick(),
+                    () ->
+                        MathUtil.isNear(7.0, this.indexer.getKickerVoltage(), 1.0)
+                            && MathUtil.isNear(7.0, this.indexer.getRollerVoltage(), 1.0)
+                            && this.indexer.getKickerStatorCurrent() < 80.0
+                            && this.indexer.getRollerStatorCurrent() < 60.0
+                    // i really dont know if stator current values are for which
+                    ))));
 
     // Reset alert timers
     canInitialErrorTimer.restart();
@@ -586,29 +611,6 @@ public class Robot extends LoggedRobot {
 
     new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
-    // current zero shooter hood
-    driver.b().whileTrue(shooter.runCurrentZeroing());
-
-    new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
-
-    operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
-    operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
-
-    // TODO: ACTUAL BINDING LOL
-    driver
-        .x()
-        .whileTrue(
-            swerve.alignToClimb(
-                () ->
-                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
-                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
-                        .filter(
-                            target ->
-                                target.isBlueAlliance()
-                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
-                                        == Alliance.Blue))
-                        .findFirst()
-                        .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
@@ -627,19 +629,13 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
-    autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
-    autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
-    autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
-    autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
-    autoChooser.addOption("Test Auto", autos.getTestAuto());
-    // Sysid Autos
-    // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-    // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
-    // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    haveAutosGenerated = true;
-    System.out.println("Done generating autos");
   }
+
+  // Sysid Autos
+  // autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+  // autoChooser.addOption("Index Roller Sysid", indexer.runRollerSysId());
+  // autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+  // autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
   @Override
   public void robotPeriodic() {
@@ -650,13 +646,6 @@ public class Robot extends LoggedRobot {
     // TODO Log mechanism poses
 
     updateAlerts();
-
-    // Log climb poses
-    Logger.recordOutput(
-        "AutoAlign/Climb Targets",
-        Arrays.stream(FieldUtils.ClimbTargets.values())
-            .map(target -> target.getPose())
-            .toArray(Pose2d[]::new));
   }
 
   public void updateAlerts() {
@@ -721,9 +710,7 @@ public class Robot extends LoggedRobot {
   public void simulationPeriodic() {}
 
   @Override
-  public void disabledInit() {
-    addAutos();
-  }
+  public void disabledInit() {}
 
   @Override
   public void disabledPeriodic() {}
