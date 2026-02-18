@@ -211,6 +211,9 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
+    bindTransition(
+          SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
+
     bindTransition(SuperState.SCORE, SuperState.IDLE, shootReq.negate());
 
     // SCORE_FLOW transitions
@@ -221,6 +224,9 @@ public class Superstructure {
           scoreReq.and(flowReq).and(shootReq.or(intakeReq)));
 
       bindTransition(SuperState.SPIN_UP_SCORE_FLOW, SuperState.SCORE_FLOW, readyTrigger);
+
+            bindTransition(
+          SuperState.SPIN_UP_SCORE_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
 
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
@@ -237,6 +243,9 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_FEED, SuperState.FEED, readyTrigger);
 
+    bindTransition(
+          SuperState.SPIN_UP_FEED, SuperState.IDLE, shootReq.negate());
+
     bindTransition(SuperState.FEED, SuperState.IDLE, shootReq.negate());
 
     // FEED_FLOW transitions
@@ -247,6 +256,10 @@ public class Superstructure {
           feedReq.and(flowReq).and(shootReq.or(intakeReq)));
 
       bindTransition(SuperState.SPIN_UP_FEED_FLOW, SuperState.FEED_FLOW, readyTrigger);
+
+                  bindTransition(
+          SuperState.SPIN_UP_FEED_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
+
 
       bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
@@ -374,14 +387,14 @@ public class Superstructure {
         SuperState.SCORE_FLOW,
         intake.intake(),
         indexer.kick(),
-        shooter.score(
-            swerve::getPose,
-            () ->
-                AutoAim.getCompensatedSOTMShotData(
-                    swerve.getPose(),
-                    FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative()),
-            swerve::getVelocityFieldRelative),
+        // shooter.score(
+        //     swerve::getPose,
+        //     () ->
+        //         AutoAim.getCompensatedSOTMShotData(
+        //             swerve.getPose(),
+        //             FieldUtils.getCurrentHubTranslation(),
+        //             swerve.getVelocityFieldRelative()),
+        //     swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
