@@ -174,7 +174,7 @@ public class Superstructure {
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
-    antiJamReq = driver.a(); 
+    antiJamReq = driver.a();
 
     // TODO add auto climb req
     preClimbReq = driver.x();

@@ -98,6 +98,10 @@ public class LinearRackIO {
     return setpointMeters;
   }
 
+  public boolean atSetpoint() {
+    return positionMeters.isNear(setpointMeters, 0.05);
+  }
+
   public void resetEncoder(double positionMeters) {
     motor.setPosition(positionMeters);
   }

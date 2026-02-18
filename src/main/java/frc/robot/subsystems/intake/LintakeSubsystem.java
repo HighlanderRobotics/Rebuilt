@@ -120,9 +120,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return Commands.parallel(
         Commands.sequence(
                 Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS))
-                    .withTimeout(1.0),
+                    .until(() -> rackIO.atSetpoint()),
                 Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2))
-                    .withTimeout(1.0))
+                    .until(() -> rackIO.atSetpoint()))
             .repeatedly(),
         Commands.runOnce(() -> rollerIO.setRollerVoltage(10.0)));
   }
