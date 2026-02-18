@@ -606,8 +606,9 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             Commands.parallel(
-                // shooter.runCurrentZeroing(),
+                shooter.runCurrentZeroing(),
                 intake.runCurrentZeroing()
+                // ,
                 // climber.runCurrentZeroing()
                 ));
 
