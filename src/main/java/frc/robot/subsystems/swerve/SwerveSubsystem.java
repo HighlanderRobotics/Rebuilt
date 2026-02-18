@@ -678,28 +678,30 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
-        return driveWithHeadingSnap(
+    return driveWithHeadingSnap(
         () -> {
-        if(getPose().getRotation().getDegrees() <= 90 || getPose().getRotation().getDegrees() >= 270){
-          return Rotation2d.kZero;
-        } else {
-          return Rotation2d.k180deg;
-        }
+          if (getPose().getRotation().getDegrees() <= 90
+              || getPose().getRotation().getDegrees() >= 270) {
+            return Rotation2d.kZero;
+          } else {
+            return Rotation2d.k180deg;
+          }
         },
         xVel,
         yVel);
-      }
+  }
 
-    public boolean isCloseToBump(){
-    if(
-      ((Math.abs(getPose().getX() - FieldUtils.BLUE_BUMP1_POS.getX()) < 2) || (Math.abs(getPose().getX() - FieldUtils.RED_BUMP1_POS.getX()) < 2))
-      &&
-      ((getPose().getY() > (FieldUtils.BLUE_BUMP2_POS.getY() - 0.515) && getPose().getY() < (FieldUtils.BLUE_BUMP2_POS.getY() + 0.515) || (getPose().getY() > (FieldUtils.RED_BUMP1_POS.getY() - 0.515) && getPose().getY() < (FieldUtils.RED_BUMP1_POS.getY() + 0.515)))))
-      {
-        return true;
-      } else {
-        return false;
-      }
+  public boolean isCloseToBump() {
+    if (((Math.abs(getPose().getX() - FieldUtils.BLUE_BUMP1_POS.getX()) < 2)
+            || (Math.abs(getPose().getX() - FieldUtils.RED_BUMP1_POS.getX()) < 2))
+        && ((getPose().getY() > (FieldUtils.BLUE_BUMP2_POS.getY() - 0.515)
+                && getPose().getY() < (FieldUtils.BLUE_BUMP2_POS.getY() + 0.515)
+            || (getPose().getY() > (FieldUtils.RED_BUMP1_POS.getY() - 0.515)
+                && getPose().getY() < (FieldUtils.RED_BUMP1_POS.getY() + 0.515))))) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {
