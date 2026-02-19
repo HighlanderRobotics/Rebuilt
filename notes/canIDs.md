@@ -38,7 +38,7 @@ Back Left Drive | 4 | X60-043
 Back Left Steer | 5 | X44-016
 Back Right Drive | 6 | X60-042
 Back Right Steer | 7 | X44-015
-Intake Rollers | 8 | X44-018
+Intake Rollers | 8 | X44-012
 Spindexer Agitator | 9 | X60-046
 Kicker Roller | 10 | X60-051
 Shooter Hood | 11 | X44-002

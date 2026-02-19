@@ -24,6 +24,7 @@ import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.utils.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -55,6 +56,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   private SysIdRoutine intakeRollerSysid;
 
   private SysIdRoutine extensionSysid;
+
+  private LoggedTunableNumber testRollerVoltage =
+      new LoggedTunableNumber("Intake/Roller Voltage", 7.0);
 
   /** Creates a new LintakeSubsystem. */
   public LintakeSubsystem(LinearRackIO rackIO, RollerIO rollerIO, CANrangeIO canRangeIO) {
@@ -100,7 +104,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return this.run(
         () -> {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
-          rollerIO.setRollerVoltage(9.0);
+          rollerIO.setRollerVoltage(testRollerVoltage.get());
         });
   }
 
