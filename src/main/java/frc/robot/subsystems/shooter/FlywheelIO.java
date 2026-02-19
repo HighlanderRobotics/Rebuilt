@@ -36,6 +36,7 @@ public class FlywheelIO {
     public double flywheelLeaderTempC = 0.0;
     public double flywheelLeaderPosition = 0.0;
     public double flywheelLeaderTorqueCurrent = 0.0;
+    public boolean flywheelLeaderConnected = false;
 
     public double flywheelFollowerVelocityRotationsPerSecond = 0.0;
     public double flywheelFollowerStatorCurrentAmps = 0.0;
@@ -43,6 +44,7 @@ public class FlywheelIO {
     public double flywheelFollowerVoltage = 0.0;
     public double flywheelFollowerTempC = 0.0;
     public double flywheelFollowerTorqueCurrent = 0.0;
+    public boolean flywheelFollowerConnected = false;
   }
 
   protected TalonFX flywheelLeader;
@@ -211,6 +213,15 @@ public class FlywheelIO {
         flywheelLeaderTorqueCurrent,
         flywheelFollowerTorqueCurrent);
 
+    inputs.flywheelLeaderConnected =
+        BaseStatusSignal.isAllGood(
+            flywheelLeaderVelocity,
+            flywheelLeaderVoltage,
+            flywheelLeaderStatorCurrent,
+            flywheelLeaderSupplyCurrent,
+            flywheelLeaderTemp,
+            flywheelLeaderPosition,
+            flywheelLeaderTorqueCurrent);
     inputs.flywheelLeaderVelocityRotationsPerSecond = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
     inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
@@ -220,6 +231,14 @@ public class FlywheelIO {
 
     inputs.flywheelLeaderPosition = flywheelLeaderPosition.getValueAsDouble();
 
+    inputs.flywheelFollowerConnected =
+        BaseStatusSignal.isAllGood(
+            flywheelFollowerVelocity,
+            flywheelFollowerVoltage,
+            flywheelFollowerStatorCurrent,
+            flywheelFollowerSupplyCurrent,
+            flywheelFollowerTemp,
+            flywheelFollowerTorqueCurrent);
     inputs.flywheelFollowerVelocityRotationsPerSecond = flywheelFollowerVelocity.getValueAsDouble();
     inputs.flywheelFollowerVoltage = flywheelFollowerVoltage.getValueAsDouble();
     inputs.flywheelFollowerStatorCurrentAmps = flywheelFollowerStatorCurrent.getValueAsDouble();

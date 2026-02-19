@@ -34,6 +34,7 @@ public class TurretIO {
     public double supplyCurrentAmp = 0.0;
     public double voltage = 0.0;
     public double tempCelsius = 0.0;
+    public boolean connected = false;
   }
 
   private final StatusSignal<AngularVelocity> angularVelocityRotationsPerSec;
@@ -41,7 +42,7 @@ public class TurretIO {
   private final StatusSignal<Current> supplyCurrentAmps;
   private final StatusSignal<Current> statorCurrentAmps;
   private final StatusSignal<Voltage> voltage;
-  private final StatusSignal<Temperature> tempCelcius;
+  private final StatusSignal<Temperature> tempC;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0);
@@ -75,7 +76,7 @@ public class TurretIO {
     supplyCurrentAmps = motor.getSupplyCurrent();
     statorCurrentAmps = motor.getStatorCurrent();
     voltage = motor.getMotorVoltage();
-    tempCelcius = motor.getDeviceTemp();
+    tempC = motor.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -84,7 +85,7 @@ public class TurretIO {
         voltage,
         statorCurrentAmps,
         supplyCurrentAmps,
-        tempCelcius);
+        tempC);
     motor.optimizeBusUtilization();
   }
 
@@ -95,14 +96,22 @@ public class TurretIO {
         voltage,
         statorCurrentAmps,
         supplyCurrentAmps,
-        tempCelcius);
+        tempC);
 
+    inputs.connected =
+        BaseStatusSignal.isAllGood(
+            positionRotations,
+            angularVelocityRotationsPerSec,
+            voltage,
+            statorCurrentAmps,
+            supplyCurrentAmps,
+            tempC);
     inputs.positionRotations = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.angularVelocityRotationsPerSec = angularVelocityRotationsPerSec.getValueAsDouble();
     inputs.voltage = voltage.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
     inputs.supplyCurrentAmp = supplyCurrentAmps.getValueAsDouble();
-    inputs.tempCelsius = tempCelcius.getValueAsDouble();
+    inputs.tempCelsius = tempC.getValueAsDouble();
   }
 
   public void setTurretPosition(Rotation2d positionAngle) {

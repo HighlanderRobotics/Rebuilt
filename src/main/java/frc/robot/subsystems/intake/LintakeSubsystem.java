@@ -12,6 +12,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,13 +42,13 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double CURRENT_ZEROING_THRESHOLD = 35; // TODO: TUNE
 
   private final LinearRackIO rackIO;
-  private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
+  private LinearRackIOInputsAutoLogged rackInputs = new LinearRackIOInputsAutoLogged();
 
   private final RollerIO rollerIO;
-  private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
+  private RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
   private final CANrangeIO canRangeIO;
-  private CANrangeIOInputsAutoLogged canRangeIOInputs = new CANrangeIOInputsAutoLogged();
+  private CANrangeIOInputsAutoLogged canrangeInputs = new CANrangeIOInputsAutoLogged();
 
   private LinearFilter rackCurrentFilter = LinearFilter.movingAverage(5);
 
@@ -59,6 +61,13 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   private LoggedTunableNumber testRollerVoltage =
       new LoggedTunableNumber("Intake/Roller Voltage", 7.0);
+
+  private final Alert extensionDisconnectedAlert =
+      new Alert("Disconnected intake extension motor!", AlertType.kError);
+  private final Alert rollerDisconnectedAlert =
+      new Alert("Disconnected intake roller motor!", AlertType.kError);
+  private final Alert canrangeDisconnectedAlert =
+      new Alert("Disconnected intake CANrange!", AlertType.kError);
 
   /** Creates a new LintakeSubsystem. */
   public LintakeSubsystem(LinearRackIO rackIO, RollerIO rollerIO, CANrangeIO canRangeIO) {
@@ -87,16 +96,20 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public void periodic() {
-    rackIO.updateInputs(rackIOInputs);
-    Logger.processInputs("Intake/Rack", rackIOInputs);
+    rackIO.updateInputs(rackInputs);
+    Logger.processInputs("Intake/Rack", rackInputs);
 
-    rollerIO.updateInputs(rollerIOInputs);
-    Logger.processInputs("Intake/Rollers", rollerIOInputs);
+    rollerIO.updateInputs(rollerInputs);
+    Logger.processInputs("Intake/Rollers", rollerInputs);
 
-    canRangeIO.updateInputs(canRangeIOInputs);
-    Logger.processInputs("Intake/CANRange", canRangeIOInputs);
+    canRangeIO.updateInputs(canrangeInputs);
+    Logger.processInputs("Intake/CANRange", canrangeInputs);
 
-    rackCurrentFilterValue = rackCurrentFilter.calculate(rackIOInputs.statorCurrentAmps);
+    rackCurrentFilterValue = rackCurrentFilter.calculate(rackInputs.statorCurrentAmps);
+
+    extensionDisconnectedAlert.set(!rackInputs.connected);
+    rollerDisconnectedAlert.set(!rollerInputs.connected);
+    canrangeDisconnectedAlert.set(!canrangeInputs.connected);
   }
 
   @Override
@@ -232,7 +245,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public boolean beambreak() {
-    return canRangeIOInputs.isDetected;
+    return canrangeInputs.isDetected;
   }
 
   @Override
@@ -251,19 +264,18 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
             .quasistatic(Direction.kForward)
             .until(
                 () ->
-                    rackIOInputs.positionMeters
+                    rackInputs.positionMeters
                         > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))), // Stop before endstop
         extensionSysid
             .quasistatic(Direction.kReverse)
-            .until(() -> rackIOInputs.positionMeters < Units.inchesToMeters(1)),
+            .until(() -> rackInputs.positionMeters < Units.inchesToMeters(1)),
         extensionSysid
             .dynamic(Direction.kForward)
             .until(
-                () ->
-                    rackIOInputs.positionMeters > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))),
+                () -> rackInputs.positionMeters > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))),
         extensionSysid
             .dynamic(Direction.kReverse)
-            .until(() -> rackIOInputs.positionMeters < Units.inchesToMeters(1)));
+            .until(() -> rackInputs.positionMeters < Units.inchesToMeters(1)));
   }
 
   @Override
@@ -281,6 +293,6 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   public boolean atExtensionSetpoint() {
-    return MathUtil.isNear(rackIOInputs.positionMeters, rackIO.getSetpointMeters(), 0.1);
+    return MathUtil.isNear(rackInputs.positionMeters, rackIO.getSetpointMeters(), 0.1);
   }
 }

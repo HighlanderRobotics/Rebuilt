@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,8 +24,8 @@ public class ClimberSubsystem extends SubsystemBase {
   public static double MAX_ACCELERATION = 10.0;
   public static double MAX_VELOCITY = 2.0;
 
-  ClimberIO climberIO;
-  ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
+  ClimberIO io;
+  ClimberIOInputsAutoLogged inputs = new ClimberIOInputsAutoLogged();
 
   // turned off climber
 
@@ -34,23 +36,26 @@ public class ClimberSubsystem extends SubsystemBase {
               null,
               null,
               (state) -> Logger.recordOutput("Climber/SysID State", state.toString())),
-          new Mechanism((voltage) -> climberIO.setClimberVoltage(voltage.in(Volts)), null, this));
+          new Mechanism((voltage) -> io.setClimberVoltage(voltage.in(Volts)), null, this));
 
   private double currentFilterValue = 0.0;
   private LinearFilter currentFilter = LinearFilter.movingAverage(10);
   private static final double CURRENT_ZERO_THRESHOLD = 30;
+  private final Alert climberDisconnectedAlert =
+      new Alert("Disconnected climber motor!", AlertType.kError);
 
   @Override
   public void periodic() {
-    climberIO.updateInputs(climberInputs);
-    Logger.processInputs("Climber", climberInputs);
-    currentFilterValue = currentFilter.calculate(climberInputs.motorStatorCurrentAmps);
+    io.updateInputs(inputs);
+    Logger.processInputs("Climber", inputs);
+    currentFilterValue = currentFilter.calculate(inputs.statorCurrentAmps);
+    climberDisconnectedAlert.set(!inputs.connected);
   }
 
   // member variables here?
 
   public ClimberSubsystem(ClimberIO climberIO) {
-    this.climberIO = climberIO;
+    this.io = climberIO;
   }
 
   public Command extend() {
@@ -80,20 +85,17 @@ public class ClimberSubsystem extends SubsystemBase {
             .quasistatic(Direction.kForward)
             .until(
                 () ->
-                    climberInputs.motorPositionMeters
+                    inputs.positionMeters
                         > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))), // Stop before endstop
         climberSysid
             .quasistatic(Direction.kReverse)
-            .until(() -> climberInputs.motorPositionMeters < Units.inchesToMeters(1)),
+            .until(() -> inputs.positionMeters < Units.inchesToMeters(1)),
         climberSysid
             .dynamic(Direction.kForward)
-            .until(
-                () ->
-                    climberInputs.motorPositionMeters
-                        > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))),
+            .until(() -> inputs.positionMeters > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))),
         climberSysid
             .dynamic(Direction.kReverse)
-            .until(() -> climberInputs.motorPositionMeters < Units.inchesToMeters(1)));
+            .until(() -> inputs.positionMeters < Units.inchesToMeters(1)));
   }
 
   public Command runCurrentZeroing() {

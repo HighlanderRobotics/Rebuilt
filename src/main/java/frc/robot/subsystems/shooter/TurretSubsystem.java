@@ -111,6 +111,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   private static final Alert cancoder26tDisconnectedAlert =
       new Alert("26T Cancoder disconnected!", AlertType.kError);
 
+  private final Alert flywheelLeaderDisconnectedAlert =
+      new Alert("Disconnected flywheel leader!", AlertType.kError);
+  private final Alert flywheelFollowerDisconnectedAlert =
+      new Alert("Disconnected flywheel follower!", AlertType.kError);
+  private final Alert hoodDisconnectedAlert = new Alert("Disconnected hood!", AlertType.kError);
+  private final Alert turretMotorDisconnectedAlert =
+      new Alert("Disconnected turret motor!", AlertType.kError);
+
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
@@ -156,14 +164,18 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     cancoder24tDisconnectedAlert.set(!cancoder24tInputs.connected);
     cancoder26tDisconnectedAlert.set(!cancoder26tInputs.connected);
+    flywheelLeaderDisconnectedAlert.set(!flywheelInputs.flywheelLeaderConnected);
+    flywheelFollowerDisconnectedAlert.set(!flywheelInputs.flywheelFollowerConnected);
+    hoodDisconnectedAlert.set(!hoodInputs.connected);
+    turretMotorDisconnectedAlert.set(!turretInputs.connected);
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset =
-        -0.304199 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1; // 0.696;
+    // this is to offset the position where both cancoders are equal to be inside the deadzone
+    config.MagnetSensor.MagnetOffset = -0.304199 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -173,8 +185,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset =
-        -0.371 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1; // 0.623;x
+    // this is to offset the position where both cancoders are equal to be inside the deadzone
+    config.MagnetSensor.MagnetOffset = -0.371 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -267,7 +279,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  @AutoLogOutput(key = "Shooter/At Vel Setpoint")
+  @AutoLogOutput(key = "Shooter/At Vel Setpoint?")
   public boolean atFlywheelVelocitySetpoint() {
     return MathUtil.isNear(
         flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
@@ -276,14 +288,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
+  @AutoLogOutput(key = "Shooter/Hood/At Setpoint?")
   public boolean atHoodSetpoint() {
     return MathUtil.isNear(
         hoodInputs.hoodPositionRotations.getDegrees(), getHoodSetpoint().getDegrees(), 1);
   }
 
   @Override
-  @AutoLogOutput(key = "Shooter/Turret/At Setpoint")
+  @AutoLogOutput(key = "Shooter/Turret/At Setpoint?")
   public boolean atTurretSetpoint() {
     return MathUtil.isNear(
         turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
