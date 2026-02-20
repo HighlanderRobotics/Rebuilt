@@ -98,10 +98,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               (state) -> Logger.recordOutput("Shooter/Turret/SysID State", state.toString())),
           new Mechanism((voltage) -> turretIO.setVoltage(voltage.in(Volts)), null, this));
 
-  // TODO actually correctly set this everywhere
-  private Rotation2d hoodSetpoint = Rotation2d.kZero;
-  private double flywheelVelSetpoint = 0.0;
-
   private LoggedTunableNumber testDegrees =
       new LoggedTunableNumber("Shooter/Test Hood Degrees", 50.0);
   private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 50.0);
@@ -239,7 +235,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
-          // turretIO.setTurretPosition(TURRET_MIN_ANGLE);
+          // i think we want it to eject as far out from the robot as possible
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
@@ -291,7 +288,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @AutoLogOutput(key = "Shooter/Hood/At Setpoint?")
   public boolean atHoodSetpoint() {
     return MathUtil.isNear(
-        hoodInputs.hoodPositionRotations.getDegrees(), getHoodSetpoint().getDegrees(), 1);
+        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
   }
 
   @Override
@@ -299,12 +296,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public boolean atTurretSetpoint() {
     return MathUtil.isNear(
         turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
-  }
-
-  @Override
-  @AutoLogOutput(key = "Shooter/Hood/Setpoint")
-  public Rotation2d getHoodSetpoint() {
-    return hoodIO.getHoodSetpoint();
   }
 
   @AutoLogOutput(key = "Shooter/Turret/Setpoint")
@@ -339,9 +330,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command testShoot() {
     return this.run(
         () -> {
-          hoodSetpoint = Rotation2d.fromDegrees(testDegrees.get());
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         });
@@ -351,9 +340,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command torqueCurrentTest() {
     return this.run(
         () -> {
-          hoodSetpoint = Rotation2d.fromDegrees(testDegrees.get());
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setTorqueCurrentVel(testVelocity.get());
           turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         });
@@ -365,7 +352,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
-          hoodSetpoint = shotDataSupplier.get().hoodAngle();
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(
               shotDataSupplier.get().flywheelVelocityRotPerSec());
@@ -477,5 +463,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   /** sets the motor encoder to the position calculated from the encoders */
   public Command resetTurretToCalculatedPosition() {
     return resetTurretToPosition(getCalculatedTurretRotations());
+  }
+
+  @Override
+  public Rotation2d getHoodSetpoint() {
+    return hoodIO.getHoodSetpoint();
   }
 }

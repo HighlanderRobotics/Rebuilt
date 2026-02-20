@@ -11,7 +11,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -66,7 +65,6 @@ public class FlywheelIO {
   private final StatusSignal<Current> flywheelFollowerTorqueCurrent;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
-  private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
   private VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
       new VelocityTorqueCurrentFOC(0.0).withSlot(1);
@@ -189,6 +187,7 @@ public class FlywheelIO {
   }
 
   public void setTorqueCurrentVel(double flywheelVel) {
+    velocitySetpointRotPerSec = flywheelVel;
     flywheelLeader.setControl(velocityTorqueCurrentFOC.withVelocity(flywheelVel));
   }
 

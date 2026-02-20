@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -20,7 +21,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final double SPOOL_DIAMETER_METERS = Units.inchesToMeters(1.0);
   // todo: find actual constants
   public static double GEAR_RATIO = (45.0 / 1.0);
-  public static double MAX_EXTENSION_METERS = 0.16748 + Units.inchesToMeters(2);
+  public static double MAX_EXTENSION_METERS = 0.16748 + Units.inchesToMeters(2 - 0.75);
   public static double MAX_ACCELERATION = 10.0;
   public static double MAX_VELOCITY = 2.0;
 
@@ -75,8 +76,7 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public Command zeroClimber() {
-    return this.runOnce(() -> Commands.none());
-    // climberIO.resetEncoder(0.0)).ignoringDisable(true);
+    return this.runOnce(() -> io.resetEncoder(0.0)).ignoringDisable(true);
   }
 
   public Command runClimberSysid() {
@@ -99,9 +99,8 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public Command runCurrentZeroing() {
-    return Commands.none();
-    //  climberIO.setClimberVoltage(-3.0))
-    //     .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
-    //     .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
+    return this.run(() -> io.setClimberVoltage(-3.0))
+        .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
+        .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
   }
 }
