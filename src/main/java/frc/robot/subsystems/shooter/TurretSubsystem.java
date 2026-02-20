@@ -98,18 +98,22 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               (state) -> Logger.recordOutput("Shooter/Turret/SysID State", state.toString())),
           new Mechanism((voltage) -> turretIO.setVoltage(voltage.in(Volts)), null, this));
 
-  // TODO actually correctly set this everywhere
-  private Rotation2d hoodSetpoint = Rotation2d.kZero;
-  private double flywheelVelSetpoint = 0.0;
-
   private LoggedTunableNumber testDegrees =
-      new LoggedTunableNumber("Shooter/Test Hood Degrees", 30.0);
-  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 40.0);
+      new LoggedTunableNumber("Shooter/Test Hood Degrees", 50.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 50.0);
 
   private static final Alert cancoder24tDisconnectedAlert =
       new Alert("24T Cancoder disconnected!", AlertType.kError);
   private static final Alert cancoder26tDisconnectedAlert =
       new Alert("26T Cancoder disconnected!", AlertType.kError);
+
+  private final Alert flywheelLeaderDisconnectedAlert =
+      new Alert("Disconnected flywheel leader!", AlertType.kError);
+  private final Alert flywheelFollowerDisconnectedAlert =
+      new Alert("Disconnected flywheel follower!", AlertType.kError);
+  private final Alert hoodDisconnectedAlert = new Alert("Disconnected hood!", AlertType.kError);
+  private final Alert turretMotorDisconnectedAlert =
+      new Alert("Disconnected turret motor!", AlertType.kError);
 
   public TurretSubsystem(
       FlywheelIO flywheelIO,
@@ -156,14 +160,18 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     cancoder24tDisconnectedAlert.set(!cancoder24tInputs.connected);
     cancoder26tDisconnectedAlert.set(!cancoder26tInputs.connected);
+    flywheelLeaderDisconnectedAlert.set(!flywheelInputs.flywheelLeaderConnected);
+    flywheelFollowerDisconnectedAlert.set(!flywheelInputs.flywheelFollowerConnected);
+    hoodDisconnectedAlert.set(!hoodInputs.connected);
+    turretMotorDisconnectedAlert.set(!turretInputs.connected);
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset =
-        -0.304199 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1; // 0.696;
+    // this is to offset the position where both cancoders are equal to be inside the deadzone
+    config.MagnetSensor.MagnetOffset = -0.304199 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -173,8 +181,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    config.MagnetSensor.MagnetOffset =
-        -0.371 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1; // 0.623;x
+    // this is to offset the position where both cancoders are equal to be inside the deadzone
+    config.MagnetSensor.MagnetOffset = -0.371 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -227,7 +235,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
           flywheelIO.setMotionProfiledFlywheelVelocity(20);
-          turretIO.setTurretPosition(TURRET_MIN_ANGLE);
+          // i think we want it to eject as far out from the robot as possible
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
@@ -267,7 +276,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  @AutoLogOutput(key = "Shooter/At Vel Setpoint")
+  @AutoLogOutput(key = "Shooter/At Vel Setpoint?")
   public boolean atFlywheelVelocitySetpoint() {
     return MathUtil.isNear(
         flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
@@ -276,23 +285,17 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  @AutoLogOutput(key = "Shooter/Hood/At Setpoint")
+  @AutoLogOutput(key = "Shooter/Hood/At Setpoint?")
   public boolean atHoodSetpoint() {
     return MathUtil.isNear(
-        hoodInputs.hoodPositionRotations.getDegrees(), getHoodSetpoint().getDegrees(), 1);
+        hoodInputs.hoodPositionRotations.getDegrees(), hoodIO.getHoodSetpoint().getDegrees(), 1);
   }
 
   @Override
-  @AutoLogOutput(key = "Shooter/Turret/At Setpoint")
-  public boolean isFacingTarget() {
+  @AutoLogOutput(key = "Shooter/Turret/At Setpoint?")
+  public boolean atTurretSetpoint() {
     return MathUtil.isNear(
-        getCalculatedTurretRotations().getDegrees(), getTurretSetpoint().getDegrees(), 2);
-  }
-
-  @Override
-  @AutoLogOutput(key = "Shooter/Hood/Setpoint")
-  public Rotation2d getHoodSetpoint() {
-    return hoodIO.getHoodSetpoint();
+        turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
   }
 
   @AutoLogOutput(key = "Shooter/Turret/Setpoint")
@@ -327,11 +330,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command testShoot() {
     return this.run(
         () -> {
-          hoodSetpoint = Rotation2d.fromDegrees(testDegrees.get());
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          // turretIO.setTurretPosition(TurretIO.TURRET_MIN_ROTATIONS);
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         });
   }
 
@@ -339,10 +340,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command torqueCurrentTest() {
     return this.run(
         () -> {
-          hoodSetpoint = Rotation2d.fromDegrees(testDegrees.get());
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelVelSetpoint = testVelocity.get();
           flywheelIO.setTorqueCurrentVel(testVelocity.get());
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         });
   }
 
@@ -352,7 +352,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
-          hoodSetpoint = shotDataSupplier.get().hoodAngle();
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(
               shotDataSupplier.get().flywheelVelocityRotPerSec());
@@ -464,5 +463,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   /** sets the motor encoder to the position calculated from the encoders */
   public Command resetTurretToCalculatedPosition() {
     return resetTurretToPosition(getCalculatedTurretRotations());
+  }
+
+  @Override
+  public Rotation2d getHoodSetpoint() {
+    return hoodIO.getHoodSetpoint();
   }
 }

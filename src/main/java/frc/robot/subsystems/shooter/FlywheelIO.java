@@ -11,7 +11,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -36,6 +35,7 @@ public class FlywheelIO {
     public double flywheelLeaderTempC = 0.0;
     public double flywheelLeaderPosition = 0.0;
     public double flywheelLeaderTorqueCurrent = 0.0;
+    public boolean flywheelLeaderConnected = false;
 
     public double flywheelFollowerVelocityRotationsPerSecond = 0.0;
     public double flywheelFollowerStatorCurrentAmps = 0.0;
@@ -43,6 +43,7 @@ public class FlywheelIO {
     public double flywheelFollowerVoltage = 0.0;
     public double flywheelFollowerTempC = 0.0;
     public double flywheelFollowerTorqueCurrent = 0.0;
+    public boolean flywheelFollowerConnected = false;
   }
 
   protected TalonFX flywheelLeader;
@@ -64,7 +65,6 @@ public class FlywheelIO {
   private final StatusSignal<Current> flywheelFollowerTorqueCurrent;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
-  private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withEnableFOC(true);
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
   private VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
       new VelocityTorqueCurrentFOC(0.0).withSlot(1);
@@ -187,6 +187,7 @@ public class FlywheelIO {
   }
 
   public void setTorqueCurrentVel(double flywheelVel) {
+    velocitySetpointRotPerSec = flywheelVel;
     flywheelLeader.setControl(velocityTorqueCurrentFOC.withVelocity(flywheelVel));
   }
 
@@ -211,6 +212,15 @@ public class FlywheelIO {
         flywheelLeaderTorqueCurrent,
         flywheelFollowerTorqueCurrent);
 
+    inputs.flywheelLeaderConnected =
+        BaseStatusSignal.isAllGood(
+            flywheelLeaderVelocity,
+            flywheelLeaderVoltage,
+            flywheelLeaderStatorCurrent,
+            flywheelLeaderSupplyCurrent,
+            flywheelLeaderTemp,
+            flywheelLeaderPosition,
+            flywheelLeaderTorqueCurrent);
     inputs.flywheelLeaderVelocityRotationsPerSecond = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderVoltage = flywheelLeaderVoltage.getValueAsDouble();
     inputs.flywheelLeaderStatorCurrentAmps = flywheelLeaderStatorCurrent.getValueAsDouble();
@@ -220,6 +230,14 @@ public class FlywheelIO {
 
     inputs.flywheelLeaderPosition = flywheelLeaderPosition.getValueAsDouble();
 
+    inputs.flywheelFollowerConnected =
+        BaseStatusSignal.isAllGood(
+            flywheelFollowerVelocity,
+            flywheelFollowerVoltage,
+            flywheelFollowerStatorCurrent,
+            flywheelFollowerSupplyCurrent,
+            flywheelFollowerTemp,
+            flywheelFollowerTorqueCurrent);
     inputs.flywheelFollowerVelocityRotationsPerSecond = flywheelFollowerVelocity.getValueAsDouble();
     inputs.flywheelFollowerVoltage = flywheelFollowerVoltage.getValueAsDouble();
     inputs.flywheelFollowerStatorCurrentAmps = flywheelFollowerStatorCurrent.getValueAsDouble();

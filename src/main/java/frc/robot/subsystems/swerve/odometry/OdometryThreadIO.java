@@ -20,7 +20,7 @@ public interface OdometryThreadIO {
     @Override
     public void toLog(LogTable table) {
       final var timestamps = sampledStates.stream().mapToDouble(Samples::timestamp).toArray();
-      final Set<Integer> modIds = new HashSet();
+      final Set<Integer> modIds = new HashSet<>();
       for (int i = 0; i < sampledStates.size(); i++) {
         final var sample = sampledStates.get(i);
         for (var signal : sample.values().entrySet()) {

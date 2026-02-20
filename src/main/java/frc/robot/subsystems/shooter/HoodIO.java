@@ -37,6 +37,7 @@ public class HoodIO {
     public double hoodTempC = 0.0;
     // For sysid
     public double hoodRotations = 0.0;
+    public boolean connected = false;
   }
 
   protected TalonFX hoodMotor;
@@ -146,6 +147,14 @@ public class HoodIO {
         hoodSupplyCurrent,
         hoodTemp);
 
+    inputs.connected =
+        BaseStatusSignal.isAllGood(
+            hoodPositionRotations,
+            hoodAngularVelocity,
+            hoodVoltage,
+            hoodStatorCurrent,
+            hoodSupplyCurrent,
+            hoodTemp);
     inputs.hoodPositionRotations =
         Rotation2d.fromRotations(hoodPositionRotations.getValueAsDouble());
     inputs.hoodAngularVelocity = hoodAngularVelocity.getValueAsDouble();

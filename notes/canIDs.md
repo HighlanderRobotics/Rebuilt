@@ -1,6 +1,6 @@
 (X60 vs X44 looks the same in code (just talonfx) but i’m putting it here for reference)
 
-# Alpha
+# Alpha (total devices: 21 + canivore)
 Device | CAN ID
 ------ | ------
 Front Left Drive (X60) | 0
@@ -24,9 +24,10 @@ Back Right Encoder (CANcoder) | 3
 First Indexer Beambreak (CANrange) | 0
 Second Indexer Beambreak (CANrange) | 1
 Gyro (Pigeon2) | 0
+CANivore | 0
 
 
-# Comp
+# Comp (total devices: 25 + canivore)
 Device | CAN ID | Code
 ------ | ------ | ------
 Front Left Drive | 0 | X60-044
@@ -37,7 +38,7 @@ Back Left Drive | 4 | X60-043
 Back Left Steer | 5 | X44-016
 Back Right Drive | 6 | X60-042
 Back Right Steer | 7 | X44-015
-Intake Rollers | 8 | X44-018
+Intake Rollers | 8 | X44-012
 Spindexer Agitator | 9 | X60-046
 Kicker Roller | 10 | X60-051
 Shooter Hood | 11 | X44-002
@@ -54,3 +55,4 @@ Turret Encoder (26 teeth) (Throughbore CANcoder) | 4
 Turret Encoder (24 teeth) (Throughbore CANcoder) | 5
 Intake Beambreak (CANrange) | 0
 Gyro (Pigeon2) | 0
+CANivore | 0

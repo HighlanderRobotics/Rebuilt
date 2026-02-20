@@ -58,7 +58,7 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public Command outtake() {
+  public Command agitate() {
     return this.run(() -> io.setRollerVoltage(-5));
   }
 

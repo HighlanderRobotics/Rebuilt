@@ -628,9 +628,10 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             Commands.parallel(
-                shooter.runCurrentZeroing(),
-                intake.runCurrentZeroing(),
-                climber.runCurrentZeroing()));
+                shooter.runCurrentZeroing(), intake.runCurrentZeroing()
+                // ,
+                // climber.runCurrentZeroing()
+                ));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
@@ -646,8 +647,13 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .whileTrue(
             Commands.parallel(
-                shooter.torqueCurrentTest(),
-                Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.25))
+                // shooter.torqueCurrentTest(),
+                shooter.testShoot(),
+                Commands.waitUntil(
+                        new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(1.5)
+                        // .and(shooter::atTurretSetpoint)
+                        // .debounce(0.25)
+                        )
                     .andThen(indexer.testShoot())));
     // swerve.alignToClimb(
     //     () ->

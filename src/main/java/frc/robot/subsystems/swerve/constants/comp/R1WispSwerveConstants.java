@@ -31,7 +31,7 @@ import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
 
 /** Add your docs here. */
-public class R1CompBotSwerveConstants extends SwerveConstants {
+public class R1WispSwerveConstants extends SwerveConstants {
 
   @Override
   public CameraConstants[] getCameraConstants() {
@@ -113,7 +113,7 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
 
   @Override
   public String getName() {
-    return "Comp"; // TODO CHANGE ONCE NAMED
+    return "Wisp";
   }
 
   @Override
