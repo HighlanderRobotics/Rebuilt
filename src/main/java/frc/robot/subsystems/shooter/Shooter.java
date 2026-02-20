@@ -51,9 +51,11 @@ public interface Shooter extends Subsystem {
   public Command zeroHood();
 
   /** Shoots based on dashboard numbers. For testing only */
-  public Command testShoot();
+  public Command testShoot(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier);
 
-  public default Command torqueCurrentTest() {
+  public default Command torqueCurrentTest(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return Commands.none();
   }
 
@@ -83,7 +85,15 @@ public interface Shooter extends Subsystem {
     return Rotation2d.kZero;
   }
 
-  public default Command spinUpTest() {
+  public default Command spinUpTest(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+    return Commands.none();
+  }
+
+  public default Command spinUp(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return Commands.none();
   }
 }

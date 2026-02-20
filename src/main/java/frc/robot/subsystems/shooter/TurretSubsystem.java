@@ -16,7 +16,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -55,8 +55,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static Rotation2d TURRET_MIN_ANGLE = Rotation2d.fromRotations(-0.75); // -0.719536);
   public static Rotation2d TURRET_MAX_ANGLE = Rotation2d.fromRotations(-0.0354); // 0.011378);
 
-  public static Translation3d ROBOT_TO_TURRET_TRANSLATION =
-      new Translation3d(-0.177413, -0.111702, 0.350341);
+  public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
+      new Translation2d(-0.177413, -0.111702); // , 0.350341);
   public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
 
@@ -331,33 +331,51 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command testShoot() {
+  public Command testShoot(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          turretIO.setTurretPosition(
+              AutoAim.getTurretTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
         });
   }
 
   @Override
-  public Command torqueCurrentTest() {
+  public Command torqueCurrentTest(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelIO.setTorqueCurrentVel(testVelocity.get());
-          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          turretIO.setTurretPosition(
+              AutoAim.getTurretTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
         });
   }
 
   @Override
-  public Command spinUpTest() {
+  public Command spinUpTest(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           // flywheelIO.spinUpVoltage(6, testVelocity.get());
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          turretIO.setTurretPosition(
+              AutoAim.getTurretTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
         });
   }
 
@@ -368,8 +386,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
+          flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
           turretIO.setTurretPosition(
               AutoAim.getTurretTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
@@ -497,7 +514,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot0.kS = 0.61115; // 0.63933;
     config.Slot0.kV = 0.1142; // 0.11582;
     config.Slot0.kA = 0.015104; // 0.020809;
-    config.Slot0.kP = 1;
+    config.Slot0.kP = 0.4;
     config.Slot0.kD = 0;
 
     // slot 1 is for torque current
@@ -538,5 +555,23 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.CurrentLimits.SupplyCurrentLimit = 60.0;
 
     return config;
+  }
+
+  @Override
+  public Command spinUp(
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+          flywheelIO.setMotionProfiledFlywheelVelocity(
+              shotDataSupplier.get().flywheelVelocityRotPerSec());
+          turretIO.setTurretPosition(
+              AutoAim.getTurretTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
+        });
   }
 }

@@ -20,32 +20,67 @@ public class AutoAim {
       new LoggedTunableNumber("Latency time", 0.0).getAsDouble(); // 0.6; // TODO tune latency comp
   //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
 
-  public static final InterpolatingShotTree HUB_SHOT_TREE = new InterpolatingShotTree();
+  public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
 
   static { // For hub shot tree
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46));
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
         new ShotData(Rotation2d.fromDegrees(6), 30, 1.55));
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
         new ShotData(Rotation2d.fromDegrees(10.5), 30, 1.54));
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
         new ShotData(Rotation2d.fromDegrees(14.5), 30, 1.54));
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
         new ShotData(Rotation2d.fromDegrees(18.25), 30, 1.52));
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
         new ShotData(Rotation2d.fromDegrees(21.5), 30, 1.46));
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
         new ShotData(Rotation2d.fromDegrees(24.5), 30, 1.35));
-    HUB_SHOT_TREE.put(
+    ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
         new ShotData(Rotation2d.fromDegrees(28), 30, 1.36));
+  }
+
+  public static final InterpolatingShotTree COMP_HUB_SHOT_TREE = new InterpolatingShotTree();
+
+  // TODO update tof
+  static { // For hub shot tree
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(25), 40, 1.46));
+
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
+        new ShotData(Rotation2d.fromDegrees(32), 40, 1.55));
+
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
+        new ShotData(Rotation2d.fromDegrees(36), 40, 1.54));
+
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
+        new ShotData(Rotation2d.fromDegrees(38), 40, 1.54));
+
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
+        new ShotData(Rotation2d.fromDegrees(41), 40, 1.52));
+
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
+        new ShotData(Rotation2d.fromDegrees(45), 40, 1.46));
+
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
+        new ShotData(Rotation2d.fromDegrees(48), 40, 1.35));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
+        new ShotData(Rotation2d.fromDegrees(48), 42, 1.36));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -89,16 +124,16 @@ public class AutoAim {
     return rot;
   }
 
+  // if we have a turret im going to assume we're on comp
   public static Rotation2d getTurretTargetRotation(
       Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
     Pose2d turretPose =
         robotPose.transformBy(
-            new Transform2d(
-                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.toTranslation2d(), Rotation2d.kZero));
+            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
 
     // get desired rotation to point at target
     double turretTargetRotations =
-        AutoAim.getVirtualHubYaw(chassisSpeeds, turretPose).getRotations();
+        AutoAim.getVirtualHubYaw(chassisSpeeds, turretPose, COMP_HUB_SHOT_TREE).getRotations();
     // rewrap the robot's rotation to be between 0 and 1 instead of -pi and pi
     double moddedRobotRotation =
         MathUtil.inputModulus(turretPose.getRotation().getRotations(), 0, 1);
@@ -117,26 +152,31 @@ public class AutoAim {
     return Rotation2d.fromRotations(turretTargetRotations);
   }
 
-  public static Rotation2d getVirtualHubYaw(ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose) {
+  public static Rotation2d getVirtualHubYaw(
+      ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, InterpolatingShotTree tree) {
     double tof =
-        HUB_SHOT_TREE
-            .calculateShot(robotPose, FieldUtils.getCurrentHubTranslation())
-            .timeOfFlightSecs();
+        tree.calculateShot(robotPose, FieldUtils.getCurrentHubTranslation()).timeOfFlightSecs();
     return getVirtualTargetYaw(
         FieldUtils.getCurrentHubTranslation(), fieldRelativeSpeeds, robotPose, tof);
   }
 
   public static ShotData getSOTMShotData(
-      Pose2d robotPose, Translation2d targetTranslation, ChassisSpeeds fieldRelativeSpeeds) {
-    ShotData unadjustedShot = HUB_SHOT_TREE.calculateShot(robotPose, targetTranslation);
+      Pose2d robotPose,
+      Translation2d targetTranslation,
+      ChassisSpeeds fieldRelativeSpeeds,
+      InterpolatingShotTree tree) {
+    ShotData unadjustedShot = tree.calculateShot(robotPose, targetTranslation);
     Translation2d virtualTarget =
         getVirtualSOTMTarget(
             targetTranslation, fieldRelativeSpeeds, unadjustedShot.timeOfFlightSecs());
-    return HUB_SHOT_TREE.get(robotPose.getTranslation().getDistance(virtualTarget));
+    return tree.get(robotPose.getTranslation().getDistance(virtualTarget));
   }
 
   public static ShotData getCompensatedSOTMShotData(
-      Pose2d robotPose, Translation2d targetTranslation, ChassisSpeeds fieldRelativeSpeeds) {
+      Pose2d robotPose,
+      Translation2d targetTranslation,
+      ChassisSpeeds fieldRelativeSpeeds,
+      InterpolatingShotTree tree) {
     ChassisSpeeds robotRelativeSpeeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, robotPose.getRotation());
     // calculate latency compensated pose
@@ -155,6 +195,6 @@ public class AutoAim {
                     * (LATENCY_COMPENSATION_SECS
                     // + SPIN_UP_SECS
                     )));
-    return getSOTMShotData(compensatedPose, targetTranslation, fieldRelativeSpeeds);
+    return getSOTMShotData(compensatedPose, targetTranslation, fieldRelativeSpeeds, tree);
   }
 }

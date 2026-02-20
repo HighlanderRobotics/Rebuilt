@@ -84,7 +84,8 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command testShoot() {
+  public Command testShoot(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));

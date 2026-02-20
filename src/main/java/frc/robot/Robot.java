@@ -61,6 +61,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.autoaim.AutoAim;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -461,7 +462,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData(
         "Test shot",
         Commands.parallel(
-            shooter.torqueCurrentTest(),
+            shooter.torqueCurrentTest(swerve::getPose, swerve::getVelocityFieldRelative),
             Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
                 .andThen(indexer.testShoot())));
     SmartDashboard.putData(
@@ -598,7 +599,10 @@ public class Robot extends LoggedRobot {
                 () ->
                     -1
                         * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                ROBOT_EDITION == RobotEdition.ALPHA
+                    ? AutoAim.ALPHA_HUB_SHOT_TREE
+                    : AutoAim.COMP_HUB_SHOT_TREE));
 
     // TODO: autoaim (comp)
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
@@ -628,7 +632,7 @@ public class Robot extends LoggedRobot {
         .whileTrue(
             Commands.parallel(
                 // shooter.torqueCurrentTest(),
-                shooter.testShoot(),
+                shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
                 Commands.waitUntil(
                         new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(1.5)
                         // .and(shooter::atTurretSetpoint)
