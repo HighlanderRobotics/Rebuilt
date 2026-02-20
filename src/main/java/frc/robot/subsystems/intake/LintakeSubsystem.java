@@ -150,13 +150,13 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
                           EXTENDED_POSITION_METERS - Units.inchesToMeters(1));
                       rollerIO.setRollerVoltage(10.0);
                     })
-                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.2)),
+                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.05)),
             this.run(
                     () -> {
                       rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2);
                       rollerIO.setRollerVoltage(10.0);
                     })
-                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.2)))
+                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.05)))
         .repeatedly();
   }
 

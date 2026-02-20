@@ -272,13 +272,16 @@ public class Robot extends LoggedRobot {
         shooter =
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getAlphaHood(), canivore, 11)
+                    ? new HoodIO(ShooterSubsystem.getHoodConfig(), canivore, 11)
                     : new HoodIOSim(
-                        canivore, HoodIO.getAlphaHood(), ShooterSubsystem.HOOD_GEAR_RATIO, 11),
+                        canivore,
+                        ShooterSubsystem.getHoodConfig(),
+                        ShooterSubsystem.HOOD_GEAR_RATIO,
+                        11),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getAlphaFlywheel(), canivore, 12, 13)
+                    ? new FlywheelIO(ShooterSubsystem.getFlywheelConfig(), canivore, 12, 13)
                     : new FlywheelIOSim(
-                        FlywheelIO.getAlphaFlywheel(),
+                        ShooterSubsystem.getFlywheelConfig(),
                         canivore,
                         ShooterSubsystem.FLYWHEEL_GEAR_RATIO,
                         11,

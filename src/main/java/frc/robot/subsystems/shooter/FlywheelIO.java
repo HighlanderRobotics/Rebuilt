@@ -13,9 +13,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -102,7 +100,8 @@ public class FlywheelIO {
     motionMagicVelocityVoltage =
         new MotionMagicVelocityVoltage(0.0)
             .withAcceleration(config.MotionMagic.MotionMagicAcceleration)
-            .withEnableFOC(true);
+            .withEnableFOC(true)
+            .withSlot(0);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -123,32 +122,13 @@ public class FlywheelIO {
     flywheelFollower.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getAlphaFlywheel() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
-
-    config.Slot0.kS = 0.43477;
-    config.Slot0.kV = 0.144;
-    config.Slot0.kA = 0.016433;
-    config.Slot0.kP = 0.37;
-    config.Slot0.kD = 0.0;
-
-    config.CurrentLimits.StatorCurrentLimit = 70.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 40.0;
-
-    config.MotionMagic.MotionMagicAcceleration = 100.0;
-
-    return config;
+  public void setFlywheelVoltage(double volts) {
+    flywheelLeader.setControl(voltageOut.withOutput(volts));
   }
 
-  public void setFlywheelVoltage(double volts) {
-    velocitySetpointRotPerSec = 50.0; // TODO akljsflsdj
-    flywheelLeader.setControl(voltageOut.withOutput(volts));
+  public void spinUpVoltage(double volts, double flywheelVel) {
+    velocitySetpointRotPerSec = flywheelVel; // TODO akljsflsdj
+    setFlywheelVoltage(volts);
   }
 
   public void setMotionProfiledFlywheelVelocity(double flywheelVelocity) {

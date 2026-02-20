@@ -181,7 +181,7 @@ public class Superstructure {
 
     readyTrigger =
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .debounce(0.75)
+            .debounce(1.5)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
     // .and(
     //     new Trigger(

@@ -355,7 +355,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setFlywheelVoltage(6);
+          // flywheelIO.spinUpVoltage(6, testVelocity.get());
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         });
   }
@@ -503,8 +504,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot1.kS = 13.0;
     config.Slot1.kV = 0.8;
     // config.Slot1.kA = 0.016433;
-    config.Slot1.kP = 2400;
-    config.Slot1.kD = 0.5;
+    config.Slot1.kP = 3.5;
+    config.Slot1.kD = 0.15;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
