@@ -622,9 +622,10 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .whileTrue(
             Commands.parallel(
-                shooter.torqueCurrentTest(),
+                // shooter.torqueCurrentTest(),
+                shooter.testShoot(),
                 Commands.waitUntil(
-                        new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.5)
+                        new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(1.5)
                         // .and(shooter::atTurretSetpoint)
                         // .debounce(0.25)
                         )

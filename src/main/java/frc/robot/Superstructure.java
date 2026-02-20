@@ -20,9 +20,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
-import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.FeedTargets;
-import frc.robot.utils.autoaim.AutoAim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -111,7 +109,7 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq = new Trigger(() -> shotTarget == ShotTarget.FEED);
 
-  private boolean flowState = false;
+  private boolean flowState = true;
 
   @AutoLogOutput(key = "Superstructure/Flow State Request")
   private Trigger flowReq = new Trigger(() -> flowState);
@@ -182,7 +180,7 @@ public class Superstructure {
 
     readyTrigger =
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .debounce(0.1)
+            .debounce(0.75)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
     // .and(
     //     new Trigger(
@@ -372,21 +370,23 @@ public class Superstructure {
     bindCommands(
         SuperState.SPIN_UP_SCORE_FLOW,
         intake.restExtended(),
-        indexer.kick(),
-        shooter.score(
-            swerve::getPose,
-            () ->
-                AutoAim.getCompensatedSOTMShotData(
-                    swerve.getPose(),
-                    FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative()),
-            swerve::getVelocityFieldRelative),
+        indexer.rest(),
+        // shooter.score(
+        //     swerve::getPose,
+        //     () ->
+        //         AutoAim.getCompensatedSOTMShotData(
+        //             swerve.getPose(),
+        //             FieldUtils.getCurrentHubTranslation(),
+        //             swerve.getVelocityFieldRelative()),
+        //     swerve::getVelocityFieldRelative),
+        shooter.testShoot(),
         climber.retract());
 
     bindCommands(
         SuperState.SCORE_FLOW,
         intake.intake(),
         indexer.kick(),
+        shooter.testShoot(),
         // shooter.score(
         //     swerve::getPose,
         //     () ->

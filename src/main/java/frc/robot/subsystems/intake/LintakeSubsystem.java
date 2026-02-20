@@ -60,7 +60,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   private SysIdRoutine extensionSysid;
 
   private LoggedTunableNumber testRollerVoltage =
-      new LoggedTunableNumber("Intake/Roller Voltage", 7.0);
+      new LoggedTunableNumber("Intake/Roller Voltage", 9.0);
 
   private final Alert extensionDisconnectedAlert =
       new Alert("Disconnected intake extension motor!", AlertType.kError);
@@ -235,7 +235,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE
-    config.CurrentLimits.StatorCurrentLimit = 60.0;
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
