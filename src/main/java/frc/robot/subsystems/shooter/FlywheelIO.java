@@ -69,7 +69,7 @@ public class FlywheelIO {
   private VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
       new VelocityTorqueCurrentFOC(0.0).withSlot(1);
 
-  private double velocitySetpointRotPerSec = 0.0;
+  private double velocitySetpointRotPerSec = 100.0; // TODO can't start w 0
 
   // todo: tune acceleration
 
@@ -147,6 +147,7 @@ public class FlywheelIO {
   }
 
   public void setFlywheelVoltage(double volts) {
+    velocitySetpointRotPerSec = 50.0; // TODO akljsflsdj
     flywheelLeader.setControl(voltageOut.withOutput(volts));
   }
 

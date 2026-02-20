@@ -350,6 +350,16 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         });
   }
 
+  @Override
+  public Command spinUpTest() {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelIO.setFlywheelVoltage(6);
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+        });
+  }
+
   public Command score(
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ShotData> shotDataSupplier,

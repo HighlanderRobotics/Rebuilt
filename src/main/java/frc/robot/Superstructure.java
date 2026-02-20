@@ -118,6 +118,7 @@ public class Superstructure {
   private static FeedTarget feedTarget = FeedTarget.LEFT;
 
   // spun up + hood at setpoint + pointing at target
+  @AutoLogOutput(key = "Superstructure/Ready?")
   private Trigger readyTrigger;
 
   @AutoLogOutput(key = "Superstructure/Operator Override?")
@@ -350,7 +351,9 @@ public class Superstructure {
         //             swerve.getPose(),
         //             FieldUtils.getCurrentHubTranslation(),
         //             swerve.getVelocityFieldRelative())));
-        shooter.testShoot(),
+        // shooter.testShoot(),
+        // shooter.torqueCurrentTest(),
+        shooter.spinUpTest(),
         climber.retract());
 
     bindCommands(
@@ -364,7 +367,8 @@ public class Superstructure {
         //             swerve.getPose(),
         //             FieldUtils.getCurrentHubTranslation(),
         //             swerve.getVelocityFieldRelative())));
-        shooter.testShoot(),
+        // shooter.testShoot(),
+        shooter.torqueCurrentTest(),
         climber.retract());
 
     bindCommands(

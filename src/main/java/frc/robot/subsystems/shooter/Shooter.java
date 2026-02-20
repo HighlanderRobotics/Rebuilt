@@ -82,4 +82,8 @@ public interface Shooter extends Subsystem {
   public default Rotation2d getCalculatedTurretRotations() {
     return Rotation2d.kZero;
   }
+
+  public default Command spinUpTest() {
+    return Commands.none();
+  }
 }
