@@ -97,9 +97,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command intake() {
     return this.run(
         () -> {
-          Commands.none();
-          // rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
-          // rollerIO.setRollerVoltage(10.0);
+          rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          rollerIO.setRollerVoltage(10.0);
         });
   }
 
@@ -107,7 +106,6 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command outtake() {
     return this.run(
         () -> {
-          Commands.none();
           // Oscillate between 0.5x extension pos and 1x extension pos
           // rackIO.setPositionSetpoint(
           //     (0.25 * Math.sin(Timer.getFPGATimestamp()) + 0.75) * EXTENDED_POSITION_METERS);
@@ -119,9 +117,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command restExtended() {
     return this.run(
         () -> {
-          Commands.none();
-          // rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
-          // rollerIO.setRollerVoltage(0.0);
+          rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          rollerIO.setRollerVoltage(0.0);
         });
   }
 
@@ -131,24 +128,20 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     //         new Trigger(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
     //             .debounce(0.95))
     //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
-    //
-    // return Commands.deadline(
-    //         Commands.waitSeconds(0.5)
-    //             .andThen(
-    //                 Commands.waitUntil(
-    //                     () -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)),
-    //         this.run(() -> rackIO.setVoltage(-3)))
-    //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
-    return this.run(
-        () -> {
-          Commands.none();
-        });
+    
+    return Commands.deadline(
+            Commands.waitSeconds(0.5)
+                .andThen(
+                    Commands.waitUntil(
+                        () -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)),
+            this.run(() -> rackIO.setVoltage(-3)))
+        .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+  
   }
 
   public Command zeroRack() {
     return this.runOnce(
-        () -> Commands.none()
-        // rackIO.resetEncoder(0)
+        () -> rackIO.resetEncoder(0)
         );
   }
 
@@ -243,17 +236,15 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public Command climb() {
-    return this.run(() -> Commands.none());
-    // rackIO.setPositionSetpoint(0));
+    return this.run(() -> rackIO.setPositionSetpoint(0));
   }
 
   @Override
   public Command restRetracted() {
     return this.run(
         () -> {
-          Commands.none();
-          // rackIO.setPositionSetpoint(0);
-          // rollerIO.setRollerVoltage(0.0);
+           rackIO.setPositionSetpoint(0);
+           rollerIO.setRollerVoltage(0.0);
         });
   }
 }
