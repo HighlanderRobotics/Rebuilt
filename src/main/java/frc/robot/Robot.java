@@ -352,17 +352,20 @@ public class Robot extends LoggedRobot {
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getCompFlywheel(), canivore, 12, 13)
+                    ? new FlywheelIO(TurretSubsystem.getFlywheelConfig(), canivore, 12, 13)
                     : new FlywheelIOSim(
-                        FlywheelIO.getCompFlywheel(),
+                        TurretSubsystem.getFlywheelConfig(),
                         canivore,
                         TurretSubsystem.FLYWHEEL_GEAR_RATIO,
                         11,
                         12),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
+                    ? new HoodIO(TurretSubsystem.getHoodConfig(), canivore, 11)
                     : new HoodIOSim(
-                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                        canivore,
+                        TurretSubsystem.getHoodConfig(),
+                        TurretSubsystem.HOOD_GEAR_RATIO,
+                        11),
                 ROBOT_MODE == RobotMode.REAL ? new TurretIO(canivore) : new TurretIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
@@ -606,10 +609,9 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             Commands.parallel(
-                shooter.runCurrentZeroing(), intake.runCurrentZeroing()
-                // ,
-                // climber.runCurrentZeroing()
-                ));
+                // shooter.runCurrentZeroing(),
+                // intake.runCurrentZeroing(),
+                climber.runCurrentZeroing()));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 

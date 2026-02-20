@@ -109,7 +109,7 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq = new Trigger(() -> shotTarget == ShotTarget.FEED);
 
-  private boolean flowState = true;
+  private boolean flowState = false;
 
   @AutoLogOutput(key = "Superstructure/Flow State Request")
   private Trigger flowReq = new Trigger(() -> flowState);

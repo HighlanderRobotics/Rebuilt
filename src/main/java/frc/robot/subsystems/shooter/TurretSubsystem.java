@@ -7,6 +7,10 @@ package frc.robot.subsystems.shooter;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -468,5 +472,60 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @Override
   public Rotation2d getHoodSetpoint() {
     return hoodIO.getHoodSetpoint();
+  }
+
+  public static TalonFXConfiguration getFlywheelConfig() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
+
+    // slot 0 is for motion profiled velocity
+    config.Slot0.kS = 0.61115; // 0.63933;
+    config.Slot0.kV = 0.1142; // 0.11582;
+    config.Slot0.kA = 0.015104; // 0.020809;
+    config.Slot0.kP = 1;
+    config.Slot0.kD = 0;
+
+    // slot 1 is for torque current
+    config.Slot1.kS = 13.0;
+    config.Slot1.kV = 0.8;
+    // config.Slot1.kA = 0.016433;
+    config.Slot1.kP = 2400;
+    config.Slot1.kD = 0.5;
+
+    config.CurrentLimits.StatorCurrentLimit = 120.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+
+    config.MotionMagic.MotionMagicAcceleration = 100.0;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getHoodConfig() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO;
+
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+    config.Slot0.kS = 0.57613;
+    config.Slot0.kG = 0.35748;
+    config.Slot0.kV = 5.4081;
+    config.Slot0.kA = 0.14829;
+    config.Slot0.kP = 260.0;
+
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+
+    return config;
   }
 }

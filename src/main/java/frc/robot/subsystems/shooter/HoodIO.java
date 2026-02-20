@@ -101,30 +101,6 @@ public class HoodIO {
     return config;
   }
 
-  public static TalonFXConfiguration getCompHood() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO;
-
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-
-    config.Slot0.kS = 0.57613;
-    config.Slot0.kG = 0.35748;
-    config.Slot0.kV = 5.4081;
-    config.Slot0.kA = 0.14829;
-    config.Slot0.kP = 260.0;
-
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
-
-    return config;
-  }
-
   public void setHoodVoltage(double hoodVoltage) {
     hoodMotor.setControl(voltageOut.withOutput(hoodVoltage));
   }

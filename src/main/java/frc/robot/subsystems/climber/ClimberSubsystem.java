@@ -62,16 +62,14 @@ public class ClimberSubsystem extends SubsystemBase {
   public Command extend() {
     return this.run(
         () -> {
-          Commands.none();
-          //  climberIO.setClimberPosition(MAX_EXTENSION_METERS);
+          io.setClimberPosition(MAX_EXTENSION_METERS);
         });
   }
 
   public Command retract() {
     return this.run(
         () -> {
-          Commands.none();
-          // climberIO.setClimberPosition(Units.inchesToMeters(1));
+          io.setClimberPosition(Units.inchesToMeters(1));
         });
   }
 
