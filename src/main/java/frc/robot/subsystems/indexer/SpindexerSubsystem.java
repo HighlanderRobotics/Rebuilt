@@ -80,9 +80,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   public Command kick() {
     return this.run(
         () -> {
-          spinnerIO.setRollerVoltage(12);
+          // spinnerIO.setRollerVoltage(12);
+          spinnerIO.setRollerVelocity(40);
           // kickerIO.setRollerVoltage(11);
-          kickerIO.setRollerVelocity(30);
+          kickerIO.setRollerVelocity(40);
         });
   }
 
@@ -113,10 +114,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
     config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
-    config.Slot0.kS = 0;
-    config.Slot0.kG = 0;
-    config.Slot0.kV = 0;
-    config.Slot0.kP = 0;
+    config.Slot0.kS = 0.12567;
+    config.Slot0.kV = 0.23782;
+    config.Slot0.kA = 0.019071;
+    config.Slot0.kP = 0.1;
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
