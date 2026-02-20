@@ -48,7 +48,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               null,
               null,
               (state) -> Logger.recordOutput("Indexer/Kicker/SysID State", state.toString())),
-          new Mechanism((volts) -> spinnerIO.setRollerVoltage(volts.in(Volts)), null, this));
+          new Mechanism((volts) -> kickerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
@@ -81,7 +81,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return this.run(
         () -> {
           spinnerIO.setRollerVoltage(12);
-          kickerIO.setRollerVoltage(11);
+          // kickerIO.setRollerVoltage(11);
+          kickerIO.setRollerVelocity(30);
         });
   }
 
@@ -138,10 +139,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     // Converts angular motion to linear motion
     config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
 
-    config.Slot0.kS = 0;
-    config.Slot0.kG = 0;
-    config.Slot0.kV = 0;
-    config.Slot0.kP = 0;
+    config.Slot0.kS = 0.41787;
+    config.Slot0.kV = 0.26065;
+    config.Slot0.kA = 0.029144;
+    config.Slot0.kP = 5;
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
