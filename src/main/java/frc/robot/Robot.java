@@ -35,7 +35,6 @@ import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
-import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.climber.EmptyClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
@@ -383,7 +382,7 @@ public class Robot extends LoggedRobot {
         ROBOT_EDITION == RobotEdition.ALPHA
             ? new EmptyClimberSubsystem(canivore)
             : new EmptyClimberSubsystem(canivore); // TODO: SWITCH BACK TO REAL CLIMBER WHEN FIXED
-            //: new ClimberSubsystem(new ClimberIO(canivore));
+    // : new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure =

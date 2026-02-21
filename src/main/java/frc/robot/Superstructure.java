@@ -187,7 +187,7 @@ public class Superstructure {
 
     readyTrigger =
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .debounce(1.5)
+            // .debounce(0.01)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
     // .and(
     //     new Trigger(
@@ -215,6 +215,8 @@ public class Superstructure {
         SuperState.IDLE, SuperState.SPIN_UP_SCORE, shootReq.and(scoreReq).and(flowReq.negate()));
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
+
+    bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
