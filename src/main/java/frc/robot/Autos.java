@@ -65,7 +65,8 @@ public class Autos {
     INTAKE,
     SCORE,
     FLOW,
-    CLIMB;
+    CLIMB,
+    NOTHING;
   }
 
   public enum Obstacle {
@@ -116,7 +117,8 @@ public class Autos {
     DtoRL("DT", "RL", Action.SCORE),
     RLtoFL("RL", "FL", Action.FEED),
     OtoRR("OT", "RR", Action.SCORE),
-    RRtoFR("RR", "FR", Action.FEED);
+    RRtoFR("RR", "FR", Action.FEED),
+    RUNtoTEST("RUN", "TEST", Action.NOTHING);
 
     private final String start;
     private final String end;
@@ -185,6 +187,8 @@ public class Autos {
         return climbPath(path, routine);
       case FLOW:
         return flowPath(path, routine);
+      case NOTHING:
+        return emptyPath(path, routine);
       default: // this should never happen
         return Commands.none();
     }
@@ -243,6 +247,13 @@ public class Autos {
         setAutoScoreReqFalse());
 
     // Commands.waitUntil(inScoringArea()).andThen(setAutoScoreReqTrue()).alongWith(
+    // Commands.sequence(path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+    //   setAutoScoreReqFalse()));
+  }
+
+  public Command emptyPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
     // Commands.sequence(path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
     //   setAutoScoreReqFalse()));
   }
@@ -391,8 +402,8 @@ public class Autos {
   }
 
   public Command getTestAuto() {
-    final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PLtoD};
+    final AutoRoutine routine = factory.newRoutine("test auto");
+    Path[] paths = {Path.RUNtoTEST, Path.RUNtoTEST, Path.RUNtoTEST, Path.RUNtoTEST};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
