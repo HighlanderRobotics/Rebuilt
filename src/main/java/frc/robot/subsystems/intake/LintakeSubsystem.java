@@ -117,7 +117,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return this.run(
         () -> {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
-          rollerIO.setRollerVoltage(testRollerVoltage.get());
+          // rollerIO.setRollerVoltage(testRollerVoltage.get());
+          rollerIO.setRollerVelocity(40);
         });
   }
 
@@ -164,7 +165,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command restExtended() {
     return this.run(
         () -> {
-          rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          // rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
           rollerIO.setRollerVoltage(0.0);
         });
   }
@@ -229,9 +230,10 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     // Converts rotational motion to linear motion
     config.Feedback.SensorToMechanismRatio = ROLLER_GEAR_RATIO;
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.0;
-    config.Slot0.kP = 0.0;
+    config.Slot0.kS = 0.55127;
+    config.Slot0.kV = 0.19756;
+    config.Slot0.kA = 0.0074445;
+    config.Slot0.kP = 0.017985;
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE
