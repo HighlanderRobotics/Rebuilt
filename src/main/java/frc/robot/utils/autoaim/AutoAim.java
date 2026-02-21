@@ -53,7 +53,7 @@ public class AutoAim {
   // TODO update tof
   static { // For hub shot tree
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(25), 40, 1.46));
+        Units.inchesToMeters(24 + 17), new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40, 1.46));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
