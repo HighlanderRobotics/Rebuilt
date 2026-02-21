@@ -650,7 +650,11 @@ public class SwerveSubsystem extends SubsystemBase {
   // }
   public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel, InterpolatingShotTree tree) {
     return driveWithHeadingSnap(
-        () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose(), tree), xVel, yVel);
+        () ->
+            AutoAim.getVirtualTargetYaw(
+                getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree),
+        xVel,
+        yVel);
   }
 
   public boolean isFacingTarget(InterpolatingShotTree tree) {
@@ -665,7 +669,9 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public boolean isFacingHub(InterpolatingShotTree tree) {
-    Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose(), tree);
+    Rotation2d target =
+        AutoAim.getVirtualTargetYaw(
+            getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree);
     return MathUtil.isNear(
         target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   }

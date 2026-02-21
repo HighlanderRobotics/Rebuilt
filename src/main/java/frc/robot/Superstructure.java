@@ -107,10 +107,11 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Climb Req")
   private Trigger climbReq;
 
-  private static ShotTarget shotTarget = ShotTarget.SCORE;
+  private static ShotTarget shotTarget = ShotTarget.FEED;
 
   @AutoLogOutput(key = "Superstructure/Score Request")
-  private Trigger scoreReq = new Trigger(() -> shotTarget == ShotTarget.SCORE);
+  private Trigger scoreReq =
+      new Trigger(() -> shotTarget == ShotTarget.SCORE).and(() -> canScore());
 
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq = new Trigger(() -> shotTarget == ShotTarget.FEED);
@@ -173,7 +174,6 @@ public class Superstructure {
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
-            .and(() -> canScore())
             .or(Autos.autoScoreReq); // Maybe should include if its our turn? //TODO fix auto
     // bindings
 

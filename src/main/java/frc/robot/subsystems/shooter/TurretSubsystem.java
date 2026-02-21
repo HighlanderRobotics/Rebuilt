@@ -28,11 +28,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -199,19 +197,29 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
+          Logger.recordOutput("Robot/Feed Target", feedTarget.get());
           ShotData shotData =
               AutoAim.FEED_SHOT_TREE.get(
                   robotPoseSupplier
                       .get()
                       .getTranslation()
                       .getDistance(feedTarget.get().getTranslation()));
+          //   hoodIO.setHoodPosition(shotData.hoodAngle());
+          //   flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          //   turretIO.setTurretPosition(
+          //       AutoAim.getTurretTargetRotation(
+          //           FeedTargets.getFeedTarget(Superstructure.getFeedTarget())
+          //               .getPose()
+          //               .getTranslation(),
+          //           robotPoseSupplier.get(),
+          //           chassisSpeedsSupplier.get()));
+
           hoodIO.setHoodPosition(shotData.hoodAngle());
+          // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
           turretIO.setTurretPosition(
-              AutoAim.getTurretTargetRotation(
-                  FeedTargets.getFeedTarget(Superstructure.getFeedTarget())
-                      .getPose()
-                      .getTranslation(),
+              AutoAim.getTurretFeedTargetRotation(
+                  feedTarget.get().getTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
         });
@@ -226,7 +234,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
           flywheelIO.setFlywheelVoltage(0.0);
           turretIO.setTurretPosition(
-              AutoAim.getTurretTargetRotation(
+              AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
@@ -339,7 +347,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
           turretIO.setTurretPosition(
-              AutoAim.getTurretTargetRotation(
+              AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
@@ -355,7 +363,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           flywheelIO.setTorqueCurrentVel(testVelocity.get());
           // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
           turretIO.setTurretPosition(
-              AutoAim.getTurretTargetRotation(
+              AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
@@ -372,7 +380,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
           turretIO.setTurretPosition(
-              AutoAim.getTurretTargetRotation(
+              AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
@@ -390,7 +398,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           flywheelIO.setMotionProfiledFlywheelVelocity(
               shotDataSupplier.get().flywheelVelocityRotPerSec());
           turretIO.setTurretPosition(
-              AutoAim.getTurretTargetRotation(
+              AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
@@ -570,7 +578,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           flywheelIO.setMotionProfiledFlywheelVelocity(
               shotDataSupplier.get().flywheelVelocityRotPerSec());
           turretIO.setTurretPosition(
-              AutoAim.getTurretTargetRotation(
+              AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));

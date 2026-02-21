@@ -89,7 +89,7 @@ public class AutoAim {
   static { // For feed shot tree
     // TODO: POPULATE
     FEED_SHOT_TREE.put(
-        1.0, new ShotData(Rotation2d.kCW_90deg, 10, 0)); // Placeholder to prevent crashes
+        1.0, new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 10, 0)); // Placeholder to prevent crashes
   }
 
   public static double distanceToHub(Pose2d pose) {
@@ -126,14 +126,17 @@ public class AutoAim {
 
   // if we have a turret im going to assume we're on comp
   public static Rotation2d getTurretTargetRotation(
-      Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
+      Translation2d target,
+      Pose2d robotPose,
+      ChassisSpeeds chassisSpeeds,
+      InterpolatingShotTree shotTree) {
     Pose2d turretPose =
         robotPose.transformBy(
             new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
 
     // get desired rotation to point at target
     double turretTargetRotations =
-        AutoAim.getVirtualHubYaw(chassisSpeeds, turretPose, COMP_HUB_SHOT_TREE).getRotations();
+        AutoAim.getVirtualTargetYaw(chassisSpeeds, target, turretPose, shotTree).getRotations();
     // rewrap the robot's rotation to be between 0 and 1 instead of -pi and pi
     double moddedRobotRotation =
         MathUtil.inputModulus(turretPose.getRotation().getRotations(), 0, 1);
@@ -152,12 +155,23 @@ public class AutoAim {
     return Rotation2d.fromRotations(turretTargetRotations);
   }
 
-  public static Rotation2d getVirtualHubYaw(
-      ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, InterpolatingShotTree tree) {
-    double tof =
-        tree.calculateShot(robotPose, FieldUtils.getCurrentHubTranslation()).timeOfFlightSecs();
-    return getVirtualTargetYaw(
-        FieldUtils.getCurrentHubTranslation(), fieldRelativeSpeeds, robotPose, tof);
+  public static Rotation2d getTurretHubTargetRotation(
+      Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
+    return getTurretTargetRotation(target, robotPose, chassisSpeeds, COMP_HUB_SHOT_TREE);
+  }
+
+  public static Rotation2d getTurretFeedTargetRotation(
+      Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
+    return getTurretTargetRotation(target, robotPose, chassisSpeeds, FEED_SHOT_TREE);
+  }
+
+  public static Rotation2d getVirtualTargetYaw(
+      ChassisSpeeds fieldRelativeSpeeds,
+      Translation2d targetTranslation,
+      Pose2d robotPose,
+      InterpolatingShotTree tree) {
+    double tof = tree.calculateShot(robotPose, targetTranslation).timeOfFlightSecs();
+    return getVirtualTargetYaw(targetTranslation, fieldRelativeSpeeds, robotPose, tof);
   }
 
   public static ShotData getSOTMShotData(
