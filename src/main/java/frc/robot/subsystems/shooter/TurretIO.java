@@ -43,7 +43,7 @@ public class TurretIO {
   private final StatusSignal<Voltage> voltage;
   private final StatusSignal<Temperature> tempC;
 
-  private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0);
+  private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0).withEnableFOC(true);
 
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
@@ -64,8 +64,8 @@ public class TurretIO {
     config.Slot0.kV = 5.7;
     config.Slot0.kP = 240.0;
 
-    config.MotionMagic.MotionMagicAcceleration = 2.064;
-    config.MotionMagic.MotionMagicCruiseVelocity = 8.0;
+    config.MotionMagic.MotionMagicAcceleration = 20;//2.064;
+    config.MotionMagic.MotionMagicCruiseVelocity = 50;//8.0;
 
     motor.getConfigurator().apply(config);
 
