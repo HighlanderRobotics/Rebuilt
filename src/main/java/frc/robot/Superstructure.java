@@ -178,8 +178,8 @@ public class Superstructure {
     antiJamReq = driver.a();
 
     // TODO add auto climb req
-    preClimbReq = driver.x();
-    climbReq = driver.y();
+    preClimbReq = driver.x().or(Autos.autoPreClimbReq);
+    climbReq = driver.y().or(Autos.autoClimbReq);
 
     readyTrigger =
         new Trigger(shooter::atFlywheelVelocitySetpoint)

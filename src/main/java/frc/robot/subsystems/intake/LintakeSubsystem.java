@@ -175,7 +175,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     //         new Trigger(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
     //             .debounce(0.95))
     //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
-    
+
     return Commands.deadline(
             Commands.waitSeconds(0.5)
                 .andThen(
@@ -185,7 +185,6 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
                             .debounce(0.25))),
             this.run(() -> rackIO.setVoltage(5)))
         .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
-  
   }
 
   public Command zeroRack() {
@@ -289,8 +288,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command restRetracted() {
     return this.run(
         () -> {
-           rackIO.setPositionSetpoint(0);
-           rollerIO.setRollerVoltage(0.0);
+          rackIO.setPositionSetpoint(0);
+          rollerIO.setRollerVoltage(0.0);
         });
   }
 
