@@ -382,7 +382,8 @@ public class Robot extends LoggedRobot {
     climber =
         ROBOT_EDITION == RobotEdition.ALPHA
             ? new EmptyClimberSubsystem(canivore)
-            : new ClimberSubsystem(new ClimberIO(canivore));
+            : new EmptyClimberSubsystem(canivore); // TODO: SWITCH BACK TO REAL CLIMBER WHEN FIXED
+            //: new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure =
