@@ -156,8 +156,14 @@ public class Superstructure {
     operator.y().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.FEED));
 
     // toggle for flow state
-    operator.a().onTrue(Commands.runOnce(() -> flowState = true));
-    operator.b().onTrue(Commands.runOnce(() -> flowState = false));
+    operator
+        .a()
+        .or(new Trigger(Autos.autoFlowReq))
+        .onTrue(Commands.runOnce(() -> flowState = true));
+    operator
+        .b()
+        .or(new Trigger(Autos.autoFlowReq))
+        .onTrue(Commands.runOnce(() -> flowState = false));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
     operator.rightBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.RIGHT));

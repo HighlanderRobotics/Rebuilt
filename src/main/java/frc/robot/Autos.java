@@ -26,6 +26,7 @@ public class Autos {
   private static boolean autoScore;
   private static boolean autoPreClimb;
   private static boolean autoClimb;
+  private static boolean autoFlow;
   // private static boolean autoAlignClimb;
   private static boolean leftClimbAuto;
 
@@ -47,6 +48,9 @@ public class Autos {
   @AutoLogOutput(key = "Superstructure/Auto Climb Request")
   public static Trigger autoClimbReq =
       new Trigger(() -> autoClimb).and(DriverStation::isAutonomous);
+
+  @AutoLogOutput(key = "Superstructure/Auto Climb Request")
+  public static Trigger autoFlowReq = new Trigger(() -> autoFlow).and(DriverStation::isAutonomous);
 
   // @AutoLogOutput(key = "Superstructure/Auto Align Climb Request")
   // public static Trigger autoAlignClimbReq =
@@ -201,6 +205,7 @@ public class Autos {
                         .atTime(
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                                 - (0.3)))),
+        setAutoPreClimbReqTrue(),
         swerve
             .alignToClimb(() -> getClimbAutoTarget())
             .until(() -> swerve.isInTolerance(getClimbAutoTarget().getPose(), 0.05, 0.05)),
@@ -253,6 +258,7 @@ public class Autos {
   public Command flowPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoScoreReqTrue(),
+        setAutoFlowReqTrue(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
@@ -291,6 +297,14 @@ public class Autos {
 
   public Command setAutoPreClimbReqFalse() {
     return Commands.runOnce(() -> autoPreClimb = false);
+  }
+
+  public Command setAutoFlowReqTrue() {
+    return Commands.runOnce(() -> autoFlow = true);
+  }
+
+  public Command setAutoFlowReqFalse() {
+    return Commands.runOnce(() -> autoFlow = false);
   }
 
   public Command setAutoClimbReqTrue() {
