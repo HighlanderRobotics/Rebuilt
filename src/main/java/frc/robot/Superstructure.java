@@ -107,7 +107,7 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Climb Req")
   private Trigger climbReq;
 
-  private static ShotTarget shotTarget = ShotTarget.SCORE;
+  private static ShotTarget shotTarget = ShotTarget.FEED;
 
   @AutoLogOutput(key = "Superstructure/Score Request")
   private Trigger scoreReq =

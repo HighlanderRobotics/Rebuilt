@@ -99,7 +99,10 @@ public class AutoAim {
     FEED_SHOT_TREE.put(Units.feetToMeters(20), new ShotData(Rotation2d.fromDegrees(55), 40, 0.0));
     FEED_SHOT_TREE.put(Units.feetToMeters(22), new ShotData(Rotation2d.fromDegrees(55), 44, 0.0));
     FEED_SHOT_TREE.put(Units.feetToMeters(24), new ShotData(Rotation2d.fromDegrees(60), 44, 0.0));
-    // TODO: POPULATE beyond 24 feet
+    FEED_SHOT_TREE.put(Units.feetToMeters(26), new ShotData(Rotation2d.fromDegrees(60), 47, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(28), new ShotData(Rotation2d.fromDegrees(60), 58, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(30), new ShotData(Rotation2d.fromDegrees(60), 50, 0.0));
+    // TODO: POPULATE beyond 24 feet and time of flight
   }
 
   public static double distanceToHub(Pose2d pose) {
