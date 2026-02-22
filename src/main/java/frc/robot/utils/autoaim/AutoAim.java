@@ -87,7 +87,6 @@ public class AutoAim {
   public static final InterpolatingShotTree FEED_SHOT_TREE = new InterpolatingShotTree();
 
   static { // For feed shot tree
-    // TODO: POPULATE
     FEED_SHOT_TREE.put(Units.feetToMeters(2), new ShotData(Rotation2d.fromDegrees(23.16), 20, 0));
     FEED_SHOT_TREE.put(Units.feetToMeters(4), new ShotData(Rotation2d.fromDegrees(30), 40, 0.0));
     FEED_SHOT_TREE.put(Units.feetToMeters(6), new ShotData(Rotation2d.fromDegrees(40), 30, 0.0));
@@ -100,6 +99,7 @@ public class AutoAim {
     FEED_SHOT_TREE.put(Units.feetToMeters(20), new ShotData(Rotation2d.fromDegrees(55), 40, 0.0));
     FEED_SHOT_TREE.put(Units.feetToMeters(22), new ShotData(Rotation2d.fromDegrees(55), 44, 0.0));
     FEED_SHOT_TREE.put(Units.feetToMeters(24), new ShotData(Rotation2d.fromDegrees(60), 44, 0.0));
+    // TODO: POPULATE beyond 24 feet
   }
 
   public static double distanceToHub(Pose2d pose) {
