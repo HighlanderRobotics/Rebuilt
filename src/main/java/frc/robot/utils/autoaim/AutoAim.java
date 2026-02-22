@@ -88,8 +88,18 @@ public class AutoAim {
 
   static { // For feed shot tree
     // TODO: POPULATE
-    FEED_SHOT_TREE.put(
-        1.0, new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 10, 0)); // Placeholder to prevent crashes
+    FEED_SHOT_TREE.put(Units.feetToMeters(2), new ShotData(Rotation2d.fromDegrees(23.16), 20, 0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(4), new ShotData(Rotation2d.fromDegrees(30), 40, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(6), new ShotData(Rotation2d.fromDegrees(40), 30, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(8), new ShotData(Rotation2d.fromDegrees(40), 32, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(10), new ShotData(Rotation2d.fromDegrees(40), 35, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(12), new ShotData(Rotation2d.fromDegrees(40), 40, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(14), new ShotData(Rotation2d.fromDegrees(45), 38, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(16), new ShotData(Rotation2d.fromDegrees(45), 40, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(18), new ShotData(Rotation2d.fromDegrees(50), 40, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(20), new ShotData(Rotation2d.fromDegrees(55), 40, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(22), new ShotData(Rotation2d.fromDegrees(55), 44, 0.0));
+    FEED_SHOT_TREE.put(Units.feetToMeters(24), new ShotData(Rotation2d.fromDegrees(60), 44, 0.0));
   }
 
   public static double distanceToHub(Pose2d pose) {
