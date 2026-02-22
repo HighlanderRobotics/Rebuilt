@@ -204,12 +204,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                       .get()
                       .getTranslation()
                       .getDistance(feedTarget.get().getTranslation()));
-          //   hoodIO.setHoodPosition(shotData.hoodAngle());
-          //   //
+          hoodIO.setHoodPosition(shotData.hoodAngle());
           // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
-          //   flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          //   hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          //   flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           turretIO.setTurretPosition(
               AutoAim.getTurretFeedTargetRotation(
                   feedTarget.get().getTranslation(),
