@@ -122,7 +122,7 @@ public class Superstructure {
   private Trigger flowReq = new Trigger(() -> flowState);
 
   @AutoLogOutput(key = "Superstructure/Feed Target")
-  private static FeedTarget feedTarget = FeedTarget.LEFT;
+  private static FeedTarget feedTarget = FeedTarget.RIGHT;
 
   // spun up + hood at setpoint + pointing at target
   @AutoLogOutput(key = "Superstructure/Ready?")
@@ -321,7 +321,7 @@ public class Superstructure {
     bindCommands(
         SuperState.FEED,
         intake.restExtended(),
-        indexer.index(),
+        indexer.kick(),
         shooter.feed(
             swerve::getPose,
             () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
