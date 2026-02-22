@@ -107,7 +107,7 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Climb Req")
   private Trigger climbReq;
 
-  private static ShotTarget shotTarget = ShotTarget.FEED;
+  private static ShotTarget shotTarget = ShotTarget.SCORE;
 
   @AutoLogOutput(key = "Superstructure/Score Request")
   private Trigger scoreReq =
@@ -416,7 +416,7 @@ public class Superstructure {
         //             FieldUtils.getCurrentHubTranslation(),
         //             swerve.getVelocityFieldRelative()),
         //     swerve::getVelocityFieldRelative),
-        shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
+        // shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(

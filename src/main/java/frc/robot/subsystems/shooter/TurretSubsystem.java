@@ -285,7 +285,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return MathUtil.isNear(
         flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
         flywheelIO.getSetpointRotPerSec(),
-        FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
+        flywheelIO.getSetpointRotPerSec() * 0.3);
+    // return MathUtil.isNear(
+    //     flywheelInputs.flywheelLeaderVelocityRotationsPerSecond,
+    //     flywheelIO.getSetpointRotPerSec(),
+    //     FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND);
   }
 
   @Override
