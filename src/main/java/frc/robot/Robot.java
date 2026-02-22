@@ -456,7 +456,7 @@ public class Robot extends LoggedRobot {
 
     PhoenixOdometryThread.getInstance().start();
 
-    SmartDashboard.putData("Zero Climber", climber.zeroClimber().ignoringDisable(true));
+    SmartDashboard.putData("Current zero climber (needs to be enabled)", climber.runCurrentZeroing());
     SmartDashboard.putData("Zero Intake", intake.zeroRack().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
@@ -617,8 +617,7 @@ public class Robot extends LoggedRobot {
         .whileTrue(
             Commands.parallel(
                 shooter.runCurrentZeroing(),
-                intake.runCurrentZeroing(),
-                climber.runCurrentZeroing()));
+                intake.runCurrentZeroing()));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
