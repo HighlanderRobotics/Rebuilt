@@ -53,10 +53,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
   public static Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
       // Changed to avoid cooking cable chain/wires
-      // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5 (worked in sim)
+      // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
+      // (worked in sim)
       Rotation2d.fromRotations(-0.736084).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
   public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
-      Rotation2d.fromRotations(-0.014404); // -0.0354 // 0.011378);
+      Rotation2d.fromRotations(-0.024902); // -0.0354 // 0.011378);
 
   public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
