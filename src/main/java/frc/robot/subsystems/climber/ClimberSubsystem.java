@@ -97,7 +97,7 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public Command runCurrentZeroing() {
-    return this.run(() -> io.setClimberVoltage(-1.0)) //TODO maybe lower this further
+    return this.run(() -> io.setClimberVoltage(-1.0)) // TODO maybe lower this further
         .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
         .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
   }

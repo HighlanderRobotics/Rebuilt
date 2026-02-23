@@ -50,8 +50,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
   public static double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
 
-  public static Rotation2d TURRET_MIN_ANGLE = Rotation2d.fromRotations(-0.75); // -0.719536);
-  public static Rotation2d TURRET_MAX_ANGLE = Rotation2d.fromRotations(-0.0354); // 0.011378);
+  public static Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
+      Rotation2d.fromRotations(0.25); // -0.75 // -0.719536);
+  public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
+      Rotation2d.fromRotations(-0.0354); // 0.011378);
 
   public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
@@ -141,9 +143,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.recordOutput("Shooter/Turret/Starting Angle", startAngle);
     // Set the sensor position to the start angle
     turretIO.resetTurretEncoder(startAngle);
-
-    Logger.recordOutput("Turret/Min angle", TURRET_MIN_ANGLE);
-    Logger.recordOutput("Turret/Max angle", TURRET_MAX_ANGLE);
   }
 
   @Override
@@ -166,6 +165,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     flywheelFollowerDisconnectedAlert.set(!flywheelInputs.flywheelFollowerConnected);
     hoodDisconnectedAlert.set(!hoodInputs.connected);
     turretMotorDisconnectedAlert.set(!turretInputs.connected);
+
+    Logger.recordOutput("Turret/Forward hardstop angle", TURRET_FORWARD_HARDSTOP_ANGLE);
+    Logger.recordOutput("Turret/Rear hardstop angle", TURRET_REAR_HARDSTOP_ANGLE);
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
@@ -448,25 +450,25 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        > (TURRET_MAX_ANGLE.getDegrees() - 5)), // Stop before endstop
+                        > (TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees() - 5)), // Stop before endstop
         turretSysid
             .quasistatic(Direction.kReverse)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TURRET_MIN_ANGLE.getDegrees() + 5)),
+                        < (TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 5)),
         turretSysid
             .dynamic(Direction.kForward)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        > (TURRET_MAX_ANGLE.getDegrees() - 5)),
+                        > (TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees() - 5)),
         turretSysid
             .dynamic(Direction.kReverse)
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TURRET_MIN_ANGLE.getDegrees() + 5)));
+                        < (TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 5)));
   }
 
   // public boolean isFacingTarget() {

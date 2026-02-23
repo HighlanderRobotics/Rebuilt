@@ -94,7 +94,7 @@ public class Robot extends LoggedRobot {
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
   public static final RobotEdition ROBOT_EDITION;
-  public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
+  public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.COMP;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
   private static final Alert unknownRioAlert =
       new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
@@ -456,7 +456,8 @@ public class Robot extends LoggedRobot {
 
     PhoenixOdometryThread.getInstance().start();
 
-    SmartDashboard.putData("Current zero climber (needs to be enabled)", climber.runCurrentZeroing());
+    SmartDashboard.putData(
+        "Current zero climber (needs to be enabled)", climber.runCurrentZeroing());
     SmartDashboard.putData("Zero Intake", intake.zeroRack().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
@@ -614,10 +615,7 @@ public class Robot extends LoggedRobot {
     // current zero shooter hood
     driver
         .b()
-        .whileTrue(
-            Commands.parallel(
-                shooter.runCurrentZeroing(),
-                intake.runCurrentZeroing()));
+        .whileTrue(Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing()));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 

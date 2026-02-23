@@ -1,6 +1,5 @@
 package frc.robot.utils.autoaim;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -148,24 +147,35 @@ public class AutoAim {
             new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
 
     // get desired rotation to point at target
-    double turretTargetRotations =
-        AutoAim.getVirtualTargetYaw(chassisSpeeds, target, turretPose, shotTree).getRotations();
-    // rewrap the robot's rotation to be between 0 and 1 instead of -pi and pi
-    double moddedRobotRotation =
-        MathUtil.inputModulus(turretPose.getRotation().getRotations(), 0, 1);
-    Logger.recordOutput(
-        "Swerve/Robot rotation wrapped from 0-1", Rotation2d.fromRotations(moddedRobotRotation));
+    Rotation2d turretTargetRotation =
+        AutoAim.getVirtualTargetYaw(chassisSpeeds, target, turretPose, shotTree);
     // subtract that from rotation to point at target
-    turretTargetRotations -= moddedRobotRotation;
-    Logger.recordOutput("Turret/Unclamped target", Rotation2d.fromRotations(turretTargetRotations));
+    turretTargetRotation = turretTargetRotation.minus(robotPose.getRotation());
+    Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
     // clamp between min and max turret angle
-    turretTargetRotations =
-        MathUtil.clamp(
-            turretTargetRotations,
-            TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
-            TurretSubsystem.TURRET_MAX_ANGLE.getRotations());
+    // turretTargetRotations =
+    //     MathUtil.clamp(
+    //         turretTargetRotations,
+    //         TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
+    //         TurretSubsystem.TURRET_MAX_ANGLE.getRotations());
+    double turretTargetDegrees = turretTargetRotation.getDegrees();
+    // If its in the deadzone, clamp to nearest hardstop
+    if (turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
+        && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())) {
+      turretTargetDegrees =
+          // If the requested angle is greater than the halfway point in the deadzone, go to the
+          // read hardstop, otherwise go to forward hardstop
+          turretTargetDegrees
+                  > (TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
+                          + TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
+                      / 2
+              ? TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()
+              : TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees();
+    }
+
+    Logger.recordOutput("Turret/Clamped target", Rotation2d.fromDegrees(turretTargetDegrees));
     // ship it
-    return Rotation2d.fromRotations(turretTargetRotations);
+    return Rotation2d.fromDegrees(turretTargetDegrees);
   }
 
   public static Rotation2d getTurretHubTargetRotation(
