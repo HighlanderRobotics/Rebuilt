@@ -1,5 +1,6 @@
 package frc.robot.utils.autoaim;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -174,6 +175,9 @@ public class AutoAim {
     }
 
     Logger.recordOutput("Turret/Clamped target", Rotation2d.fromDegrees(turretTargetDegrees));
+    // Now we need to rewrap this angle to always be negative, with 0 as the forward hardstop
+    turretTargetDegrees = MathUtil.inputModulus(turretTargetDegrees, -360, 0);
+    Logger.recordOutput("Turret/Wrapped target", Rotation2d.fromDegrees(turretTargetDegrees));
     // ship it
     return Rotation2d.fromDegrees(turretTargetDegrees);
   }
