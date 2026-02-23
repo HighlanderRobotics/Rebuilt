@@ -50,10 +50,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
   public static double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
 
+  // TODO: REDO THIS HARDSTOP WHEN FIXED??
   public static Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
       Rotation2d.fromRotations(0.25); // -0.75 // -0.719536);
   public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
-      Rotation2d.fromRotations(-0.0354); // 0.011378);
+      Rotation2d.fromRotations(-0.014404); //-0.0354 // 0.011378);
 
   public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
