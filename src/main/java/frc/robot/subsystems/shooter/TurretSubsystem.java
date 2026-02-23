@@ -57,7 +57,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       // (worked in sim)
       Rotation2d.fromRotations(-0.736084).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
   public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
-      Rotation2d.fromRotations(-0.024902); // -0.0354 // 0.011378);
+      Rotation2d.fromRotations(-0.02490); // -0.0354 // 0.011378);
 
   public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
