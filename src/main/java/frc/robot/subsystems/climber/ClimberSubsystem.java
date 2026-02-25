@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase {
@@ -39,9 +41,9 @@ public class ClimberSubsystem extends SubsystemBase {
               (state) -> Logger.recordOutput("Climber/SysID State", state.toString())),
           new Mechanism((voltage) -> io.setClimberVoltage(voltage.in(Volts)), null, this));
 
-  private double currentFilterValue = 0.0;
-  private LinearFilter currentFilter = LinearFilter.movingAverage(10);
-  private static final double CURRENT_ZERO_THRESHOLD = 30;
+  @AutoLogOutput(key = "Climber/Current Filter Value") private double currentFilterValue = 0.0;
+  private LinearFilter currentFilter = LinearFilter.movingAverage(5);
+  private static final double CURRENT_ZERO_THRESHOLD = 7; // Might want to raise this but worked at lab
   private final Alert climberDisconnectedAlert =
       new Alert("Disconnected climber motor!", AlertType.kError);
 
@@ -97,7 +99,7 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public Command runCurrentZeroing() {
-    return this.run(() -> io.setClimberVoltage(-1.0)) // TODO maybe lower this further
+    return this.run(() -> io.setClimberVoltage(-0.5))
         .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
         .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
   }
