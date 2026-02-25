@@ -107,6 +107,7 @@ public class AutoAim {
 
   /**
    * Gets the distance from the passed-in pose to the hub
+   *
    * @param pose
    * @return the distance from the passed-in pose to the hub
    */
@@ -119,7 +120,9 @@ public class AutoAim {
   // lock in
   // TODO: BETTER DOC COMMENT
   /**
-   * Returns the position of the target translated by the distance moved by the robot in the passed in time of flight
+   * Returns the position of the target translated by the distance moved by the robot in the passed
+   * in time of flight
+   *
    * @param target the target position to translate
    * @param fieldRelativeSpeeds the field relative robot speeds
    * @param timeOfFlightSecs the time the ball will spend in the air after it's shot
@@ -138,7 +141,9 @@ public class AutoAim {
   }
 
   /**
-   * Gets the (world relative) yaw required to shoot at the passed in target while moving at the passed in speed.
+   * Gets the (world relative) yaw required to shoot at the passed in target while moving at the
+   * passed in speed.
+   *
    * @param target the (world relative) target location
    * @param fieldRelativeSpeeds the speeds the robot is moving at
    * @param robotPose the pose of the robot
@@ -153,6 +158,7 @@ public class AutoAim {
 
   /**
    * Gets the (world relative) yaw required to point at the passed-in target
+   *
    * @param target the target to point at
    * @param robotPose the current location of the robot
    * @return
@@ -167,6 +173,7 @@ public class AutoAim {
   // if we have a turret im going to assume we're on comp
   /**
    * Gets the required turret motor position (i.e. robot relative) to shoot at the passed-in target
+   *
    * @param target the target location (i.e. the hub or a feed location)
    * @param robotPose the current pose of the robot (translation and rotatio)
    * @param chassisSpeeds the current field relative speeds of the robot
@@ -219,6 +226,7 @@ public class AutoAim {
 
   /**
    * Gets the turret position required to hit the hub, using the the hub shot tree
+   *
    * @param target the target hub
    * @param robotPose the robot position
    * @param chassisSpeeds current velocity of the robot
@@ -231,6 +239,7 @@ public class AutoAim {
 
   /**
    * Gets the turret position required to hit the passed in feed target, using the feed shot tree
+   *
    * @param target the target feed location
    * @param robotPose the current robot position
    * @param chassisSpeeds the current robot velocity
@@ -243,6 +252,7 @@ public class AutoAim {
 
   /**
    * Gets the required yaw to hit the target, given a shot tree (instead of TOF)
+   *
    * @see #getVirtualTargetYaw(Translation2d, ChassisSpeeds, Pose2d, double)
    * @param fieldRelativeSpeeds
    * @param targetTranslation
@@ -261,11 +271,12 @@ public class AutoAim {
 
   /**
    * Returns the {@link ShotData} to hit the passed-in target
+   *
    * @param robotPose the current robot position
    * @param targetTranslation the location (world relative) of the target
    * @param fieldRelativeSpeeds the velocity of the robot
    * @param tree the shot tree to calculate the shot data off of
-   * @return 
+   * @return
    */
   public static ShotData getSOTMShotData(
       Pose2d robotPose,
@@ -281,6 +292,7 @@ public class AutoAim {
 
   /**
    * Returns the {@link ShotData} to hit the passed-in target compensating for latency
+   *
    * @param robotPose the current robot position
    * @param targetTranslation the location (world relative) of the target
    * @param fieldRelativeSpeeds the velocity of the robot
