@@ -216,7 +216,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
-    bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
+    // bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
@@ -251,7 +251,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_FEED, SuperState.FEED, readyTrigger);
 
-    bindTransition(SuperState.FEED, SuperState.SPIN_UP_FEED, readyTrigger.negate());
+    // bindTransition(SuperState.FEED, SuperState.SPIN_UP_FEED, readyTrigger.negate());
 
     bindTransition(SuperState.SPIN_UP_FEED, SuperState.IDLE, shootReq.negate());
 
