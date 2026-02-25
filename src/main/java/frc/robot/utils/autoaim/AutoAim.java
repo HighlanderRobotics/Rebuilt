@@ -105,6 +105,11 @@ public class AutoAim {
     // TODO: POPULATE beyond 24 feet and time of flight
   }
 
+  /**
+   * Gets the distance from the passed-in pose to the hub
+   * @param pose
+   * @return the distance from the passed-in pose to the hub
+   */
   public static double distanceToHub(Pose2d pose) {
     double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
     Logger.recordOutput("Autoaim/Distance To Hub", distance);
@@ -112,6 +117,14 @@ public class AutoAim {
   }
 
   // lock in
+  // TODO: BETTER DOC COMMENT
+  /**
+   * Returns the position of the target translated by the distance moved by the robot in the passed in time of flight
+   * @param target the target position to translate
+   * @param fieldRelativeSpeeds the field relative robot speeds
+   * @param timeOfFlightSecs the time the ball will spend in the air after it's shot
+   * @return the translated target
+   */
   public static Translation2d getVirtualSOTMTarget(
       Translation2d target, ChassisSpeeds fieldRelativeSpeeds, double timeOfFlightSecs) {
     // velocity times shot time is how translated it is
@@ -124,12 +137,26 @@ public class AutoAim {
     return vtarget;
   }
 
+  /**
+   * Gets the (world relative) yaw required to shoot at the passed in target while moving at the passed in speed.
+   * @param target the (world relative) target location
+   * @param fieldRelativeSpeeds the speeds the robot is moving at
+   * @param robotPose the pose of the robot
+   * @param tof the time of flight of the shot
+   * @return the target rotation required to hit the passed in target
+   */
   public static Rotation2d getVirtualTargetYaw(
       Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, double tof) {
     Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
     return getTargetRotation(vtarget, robotPose);
   }
 
+  /**
+   * Gets the (world relative) yaw required to point at the passed-in target
+   * @param target the target to point at
+   * @param robotPose the current location of the robot
+   * @return
+   */
   public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
     Translation2d robotToTarget = target.minus(robotPose.getTranslation());
     Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
@@ -138,6 +165,14 @@ public class AutoAim {
   }
 
   // if we have a turret im going to assume we're on comp
+  /**
+   * Gets the required turret motor position (i.e. robot relative) to shoot at the passed-in target
+   * @param target the target location (i.e. the hub or a feed location)
+   * @param robotPose the current pose of the robot (translation and rotatio)
+   * @param chassisSpeeds the current field relative speeds of the robot
+   * @param shotTree the shot tree to calculate the shots with
+   * @return the rotation of the turret required to hit the passed-in target
+   */
   public static Rotation2d getTurretTargetRotation(
       Translation2d target,
       Pose2d robotPose,
@@ -182,16 +217,39 @@ public class AutoAim {
     return Rotation2d.fromDegrees(turretTargetDegrees);
   }
 
+  /**
+   * Gets the turret position required to hit the hub, using the the hub shot tree
+   * @param target the target hub
+   * @param robotPose the robot position
+   * @param chassisSpeeds current velocity of the robot
+   * @return the turret position to hit the target
+   */
   public static Rotation2d getTurretHubTargetRotation(
       Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
     return getTurretTargetRotation(target, robotPose, chassisSpeeds, COMP_HUB_SHOT_TREE);
   }
 
+  /**
+   * Gets the turret position required to hit the passed in feed target, using the feed shot tree
+   * @param target the target feed location
+   * @param robotPose the current robot position
+   * @param chassisSpeeds the current robot velocity
+   * @return the turret position to hit the target
+   */
   public static Rotation2d getTurretFeedTargetRotation(
       Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
     return getTurretTargetRotation(target, robotPose, chassisSpeeds, FEED_SHOT_TREE);
   }
 
+  /**
+   * Gets the required yaw to hit the target, given a shot tree (instead of TOF)
+   * @see #getVirtualTargetYaw(Translation2d, ChassisSpeeds, Pose2d, double)
+   * @param fieldRelativeSpeeds
+   * @param targetTranslation
+   * @param robotPose
+   * @param tree
+   * @return the required rotation to hit the target
+   */
   public static Rotation2d getVirtualTargetYaw(
       ChassisSpeeds fieldRelativeSpeeds,
       Translation2d targetTranslation,
@@ -201,6 +259,14 @@ public class AutoAim {
     return getVirtualTargetYaw(targetTranslation, fieldRelativeSpeeds, robotPose, tof);
   }
 
+  /**
+   * Returns the {@link ShotData} to hit the passed-in target
+   * @param robotPose the current robot position
+   * @param targetTranslation the location (world relative) of the target
+   * @param fieldRelativeSpeeds the velocity of the robot
+   * @param tree the shot tree to calculate the shot data off of
+   * @return 
+   */
   public static ShotData getSOTMShotData(
       Pose2d robotPose,
       Translation2d targetTranslation,
@@ -213,6 +279,14 @@ public class AutoAim {
     return tree.get(robotPose.getTranslation().getDistance(virtualTarget));
   }
 
+  /**
+   * Returns the {@link ShotData} to hit the passed-in target compensating for latency
+   * @param robotPose the current robot position
+   * @param targetTranslation the location (world relative) of the target
+   * @param fieldRelativeSpeeds the velocity of the robot
+   * @param tree the shot tree to calculate the shot data off of
+   * @return
+   */
   public static ShotData getCompensatedSOTMShotData(
       Pose2d robotPose,
       Translation2d targetTranslation,
