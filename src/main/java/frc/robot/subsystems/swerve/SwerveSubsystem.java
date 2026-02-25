@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Volts;
 
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.CANBus;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -18,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -26,15 +29,20 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
+import frc.robot.Superstructure;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
-import frc.robot.subsystems.swerve.constants.CompBotSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
+import frc.robot.subsystems.swerve.constants.comp.R1WispSwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.swerve.gyro.GyroIOReal;
@@ -49,8 +57,12 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.Samples;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalID;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
+import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.Tracer;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
+import frc.robot.utils.autoaim.InterpolatingShotTree;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +82,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static final SwerveConstants SWERVE_CONSTANTS =
       Robot.ROBOT_EDITION == RobotEdition.ALPHA
           ? new AlphaSwerveConstants()
-          : new CompBotSwerveConstants();
+          : new R1WispSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
@@ -111,6 +123,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Alert usingSyncOdoAlert = new Alert("Using Sync Odometry", AlertType.kInfo);
   private Alert missingModuleData = new Alert("Missing Module Data", AlertType.kError);
   private Alert missingGyroData = new Alert("Missing Gyro Data", AlertType.kWarning);
+
+  private final SysIdRoutine turnSysid;
 
   // Maple Sim Stuff
   private final DriveTrainSimulationConfig driveTrainSimConfig =
@@ -238,6 +252,17 @@ public class SwerveSubsystem extends SubsystemBase {
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
       SimulatedArena.getInstance().addDriveTrainSimulation(swerveSimulation);
     }
+
+    this.turnSysid =
+        new SysIdRoutine(
+            new Config(
+                null,
+                null,
+                null,
+                (state) ->
+                    Logger.recordOutput(
+                        "Swerve/" + modules[0].getPrefix() + "/Sysid State", state.toString())),
+            new Mechanism((voltage) -> modules[0].setTurnVoltage(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -357,23 +382,22 @@ public class SwerveSubsystem extends SubsystemBase {
       cameraPoses[i] = cameras[i].getPose();
     }
     // only do all this logging stuff if we're not irl for performance
-    if (Robot.ROBOT_MODE != RobotMode.REAL) {
-      Logger.recordOutput("Vision/Camera Poses", cameraPoses);
-      Pose3d[] arr = new Pose3d[cameras.length];
-      for (int k = 0; k < cameras.length; k++) {
-        // honetsly not sure if this distinction is the way to go but
-        if (Robot.ROBOT_MODE == RobotMode.SIM)
-          // If we're in sim, use the maplesim pose to calculate vision
-          arr[k] =
-              new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
-                  .transformBy(cameras[k].getCameraConstants().robotToCamera());
-        else {
-          // if we're in replay, use whatever the pose was
-          arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
-        }
+
+    Logger.recordOutput("Vision/Camera Poses", cameraPoses);
+    Pose3d[] arr = new Pose3d[cameras.length];
+    for (int k = 0; k < cameras.length; k++) {
+      // honetsly not sure if this distinction is the way to go but
+      if (Robot.ROBOT_MODE == RobotMode.SIM)
+        // If we're in sim, use the maplesim pose to calculate vision
+        arr[k] =
+            new Pose3d(swerveSimulation.getSimulatedDriveTrainPose())
+                .transformBy(cameras[k].getCameraConstants().robotToCamera());
+      else {
+        // if we're in replay, use whatever the pose was
+        arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
       }
-      Logger.recordOutput("Vision/Camera Poses on Robot", arr);
     }
+    Logger.recordOutput("Vision/Camera Poses on Robot", arr);
   }
 
   /**
@@ -400,7 +424,7 @@ public class SwerveSubsystem extends SubsystemBase {
     for (int i = 0; i < optimizedStates.length; i++) {
       if (openLoop) {
         // Heuristic to enable/disable FOC
-        // enables FOC if the robot is moving at 90% of drivetrain max speed
+        // enables FOC if the robot is moving at less than 90% of drivetrain max speed
         final boolean focEnable =
             Math.sqrt(
                     Math.pow(this.getVelocityRobotRelative().vxMetersPerSecond, 2)
@@ -571,10 +595,25 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   private Command translateWithIntermediatePose(
-      Supplier<Pose2d> target, Supplier<Pose2d> intermediate) {
-    return translateToPose(intermediate)
+      Supplier<Pose2d> target,
+      Supplier<Pose2d> intermediate,
+      Constraints translationalConstraints,
+      Constraints angularConstraints) {
+    return translateToPose(
+            intermediate, () -> new ChassisSpeeds(), translationalConstraints, angularConstraints)
         .until(() -> isInAutoAimTolerance(intermediate.get()))
-        .andThen(translateToPose(target));
+        .andThen(
+            translateToPose(
+                target, () -> new ChassisSpeeds(), translationalConstraints, angularConstraints));
+  }
+
+  public Command alignToClimb(Supplier<ClimbTargets> target) {
+    // TODO: Might need tolerance
+    return translateWithIntermediatePose(
+        () -> target.get().getPose(),
+        () -> target.get().getPose().transformBy(new Transform2d(0.0, 0.1, Rotation2d.kZero)),
+        new TrapezoidProfile.Constraints(1.0, AutoAlign.MAX_TRANSLATIONAL_ACCELERATION),
+        new TrapezoidProfile.Constraints(6.0, AutoAlign.MAX_ANGULAR_ACCELERATION));
   }
 
   private Command driveWithHeadingSnap(
@@ -590,16 +629,68 @@ public class SwerveSubsystem extends SubsystemBase {
                         AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
   }
 
-  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  // public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(
+  //       () -> {
+  //         Translation2d robotHubVec =
+  //             FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
+  //         // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
+  //         // Logger.recordOutput("robot hub vec", robotHubVec);
+  //         // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
+  //         return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
+  //             .plus(Rotation2d.kCW_90deg);
+  //       },
+  //       xVel,
+  //       yVel);
+  // }
+
+  // public Command faceHubSOTM(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
+  // xVel, yVel);
+  // }
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel, InterpolatingShotTree tree) {
+    return driveWithHeadingSnap(
+        () ->
+            AutoAim.getVirtualTargetYaw(
+                getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree),
+        xVel,
+        yVel);
+  }
+
+  public boolean isFacingTarget(InterpolatingShotTree tree) {
+    switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
+      case SCORE:
+        return isFacingHub(tree);
+      case FEED:
+        return isFacingFeedTarget();
+      default:
+        return false;
+    }
+  }
+
+  public boolean isFacingHub(InterpolatingShotTree tree) {
+    Rotation2d target =
+        AutoAim.getVirtualTargetYaw(
+            getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree);
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
+  public boolean isFacingFeedTarget() {
+    Translation2d feedTarget =
+        FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
+    Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
+    return MathUtil.isNear(
+        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
+  }
+
+  public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
         () -> {
           Translation2d robotHubVec =
               FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
-          // return FieldUtils.getCurrentHubPose().minus(getPose()).getRotation();
-          // Logger.recordOutput("robot hub vec", robotHubVec);
           // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
-          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()))
-              .plus(Rotation2d.kCW_90deg);
+          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
         },
         xVel,
         yVel);
@@ -640,6 +731,12 @@ public class SwerveSubsystem extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
     return estimator.getEstimatedPosition();
+  }
+
+  @AutoLogOutput(key = "Autoaim/Distance To Hub")
+  public static double distanceToHub(Pose2d pose) {
+    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
+    return distance;
   }
 
   public Pose3d getPose3d() {
@@ -736,5 +833,13 @@ public class SwerveSubsystem extends SubsystemBase {
     SimulatedArena.getInstance().simulationPeriodic();
     // Log simulated pose
     Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
+  }
+
+  public Command runTurnSysid() {
+    return Commands.sequence(
+        turnSysid.quasistatic(Direction.kForward),
+        turnSysid.quasistatic(Direction.kReverse),
+        turnSysid.dynamic(Direction.kForward),
+        turnSysid.dynamic(Direction.kReverse));
   }
 }

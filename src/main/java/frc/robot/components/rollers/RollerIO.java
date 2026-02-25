@@ -12,7 +12,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLog;
 
 public class RollerIO {
@@ -23,8 +22,9 @@ public class RollerIO {
     public double supplyCurrentAmps = 0.0;
     public double appliedVoltage = 0.0;
     public double statorCurrentAmps = 0.0;
-    public double motorTemperatureCelsius = 0.0;
-    public double motorPositionRotations = 0.0;
+    public double temperatureCelsius = 0.0;
+    public double positionRotations = 0.0;
+    public boolean connected = false;
   }
 
   protected final TalonFX motor;
@@ -33,8 +33,8 @@ public class RollerIO {
   private final StatusSignal<Current> supplyCurrentAmps;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<Current> statorCurrentAmps;
-  private final StatusSignal<Temperature> motorTemperatureCelsius;
-  private final StatusSignal<Angle> motorPosition;
+  private final StatusSignal<Temperature> temperatureCelsius;
+  private final StatusSignal<Angle> positionRotations;
 
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private final VelocityVoltage velocityVoltage =
@@ -49,8 +49,8 @@ public class RollerIO {
     supplyCurrentAmps = motor.getSupplyCurrent();
     appliedVoltage = motor.getMotorVoltage();
     statorCurrentAmps = motor.getStatorCurrent();
-    motorTemperatureCelsius = motor.getDeviceTemp();
-    motorPosition = motor.getPosition();
+    temperatureCelsius = motor.getDeviceTemp();
+    positionRotations = motor.getPosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -58,8 +58,8 @@ public class RollerIO {
         supplyCurrentAmps,
         statorCurrentAmps,
         appliedVoltage,
-        motorTemperatureCelsius,
-        motorPosition);
+        temperatureCelsius,
+        positionRotations);
 
     motor.getConfigurator().apply(config);
     motor.optimizeBusUtilization();
@@ -71,15 +71,23 @@ public class RollerIO {
         supplyCurrentAmps,
         appliedVoltage,
         statorCurrentAmps,
-        motorTemperatureCelsius,
-        motorPosition);
+        temperatureCelsius,
+        positionRotations);
 
+    inputs.connected =
+        BaseStatusSignal.isAllGood(
+            angularVelocityRotsPerSec,
+            supplyCurrentAmps,
+            appliedVoltage,
+            statorCurrentAmps,
+            temperatureCelsius,
+            positionRotations);
     inputs.velocityRotsPerSec = angularVelocityRotsPerSec.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
-    inputs.motorTemperatureCelsius = motorTemperatureCelsius.getValueAsDouble();
-    inputs.motorPositionRotations = motorPosition.getValueAsDouble();
+    inputs.temperatureCelsius = temperatureCelsius.getValueAsDouble();
+    inputs.positionRotations = positionRotations.getValueAsDouble();
   }
 
   public void setRollerVoltage(double volts) {
@@ -88,10 +96,5 @@ public class RollerIO {
 
   public void setRollerVelocity(double velocityRPS) {
     motor.setControl(velocityVoltage.withVelocity(velocityRPS));
-  }
-
-  public Command getVoltage() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getVoltage'");
   }
 }

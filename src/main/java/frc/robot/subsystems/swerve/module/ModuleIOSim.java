@@ -20,10 +20,12 @@ public class ModuleIOSim extends ModuleIOReal {
     // using Async odo)
     this.simulation = simulation;
     this.simulation.useDriveMotorController(
-        new MaplePhoenixUtil.TalonFXMotorControllerSim(driveTalon, true));
+        new MaplePhoenixUtil.TalonFXMotorControllerSim(
+            driveTalon, SwerveSubsystem.SWERVE_CONSTANTS.getDriveMotorType(), true));
     this.simulation.useSteerMotorController(
         new MaplePhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(
             turnTalon,
+            SwerveSubsystem.SWERVE_CONSTANTS.getTurnMotorType(),
             SwerveSubsystem.SWERVE_CONSTANTS.getTurnMotorInverted(),
             cancoder,
             false,
