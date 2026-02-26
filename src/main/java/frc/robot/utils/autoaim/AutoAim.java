@@ -52,6 +52,7 @@ public class AutoAim {
 
   // TODO update tof
   static { // For hub shot tree
+    // TODO min shot
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 + 17), new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40, 1.04));
 
@@ -61,11 +62,11 @@ public class AutoAim {
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
-        new ShotData(Rotation2d.fromDegrees(26), 37, 4.41));
+        new ShotData(Rotation2d.fromDegrees(26), 37, 1.10));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
-        new ShotData(Rotation2d.fromDegrees(30), 37, 4.4));
+        new ShotData(Rotation2d.fromDegrees(30), 37, 1.09));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
