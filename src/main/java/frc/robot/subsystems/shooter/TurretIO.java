@@ -114,13 +114,13 @@ public class TurretIO {
 
   public void setTurretPosition(Rotation2d positionAngle) {
     turretSetpoint = positionAngle;
-    // motor.setControl(
-    //     motionMagic.withPosition(
-    //         // MathUtil.clamp(
-    //         //     positionAngle.getRotations(),
-    //         //     TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
-    //         //     TurretSubsystem.TURRET_MAX_ANGLE.getRotations())));
-    //         positionAngle.getRotations()));
+    motor.setControl(
+        motionMagic.withPosition(
+            // MathUtil.clamp(
+            //     positionAngle.getRotations(),
+            //     TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
+            //     TurretSubsystem.TURRET_MAX_ANGLE.getRotations())));
+            positionAngle.getRotations()));
   }
 
   public void resetTurretEncoder(Rotation2d turretRotation) {
@@ -133,6 +133,6 @@ public class TurretIO {
   }
 
   public void setVoltage(double volts) {
-    // motor.setVoltage(volts);
+    motor.setVoltage(volts);
   }
 }
