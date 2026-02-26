@@ -69,18 +69,18 @@ public class AutoAim {
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
-        new ShotData(Rotation2d.fromDegrees(32), 37, 1.15));
+        new ShotData(Rotation2d.fromDegrees(33), 37, 1.15));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
-        new ShotData(Rotation2d.fromDegrees(43), 42, 1.23));
+        new ShotData(Rotation2d.fromDegrees(36), 38, 1.23));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
-        new ShotData(Rotation2d.fromDegrees(45), 44, 1.30));
+        new ShotData(Rotation2d.fromDegrees(38), 38, 1.33));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
-        new ShotData(Rotation2d.fromDegrees(48), 46, 1.35));
+        new ShotData(Rotation2d.fromDegrees(39), 38, 1.35));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
