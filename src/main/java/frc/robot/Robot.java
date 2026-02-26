@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOSim;
+import frc.robot.components.candle.CANdleIOReal;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
@@ -46,6 +47,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.LinearRackIO;
 import frc.robot.subsystems.intake.LinearRackIOSim;
 import frc.robot.subsystems.intake.LintakeSubsystem;
+import frc.robot.subsystems.led.CANdleSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.shooter.FlywheelIO;
@@ -187,6 +189,8 @@ public class Robot extends LoggedRobot {
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
   private final ClimberSubsystem climber;
+  private final CANdleSubsystem candle =
+      new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -477,6 +481,7 @@ public class Robot extends LoggedRobot {
             .ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
+    candle.setDefaultCommand(candle.test());
 
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));

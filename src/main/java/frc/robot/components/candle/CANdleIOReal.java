@@ -14,7 +14,7 @@ import com.ctre.phoenix6.signals.RGBWColor;
 /** Add your docs here. */
 // TODO not actually sure if we'll control it over can or pwm yet
 public class CANdleIOReal implements CANdleIO {
-  public static final int LED_LENGTH = 0; // TODO
+  public static final int LED_LENGTH = 117; // TODO
   private final CANdle candle;
 
   private final SolidColor solidColor = new SolidColor(0, LED_LENGTH);
