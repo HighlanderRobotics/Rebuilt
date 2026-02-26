@@ -201,7 +201,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
     Pigeon2Configuration config = new Pigeon2Configuration();
     config.MountPose.MountPosePitch = -0.20375922322273254; // -0.420589417219162;
     config.MountPose.MountPoseRoll = -179.13818359375; // -179.8539581298828;
-    config.MountPose.MountPoseYaw = 90.93168640136719; // -86.66709899902344;
+    config.MountPose.MountPoseYaw = -90.93168640136719; // -86.66709899902344;
     return config;
   }
 
