@@ -679,16 +679,17 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
-        haveAutosGenerated = true;
+    haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
-    // Sysid Autos
-    private void addCompSysids(
+
+  // Sysid Autos
+  private void addCompSysids(
       ClimberSubsystem climber, Indexer indexer, Intake intake, Shooter shooter) {
     autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
-      autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
-      autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-      autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
+    autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
+    autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
+    autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
