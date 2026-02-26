@@ -168,7 +168,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command restExtended() {
     return this.run(
         () -> {
-          rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          // rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          rackIO.setVoltage(0);
           rollerIO.setRollerVoltage(0.0);
         });
 

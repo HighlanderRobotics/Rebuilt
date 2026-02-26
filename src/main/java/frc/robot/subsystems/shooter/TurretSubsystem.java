@@ -107,8 +107,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           new Mechanism((voltage) -> turretIO.setVoltage(voltage.in(Volts)), null, this));
 
   private LoggedTunableNumber testDegrees =
-      new LoggedTunableNumber("Shooter/Test Hood Degrees", 50.0);
-  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 50.0);
+      new LoggedTunableNumber("Shooter/Test Hood Degrees", 30.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 30.0);
 
   private static final Alert cancoder24tDisconnectedAlert =
       new Alert("24T Cancoder disconnected!", AlertType.kError);
