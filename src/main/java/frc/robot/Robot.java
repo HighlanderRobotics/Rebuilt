@@ -698,6 +698,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
     autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
     autoChooser.addOption("Kicker Sysid", indexer.runKickerSysId());
