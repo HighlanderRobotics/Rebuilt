@@ -9,13 +9,16 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -24,13 +27,16 @@ import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.utils.LoggedTunableNumber;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 /** Lintake = Linear Intake. !! COMP !! */
 public class LintakeSubsystem extends SubsystemBase implements Intake {
   // I'm calling zero fully retracted and 1 fully extended (so that kG works if its needed)
-  public static final double MAX_EXTENSION_METERS = Units.inchesToMeters(12.0);
+  public static final double MAX_EXTENSION_METERS = Units.inchesToMeters(11.4);
   public static final double EXTENDED_POSITION_METERS = MAX_EXTENSION_METERS;
+  // - Units.inchesToMeters(0.1);
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
   public static final double ROLLER_GEAR_RATIO = 34 / 15;
@@ -39,20 +45,32 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double CURRENT_ZEROING_THRESHOLD = 30; // TODO: TUNE
 
   private final LinearRackIO rackIO;
-  private LinearRackIOInputsAutoLogged rackIOInputs = new LinearRackIOInputsAutoLogged();
+  private LinearRackIOInputsAutoLogged rackInputs = new LinearRackIOInputsAutoLogged();
 
   private final RollerIO rollerIO;
-  private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
+  private RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
   private final CANrangeIO canRangeIO;
-  private CANrangeIOInputsAutoLogged canRangeIOInputs = new CANrangeIOInputsAutoLogged();
+  private CANrangeIOInputsAutoLogged canrangeInputs = new CANrangeIOInputsAutoLogged();
 
-  private LinearFilter rackCurrentFilter = LinearFilter.movingAverage(10);
+  private LinearFilter rackCurrentFilter = LinearFilter.movingAverage(5);
+
+  @AutoLogOutput(key = "Intake/Current Filter Value")
   private double rackCurrentFilterValue = 0.0;
 
   private SysIdRoutine intakeRollerSysid;
 
   private SysIdRoutine extensionSysid;
+
+  private LoggedTunableNumber testRollerVoltage =
+      new LoggedTunableNumber("Intake/Roller Voltage", 9.0);
+
+  private final Alert extensionDisconnectedAlert =
+      new Alert("Disconnected intake extension motor!", AlertType.kError);
+  private final Alert rollerDisconnectedAlert =
+      new Alert("Disconnected intake roller motor!", AlertType.kError);
+  private final Alert canrangeDisconnectedAlert =
+      new Alert("Disconnected intake CANrange!", AlertType.kError);
 
   /** Creates a new LintakeSubsystem. */
   public LintakeSubsystem(LinearRackIO rackIO, RollerIO rollerIO, CANrangeIO canRangeIO) {
@@ -81,16 +99,20 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public void periodic() {
-    rackIO.updateInputs(rackIOInputs);
-    Logger.processInputs("Intake/Rack", rackIOInputs);
+    rackIO.updateInputs(rackInputs);
+    Logger.processInputs("Intake/Rack", rackInputs);
 
-    rollerIO.updateInputs(rollerIOInputs);
-    Logger.processInputs("Intake/Rollers", rollerIOInputs);
+    rollerIO.updateInputs(rollerInputs);
+    Logger.processInputs("Intake/Rollers", rollerInputs);
 
-    canRangeIO.updateInputs(canRangeIOInputs);
-    Logger.processInputs("Intake/CANRange", canRangeIOInputs);
+    canRangeIO.updateInputs(canrangeInputs);
+    Logger.processInputs("Intake/CANRange", canrangeInputs);
 
-    rackCurrentFilterValue = rackCurrentFilter.calculate(rackIOInputs.statorCurrentAmps);
+    rackCurrentFilterValue = rackCurrentFilter.calculate(rackInputs.statorCurrentAmps);
+
+    extensionDisconnectedAlert.set(!rackInputs.connected);
+    rollerDisconnectedAlert.set(!rollerInputs.connected);
+    canrangeDisconnectedAlert.set(!canrangeInputs.connected);
   }
 
   @Override
@@ -98,38 +120,86 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     return this.run(
         () -> {
           rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
-          rollerIO.setRollerVoltage(10.0);
+          // rollerIO.setRollerVoltage(testRollerVoltage.get());
+          rollerIO.setRollerVelocity(40);
         });
+
+    // return this.idle();
+  }
+
+  // @Override
+  // public Command agitate() {
+  //   return this.run(
+  //       () -> {
+  //         // Should oscillate between 0.8x extension pos and 1x extension pos
+  //         rackIO.setPositionSetpoint(
+  //             (0.3 * Math.sin(Timer.getFPGATimestamp() * 8) + 0.7) * EXTENDED_POSITION_METERS);
+  //         // should this be -? its called outtake
+  //         rollerIO.setRollerVoltage(10.0);
+  //       });
+  // }
+
+  @Override
+  public Command agitate() {
+    // return Commands.parallel(
+    //     Commands.sequence(
+    //             Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS))
+    //                 .until(() -> rackIO.atSetpoint()),
+    //             Commands.run(() -> rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2))
+    //                 .until(() -> rackIO.atSetpoint()))
+    //         .repeatedly(),
+    //     Commands.run(() -> rollerIO.setRollerVoltage(10.0)));
+    return Commands.sequence(
+            this.run(
+                    () -> {
+                      rackIO.setPositionSetpoint(
+                          EXTENDED_POSITION_METERS - Units.inchesToMeters(1));
+                      rollerIO.setRollerVoltage(10.0);
+                    })
+                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.05)),
+            this.run(
+                    () -> {
+                      rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS / 2);
+                      rollerIO.setRollerVoltage(10.0);
+                    })
+                .until(new Trigger(() -> atExtensionSetpoint()).debounce(0.05)))
+        .repeatedly();
+    // return this.idle();
   }
 
   @Override
-  public Command outtake() {
+  public Command restExtended() {
     return this.run(
         () -> {
-          // Oscillate between 0.5x extension pos and 1x extension pos
-          rackIO.setPositionSetpoint(
-              (0.25 * Math.sin(Timer.getFPGATimestamp()) + 0.75) * EXTENDED_POSITION_METERS);
-          rollerIO.setRollerVoltage(10.0);
-        });
-  }
-
-  @Override
-  public Command rest() {
-    return this.run(
-        () -> {
-          rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          // rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          rackIO.setVoltage(0);
           rollerIO.setRollerVoltage(0.0);
         });
+
+    // return this.idle();
   }
 
   public Command runCurrentZeroing() {
-    return this.run(() -> rackIO.setVoltage(-3))
-        .until(() -> rackCurrentFilterValue > CURRENT_ZEROING_THRESHOLD)
+    // return this.run(() -> rackIO.setVoltage(-5))
+    //     .until(
+    //         new Trigger(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
+    //             .debounce(0.95))
+    //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+    return Commands.deadline(
+            Commands.waitSeconds(0.5)
+                .andThen(
+                    Commands.waitUntil(
+                        new Trigger(
+                                () -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
+                            .debounce(0.25))),
+            this.run(() -> rackIO.setVoltage(5)))
         .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+
+    // return this.idle();
   }
 
   public Command zeroRack() {
-    return this.runOnce(() -> rackIO.resetEncoder(0));
+    return this.runOnce(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {
@@ -171,13 +241,14 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     // Converts rotational motion to linear motion
     config.Feedback.SensorToMechanismRatio = ROLLER_GEAR_RATIO;
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.0;
-    config.Slot0.kP = 0.0;
+    config.Slot0.kS = 0.55127;
+    config.Slot0.kV = 0.19756;
+    config.Slot0.kA = 0.0074445;
+    config.Slot0.kP = 0.017985;
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimit = 55.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -187,12 +258,12 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public boolean beambreak() {
-    return canRangeIOInputs.isDetected;
+    return canrangeInputs.isDetected;
   }
 
   @Override
   public double getExtensionMeters() {
-    return rackIOInputs.positionMeters;
+    return rackInputs.positionMeters;
   }
 
   @Override
@@ -216,18 +287,37 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
             .quasistatic(Direction.kForward)
             .until(
                 () ->
-                    rackIOInputs.positionMeters
+                    rackInputs.positionMeters
                         > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))), // Stop before endstop
         extensionSysid
             .quasistatic(Direction.kReverse)
-            .until(() -> rackIOInputs.positionMeters < Units.inchesToMeters(1)),
+            .until(() -> rackInputs.positionMeters < Units.inchesToMeters(1)),
         extensionSysid
             .dynamic(Direction.kForward)
             .until(
-                () ->
-                    rackIOInputs.positionMeters > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))),
+                () -> rackInputs.positionMeters > (MAX_EXTENSION_METERS - Units.inchesToMeters(1))),
         extensionSysid
             .dynamic(Direction.kReverse)
-            .until(() -> rackIOInputs.positionMeters < Units.inchesToMeters(1)));
+            .until(() -> rackInputs.positionMeters < Units.inchesToMeters(1)));
+  }
+
+  @Override
+  public Command climb() {
+    return this.run(() -> rackIO.setPositionSetpoint(0));
+    // return this.idle();
+  }
+
+  @Override
+  public Command restRetracted() {
+    return this.run(
+        () -> {
+          rackIO.setPositionSetpoint(0);
+          rollerIO.setRollerVoltage(0.0);
+        });
+    // return this.idle();
+  }
+
+  public boolean atExtensionSetpoint() {
+    return MathUtil.isNear(rackInputs.positionMeters, rackIO.getSetpointMeters(), 0.1);
   }
 }

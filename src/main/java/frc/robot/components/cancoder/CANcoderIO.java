@@ -6,6 +6,7 @@ package frc.robot.components.cancoder;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -21,6 +22,7 @@ public class CANcoderIO {
   public static class CANcoderIOInputs {
     public boolean connected = false;
     public Rotation2d cancoderPositionRotations = new Rotation2d();
+    public StatusCode status;
   }
 
   protected final CANcoder cancoder;
@@ -38,6 +40,7 @@ public class CANcoderIO {
   public void updateInputs(CANcoderIOInputs inputs) {
     BaseStatusSignal.refreshAll(cancoderAbsolutePositionRotations);
     inputs.connected = BaseStatusSignal.isAllGood(cancoderAbsolutePositionRotations);
+    inputs.status = cancoderAbsolutePositionRotations.getStatus();
     inputs.cancoderPositionRotations =
         Rotation2d.fromRotations(cancoderAbsolutePositionRotations.getValueAsDouble());
   }

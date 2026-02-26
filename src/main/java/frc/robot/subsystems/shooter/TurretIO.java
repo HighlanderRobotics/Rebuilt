@@ -5,11 +5,9 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -35,6 +33,7 @@ public class TurretIO {
     public double supplyCurrentAmp = 0.0;
     public double voltage = 0.0;
     public double tempCelsius = 0.0;
+    public boolean connected = false;
   }
 
   private final StatusSignal<AngularVelocity> angularVelocityRotationsPerSec;
@@ -42,10 +41,9 @@ public class TurretIO {
   private final StatusSignal<Current> supplyCurrentAmps;
   private final StatusSignal<Current> statorCurrentAmps;
   private final StatusSignal<Voltage> voltage;
-  private final StatusSignal<Temperature> tempCelcius;
+  private final StatusSignal<Temperature> tempC;
 
-  private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
-  private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0);
+  private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0).withEnableFOC(true);
 
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
@@ -57,13 +55,17 @@ public class TurretIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.Feedback.SensorToMechanismRatio = TURRET_GEAR_RATIO;
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     config.Slot0.kS = 0.45;
     config.Slot0.kV = 5.7;
     config.Slot0.kP = 240.0;
+
+    config.MotionMagic.MotionMagicAcceleration = 20; // 2.064;
+    config.MotionMagic.MotionMagicCruiseVelocity = 50; // 8.0;
 
     motor.getConfigurator().apply(config);
 
@@ -72,7 +74,7 @@ public class TurretIO {
     supplyCurrentAmps = motor.getSupplyCurrent();
     statorCurrentAmps = motor.getStatorCurrent();
     voltage = motor.getMotorVoltage();
-    tempCelcius = motor.getDeviceTemp();
+    tempC = motor.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -81,7 +83,7 @@ public class TurretIO {
         voltage,
         statorCurrentAmps,
         supplyCurrentAmps,
-        tempCelcius);
+        tempC);
     motor.optimizeBusUtilization();
   }
 
@@ -92,24 +94,27 @@ public class TurretIO {
         voltage,
         statorCurrentAmps,
         supplyCurrentAmps,
-        tempCelcius);
+        tempC);
 
+    inputs.connected =
+        BaseStatusSignal.isAllGood(
+            positionRotations,
+            angularVelocityRotationsPerSec,
+            voltage,
+            statorCurrentAmps,
+            supplyCurrentAmps,
+            tempC);
     inputs.positionRotations = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.angularVelocityRotationsPerSec = angularVelocityRotationsPerSec.getValueAsDouble();
     inputs.voltage = voltage.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
     inputs.supplyCurrentAmp = supplyCurrentAmps.getValueAsDouble();
-    inputs.tempCelsius = tempCelcius.getValueAsDouble();
+    inputs.tempCelsius = tempC.getValueAsDouble();
   }
 
   public void setTurretPosition(Rotation2d positionAngle) {
     turretSetpoint = positionAngle;
-    motor.setControl(
-        motionMagic.withPosition(
-            MathUtil.clamp(
-                positionAngle.getRotations(),
-                TurretSubsystem.TURRET_MIN_ROTATIONS.getRotations(),
-                TurretSubsystem.TURRET_MAX_ROTATIONS.getRotations())));
+    motor.setControl(motionMagic.withPosition(positionAngle.getRotations()));
   }
 
   public void resetTurretEncoder(Rotation2d turretRotation) {

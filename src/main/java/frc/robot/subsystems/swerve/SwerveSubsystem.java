@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Volts;
 
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.CANBus;
@@ -28,6 +29,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
@@ -37,7 +42,7 @@ import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
-import frc.robot.subsystems.swerve.constants.comp.R1CompBotSwerveConstants;
+import frc.robot.subsystems.swerve.constants.comp.R1WispSwerveConstants;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.swerve.gyro.GyroIOReal;
@@ -57,6 +62,7 @@ import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
+import frc.robot.utils.autoaim.InterpolatingShotTree;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +82,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static final SwerveConstants SWERVE_CONSTANTS =
       Robot.ROBOT_EDITION == RobotEdition.ALPHA
           ? new AlphaSwerveConstants()
-          : new R1CompBotSwerveConstants();
+          : new R1WispSwerveConstants();
 
   private final Module[] modules; // Front Left, Front Right, Back Left, Back Right
   private final GyroIO gyroIO;
@@ -117,6 +123,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Alert usingSyncOdoAlert = new Alert("Using Sync Odometry", AlertType.kInfo);
   private Alert missingModuleData = new Alert("Missing Module Data", AlertType.kError);
   private Alert missingGyroData = new Alert("Missing Gyro Data", AlertType.kWarning);
+
+  private final SysIdRoutine turnSysid;
 
   // Maple Sim Stuff
   private final DriveTrainSimulationConfig driveTrainSimConfig =
@@ -244,6 +252,17 @@ public class SwerveSubsystem extends SubsystemBase {
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
       SimulatedArena.getInstance().addDriveTrainSimulation(swerveSimulation);
     }
+
+    this.turnSysid =
+        new SysIdRoutine(
+            new Config(
+                null,
+                null,
+                null,
+                (state) ->
+                    Logger.recordOutput(
+                        "Swerve/" + modules[0].getPrefix() + "/Sysid State", state.toString())),
+            new Mechanism((voltage) -> modules[0].setTurnVoltage(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -629,15 +648,19 @@ public class SwerveSubsystem extends SubsystemBase {
   //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
   // xVel, yVel);
   // }
-  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel, InterpolatingShotTree tree) {
     return driveWithHeadingSnap(
-        () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
+        () ->
+            AutoAim.getVirtualTargetYaw(
+                getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree),
+        xVel,
+        yVel);
   }
 
-  public boolean isFacingTarget() {
+  public boolean isFacingTarget(InterpolatingShotTree tree) {
     switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
       case SCORE:
-        return isFacingHub();
+        return isFacingHub(tree);
       case FEED:
         return isFacingFeedTarget();
       default:
@@ -645,8 +668,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  public boolean isFacingHub() {
-    Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+  public boolean isFacingHub(InterpolatingShotTree tree) {
+    Rotation2d target =
+        AutoAim.getVirtualTargetYaw(
+            getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree);
     return MathUtil.isNear(
         target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   }
@@ -808,5 +833,13 @@ public class SwerveSubsystem extends SubsystemBase {
     SimulatedArena.getInstance().simulationPeriodic();
     // Log simulated pose
     Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
+  }
+
+  public Command runTurnSysid() {
+    return Commands.sequence(
+        turnSysid.quasistatic(Direction.kForward),
+        turnSysid.quasistatic(Direction.kReverse),
+        turnSysid.dynamic(Direction.kForward),
+        turnSysid.dynamic(Direction.kReverse));
   }
 }

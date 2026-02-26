@@ -13,12 +13,27 @@ public class EmptyClimberSubsystem extends ClimberSubsystem {
   }
 
   @Override
-  public Command extendClimber() {
+  public Command extend() {
     return this.idle();
   }
 
   @Override
-  public Command retractClimber() {
+  public Command retract() {
+    return this.idle();
+  }
+
+  @Override
+  public Command zeroClimber() {
+    return this.idle();
+  }
+
+  @Override
+  public Command runClimberSysid() {
+    return this.idle();
+  }
+
+  @Override
+  public Command runCurrentZeroing() {
     return this.idle();
   }
 }

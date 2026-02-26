@@ -22,23 +22,24 @@ public class ClimberIO {
 
   @AutoLog
   public static class ClimberIOInputs {
-    public double motorPositionMeters = 0.0;
-    public double motorVelocityMetersPerSec = 0.0;
-    public double motorStatorCurrentAmps = 0.0;
-    public double motorSupplyCurrentAmps = 0.0;
-    public double motorVoltage = 0.0;
-    public double motorTempC = 0.0;
+    public double positionMeters = 0.0;
+    public double velocityMetersPerSec = 0.0;
+    public double statorCurrentAmps = 0.0;
+    public double supplyCurrentAmps = 0.0;
+    public double appliedVoltage = 0.0;
+    public double tempC = 0.0;
+    public boolean connected = false;
   }
 
   protected final TalonFX climberMotor;
 
   // Rotation -> linear conversion happens in sensor to mech ratio
-  private final StatusSignal<Angle> motorPositionMeters;
+  private final StatusSignal<Angle> positionMeters;
   private final StatusSignal<AngularVelocity> velocityMetersPerSec;
   private final StatusSignal<Current> statorCurrentAmps;
   private final StatusSignal<Current> supplyCurrentAmps;
-  private final StatusSignal<Voltage> motorVoltage;
-  private final StatusSignal<Temperature> motorTemp;
+  private final StatusSignal<Voltage> voltage;
+  private final StatusSignal<Temperature> tempC;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
@@ -52,19 +53,19 @@ public class ClimberIO {
 
     velocityMetersPerSec = climberMotor.getVelocity();
     supplyCurrentAmps = climberMotor.getSupplyCurrent();
-    motorVoltage = climberMotor.getMotorVoltage();
+    voltage = climberMotor.getMotorVoltage();
     statorCurrentAmps = climberMotor.getStatorCurrent();
-    motorTemp = climberMotor.getDeviceTemp();
-    motorPositionMeters = climberMotor.getPosition();
+    tempC = climberMotor.getDeviceTemp();
+    positionMeters = climberMotor.getPosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         velocityMetersPerSec,
         supplyCurrentAmps,
-        motorVoltage,
+        voltage,
         statorCurrentAmps,
-        motorTemp,
-        motorPositionMeters);
+        tempC,
+        positionMeters);
     climberMotor.optimizeBusUtilization();
   }
 
@@ -73,6 +74,7 @@ public class ClimberIO {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+    // after swapping it so it would be within extension limit the spooling reversed direction
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // todo: find and make climber gear ratio variable
@@ -108,19 +110,21 @@ public class ClimberIO {
 
   public void updateInputs(ClimberIOInputs inputs) {
     BaseStatusSignal.refreshAll(
-        motorPositionMeters,
-        velocityMetersPerSec,
-        statorCurrentAmps,
-        supplyCurrentAmps,
-        motorVoltage,
-        motorTemp);
-
-    inputs.motorPositionMeters = motorPositionMeters.getValueAsDouble();
-    inputs.motorVoltage = motorVoltage.getValueAsDouble();
-    inputs.motorTempC = motorTemp.getValueAsDouble();
-    inputs.motorSupplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
-    inputs.motorStatorCurrentAmps = statorCurrentAmps.getValueAsDouble();
-    inputs.motorVelocityMetersPerSec = velocityMetersPerSec.getValueAsDouble();
+        positionMeters, velocityMetersPerSec, statorCurrentAmps, supplyCurrentAmps, voltage, tempC);
+    inputs.connected =
+        BaseStatusSignal.isAllGood(
+            positionMeters,
+            velocityMetersPerSec,
+            statorCurrentAmps,
+            supplyCurrentAmps,
+            voltage,
+            tempC);
+    inputs.positionMeters = positionMeters.getValueAsDouble();
+    inputs.appliedVoltage = voltage.getValueAsDouble();
+    inputs.tempC = tempC.getValueAsDouble();
+    inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
+    inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
+    inputs.velocityMetersPerSec = velocityMetersPerSec.getValueAsDouble();
   }
 
   @AutoLogOutput(key = "Climber/Setpoint Meters")
