@@ -117,6 +117,9 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq = new Trigger(() -> shotTarget == ShotTarget.FEED);
 
+  @AutoLogOutput(key = "Superstructure/Can Score")
+  private boolean canScore = canScore();
+
   private boolean flowState = false;
 
   @AutoLogOutput(key = "Superstructure/Flow State Request")
@@ -355,18 +358,8 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         intake.restExtended(),
         indexer.rest(),
-        // shooter.score(
-        //     () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-        //     () ->
-        //         AutoAim.getCompensatedSOTMShotData(
-        //             swerve.getPose(),
-        //             FieldUtils.getCurrentHubTranslation(),
-        //             swerve.getVelocityFieldRelative())));
-        // shooter.testShoot(),
-        // shooter.torqueCurrentTest(),
-        // shooter.spinUpTest(swerve::getPose, swerve::getVelocityFieldRelative),
-        shooter.spinUp(
-            swerve::getPose,
+        shooter.score(
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
             () ->
                 AutoAim.getCompensatedSOTMShotData(
                     swerve
@@ -605,10 +598,12 @@ public class Superstructure {
   }
 
   public boolean inScoringArea() {
-    return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-            && (swerve.getPose().getX() <= 4.6914191246032715)
-        || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            && (swerve.getPose().getX() >= 11.889562606811523));
+    return true;
+    // return
+    //    (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+    //            && (swerve.getPose().getX() <= 4.6914191246032715)
+    //        || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+    //            && (swerve.getPose().getX() >= 11.889562606811523));
   }
 
   public boolean canScore() {
