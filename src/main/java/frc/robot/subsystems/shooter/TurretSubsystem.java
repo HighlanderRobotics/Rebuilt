@@ -215,7 +215,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           // flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
 
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get(), 1); // TODO slot tbd
           turretIO.setTurretPosition(
               AutoAim.getTurretFeedTargetRotation(
                   feedTarget.get().getTranslation(),
@@ -245,7 +245,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
-          flywheelIO.setMotionProfiledFlywheelVelocity(20);
+          flywheelIO.setMotionProfiledFlywheelVelocity(20, 0);
           // i think we want it to eject as far out from the robot as possible
           turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
@@ -347,7 +347,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get(), 0);
           // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
           turretIO.setTurretPosition(
               AutoAim.getTurretHubTargetRotation(
@@ -380,7 +380,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           // flywheelIO.spinUpVoltage(6, testVelocity.get());
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get(), 0);
           // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
           turretIO.setTurretPosition(
               AutoAim.getTurretHubTargetRotation(
@@ -399,7 +399,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
           // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
           flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
+              shotDataSupplier.get().flywheelVelocityRotPerSec(), 1);
           turretIO.setTurretPosition(
               AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
@@ -531,11 +531,16 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot0.kD = 0;
 
     // slot 1 is for torque current
-    config.Slot1.kS = 13.0;
-    config.Slot1.kV = 0.8;
-    // config.Slot1.kA = 0.016433;
-    config.Slot1.kP = 3.5;
-    config.Slot1.kD = 0.15;
+    // config.Slot1.kS = 13.0;
+    // config.Slot1.kV = 0.8;
+    // // config.Slot1.kA = 0.016433;
+    // config.Slot1.kP = 3.5;
+    // config.Slot1.kD = 0.15;
+    config.Slot1.kS = 0.79522; // 0.63933;
+    config.Slot1.kV = 0.11087; // 0.11582;
+    config.Slot1.kA = 0.026101; // 0.020809;
+    config.Slot1.kP = 1;
+    config.Slot1.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
@@ -579,7 +584,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
+              shotDataSupplier.get().flywheelVelocityRotPerSec(), 0);
           turretIO.setTurretPosition(
               AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),

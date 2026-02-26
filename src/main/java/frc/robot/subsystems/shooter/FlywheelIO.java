@@ -131,9 +131,10 @@ public class FlywheelIO {
     setFlywheelVoltage(volts);
   }
 
-  public void setMotionProfiledFlywheelVelocity(double flywheelVelocity) {
+  public void setMotionProfiledFlywheelVelocity(double flywheelVelocity, int slot) {
     velocitySetpointRotPerSec = flywheelVelocity;
-    flywheelLeader.setControl(motionMagicVelocityVoltage.withVelocity(flywheelVelocity));
+    flywheelLeader.setControl(
+        motionMagicVelocityVoltage.withVelocity(flywheelVelocity).withSlot(slot));
   }
 
   public void setTorqueCurrentVel(double flywheelVel) {

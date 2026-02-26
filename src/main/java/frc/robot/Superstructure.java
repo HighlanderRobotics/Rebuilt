@@ -384,7 +384,8 @@ public class Superstructure {
 
     bindCommands(
         SuperState.SCORE,
-        intake.agitate(),
+        // intake.agitate(),
+        intake.restExtended(),
         indexer.kick(),
         // shooter.score(
         //     swerve::getPose,

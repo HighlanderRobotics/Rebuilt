@@ -89,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get(), 0);
         });
   }
 
@@ -102,7 +102,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
           hoodSetpoint = shotDataSupplier.get().hoodAngle();
           hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
+              shotDataSupplier.get().flywheelVelocityRotPerSec(), 0);
         });
   }
 
@@ -120,7 +120,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
                       .getTranslation()
                       .getDistance(feedTarget.get().getTranslation()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec(), 0);
         });
   }
 
@@ -140,7 +140,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
-          flywheelIO.setMotionProfiledFlywheelVelocity(20);
+          flywheelIO.setMotionProfiledFlywheelVelocity(20, 0);
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
   }
 
