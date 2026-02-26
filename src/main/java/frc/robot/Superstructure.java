@@ -107,6 +107,7 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Climb Req")
   private Trigger climbReq;
 
+  @AutoLogOutput(key = "Superstructure/Shot Target")
   private static ShotTarget shotTarget = ShotTarget.FEED;
 
   @AutoLogOutput(key = "Superstructure/Score Request")
@@ -363,45 +364,45 @@ public class Superstructure {
         //             swerve.getVelocityFieldRelative())));
         // shooter.testShoot(),
         // shooter.torqueCurrentTest(),
-        // shooter.spinUpTest(swerve::getPose, swerve::getVelocityFieldRelative),
-        shooter.spinUp(
-            swerve::getPose,
-            () ->
-                AutoAim.getCompensatedSOTMShotData(
-                    swerve
-                        .getPose()
-                        .transformBy(
-                            new Transform2d(
-                                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
-                    FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative(),
-                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE),
-            swerve::getVelocityFieldRelative),
+        shooter.spinUpTest(swerve::getPose, swerve::getVelocityFieldRelative),
+        // shooter.spinUp(
+        //     swerve::getPose,
+        //     () ->
+        //         AutoAim.getCompensatedSOTMShotData(
+        //             swerve
+        //                 .getPose()
+        //                 .transformBy(
+        //                     new Transform2d(
+        //                         TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
+        //             FieldUtils.getCurrentHubTranslation(),
+        //             swerve.getVelocityFieldRelative(),
+        //             Robot.ROBOT_EDITION == RobotEdition.ALPHA
+        //                 ? AutoAim.ALPHA_HUB_SHOT_TREE
+        //                 : AutoAim.COMP_HUB_SHOT_TREE),
+        //     swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
         SuperState.SCORE,
         intake.agitate(),
         indexer.kick(),
-        shooter.score(
-            swerve::getPose,
-            () ->
-                AutoAim.getCompensatedSOTMShotData(
-                    swerve
-                        .getPose()
-                        .transformBy(
-                            new Transform2d(
-                                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
-                    FieldUtils.getCurrentHubTranslation(),
-                    swerve.getVelocityFieldRelative(),
-                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE),
-            swerve::getVelocityFieldRelative),
+        // shooter.score(
+        //     swerve::getPose,
+        //     () ->
+        //         AutoAim.getCompensatedSOTMShotData(
+        //             swerve
+        //                 .getPose()
+        //                 .transformBy(
+        //                     new Transform2d(
+        //                         TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
+        //             FieldUtils.getCurrentHubTranslation(),
+        //             swerve.getVelocityFieldRelative(),
+        //             Robot.ROBOT_EDITION == RobotEdition.ALPHA
+        //                 ? AutoAim.ALPHA_HUB_SHOT_TREE
+        //                 : AutoAim.COMP_HUB_SHOT_TREE),
+        //     swerve::getVelocityFieldRelative),
         // shooter.testShoot(),
-        // shooter.torqueCurrentTest(swerve::getPose, swerve::getVelocityFieldRelative),
+        shooter.torqueCurrentTest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(

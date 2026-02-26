@@ -481,7 +481,7 @@ public class Robot extends LoggedRobot {
             .ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
-    candle.setDefaultCommand(candle.test());
+    candle.setDefaultCommand(candle.test().ignoringDisable(true));
 
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
