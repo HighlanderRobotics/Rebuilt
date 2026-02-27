@@ -41,9 +41,9 @@ Back Right Steer | 7 | X44-015
 Intake Rollers | 8 | X44-012
 Spindexer Agitator | 9 | X60-046
 Kicker Roller | 10 | X60-051
-Shooter Hood | 11 | X44-002
-Shooter Flywheel Leader (Left) | 12 | X60-052
-Shooter Flywheel Follower (Right) | 13 | X60-047
+Shooter Hood | 11 | X44-008
+Shooter Flywheel Leader (Left) | 12 | X60-048
+Shooter Flywheel Follower (Right) | 13 | X60-050
 intake Extension | 14 | X44-017
 Turret Pivot | 15 | X44-001
 Climber | 16 | X60-049

@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems.led;
 
+import com.ctre.phoenix6.configs.CANdleConfiguration;
+import com.ctre.phoenix6.signals.RGBWColor;
+import com.ctre.phoenix6.signals.StripTypeValue;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.candle.CANdleIO;
 import frc.robot.components.candle.CANdleIOInputsAutoLogged;
@@ -23,5 +27,15 @@ public class CANdleSubsystem extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("CANdle", inputs);
+  }
+
+  public Command test() {
+    return this.run(() -> io.setSolid(new RGBWColor(LEDSubsystem.PURPLE)));
+  }
+
+  public static CANdleConfiguration getCandleConfig() {
+    CANdleConfiguration config = new CANdleConfiguration();
+    config.LED.StripType = StripTypeValue.GRB;
+    return config;
   }
 }

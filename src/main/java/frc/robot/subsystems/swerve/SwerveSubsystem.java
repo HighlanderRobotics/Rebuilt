@@ -62,6 +62,7 @@ import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
+import frc.robot.utils.autoaim.InterpolatingShotTree;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -218,9 +219,12 @@ public class SwerveSubsystem extends SubsystemBase {
       cameras =
           new Camera[] {
             new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[0])),
-            new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[1])),
-            new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[2])),
-            new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[3]))
+            new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[1]))
+            // ,
+            // new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[2]))
+
+            // ,
+            // new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[3]))
           };
     }
 
@@ -647,15 +651,19 @@ public class SwerveSubsystem extends SubsystemBase {
   //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
   // xVel, yVel);
   // }
-  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
+  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel, InterpolatingShotTree tree) {
     return driveWithHeadingSnap(
-        () -> AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose()), xVel, yVel);
+        () ->
+            AutoAim.getVirtualTargetYaw(
+                getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree),
+        xVel,
+        yVel);
   }
 
-  public boolean isFacingTarget() {
+  public boolean isFacingTarget(InterpolatingShotTree tree) {
     switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
       case SCORE:
-        return isFacingHub();
+        return isFacingHub(tree);
       case FEED:
         return isFacingFeedTarget();
       default:
@@ -663,8 +671,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  public boolean isFacingHub() {
-    Rotation2d target = AutoAim.getVirtualHubYaw(getVelocityFieldRelative(), getPose());
+  public boolean isFacingHub(InterpolatingShotTree tree) {
+    Rotation2d target =
+        AutoAim.getVirtualTargetYaw(
+            getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree);
     return MathUtil.isNear(
         target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   }

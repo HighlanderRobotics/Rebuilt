@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Superstructure.SuperState;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOSim;
+import frc.robot.components.candle.CANdleIOReal;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
@@ -46,6 +47,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.LinearRackIO;
 import frc.robot.subsystems.intake.LinearRackIOSim;
 import frc.robot.subsystems.intake.LintakeSubsystem;
+import frc.robot.subsystems.led.CANdleSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.shooter.FlywheelIO;
@@ -61,6 +63,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.autoaim.AutoAim;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -94,7 +97,7 @@ public class Robot extends LoggedRobot {
   public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
   public static final RobotEdition ROBOT_EDITION;
-  public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.ALPHA;
+  public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.COMP;
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
   private static final Alert unknownRioAlert =
       new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
@@ -186,6 +189,8 @@ public class Robot extends LoggedRobot {
   private final SwerveSubsystem swerve = new SwerveSubsystem(canivore);
   private final LEDSubsystem leds;
   private final ClimberSubsystem climber;
+  private final CANdleSubsystem candle =
+      new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -276,13 +281,16 @@ public class Robot extends LoggedRobot {
         shooter =
             new ShooterSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getAlphaHood(), canivore, 11)
+                    ? new HoodIO(ShooterSubsystem.getHoodConfig(), canivore, 11)
                     : new HoodIOSim(
-                        canivore, HoodIO.getAlphaHood(), ShooterSubsystem.HOOD_GEAR_RATIO, 11),
+                        canivore,
+                        ShooterSubsystem.getHoodConfig(),
+                        ShooterSubsystem.HOOD_GEAR_RATIO,
+                        11),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getAlphaFlywheel(), canivore, 12, 13)
+                    ? new FlywheelIO(ShooterSubsystem.getFlywheelConfig(), canivore, 12, 13)
                     : new FlywheelIOSim(
-                        FlywheelIO.getAlphaFlywheel(),
+                        ShooterSubsystem.getFlywheelConfig(),
                         canivore,
                         ShooterSubsystem.FLYWHEEL_GEAR_RATIO,
                         11,
@@ -356,17 +364,20 @@ public class Robot extends LoggedRobot {
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
-                    ? new FlywheelIO(FlywheelIO.getCompFlywheel(), canivore, 12, 13)
+                    ? new FlywheelIO(TurretSubsystem.getFlywheelConfig(), canivore, 12, 13)
                     : new FlywheelIOSim(
-                        FlywheelIO.getCompFlywheel(),
+                        TurretSubsystem.getFlywheelConfig(),
                         canivore,
                         TurretSubsystem.FLYWHEEL_GEAR_RATIO,
                         11,
                         12),
                 ROBOT_MODE == RobotMode.REAL
-                    ? new HoodIO(HoodIO.getCompHood(), canivore, 11)
+                    ? new HoodIO(TurretSubsystem.getHoodConfig(), canivore, 11)
                     : new HoodIOSim(
-                        canivore, HoodIO.getCompHood(), TurretSubsystem.HOOD_GEAR_RATIO, 11),
+                        canivore,
+                        TurretSubsystem.getHoodConfig(),
+                        TurretSubsystem.HOOD_GEAR_RATIO,
+                        11),
                 ROBOT_MODE == RobotMode.REAL ? new TurretIO(canivore) : new TurretIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
@@ -379,7 +390,9 @@ public class Robot extends LoggedRobot {
     climber =
         ROBOT_EDITION == RobotEdition.ALPHA
             ? new EmptyClimberSubsystem(canivore)
-            : new ClimberSubsystem(new ClimberIO(canivore));
+            : new ClimberSubsystem(
+                new ClimberIO(canivore)); // TODO: SWITCH BACK TO REAL CLIMBER WHEN FIXED
+    // : new ClimberSubsystem(new ClimberIO(canivore));
     // now that we've assigned the correct subsystems based on robot edition, we can pass them into
     // the superstructure
     superstructure =
@@ -457,13 +470,14 @@ public class Robot extends LoggedRobot {
 
     PhoenixOdometryThread.getInstance().start();
 
-    SmartDashboard.putData("Zero Climber", climber.zeroClimber().ignoringDisable(true));
+    SmartDashboard.putData(
+        "Current zero climber (needs to be enabled)", climber.runCurrentZeroing());
     SmartDashboard.putData("Zero Intake", intake.zeroRack().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot",
         Commands.parallel(
-            shooter.torqueCurrentTest(),
+            shooter.torqueCurrentTest(swerve::getPose, swerve::getVelocityFieldRelative),
             Commands.waitUntil(new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.1))
                 .andThen(indexer.testShoot())));
     SmartDashboard.putData(
@@ -475,6 +489,7 @@ public class Robot extends LoggedRobot {
             .ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
+    candle.setDefaultCommand(candle.test().ignoringDisable(true));
 
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
@@ -600,7 +615,23 @@ public class Robot extends LoggedRobot {
                 () ->
                     -1
                         * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                ROBOT_EDITION == RobotEdition.ALPHA
+                    ? AutoAim.ALPHA_HUB_SHOT_TREE
+                    : AutoAim.COMP_HUB_SHOT_TREE));
+
+    // climbAutoAlignInAutoReq.whileTrue(
+    //     swerve.alignToClimb(
+    //         () ->
+    //             ClimbTargets.CLIMB_TARGETS_LIST.stream()
+    //                 .filter(target -> target.getLeftHanded() == leftClimbTarget)
+    //                 .filter(
+    //                     target ->
+    //                         target.isBlueAlliance()
+    //                             == (DriverStation.getAlliance().orElse(Alliance.Blue)
+    //                                 == Alliance.Blue))
+    //                 .findFirst()
+    //                 .get()));
 
     // climbAutoAlignInAutoReq.whileTrue(
     //     swerve.alignToClimb(
@@ -625,12 +656,7 @@ public class Robot extends LoggedRobot {
     // current zero shooter hood
     driver
         .b()
-        .whileTrue(
-            Commands.parallel(
-                shooter.runCurrentZeroing(), intake.runCurrentZeroing()
-                // ,
-                // climber.runCurrentZeroing()
-                ));
+        .whileTrue(Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing()));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
@@ -647,7 +673,7 @@ public class Robot extends LoggedRobot {
         .whileTrue(
             Commands.parallel(
                 // shooter.torqueCurrentTest(),
-                shooter.testShoot(),
+                shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
                 Commands.waitUntil(
                         new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(1.5)
                         // .and(shooter::atTurretSetpoint)
@@ -688,6 +714,8 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
+    haveAutosGenerated = true;
+    System.out.println("Done generating autos");
   }
 
   // Sysid Autos
@@ -698,8 +726,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
     autoChooser.addOption("Intake Extension Sysid", intake.runExtensionSysid());
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    haveAutosGenerated = true;
-    System.out.println("Done generating autos");
+
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
     autoChooser.addOption("Turret Sysid", shooter.runTurretSysid());
     autoChooser.addOption("Kicker Sysid", indexer.runKickerSysId());

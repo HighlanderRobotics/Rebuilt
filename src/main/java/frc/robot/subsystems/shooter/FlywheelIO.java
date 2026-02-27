@@ -13,9 +13,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -69,7 +67,7 @@ public class FlywheelIO {
   private VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
       new VelocityTorqueCurrentFOC(0.0).withSlot(1);
 
-  private double velocitySetpointRotPerSec = 0.0;
+  private double velocitySetpointRotPerSec = 100.0; // TODO can't start w 0
 
   // todo: tune acceleration
 
@@ -102,7 +100,8 @@ public class FlywheelIO {
     motionMagicVelocityVoltage =
         new MotionMagicVelocityVoltage(0.0)
             .withAcceleration(config.MotionMagic.MotionMagicAcceleration)
-            .withEnableFOC(true);
+            .withEnableFOC(true)
+            .withSlot(0);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -123,62 +122,13 @@ public class FlywheelIO {
     flywheelFollower.optimizeBusUtilization();
   }
 
-  public static TalonFXConfiguration getAlphaFlywheel() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.FLYWHEEL_GEAR_RATIO;
-
-    config.Slot0.kS = 0.43477;
-    config.Slot0.kV = 0.144;
-    config.Slot0.kA = 0.016433;
-    config.Slot0.kP = 0.37;
-    config.Slot0.kD = 0.0;
-
-    config.CurrentLimits.StatorCurrentLimit = 70.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 40.0;
-
-    config.MotionMagic.MotionMagicAcceleration = 100.0;
-
-    return config;
-  }
-
-  public static TalonFXConfiguration getCompFlywheel() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-    config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
-
-    // slot 0 is for motion profiled velocity
-    config.Slot0.kS = 0.63933;
-    config.Slot0.kV = 0.11582;
-    config.Slot0.kA = 0.020809;
-    config.Slot0.kP = 0.4;
-    config.Slot0.kD = 0;
-
-    // slot 1 is for torque current
-    config.Slot1.kS = 13.0;
-    config.Slot1.kV = 0.8;
-    // config.Slot1.kA = 0.016433;
-    config.Slot1.kP = 2400;
-    config.Slot1.kD = 0.5;
-
-    config.CurrentLimits.StatorCurrentLimit = 120.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = false; // TODO add current limits back!!!
-    config.CurrentLimits.SupplyCurrentLimit = 40.0;
-
-    config.MotionMagic.MotionMagicAcceleration = 100.0;
-
-    return config;
-  }
-
   public void setFlywheelVoltage(double volts) {
     flywheelLeader.setControl(voltageOut.withOutput(volts));
+  }
+
+  public void spinUpVoltage(double volts, double flywheelVel) {
+    velocitySetpointRotPerSec = flywheelVel; // TODO akljsflsdj
+    setFlywheelVoltage(volts);
   }
 
   public void setMotionProfiledFlywheelVelocity(double flywheelVelocity) {

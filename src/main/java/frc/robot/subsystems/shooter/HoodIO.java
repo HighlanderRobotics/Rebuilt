@@ -14,9 +14,6 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
@@ -75,54 +72,6 @@ public class HoodIO {
         hoodSupplyCurrent,
         hoodTemp);
     hoodMotor.optimizeBusUtilization();
-  }
-
-  public static TalonFXConfiguration getAlphaHood() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-    config.Feedback.SensorToMechanismRatio = ShooterSubsystem.HOOD_GEAR_RATIO;
-
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-
-    config.Slot0.kS = 0.055;
-    config.Slot0.kG = 0.445;
-    config.Slot0.kV = 1.45;
-    config.Slot0.kP = 35;
-    config.Slot0.kD = 0.25;
-
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
-
-    return config;
-  }
-
-  public static TalonFXConfiguration getCompHood() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-    config.Feedback.SensorToMechanismRatio = TurretSubsystem.HOOD_GEAR_RATIO;
-
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-
-    config.Slot0.kS = 0.57613;
-    config.Slot0.kG = 0.35748;
-    config.Slot0.kV = 5.4081;
-    config.Slot0.kA = 0.14829;
-    config.Slot0.kP = 260.0;
-
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60.0;
-
-    return config;
   }
 
   public void setHoodVoltage(double hoodVoltage) {
