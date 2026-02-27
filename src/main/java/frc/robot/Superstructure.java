@@ -358,7 +358,7 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         intake.restExtended(),
         indexer.rest(),
-            shooter.spinUp(
+        shooter.spinUp(
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
