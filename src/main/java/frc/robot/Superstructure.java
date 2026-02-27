@@ -171,7 +171,7 @@ public class Superstructure {
         .onTrue(Commands.runOnce(() -> flowState = true));
     operator
         .b()
-        .or(new Trigger(Autos.autoFlowReq))
+        .or(new Trigger(Autos.autoFlowReq).negate())
         .onTrue(Commands.runOnce(() -> flowState = false));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
