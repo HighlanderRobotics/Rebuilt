@@ -281,10 +281,9 @@ public class Autos {
         .observe(
             () ->
                 // swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
-                swerve.getPose().minus(trench).getTranslation().getNorm()
-                    < tolerance)
+                swerve.getPose().minus(trench).getTranslation().getNorm() < tolerance)
         .whileTrue(Commands.run(() -> setAutoScoreReqFalse()));
-        // .whileTrue();
+    // .whileTrue();
   }
 
   public Command shootPreload() {

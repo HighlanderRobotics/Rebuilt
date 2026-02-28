@@ -663,6 +663,18 @@ public class Robot extends LoggedRobot {
                         * modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
+    new Trigger(swerve::isCloseToTrench)
+        .whileTrue(
+            swerve.trenchAlign(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
     // TODO: autoaim (comp)
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
 

@@ -59,6 +59,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread.SignalType;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
+import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
@@ -706,17 +707,25 @@ public class SwerveSubsystem extends SubsystemBase {
         yVel);
   }
 
+  public Command trenchAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return driveWithHeadingSnap(() -> Rotation2d.k180deg, xVel, yVel);
+  }
+
+  public boolean isCloseToTrench() {
+    Pose2d nearestTrenchPose = TrenchPoses.getClosestTrenchPose(getPose());
+    return (Math.abs(getPose().getX() - nearestTrenchPose.getX()) < 2)
+        && (Math.abs((getPose().getY() - nearestTrenchPose.getY())) < 0.5);
+  }
+
   public boolean isCloseToBump() {
-    if (((Math.abs(getPose().getX() - FieldUtils.BLUE_BUMP1_POS.getX()) < 2)
-            || (Math.abs(getPose().getX() - FieldUtils.RED_BUMP1_POS.getX()) < 2))
-        && ((getPose().getY() > (FieldUtils.BLUE_BUMP2_POS.getY() - 0.515)
-                && getPose().getY() < (FieldUtils.BLUE_BUMP2_POS.getY() + 0.515)
-            || (getPose().getY() > (FieldUtils.RED_BUMP1_POS.getY() - 0.515)
-                && getPose().getY() < (FieldUtils.RED_BUMP1_POS.getY() + 0.515))))) {
-      return true;
-    } else {
-      return false;
-    }
+    double x = getPose().getX();
+    double y = getPose().getY();
+    return (((Math.abs(x - FieldUtils.BLUE_BUMP1_POS.getX()) < 2)
+            || (Math.abs(x - FieldUtils.RED_BUMP1_POS.getX()) < 2))
+        && ((y > (FieldUtils.BLUE_BUMP2_POS.getY() - 0.515)
+                && y < (FieldUtils.BLUE_BUMP2_POS.getY() + 0.515)
+            || (y > (FieldUtils.RED_BUMP1_POS.getY() - 0.515)
+                && y < (FieldUtils.RED_BUMP1_POS.getY() + 0.515)))));
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {
