@@ -128,12 +128,12 @@ public class R1WispSwerveConstants extends SwerveConstants {
 
   @Override
   public double getBumperWidth() {
-    return Units.inchesToMeters(34.6);
+    return Units.inchesToMeters(34.8);
   }
 
   @Override
   public double getBumperLength() {
-    return Units.inchesToMeters(34.6);
+    return Units.inchesToMeters(34.8);
   }
 
   @Override
@@ -146,7 +146,8 @@ public class R1WispSwerveConstants extends SwerveConstants {
   @Override
   public double getMaxLinearAcceleration() {
     // Calculated in Choreo for R1 ratio
-    return 9.056;
+    // return 9.056;
+    return 22.073;
   }
 
   @Override
@@ -165,7 +166,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
   @Override
   public Mass getMass() {
     // From CAD (retrieved 1/29/26), with bumpers and battery
-    return Pound.of(121.28);
+    return Pound.of(136.185702);
   }
 
   // TODO: CANCODER OFFSETS

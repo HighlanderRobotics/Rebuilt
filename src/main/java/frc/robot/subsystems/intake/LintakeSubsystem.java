@@ -185,21 +185,27 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     //         new Trigger(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
     //             .debounce(0.95))
     //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
-    return Commands.deadline(
-            Commands.waitSeconds(0.5)
-                .andThen(
-                    Commands.waitUntil(
-                        new Trigger(
-                                () -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
-                            .debounce(0.25))),
-            this.run(() -> rackIO.setVoltage(5)))
-        .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+
+    // return Commands.deadline(
+    //         Commands.waitSeconds(0.5)
+    //             .andThen(
+    //                 Commands.waitUntil(
+    //                     new Trigger(
+    //                             () -> Math.abs(rackCurrentFilterValue) >
+    // CURRENT_ZEROING_THRESHOLD)
+    //                         .debounce(0.25))),
+    //         this.run(() -> rackIO.setVoltage(5)))
+    //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
 
     // return this.idle();
+
+    return zeroRack();
   }
 
   public Command zeroRack() {
-    return this.runOnce(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
+    return this.runOnce(() -> rackIO.resetEncoder(0));
+
+    // return this.runOnce(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
   }
 
   public static TalonFXConfiguration getRackMotorConfig() {

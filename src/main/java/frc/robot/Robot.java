@@ -210,6 +210,10 @@ public class Robot extends LoggedRobot {
   @AutoLogOutput(key = "Superstructure/Autoaim Request")
   private Trigger autoAimReq;
 
+  // TODO
+  //   @AutoLogOutput(key = "Superstructure/Autoaim Request")
+  //   private Trigger climbAutoAlignInAutoReq;
+
   // Auto stuff
   private final Autos autos;
   private Optional<Alliance> lastAlliance = Optional.empty();
@@ -409,6 +413,8 @@ public class Robot extends LoggedRobot {
                             Superstructure.getState() == SuperState.SPIN_UP_SCORE
                                 || Superstructure.getState() == SuperState.SCORE)
                     .and(() -> isTeleopEnabled()));
+
+    //  climbAutoAlignInAutoReq = Autos.autoAlignClimbReq;
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SignalLogger.enableAutoLogging(false);
@@ -619,6 +625,44 @@ public class Robot extends LoggedRobot {
                     ? AutoAim.ALPHA_HUB_SHOT_TREE
                     : AutoAim.COMP_HUB_SHOT_TREE));
 
+    // climbAutoAlignInAutoReq.whileTrue(
+    //     swerve.alignToClimb(
+    //         () ->
+    //             ClimbTargets.CLIMB_TARGETS_LIST.stream()
+    //                 .filter(target -> target.getLeftHanded() == leftClimbTarget)
+    //                 .filter(
+    //                     target ->
+    //                         target.isBlueAlliance()
+    //                             == (DriverStation.getAlliance().orElse(Alliance.Blue)
+    //                                 == Alliance.Blue))
+    //                 .findFirst()
+    //                 .get()));
+
+    // climbAutoAlignInAutoReq.whileTrue(
+    //     swerve.alignToClimb(
+    //         () ->
+    //             ClimbTargets.CLIMB_TARGETS_LIST.stream()
+    //                 .filter(target -> target.getLeftHanded() == leftClimbTarget)
+    //                 .filter(
+    //                     target ->
+    //                         target.isBlueAlliance()
+    //                             == (DriverStation.getAlliance().orElse(Alliance.Blue)
+    //                                 == Alliance.Blue))
+    //                 .findFirst()
+    //                 .get()));
+
+    new Trigger(swerve::isCloseToBump)
+        .whileTrue(
+            swerve.bumpAlign(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
     // TODO: autoaim (comp)
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
 
@@ -633,7 +677,10 @@ public class Robot extends LoggedRobot {
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
-    operator.leftBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = true));
+    operator
+        .leftBumper()
+        .or(Autos.autoLeftClimbReq)
+        .onTrue(Commands.runOnce(() -> leftClimbTarget = true));
     operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
 
     // TODO: ACTUAL BINDING LOL

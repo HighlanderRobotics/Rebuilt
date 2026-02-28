@@ -7,26 +7,30 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class Autos {
+  private final SwerveSubsystem swerve;
   private final AutoFactory factory;
-  // Declare triggers
-  // mehhhhhhh
   private static boolean autoFeed;
   private static boolean autoIntake;
   private static boolean autoScore;
+  private static boolean autoPreClimb;
   private static boolean autoClimb;
-
-  // private static boolean autoIntakeAlgae;
+  private static boolean autoFlow;
+  // private static boolean autoAlignClimb;
+  private static boolean leftClimbAuto;
 
   @AutoLogOutput(key = "Superstructure/Auto Feed Request")
   public static Trigger autoFeedReq = new Trigger(() -> autoFeed).and(DriverStation::isAutonomous);
@@ -39,16 +43,32 @@ public class Autos {
   public static Trigger autoScoreReq =
       new Trigger(() -> autoScore).and(DriverStation::isAutonomous);
 
+  @AutoLogOutput(key = "Superstructure/Auto Pre Climb Request")
+  public static Trigger autoPreClimbReq =
+      new Trigger(() -> autoPreClimb).and(DriverStation::isAutonomous);
+
   @AutoLogOutput(key = "Superstructure/Auto Climb Request")
   public static Trigger autoClimbReq =
       new Trigger(() -> autoClimb).and(DriverStation::isAutonomous);
+
+  @AutoLogOutput(key = "Superstructure/Auto Climb Request")
+  public static Trigger autoFlowReq = new Trigger(() -> autoFlow).and(DriverStation::isAutonomous);
+
+  // @AutoLogOutput(key = "Superstructure/Auto Align Climb Request")
+  // public static Trigger autoAlignClimbReq =
+  //     new Trigger(() -> autoAlignClimb).and(DriverStation::isAutonomous);
+
+  @AutoLogOutput(key = "Superstructure/Auto Left Climb Request")
+  public static Trigger autoLeftClimbReq =
+      new Trigger(() -> leftClimbAuto).and(DriverStation::isAutonomous);
 
   public enum Action {
     FEED,
     INTAKE,
     SCORE,
     FLOW,
-    CLIMB;
+    CLIMB,
+    NOTHING;
   }
 
   public enum Obstacle {
@@ -99,7 +119,8 @@ public class Autos {
     DtoRL("DT", "RL", Action.SCORE),
     RLtoFL("RL", "FL", Action.FEED),
     OtoRR("OT", "RR", Action.SCORE),
-    RRtoFR("RR", "FR", Action.FEED);
+    RRtoFR("RR", "FR", Action.FEED),
+    RUNtoTEST("RUN", "TEST", Action.NOTHING);
 
     private final String start;
     private final String end;
@@ -119,6 +140,7 @@ public class Autos {
   }
 
   public Autos(SwerveSubsystem swerve) {
+    this.swerve = swerve;
     factory =
         new AutoFactory(
             swerve::getPose,
@@ -167,6 +189,8 @@ public class Autos {
         return climbPath(path, routine);
       case FLOW:
         return flowPath(path, routine);
+      case NOTHING:
+        return emptyPath(path, routine);
       default: // this should never happen
         return Commands.none();
     }
@@ -187,8 +211,22 @@ public class Autos {
                         .atTime(
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                                 - (0.3)))),
-        setAutoScoreReqFalse(),
+        setAutoPreClimbReqTrue(),
+        swerve
+            .alignToClimb(() -> getClimbAutoTarget())
+            .until(() -> swerve.isInTolerance(getClimbAutoTarget().getPose(), 0.05, 0.05)),
         setAutoClimbReqTrue());
+  }
+
+  public ClimbTargets getClimbAutoTarget() {
+    return ClimbTargets.CLIMB_TARGETS_LIST.stream()
+        .filter(target -> target.getLeftHanded() == leftClimbAuto)
+        .filter(
+            target ->
+                target.isBlueAlliance()
+                    == (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue))
+        .findFirst()
+        .get();
   }
 
   public Command feedPath(Path path, AutoRoutine routine) {
@@ -215,6 +253,13 @@ public class Autos {
     //   setAutoScoreReqFalse()));
   }
 
+  public Command emptyPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
+    // Commands.sequence(path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+    //   setAutoScoreReqFalse()));
+  }
+
   public Command intakePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoScoreReqFalse(),
@@ -226,8 +271,18 @@ public class Autos {
   public Command flowPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoScoreReqTrue(),
+        setAutoFlowReqTrue(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
+  }
+
+  public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
+    routine
+        .observe(
+            () ->
+                swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
+                    < tolerance)
+        .whileTrue(Commands.run(() -> setAutoScoreReqFalse()));
   }
 
   public Command shootPreload() {
@@ -258,6 +313,22 @@ public class Autos {
     return Commands.runOnce(() -> autoFeed = false);
   }
 
+  public Command setAutoPreClimbReqTrue() {
+    return Commands.runOnce(() -> autoPreClimb = true);
+  }
+
+  public Command setAutoPreClimbReqFalse() {
+    return Commands.runOnce(() -> autoPreClimb = false);
+  }
+
+  public Command setAutoFlowReqTrue() {
+    return Commands.runOnce(() -> autoFlow = true);
+  }
+
+  public Command setAutoFlowReqFalse() {
+    return Commands.runOnce(() -> autoFlow = false);
+  }
+
   public Command setAutoClimbReqTrue() {
     return Commands.runOnce(() -> autoClimb = true);
   }
@@ -266,21 +337,50 @@ public class Autos {
     return Commands.runOnce(() -> autoClimb = false);
   }
 
+  public Command setAllReqsFalse() {
+    return Commands.sequence(
+        setAutoIntakeReqFalse(),
+        setAutoScoreReqFalse(),
+        setAutoFeedReqFalse(),
+        setAutoPreClimbReqFalse(),
+        setAutoFlowReqFalse(),
+        setAutoClimbReqFalse());
+  }
+
+  // public Command setAutoAlignToClimbReqTrue() {
+  //   return Commands.runOnce(() -> autoAlignClimb = true);
+  // }
+
+  // public Command setAutoAlignToClimbReqFalse() {
+  //   return Commands.runOnce(() -> autoAlignClimb = true);
+  // }
+
+  public Command setleftClimbAutoTrue() {
+    return Commands.runOnce(() -> leftClimbAuto = true);
+  }
+
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
     Path[] paths = {
       Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
     }; // , Path.SLtoCL};
     Command autoCommand =
-        paths[0].getTrajectory(routine).resetOdometry(); // .andThen(shootPreload());
+        paths[0]
+            .getTrajectory(routine)
+            .resetOdometry()
+            .alongWith(setleftClimbAutoTrue()); // .andThen(shootPreload());
 
     for (Path p : paths) {
+      // TODO obvi fix bc its not alwasy blue i just need to test the locking
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
 
     routine.active().onTrue(autoCommand);
 
-    return routine.cmd();
+    return Commands.parallel(
+        routine.cmd(),
+        Commands.run(
+            () -> lockHoodUnderTrench(routine, FieldUtils.TrenchPoses.RED_LEFT.getPose(), 5)));
   }
 
   public Command getOutpostScoreClimbAuto() {
@@ -300,7 +400,8 @@ public class Autos {
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
     Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoFL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -326,8 +427,8 @@ public class Autos {
   }
 
   public Command getTestAuto() {
-    final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PLtoD};
+    final AutoRoutine routine = factory.newRoutine("test auto");
+    Path[] paths = {Path.RUNtoTEST, Path.RUNtoTEST, Path.RUNtoTEST, Path.RUNtoTEST};
     Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
