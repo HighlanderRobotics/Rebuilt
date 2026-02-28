@@ -72,7 +72,6 @@ public class FieldUtils {
   public enum ClimbTargets {
     // Grabbed in Choreo. Needs real testing
     // 3.05 is climber offset
-    // TODO: VERIFY POSES
     BLUE_LEFT(
         new Pose2d(
             1.189 - Units.inchesToMeters(3.05),

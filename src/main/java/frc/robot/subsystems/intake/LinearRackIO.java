@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class LinearRackIO {
 
@@ -20,10 +21,11 @@ public class LinearRackIO {
   public static class LinearRackIOInputs {
     public double positionMeters = 0.0;
     public double velocityMetersPerSecond = 0.0;
-    public double voltage = 0.0;
+    public double appliedVoltage = 0.0;
     public double statorCurrentAmps = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double temperatureC = 0.0;
+    public boolean connected = false;
   }
 
   protected final TalonFX motor;
@@ -32,10 +34,10 @@ public class LinearRackIO {
   // the sensor-to-mechanism ratio
   private final StatusSignal<Angle> positionMeters;
   private final StatusSignal<AngularVelocity> velocityMetersPerSecond;
-  private final StatusSignal<Voltage> voltage;
-  private final StatusSignal<Current> statorCurrent;
-  private final StatusSignal<Current> supplyCurrent;
-  private final StatusSignal<Temperature> temperature;
+  private final StatusSignal<Voltage> appliedVoltage;
+  private final StatusSignal<Current> statorCurrentAmps;
+  private final StatusSignal<Current> supplyCurrentAmps;
+  private final StatusSignal<Temperature> temperatureC;
 
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   // I think we might want to motion profile this so i'm using motion magic
@@ -48,31 +50,46 @@ public class LinearRackIO {
 
     positionMeters = motor.getPosition();
     velocityMetersPerSecond = motor.getVelocity();
-    voltage = motor.getMotorVoltage();
-    statorCurrent = motor.getStatorCurrent();
-    supplyCurrent = motor.getSupplyCurrent();
-    temperature = motor.getDeviceTemp();
+    appliedVoltage = motor.getMotorVoltage();
+    statorCurrentAmps = motor.getStatorCurrent();
+    supplyCurrentAmps = motor.getSupplyCurrent();
+    temperatureC = motor.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         positionMeters,
         velocityMetersPerSecond,
-        voltage,
-        statorCurrent,
-        supplyCurrent,
-        temperature);
+        appliedVoltage,
+        statorCurrentAmps,
+        supplyCurrentAmps,
+        temperatureC);
     motor.optimizeBusUtilization();
 
     motor.getConfigurator().apply(config);
   }
 
   public void updateInputs(LinearRackIOInputs inputs) {
+    BaseStatusSignal.refreshAll(
+        positionMeters,
+        velocityMetersPerSecond,
+        appliedVoltage,
+        statorCurrentAmps,
+        supplyCurrentAmps,
+        temperatureC);
+    inputs.connected =
+        BaseStatusSignal.isAllGood(
+            positionMeters,
+            velocityMetersPerSecond,
+            appliedVoltage,
+            statorCurrentAmps,
+            supplyCurrentAmps,
+            temperatureC);
     inputs.positionMeters = positionMeters.getValueAsDouble();
     inputs.velocityMetersPerSecond = velocityMetersPerSecond.getValueAsDouble();
-    inputs.voltage = voltage.getValueAsDouble();
-    inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
-    inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
-    inputs.temperatureC = temperature.getValueAsDouble();
+    inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+    inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
+    inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
+    inputs.temperatureC = temperatureC.getValueAsDouble();
   }
 
   public void setVoltage(double volts) {
@@ -84,6 +101,7 @@ public class LinearRackIO {
     motor.setControl(motionMagicVoltage.withPosition(setpointMeters));
   }
 
+  @AutoLogOutput(key = "Intake/Setpoint")
   public double getSetpointMeters() {
     return setpointMeters;
   }

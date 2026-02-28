@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -19,7 +20,8 @@ public class TurretIOSim extends TurretIO {
   private Notifier simNotifier = null;
   private double lastSimTime = 0.0;
 
-  public TurretIOSim() {
+  public TurretIOSim(CANBus canivore) {
+    super(canivore);
     physicsSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(

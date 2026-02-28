@@ -58,12 +58,12 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public Command outtake() {
+  public Command agitate() {
     return this.run(() -> io.setRollerVoltage(-5));
   }
 
   @Override
-  public Command rest() {
+  public Command restExtended() {
     return this.run(() -> io.setRollerVoltage(0));
   }
 
@@ -97,5 +97,15 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   /** for controller rumble */
   public boolean beambreak() {
     return canrangeInputs.isDetected;
+  }
+
+  @Override
+  public Command zeroRack() {
+    return this.idle();
+  }
+
+  @Override
+  public Command runCurrentZeroing() {
+    return this.idle();
   }
 }

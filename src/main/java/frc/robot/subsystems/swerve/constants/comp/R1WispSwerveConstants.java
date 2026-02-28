@@ -31,7 +31,7 @@ import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
 
 /** Add your docs here. */
-public class R1CompBotSwerveConstants extends SwerveConstants {
+public class R1WispSwerveConstants extends SwerveConstants {
 
   @Override
   public CameraConstants[] getCameraConstants() {
@@ -113,7 +113,7 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
 
   @Override
   public String getName() {
-    return "Comp"; // TODO CHANGE ONCE NAMED
+    return "Wisp";
   }
 
   @Override
@@ -171,22 +171,24 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   // TODO: CANCODER OFFSETS
   @Override
   public ModuleConstants getFrontLeftModuleConstants() {
-    return new ModuleConstants(0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(0.0));
+    return new ModuleConstants(
+        0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(-0.22656).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getFrontRightModuleConstants() {
-    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(0.0));
+    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(-0.388));
   }
 
   @Override
   public ModuleConstants getBackLeftModuleConstants() {
-    return new ModuleConstants(2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.0));
+    return new ModuleConstants(
+        2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(-0.3).plus(Rotation2d.k180deg));
   }
 
   @Override
   public ModuleConstants getBackRightModuleConstants() {
-    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(0.0));
+    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(0.3303));
   }
 
   @Override
@@ -197,9 +199,9 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   @Override
   public Pigeon2Configuration getGyroConfig() {
     Pigeon2Configuration config = new Pigeon2Configuration();
-    config.MountPose.MountPosePitch = 0.0;
-    config.MountPose.MountPoseRoll = 0.0;
-    config.MountPose.MountPoseYaw = 0.0;
+    config.MountPose.MountPosePitch = -0.20375922322273254; // -0.420589417219162;
+    config.MountPose.MountPoseRoll = -179.13818359375; // -179.8539581298828;
+    config.MountPose.MountPoseYaw = -90.93168640136719; // -86.66709899902344;
     return config;
   }
 
@@ -255,13 +257,13 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
     turnConfig.Feedback.FeedbackRotorOffset = 0.0;
     // Controls Gains
     // Copied from Kelpie
-    turnConfig.Slot0.kV = ((5800 / 60) / getTurnGearRatio()) / 12;
-    turnConfig.Slot0.kA = 0.031543;
-    turnConfig.Slot0.kS = 0.27;
-    turnConfig.Slot0.kP = 20.0;
-    turnConfig.Slot0.kD = 0.68275;
-    turnConfig.MotionMagic.MotionMagicCruiseVelocity = (5500 / 60) / getTurnGearRatio();
-    turnConfig.MotionMagic.MotionMagicAcceleration = (5500 / 60) / (getTurnGearRatio() * 0.005);
+    turnConfig.Slot0.kV = 1.7; // 0.40034; // ((5800 / 60) / getTurnGearRatio()) / 12;
+    turnConfig.Slot0.kA = 0.10881; // 0.031543;
+    turnConfig.Slot0.kS = 0.7988;
+    turnConfig.Slot0.kP = 250.0; // 0; // 50.13; // 20.0;
+    turnConfig.Slot0.kD = 1.0; // 3; // 0.68275;
+    turnConfig.MotionMagic.MotionMagicCruiseVelocity = (7368 / 60) / getTurnGearRatio();
+    turnConfig.MotionMagic.MotionMagicAcceleration = (7368 / 60) / (getTurnGearRatio() * 0.005);
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
     return turnConfig;
@@ -287,9 +289,10 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
     final var cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.MagnetOffset = cancoderOffset.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection =
-        getTurnMotorInverted()
-            ? SensorDirectionValue.CounterClockwise_Positive
-            : SensorDirectionValue.Clockwise_Positive;
+        // getTurnMotorInverted()
+        //     ? SensorDirectionValue.CounterClockwise_Positive
+        //     : SensorDirectionValue.Clockwise_Positive;
+        SensorDirectionValue.CounterClockwise_Positive;
     return cancoderConfig;
   }
 
