@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
+import frc.robot.utils.FieldUtils.TrenchPoses;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -280,9 +280,11 @@ public class Autos {
     routine
         .observe(
             () ->
-                swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
+                // swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
+                swerve.getPose().minus(trench).getTranslation().getNorm()
                     < tolerance)
         .whileTrue(Commands.run(() -> setAutoScoreReqFalse()));
+        // .whileTrue();
   }
 
   public Command shootPreload() {
@@ -361,6 +363,7 @@ public class Autos {
 
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {
       Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
     }; // , Path.SLtoCL};
@@ -377,10 +380,7 @@ public class Autos {
 
     routine.active().onTrue(autoCommand);
 
-    return Commands.parallel(
-        routine.cmd(),
-        Commands.run(
-            () -> lockHoodUnderTrench(routine, FieldUtils.TrenchPoses.RED_LEFT.getPose(), 5)));
+    return routine.cmd();
   }
 
   public Command getOutpostScoreClimbAuto() {

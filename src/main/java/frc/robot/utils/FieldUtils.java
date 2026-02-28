@@ -142,5 +142,16 @@ public class FieldUtils {
 
     public static final List<TrenchPoses> TRENCH_POSES_LIST =
         Arrays.stream(TrenchPoses.values()).toList();
+
+    public static Pose2d getClosestTrenchPose(Pose2d pose) {
+      double minDistance = Double.MAX_VALUE;
+      Pose2d trench = Pose2d.kZero;
+      for (TrenchPoses t : TRENCH_POSES_LIST) {
+        if (Math.abs(t.pose.minus(pose).getTranslation().getNorm()) < minDistance) {
+          trench = t.pose;
+        }
+      }
+      return trench;
+    }
   }
 }
