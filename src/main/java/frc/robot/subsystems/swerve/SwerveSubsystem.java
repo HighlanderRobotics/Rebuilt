@@ -690,13 +690,33 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
     return driveWithHeadingSnap(
         () -> {
-          Translation2d robotHubVec =
-              FieldUtils.getCurrentHubTranslation().minus(getPose().getTranslation());
-          // atan2 takes y as the first arg (i think bc θ = atan(y/x) but idk)
-          return Rotation2d.fromRadians(Math.atan2(robotHubVec.getY(), robotHubVec.getX()));
+          if (getPose().getRotation().getDegrees() <= 90) {
+            return new Rotation2d(Math.PI / 4);
+          } else if (getPose().getRotation().getDegrees() >= 90
+              && (getPose().getRotation().getDegrees() <= 180)) {
+            return new Rotation2d((3 * Math.PI) / 4);
+          } else if (getPose().getRotation().getDegrees() >= 180
+              && (getPose().getRotation().getDegrees() <= 270)) {
+            return new Rotation2d((5 * Math.PI) / 4);
+          } else {
+            return new Rotation2d((7 * Math.PI) / 4);
+          }
         },
         xVel,
         yVel);
+  }
+
+  public boolean isCloseToBump() {
+    if (((Math.abs(getPose().getX() - FieldUtils.BLUE_BUMP1_POS.getX()) < 2)
+            || (Math.abs(getPose().getX() - FieldUtils.RED_BUMP1_POS.getX()) < 2))
+        && ((getPose().getY() > (FieldUtils.BLUE_BUMP2_POS.getY() - 0.515)
+                && getPose().getY() < (FieldUtils.BLUE_BUMP2_POS.getY() + 0.515)
+            || (getPose().getY() > (FieldUtils.RED_BUMP1_POS.getY() - 0.515)
+                && getPose().getY() < (FieldUtils.RED_BUMP1_POS.getY() + 0.515))))) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {

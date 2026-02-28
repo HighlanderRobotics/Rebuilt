@@ -651,6 +651,18 @@ public class Robot extends LoggedRobot {
     //                 .findFirst()
     //                 .get()));
 
+    new Trigger(swerve::isCloseToBump)
+        .whileTrue(
+            swerve.bumpAlign(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+
     // TODO: autoaim (comp)
     // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
 
