@@ -68,6 +68,7 @@ public class Autos {
     SCORE,
     FLOW,
     CLIMB,
+    OUTPOST,
     NOTHING;
   }
 
@@ -93,7 +94,7 @@ public class Autos {
     SRtoCM("SR", "CM", Action.CLIMB), //
     SRtoCR("SRT", "CR", Action.CLIMB), // this name is incorrect
     SRtoFR("SR", "FR", Action.FEED), // wait why is this needed
-    PRtoO("PRT", "O", Action.FLOW), //
+    PRtoO("PRT", "O", Action.OUTPOST), //
     PLtoD("PLT", "D", Action.FLOW), // here make intake and SCORE
     DtoIL("DT", "FL", Action.FLOW), //
     ILMtoSL("FLM", "SLT", Action.SCORE),
@@ -189,6 +190,8 @@ public class Autos {
         return climbPath(path, routine);
       case FLOW:
         return flowPath(path, routine);
+      case OUTPOST:
+        return outpostPath(path, routine);
       case NOTHING:
         return emptyPath(path, routine);
       default: // this should never happen
@@ -274,6 +277,15 @@ public class Autos {
         setAutoFlowReqTrue(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
+  }
+
+  public Command outpostPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        setAutoScoreReqTrue(),
+        setAutoFlowReqTrue(),
+        setAutoIntakeReqTrue(),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+        Commands.waitSeconds(1.5));
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
