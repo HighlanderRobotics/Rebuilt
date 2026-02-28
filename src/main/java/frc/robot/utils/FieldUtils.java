@@ -115,4 +115,24 @@ public class FieldUtils {
     public static final List<ClimbTargets> CLIMB_TARGETS_LIST =
         Arrays.stream(ClimbTargets.values()).toList();
   }
+
+  public enum TrenchPoses {
+    BLUE_LEFT(new Pose2d(4.704, 0.741, Rotation2d.kCCW_90deg)),
+    BLUE_RIGHT(new Pose2d(4.704, 7.34, Rotation2d.kCW_90deg)),
+    RED_RIGHT(ChoreoAllianceFlipUtil.flip(BLUE_RIGHT.getPose())),
+    RED_LEFT(ChoreoAllianceFlipUtil.flip(BLUE_LEFT.getPose()));
+
+    private Pose2d pose;
+
+    private TrenchPoses(Pose2d pose) {
+      this.pose = pose;
+    }
+
+    public Pose2d getPose() {
+      return pose;
+    }
+
+    public static final List<TrenchPoses> TRENCH_POSES_LIST =
+        Arrays.stream(TrenchPoses.values()).toList();
+  }
 }

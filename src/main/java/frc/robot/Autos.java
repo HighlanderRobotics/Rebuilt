@@ -7,12 +7,14 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -274,6 +276,15 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
+  public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
+    routine
+        .observe(
+            () ->
+                swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
+                    < tolerance)
+        .whileTrue(Commands.run(() -> setAutoScoreReqFalse()));
+  }
+
   public Command shootPreload() {
     return Commands.sequence(setAutoScoreReqTrue(), waitUntilEmpty(), setAutoScoreReqFalse());
   }
@@ -326,6 +337,16 @@ public class Autos {
     return Commands.runOnce(() -> autoClimb = false);
   }
 
+  public Command setAllReqsFalse() {
+    return Commands.sequence(
+        setAutoIntakeReqFalse(),
+        setAutoScoreReqFalse(),
+        setAutoFeedReqFalse(),
+        setAutoPreClimbReqFalse(),
+        setAutoFlowReqFalse(),
+        setAutoClimbReqFalse());
+  }
+
   // public Command setAutoAlignToClimbReqTrue() {
   //   return Commands.runOnce(() -> autoAlignClimb = true);
   // }
@@ -350,12 +371,16 @@ public class Autos {
             .alongWith(setleftClimbAutoTrue()); // .andThen(shootPreload());
 
     for (Path p : paths) {
+      // TODO obvi fix bc its not alwasy blue i just need to test the locking
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
 
     routine.active().onTrue(autoCommand);
 
-    return routine.cmd();
+    return Commands.parallel(
+        routine.cmd(),
+        Commands.run(
+            () -> lockHoodUnderTrench(routine, FieldUtils.TrenchPoses.RED_LEFT.getPose(), 5)));
   }
 
   public Command getOutpostScoreClimbAuto() {
