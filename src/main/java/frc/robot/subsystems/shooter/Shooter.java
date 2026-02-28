@@ -67,6 +67,8 @@ public interface Shooter extends Subsystem {
 
   public Rotation2d getHoodSetpoint();
 
+  public Rotation2d getHoodPosition();
+
   public boolean atTurretSetpoint();
 
   public Command runFlywheelSysid();
@@ -82,6 +84,14 @@ public interface Shooter extends Subsystem {
   }
 
   public default Rotation2d getCalculatedTurretRotations() {
+    return Rotation2d.kZero;
+  }
+
+  public default Rotation2d getTurretPosition() {
+    return Rotation2d.kZero;
+  }
+
+  public default Rotation2d getTurretSetpoint() {
     return Rotation2d.kZero;
   }
 

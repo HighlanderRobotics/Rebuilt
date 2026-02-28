@@ -22,6 +22,10 @@ public interface Intake extends Subsystem {
   /** for controller rumble */
   public boolean beambreak();
 
+  public double getExtensionMeters();
+
+  public double getExtensionSetpointMeters();
+
   public Command runRollerSysid();
 
   public default Command runExtensionSysid() {

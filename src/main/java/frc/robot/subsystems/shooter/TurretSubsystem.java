@@ -313,9 +313,20 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
   }
 
+  @Override
+  public Rotation2d getHoodPosition() {
+    return hoodInputs.hoodPositionRotations;
+  }
+
+  @Override
   @AutoLogOutput(key = "Shooter/Turret/Setpoint")
   public Rotation2d getTurretSetpoint() {
     return turretIO.getTurretSetpoint();
+  }
+
+  @Override
+  public Rotation2d getTurretPosition() {
+    return turretInputs.positionRotations;
   }
 
   @AutoLogOutput(key = "Shooter/Turret/Cancoder 24t position")
