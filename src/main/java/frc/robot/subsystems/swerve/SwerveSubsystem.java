@@ -211,21 +211,21 @@ public class SwerveSubsystem extends SubsystemBase {
             new Module(new ModuleIOReal(SWERVE_CONSTANTS.getBackLeftModuleConstants(), canbus)),
             new Module(new ModuleIOReal(SWERVE_CONSTANTS.getBackRightModuleConstants(), canbus))
           };
-      // cameras =
-      //     Arrays.stream(SWERVE_CONSTANTS.getCameraConstants())
-      //         .map((constants) -> new Camera(new CameraIOReal(constants)))
-      //         .toArray(Camera[]::new);
-
       cameras =
-          new Camera[] {
-            new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[0])),
-            new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[1]))
-            // ,
-            // new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[2]))
+          Arrays.stream(SWERVE_CONSTANTS.getCameraConstants())
+              .map((constants) -> new Camera(new CameraIOReal(constants)))
+              .toArray(Camera[]::new);
 
-            // ,
-            // new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[3]))
-          };
+      // cameras =
+      //     new Camera[] {
+      //       new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[0])),
+      //       new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[1]))
+      // ,
+      // new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[2]))
+
+      // ,
+      // new Camera(new CameraIOReal(SWERVE_CONSTANTS.getCameraConstants()[3]))
+      // };
     }
 
     this.cameraPoses = new Pose3d[cameras.length];

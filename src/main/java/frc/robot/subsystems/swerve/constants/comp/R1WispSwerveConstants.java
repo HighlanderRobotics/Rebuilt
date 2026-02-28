@@ -106,10 +106,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
             BACK_RIGHT_DIST_COEFFS);
 
     return new CameraConstants[] {
-      frontLeftCamConstants,
-      // frontRightCamConstants,
-      backLeftCamConstants,
-      // backRightCamConstants
+      frontLeftCamConstants, frontRightCamConstants, backLeftCamConstants, backRightCamConstants
     };
     // TODO maybe we should standardize on this order
   }

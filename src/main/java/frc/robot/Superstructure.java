@@ -167,11 +167,14 @@ public class Superstructure {
     // toggle for flow state
     operator
         .a()
+            .and(DriverStation::isTeleop)
         .or(new Trigger(Autos.autoFlowReq))
         .onTrue(Commands.runOnce(() -> flowState = true));
     operator
         .b()
-        .or(new Trigger(Autos.autoFlowReq))
+                    .and(DriverStation::isTeleop)
+
+        .or(new Trigger(Autos.autoFlowReq).negate())
         .onTrue(Commands.runOnce(() -> flowState = false));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
@@ -383,8 +386,8 @@ public class Superstructure {
 
     bindCommands(
         SuperState.SCORE,
-        // intake.agitate(),
-        intake.restExtended(),
+        intake.agitate(),
+        // intake.restExtended(),
         indexer.kick(),
         shooter.score(
             swerve::getPose,
@@ -409,14 +412,21 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE_FLOW,
         intake.restExtended(),
         indexer.rest(),
-        // shooter.score(
-        //     swerve::getPose,
-        //     () ->
-        //         AutoAim.getCompensatedSOTMShotData(
-        //             swerve.getPose(),
-        //             FieldUtils.getCurrentHubTranslation(),
-        //             swerve.getVelocityFieldRelative()),
-        //     swerve::getVelocityFieldRelative),
+        shooter.score(
+            swerve::getPose,
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    swerve
+                        .getPose()
+                        .transformBy(
+                            new Transform2d(
+                                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                        ? AutoAim.ALPHA_HUB_SHOT_TREE
+                        : AutoAim.COMP_HUB_SHOT_TREE),
+            swerve::getVelocityFieldRelative),
         // shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
 
