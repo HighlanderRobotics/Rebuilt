@@ -691,13 +691,15 @@ public class SwerveSubsystem extends SubsystemBase {
     return driveWithHeadingSnap(
         () -> {
           if (getPose().getRotation().getDegrees() <= 90) {
-            return new Rotation2d(Math.PI/4);
-          } else if(getPose().getRotation().getDegrees() >= 90 && (getPose().getRotation().getDegrees() <= 180)){
-            return new Rotation2d((3*Math.PI)/4);
-          } else if(getPose().getRotation().getDegrees() >= 180 && (getPose().getRotation().getDegrees() <= 270)){
-            return new Rotation2d((5*Math.PI)/4);
+            return new Rotation2d(Math.PI / 4);
+          } else if (getPose().getRotation().getDegrees() >= 90
+              && (getPose().getRotation().getDegrees() <= 180)) {
+            return new Rotation2d((3 * Math.PI) / 4);
+          } else if (getPose().getRotation().getDegrees() >= 180
+              && (getPose().getRotation().getDegrees() <= 270)) {
+            return new Rotation2d((5 * Math.PI) / 4);
           } else {
-            return new Rotation2d((7*Math.PI)/4);
+            return new Rotation2d((7 * Math.PI) / 4);
           }
         },
         xVel,
