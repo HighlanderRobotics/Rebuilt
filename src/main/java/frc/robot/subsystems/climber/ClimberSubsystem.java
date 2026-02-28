@@ -105,4 +105,13 @@ public class ClimberSubsystem extends SubsystemBase {
         .until(new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD))
         .andThen(Commands.parallel(Commands.print("Climber Zeroed"), zeroClimber()));
   }
+
+  public double getClimberExtensionMeters() {
+    // Convert rotations into linear motion
+    return inputs.positionMeters;
+  }
+
+  public double getClimberSetpointMeters() {
+    return io.getClimberSetpointMeters();
+  }
 }
