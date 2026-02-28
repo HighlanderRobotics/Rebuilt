@@ -711,21 +711,56 @@ public class SwerveSubsystem extends SubsystemBase {
     return driveWithHeadingSnap(() -> Rotation2d.k180deg, xVel, yVel);
   }
 
+  // public boolean isCloseToTrench() {
+  //   // Pose2d nearestTrenchPose = TrenchPoses.getClosestTrenchPose(getPose());
+  //   // return (Math.abs(getPose().getX() - nearestTrenchPose.getX()) < 2)
+  //   //     && (Math.abs((getPose().getY() - nearestTrenchPose.getY())) < 0.5);
+  //   Pose2d closestTrench = TrenchPoses.getClosestTrenchPose(getPose());
+  //   double x = getPose().getX();
+  //   double y = getPose().getY();
+  //   boolean inXTol = Math.abs(x - closestTrench.getX()) < 2;
+  //   boolean inYTol = Math.abs(y - closestTrench.getY()) < 0.515;
+  //   return inXTol && inYTol;
+
+  //   // return (((Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2)
+  //   //         || (Math.abs(x - TrenchPoses.RED_LEFT.getPose().getX()) < 2))
+  //   //     && ((y > (TrenchPoses.BLUE_LEFT.getPose().getY() - 0.515)
+  //   //             && y < (TrenchPoses.BLUE_LEFT.getPose().getY() + 0.515)
+  //   //         || (y > (TrenchPoses.RED_LEFT.getPose().getY() - 0.515)
+  //   //             && y < (TrenchPoses.RED_LEFT.getPose().getY() + 0.515)))));
+  // }
+
   public boolean isCloseToTrench() {
-    Pose2d nearestTrenchPose = TrenchPoses.getClosestTrenchPose(getPose());
-    return (Math.abs(getPose().getX() - nearestTrenchPose.getX()) < 2)
-        && (Math.abs((getPose().getY() - nearestTrenchPose.getY())) < 0.5);
+    double x = getPose().getX();
+    double y = getPose().getY();
+
+    boolean inXTol =
+        Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2
+            || Math.abs(x - TrenchPoses.RED_RIGHT.getPose().getX()) < 2;
+    boolean inYTol =
+        (y > TrenchPoses.BLUE_LEFT.getPose().getY() - 0.515
+                && y < TrenchPoses.BLUE_LEFT.getPose().getY() + 0.515)
+            || (y > TrenchPoses.RED_LEFT.getPose().getY() - 0.515
+                && y < TrenchPoses.RED_LEFT.getPose().getY() + 0.515);
+
+    // return (((Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2)
+    //             || (Math.abs(x - TrenchPoses.RED_RIGHT.getPose().getX()) < 2))
+    //         && (y > (TrenchPoses.BLUE_LEFT.getPose().getY() - 0.515)
+    //             && y < (TrenchPoses.BLUE_LEFT.getPose().getY() + 0.515))
+    //     || (y > (TrenchPoses.RED_RIGHT.getPose().getY() - 0.515)
+    //         && y < (TrenchPoses.RED_RIGHT.getPose().getY() + 0.515)));
+    return inXTol && inYTol;
   }
 
   public boolean isCloseToBump() {
     double x = getPose().getX();
     double y = getPose().getY();
-    return (((Math.abs(x - FieldUtils.BLUE_BUMP1_POS.getX()) < 2)
-            || (Math.abs(x - FieldUtils.RED_BUMP1_POS.getX()) < 2))
-        && ((y > (FieldUtils.BLUE_BUMP2_POS.getY() - 0.515)
-                && y < (FieldUtils.BLUE_BUMP2_POS.getY() + 0.515)
-            || (y > (FieldUtils.RED_BUMP1_POS.getY() - 0.515)
-                && y < (FieldUtils.RED_BUMP1_POS.getY() + 0.515)))));
+    return (((Math.abs(x - FieldUtils.BLUE_BUMP_RIGHT_POS.getX()) < 2)
+            || (Math.abs(x - FieldUtils.RED_BUMP_RIGHT_POS.getX()) < 2))
+        && ((y > (FieldUtils.BLUE_BUMP_LEFT_POS.getY() - 0.515)
+                && y < (FieldUtils.BLUE_BUMP_LEFT_POS.getY() + 0.515)
+            || (y > (FieldUtils.RED_BUMP_RIGHT_POS.getY() - 0.515)
+                && y < (FieldUtils.RED_BUMP_RIGHT_POS.getY() + 0.515)))));
   }
 
   public boolean isInAutoAimTolerance(Pose2d target) {

@@ -668,24 +668,21 @@ public class Robot extends LoggedRobot {
     //                         * modifyJoystick(driver.getLeftX())
     //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
-    // new Trigger(swerve::isCloseToTrench)
-    //     .whileTrue(
-    //         swerve.trenchAlign(
-    //             () ->
-    //                 // -1
-    //                 modifyJoystick(driver.getLeftY())
-    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-    //             () ->
-    //                 // -1
-    //                 modifyJoystick(driver.getLeftX())
-    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-
-    // TODO: autoaim (comp)
-    // autoAimReq.and(() -> ROBOT_EDITION == RobotEdition.COMP).whileTrue();
-
-    // TODO ACTUAL BUTTON BINDING FOR CLIMBER
-    // driver.x().onTrue(climber.extendClimber().alongWith(intake.climb()));
-    // driver.y().onTrue(climber.retractClimber().alongWith(intake.climb()));
+    new Trigger(swerve::isCloseToTrench)
+        .whileTrue(
+            swerve.trenchAlign(
+                () ->
+                    DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                        ? -1
+                        : 1
+                            * modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                        ? -1
+                        : 1
+                            * modifyJoystick(driver.getLeftX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
     // current zero shooter hood
     driver
