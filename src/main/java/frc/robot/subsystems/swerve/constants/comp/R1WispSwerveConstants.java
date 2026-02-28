@@ -31,7 +31,7 @@ import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.module.Module.ModuleConstants;
 
 /** Add your docs here. */
-public class R1CompBotSwerveConstants extends SwerveConstants {
+public class R1WispSwerveConstants extends SwerveConstants {
 
   @Override
   public CameraConstants[] getCameraConstants() {
@@ -113,7 +113,7 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
 
   @Override
   public String getName() {
-    return "Comp"; // TODO CHANGE ONCE NAMED
+    return "Wisp";
   }
 
   @Override
@@ -128,12 +128,12 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
 
   @Override
   public double getBumperWidth() {
-    return Units.inchesToMeters(34.6);
+    return Units.inchesToMeters(34.8);
   }
 
   @Override
   public double getBumperLength() {
-    return Units.inchesToMeters(34.6);
+    return Units.inchesToMeters(34.8);
   }
 
   @Override
@@ -146,7 +146,8 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   @Override
   public double getMaxLinearAcceleration() {
     // Calculated in Choreo for R1 ratio
-    return 9.056;
+    // return 9.056;
+    return 22.073;
   }
 
   @Override
@@ -165,7 +166,7 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   @Override
   public Mass getMass() {
     // From CAD (retrieved 1/29/26), with bumpers and battery
-    return Pound.of(121.28);
+    return Pound.of(136.185702);
   }
 
   // TODO: CANCODER OFFSETS
@@ -199,9 +200,9 @@ public class R1CompBotSwerveConstants extends SwerveConstants {
   @Override
   public Pigeon2Configuration getGyroConfig() {
     Pigeon2Configuration config = new Pigeon2Configuration();
-    config.MountPose.MountPosePitch = -0.420589417219162;
-    config.MountPose.MountPoseRoll = -179.8539581298828;
-    config.MountPose.MountPoseYaw = -86.66709899902344;
+    config.MountPose.MountPosePitch = -0.20375922322273254; // -0.420589417219162;
+    config.MountPose.MountPoseRoll = -179.13818359375; // -179.8539581298828;
+    config.MountPose.MountPoseYaw = -90.93168640136719; // -86.66709899902344;
     return config;
   }
 

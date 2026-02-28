@@ -6,6 +6,8 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.utils.LoggedTunableNumber;
-import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 /** Spindexer = Spinning Indexer. !! COMP !! */
@@ -24,9 +25,9 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
 
-  private RollerIO indexRollerIO;
+  private RollerIO spinnerIO;
 
-  RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
+  RollerIOInputsAutoLogged spinnerInputs = new RollerIOInputsAutoLogged();
 
   RollerIO kickerIO;
   RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
@@ -38,7 +39,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               null,
               null,
               (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
-          new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
+          new Mechanism((volts) -> spinnerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   private SysIdRoutine kickerSysid =
       new SysIdRoutine(
@@ -47,7 +48,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               null,
               null,
               (state) -> Logger.recordOutput("Indexer/Kicker/SysID State", state.toString())),
-          new Mechanism((volts) -> indexRollerIO.setRollerVoltage(volts.in(Volts)), null, this));
+          new Mechanism((volts) -> kickerIO.setRollerVoltage(volts.in(Volts)), null, this));
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
@@ -56,16 +57,21 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   private LoggedTunableNumber testKickVolts = new LoggedTunableNumber("Indexer/Kicker Voltage", 10);
   private LoggedTunableNumber testSpinVolts = new LoggedTunableNumber("Indexer/Spinner Voltage", 8);
 
+  private final Alert spinnerDisconnectedAlert =
+      new Alert("Disconnected spinner motor!", AlertType.kError);
+  private final Alert kickerDisconnectedAlert =
+      new Alert("Disconnected kicker motor!", AlertType.kError);
+
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
-    this.indexRollerIO = indexRollerIO;
+    this.spinnerIO = indexRollerIO;
   }
 
   @Override
   public Command index() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(7);
+          spinnerIO.setRollerVoltage(7);
           kickerIO.setRollerVoltage(-7);
         });
   }
@@ -74,8 +80,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   public Command kick() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(12);
-          kickerIO.setRollerVoltage(7);
+          // spinnerIO.setRollerVoltage(12);
+          spinnerIO.setRollerVelocity(40);
+          // kickerIO.setRollerVoltage(11);
+          kickerIO.setRollerVelocity(40);
         });
   }
 
@@ -83,7 +91,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   public Command spit() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(-7);
+          spinnerIO.setRollerVoltage(-7);
           kickerIO.setRollerVoltage(-7);
         });
   }
@@ -92,7 +100,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   public Command rest() {
     return this.run(
         () -> {
-          indexRollerIO.setRollerVoltage(0.0);
+          spinnerIO.setRollerVoltage(0.0);
           kickerIO.setRollerVoltage(0.0);
         });
   }
@@ -106,10 +114,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
     config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
-    config.Slot0.kS = 0;
-    config.Slot0.kG = 0;
-    config.Slot0.kV = 0;
-    config.Slot0.kP = 0;
+    config.Slot0.kS = 0.12567;
+    config.Slot0.kV = 0.23782;
+    config.Slot0.kA = 0.019071;
+    config.Slot0.kP = 0.1;
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
@@ -132,10 +140,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     // Converts angular motion to linear motion
     config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
 
-    config.Slot0.kS = 0;
-    config.Slot0.kG = 0;
-    config.Slot0.kV = 0;
-    config.Slot0.kP = 0;
+    config.Slot0.kS = 0.41787;
+    config.Slot0.kV = 0.26065;
+    config.Slot0.kA = 0.029144;
+    config.Slot0.kP = 5;
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
@@ -148,17 +156,14 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return config;
   }
 
-  public Command kick(BooleanSupplier shooterAtSetpoint) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'kick'");
-  }
-
   @Override
   public void periodic() {
-    indexRollerIO.updateInputs(rollerInputs);
-    Logger.processInputs("Indexer/Roller", rollerInputs);
+    spinnerIO.updateInputs(spinnerInputs);
+    Logger.processInputs("Indexer/Roller", spinnerInputs);
     kickerIO.updateInputs(kickerInputs);
     Logger.processInputs("Indexer/Kicker", kickerInputs);
+    spinnerDisconnectedAlert.set(!spinnerInputs.connected);
+    kickerDisconnectedAlert.set(!kickerInputs.connected);
   }
 
   public Command runRollerSysId() {
@@ -183,7 +188,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return this.run(
         () -> {
           kickerIO.setRollerVoltage(testKickVolts.get());
-          indexRollerIO.setRollerVoltage(testSpinVolts.get());
+          spinnerIO.setRollerVoltage(testSpinVolts.get());
         });
   }
 }
