@@ -708,7 +708,16 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command trenchAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
-    return driveWithHeadingSnap(() -> Rotation2d.k180deg, xVel, yVel);
+    return driveWithHeadingSnap(
+        () -> {
+          if (xVel.getAsDouble() > 0) {
+            return Rotation2d.k180deg;
+          } else {
+            return Rotation2d.kZero;
+          }
+        },
+        xVel,
+        yVel);
   }
 
   // public boolean isCloseToTrench() {
@@ -735,8 +744,8 @@ public class SwerveSubsystem extends SubsystemBase {
     double y = getPose().getY();
 
     boolean inXTol =
-        Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2
-            || Math.abs(x - TrenchPoses.RED_RIGHT.getPose().getX()) < 2;
+        Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2.5
+            || Math.abs(x - TrenchPoses.RED_RIGHT.getPose().getX()) < 2.5;
     boolean inYTol =
         (y > TrenchPoses.BLUE_LEFT.getPose().getY() - 0.515
                 && y < TrenchPoses.BLUE_LEFT.getPose().getY() + 0.515)
