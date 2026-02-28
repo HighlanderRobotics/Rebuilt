@@ -112,7 +112,9 @@ public class Superstructure {
 
   @AutoLogOutput(key = "Superstructure/Score Request")
   private Trigger scoreReq =
-      new Trigger(() -> shotTarget == ShotTarget.SCORE).and(() -> canScore());
+      new Trigger(() -> shotTarget == ShotTarget.SCORE)
+          .and(() -> canScore())
+          .or(Autos.autoScoreReq);
 
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq = new Trigger(() -> shotTarget == ShotTarget.FEED);
