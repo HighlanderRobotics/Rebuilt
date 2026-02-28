@@ -225,7 +225,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
     config.Slot0.kP = 420.0;
 
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
+    config.CurrentLimits.StatorCurrentLimit = 20.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
