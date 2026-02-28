@@ -655,24 +655,28 @@ public class Robot extends LoggedRobot {
         .whileTrue(
             swerve.bumpAlign(
                 () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                    DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                        ? -1
+                        : 1
+                            * modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+                    DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                        ? -1
+                        : 1
+                            * modifyJoystick(driver.getLeftX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
     new Trigger(swerve::isCloseToTrench)
         .whileTrue(
             swerve.trenchAlign(
                 () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
+                    // -1
+                    modifyJoystick(driver.getLeftY())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
+                    // -1
+                    modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
     // TODO: autoaim (comp)
