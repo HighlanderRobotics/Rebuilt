@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.canrange.CANrangeIO;
 import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
+import frc.robot.components.rack.LinearRackIO;
+import frc.robot.components.rack.LinearRackIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.utils.LoggedTunableNumber;

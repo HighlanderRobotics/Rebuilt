@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.components.rack;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;

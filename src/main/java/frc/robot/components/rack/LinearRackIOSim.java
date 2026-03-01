@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.components.rack;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Utils;
@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import frc.robot.subsystems.intake.LintakeSubsystem;
 
 public class LinearRackIOSim extends LinearRackIO {
   // TODO: SHOULD THIS BE AN ELEVATOR?
