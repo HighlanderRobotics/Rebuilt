@@ -29,7 +29,7 @@ public interface Intake extends Subsystem {
 
   public Command runRollerSysid();
 
-  public default Command runExtensionSysid() {
+  public default Command runPivotSysid() {
     return Commands.none();
   }
 

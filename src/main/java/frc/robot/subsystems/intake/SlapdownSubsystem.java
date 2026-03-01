@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Volt;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -10,6 +12,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.components.pivot.PivotIO;
@@ -20,6 +26,8 @@ import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_EXTENDED_POSITION = Rotation2d.kZero; // TODO
   public static final Rotation2d PIVOT_RETRACTED_POSITION = Rotation2d.kZero; // TODO
+    public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.kZero; // TODO
+  public static final Rotation2d PIVOT_MAX_POSITION = Rotation2d.kZero; // TODO
 public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
 
   private final PivotIO pivotIO;
@@ -36,10 +44,21 @@ public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
   private LinearFilter currentFilter = LinearFilter.movingAverage(5);
   @AutoLogOutput(key = "Intake/Pivot/Current Filter Value") private double currentFilterValue = 0.0;
 
+  private final SysIdRoutine rollerSysid;
+  
+  private final SysIdRoutine pivotSysid;
+
   public SlapdownSubsystem(PivotIO pivotIO, CANcoderIO cancoderIO, RollerIO rollerIO) {
     this.pivotIO = pivotIO;
     this.cancoderIO = cancoderIO;
     this.rollerIO = rollerIO;
+
+    rollerSysid = new SysIdRoutine(
+    new Config(null, null, null, (state) -> Logger.recordOutput("Intake/Roller/Sysid State", state.toString())), new Mechanism((volts) -> rollerIO.setRollerVoltage(volts.in(Volt)), null, this));
+
+        pivotSysid = new SysIdRoutine(
+            new Config(null, null, null, (state) -> Logger.recordOutput("Intake/Pivot/Sysid State", state.toString())),
+            new Mechanism((volts) -> pivotIO.setMotorVoltage(volts.in(Volt)), null, this));
   }
 
   @Override
@@ -101,8 +120,30 @@ public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
 
   @Override
   public Command runRollerSysid() {
-    // TODO Auto-generated method stub
-    return null;
+    return Commands.sequence(
+        rollerSysid.quasistatic(Direction.kForward),
+        rollerSysid.quasistatic(Direction.kReverse),
+        rollerSysid.dynamic(Direction.kForward),
+        rollerSysid.dynamic(Direction.kReverse)
+    );
+  }
+
+  @Override
+  public Command runPivotSysid() {
+      return Commands.sequence(
+        pivotSysid.quasistatic(Direction.kForward).until(
+            () -> pivotIOInputs.position.getDegrees() > (PIVOT_MAX_POSITION.getDegrees() - 5) // Stop 5 degrees before hardstop
+        ),
+        pivotSysid.quasistatic(Direction.kReverse).until(
+            () -> pivotIOInputs.position.getDegrees() < (PIVOT_MIN_POSITION.getDegrees() + 5)
+        ),
+        pivotSysid.dynamic(Direction.kForward).until(
+            () -> pivotIOInputs.position.getDegrees() > (PIVOT_MAX_POSITION.getDegrees() - 5) 
+        ),
+        pivotSysid.dynamic(Direction.kReverse).until(
+            () -> pivotIOInputs.position.getDegrees() < (PIVOT_MIN_POSITION.getDegrees() + 5)
+        )
+      );
   }
 
   @Override
