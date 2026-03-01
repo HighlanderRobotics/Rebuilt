@@ -50,7 +50,6 @@ import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
 import frc.robot.subsystems.intake.FintakeSubsystem;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.LintakeSubsystem;
 import frc.robot.subsystems.led.CANdleSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -346,26 +345,26 @@ public class Robot extends LoggedRobot {
                         MotorType.KrakenX44,
                         canivore));
         // TODO: FOVs
-        intake =
-            (ROBOT_MODE == RobotMode.REAL)
-                ? new LintakeSubsystem(
-                    new LinearRackIO(14, canivore, LintakeSubsystem.getRackMotorConfig()),
-                    new RollerIO(8, LintakeSubsystem.getRollerMotorConfig(), canivore),
-                    new CANrangeIOReal(0, canivore, 10))
-                : new LintakeSubsystem(
-                    new LinearRackIOSim(14, canivore, LintakeSubsystem.getRackMotorConfig()),
-                    new RollerIOSim(
-                        8,
-                        LintakeSubsystem.getRollerMotorConfig(),
-                        new DCMotorSim(
-                            LinearSystemId.createDCMotorSystem(
-                                DCMotor.getKrakenX44Foc(1),
-                                0.001,
-                                LintakeSubsystem.ROLLER_GEAR_RATIO),
-                            DCMotor.getKrakenX44Foc(1)),
-                        MotorType.KrakenX44,
-                        canivore),
-                    new CANrangeIOReal(0, canivore, 10));
+        // intake =
+        //     (ROBOT_MODE == RobotMode.REAL)
+        //         ? new LintakeSubsystem(
+        //             new LinearRackIO(14, canivore, LintakeSubsystem.getRackMotorConfig()),
+        //             new RollerIO(8, LintakeSubsystem.getRollerMotorConfig(), canivore),
+        //             new CANrangeIOReal(0, canivore, 10))
+        //         : new LintakeSubsystem(
+        //             new LinearRackIOSim(14, canivore, LintakeSubsystem.getRackMotorConfig()),
+        //             new RollerIOSim(
+        //                 8,
+        //                 LintakeSubsystem.getRollerMotorConfig(),
+        //                 new DCMotorSim(
+        //                     LinearSystemId.createDCMotorSystem(
+        //                         DCMotor.getKrakenX44Foc(1),
+        //                         0.001,
+        //                         LintakeSubsystem.ROLLER_GEAR_RATIO),
+        //                     DCMotor.getKrakenX44Foc(1)),
+        //                 MotorType.KrakenX44,
+        //                 canivore),
+        //             new CANrangeIOReal(0, canivore, 10));
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL
@@ -477,7 +476,7 @@ public class Robot extends LoggedRobot {
 
     SmartDashboard.putData(
         "Current zero climber (needs to be enabled)", climber.runCurrentZeroing());
-    SmartDashboard.putData("Zero Intake", intake.zeroRack().ignoringDisable(true));
+    SmartDashboard.putData("Zero Intake", intake.zeroRackOffCancoder().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot",
@@ -783,11 +782,11 @@ public class Robot extends LoggedRobot {
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
           // Intake
-          new Pose3d(
-              intake.getExtensionMeters() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
-              0,
-              -(intake.getExtensionMeters() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
-              Rotation3d.kZero),
+        //   new Pose3d(
+        //       intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
+        //       0,
+        //       -(intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
+        //       Rotation3d.kZero),
           // Climber
           new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
         });
@@ -815,11 +814,11 @@ public class Robot extends LoggedRobot {
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
           // Intake
-          new Pose3d(
-              intake.getExtensionSetpointMeters() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
-              0,
-              -(intake.getExtensionSetpointMeters() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
-              Rotation3d.kZero),
+        //   new Pose3d(
+        //       intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
+        //       0,
+        //       -(intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
+        //       Rotation3d.kZero),
           // Climber
           new Pose3d(0, 0, climber.getClimberSetpointMeters(), Rotation3d.kZero)
         });
