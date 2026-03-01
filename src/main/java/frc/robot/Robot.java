@@ -37,9 +37,6 @@ import frc.robot.Superstructure.SuperState;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.candle.CANdleIOReal;
-import frc.robot.components.canrange.CANrangeIOReal;
-import frc.robot.components.rack.LinearRackIO;
-import frc.robot.components.rack.LinearRackIOSim;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -782,11 +779,11 @@ public class Robot extends LoggedRobot {
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
           // Intake
-        //   new Pose3d(
-        //       intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
-        //       0,
-        //       -(intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
-        //       Rotation3d.kZero),
+          //   new Pose3d(
+          //       intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
+          //       0,
+          //       -(intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
+          //       Rotation3d.kZero),
           // Climber
           new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
         });
@@ -814,11 +811,11 @@ public class Robot extends LoggedRobot {
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
           // Intake
-        //   new Pose3d(
-        //       intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
-        //       0,
-        //       -(intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
-        //       Rotation3d.kZero),
+          //   new Pose3d(
+          //       intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
+          //       0,
+          //       -(intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
+          //       Rotation3d.kZero),
           // Climber
           new Pose3d(0, 0, climber.getClimberSetpointMeters(), Rotation3d.kZero)
         });
