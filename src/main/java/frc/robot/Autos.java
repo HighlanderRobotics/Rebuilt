@@ -29,7 +29,6 @@ public class Autos {
   private static boolean autoPreClimb;
   private static boolean autoClimb;
   private static boolean autoFlow;
-  // private static boolean autoAlignClimb;
   private static boolean leftClimbAuto;
 
   @AutoLogOutput(key = "Superstructure/Auto Feed Request")
@@ -54,10 +53,6 @@ public class Autos {
   @AutoLogOutput(key = "Superstructure/Auto Climb Request")
   public static Trigger autoFlowReq = new Trigger(() -> autoFlow).and(DriverStation::isAutonomous);
 
-  // @AutoLogOutput(key = "Superstructure/Auto Align Climb Request")
-  // public static Trigger autoAlignClimbReq =
-  //     new Trigger(() -> autoAlignClimb).and(DriverStation::isAutonomous);
-
   @AutoLogOutput(key = "Superstructure/Auto Left Climb Request")
   public static Trigger autoLeftClimbReq =
       new Trigger(() -> leftClimbAuto).and(DriverStation::isAutonomous);
@@ -75,6 +70,30 @@ public class Autos {
     TRENCH,
     BUMP;
   }
+
+  /* NEW NAMING  (cooked)
+
+  #1
+  I for intake
+  F for feed
+  S for score
+  (indicate action for that path/pose)
+
+  P for park
+  (starting poses)
+
+  #2
+  L for left
+  R for right
+  (indicate starting on left or right side)
+
+  #3
+  T for trench
+  B for bump
+  (each routine has a varition) (only for crossing paths ig)
+
+  climb no climb variations
+    */
 
   public enum Path {
     DtoFL("DT", "FL", Action.FEED), //
@@ -111,7 +130,6 @@ public class Autos {
     IRMtoMR("FRM", "MR", Action.INTAKE),
     MRtoSR("MR", "SR", Action.SCORE),
     // feeding ones
-    // TODO organgize
     FLMtoML("FLM", "ML", Action.FEED),
     FRMtoMR("FRM", "MR", Action.FEED),
     MLtoCL("ML", "CL", Action.CLIMB),
@@ -149,7 +167,6 @@ public class Autos {
             true,
             swerve,
             (traj, edge) -> {
-              //   if (Robot.ROBOT_MODE != RobotMode.REAL)
               Logger.recordOutput(
                   "Choreo/Active Traj",
                   DriverStation.getAlliance().isPresent()
@@ -196,10 +213,7 @@ public class Autos {
     }
   }
 
-  // TODO aligning to climb pos correctly
   public Command climbPath(Path path, AutoRoutine routine) {
-    // path align and climb
-
     return Commands.sequence(
         setAutoScoreReqTrue(),
         setAutoIntakeReqFalse(),
@@ -218,17 +232,6 @@ public class Autos {
         setAutoClimbReqTrue());
   }
 
-  public ClimbTargets getClimbAutoTarget() {
-    return ClimbTargets.CLIMB_TARGETS_LIST.stream()
-        .filter(target -> target.getLeftHanded() == leftClimbAuto)
-        .filter(
-            target ->
-                target.isBlueAlliance()
-                    == (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue))
-        .findFirst()
-        .get();
-  }
-
   public Command feedPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoScoreReqFalse(),
@@ -239,25 +242,16 @@ public class Autos {
   }
 
   public Command scorePath(Path path, AutoRoutine routine) {
-    // path align and score
     return Commands.sequence(
         setAutoIntakeReqFalse(),
         setAutoScoreReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        // // .getRawTrajectory().getTotalTime()
-        // //  - (0.3)))),
         setAutoScoreReqFalse());
-
-    // Commands.waitUntil(inScoringArea()).andThen(setAutoScoreReqTrue()).alongWith(
-    // Commands.sequence(path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-    //   setAutoScoreReqFalse()));
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
-    // Commands.sequence(path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-    //   setAutoScoreReqFalse()));
   }
 
   public Command intakePath(Path path, AutoRoutine routine) {
@@ -276,6 +270,17 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
+    public ClimbTargets getClimbAutoTarget() {
+    return ClimbTargets.CLIMB_TARGETS_LIST.stream()
+        .filter(target -> target.getLeftHanded() == leftClimbAuto)
+        .filter(
+            target ->
+                target.isBlueAlliance()
+                    == (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue))
+        .findFirst()
+        .get();
+  }
+
   public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
     routine
         .observe(
@@ -283,10 +288,6 @@ public class Autos {
                 swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
                     < tolerance)
         .whileTrue(Commands.run(() -> setAutoScoreReqFalse()));
-  }
-
-  public Command shootPreload() {
-    return Commands.sequence(setAutoScoreReqTrue(), waitUntilEmpty(), setAutoScoreReqFalse());
   }
 
   public Command setAutoIntakeReqTrue() {
@@ -347,31 +348,17 @@ public class Autos {
         setAutoClimbReqFalse());
   }
 
-  // public Command setAutoAlignToClimbReqTrue() {
-  //   return Commands.runOnce(() -> autoAlignClimb = true);
-  // }
-
-  // public Command setAutoAlignToClimbReqFalse() {
-  //   return Commands.runOnce(() -> autoAlignClimb = true);
-  // }
-
   public Command setleftClimbAutoTrue() {
     return Commands.runOnce(() -> leftClimbAuto = true);
   }
 
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
-    Path[] paths = {
-      Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
-    }; // , Path.SLtoCL};
+    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL};
     Command autoCommand =
-        paths[0]
-            .getTrajectory(routine)
-            .resetOdometry()
-            .alongWith(setleftClimbAutoTrue()); // .andThen(shootPreload());
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
 
     for (Path p : paths) {
-      // TODO obvi fix bc its not alwasy blue i just need to test the locking
       autoCommand = autoCommand.andThen(runPath(p, routine));
     }
 
@@ -441,79 +428,6 @@ public class Autos {
   }
 
   public Command waitUntilEmpty() {
-    // TODO wait till robot empty / done scoring
-    // return null;
     return Commands.waitSeconds(3.0);
   }
-
-  /* NEW NAMING system (cooked)
-
-  #1
-  I for intake
-  F for feed
-  S for score
-  (indicate action for that path/pose)
-
-  P for park
-  (starting poses)
-
-  #2
-  L for left
-  R for right
-  (indicate starting on left or right side)
-
-  #3
-  T for trench
-  B for bump
-  (each routine has a varition) (only for crossing paths ig)
-
-  climb no climb variations
-
-  i will have arrays for the poses then string them together
-  also indcate with argument like T vs B
-    */
-
-  // // Path[] paths = {Path.PRtoO, Path.OtoFR, Path.FRtoFRM, Path.FRMtoCR};
-  // String[] outpostFeed = {"PR", "O", "FR", "FRM", "CR", "ER"};
-
-  // // Path[] paths = {Path.PLtoD, Path.DtoFL, Path.FLtoFLM, Path.FLMtoCL};
-  // String[] depotFeed = {"PL", "D", "FL", "FLM", "CL", "EL"};
-
-  // // what does it do instead of climb?
-
-  // // Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoSR, Path.SRtoCR};
-  // String[] outpostScore = {"PR", "O", "IR", "IRM", "SR", "CR", "ER"};
-
-  // // Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoSL, Path.SLtoCL};
-  // String[] depotScore = {"PL", "D", "IL", "ILM", "SL", "CL", "EL"};
-
-  // String[] leftDisruptFeed = {"PL", "DLO", "DLT", "CL", "EL"};
-
-  // String[] rightDisruptFeed = {"PR", "DRO", "DRT", "CR", "ER"};
-
-  // // make these able to go back and fourth
-  // // idea EL and ER some random ahh end poses
-
-  // public Command makeAutos(
-  //     String name, String[] positions, Obstacle trenchOrBump, boolean climb, boolean preScore) {
-  //   final AutoRoutine routine = factory.newRoutine(name);
-
-  //   Path[] paths = {};
-  //   for (String p : positions) {
-  //     // paths// (add paths and also adjust for climbing and bump vs trench )
-  //   }
-  //   Command autoCommand =
-  //       paths[0]
-  //           .getTrajectory(routine)
-  //           .resetOdometry()
-  //           .andThen(preScore ? shootPreload() : Commands.none());
-
-  //   for (Path p : paths) {
-  //     autoCommand = autoCommand.andThen(runPath(p, routine));
-  //   }
-
-  //   routine.active().whileTrue(autoCommand);
-
-  //   return routine.cmd();
-  // }
 }
