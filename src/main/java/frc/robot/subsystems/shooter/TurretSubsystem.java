@@ -204,18 +204,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           Logger.recordOutput("Robot/Feed Target", feedTarget.get());
-          ShotData shotData =
-              AutoAim.FEED_SHOT_TREE.get(
-                  robotPoseSupplier
-                      .get()
-                      .getTranslation()
-                      .getDistance(feedTarget.get().getTranslation()));
-          // hoodIO.setHoodPosition(shotData.hoodAngle());
-          // // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
-          // flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+          ShotData shotData = AutoAim.getSOTMShotData(robotPoseSupplier.get(), feedTarget.get().getTranslation(), chassisSpeedsSupplier.get(), AutoAim.FEED_SHOT_TREE);
 
-          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          hoodIO.setHoodPosition(shotData.hoodAngle());
+          // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
+          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+
+        //   hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+        //   flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
           turretIO.setTurretPosition(
               AutoAim.getTurretFeedTargetRotation(
                   feedTarget.get().getTranslation(),
