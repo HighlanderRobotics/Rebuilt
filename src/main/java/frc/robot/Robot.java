@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,6 +38,8 @@ import frc.robot.Superstructure.SuperState;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.candle.CANdleIOReal;
+import frc.robot.components.pivot.PivotIO;
+import frc.robot.components.pivot.PivotIOSim;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOSim;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -47,6 +50,7 @@ import frc.robot.subsystems.indexer.LindexerSubsystem;
 import frc.robot.subsystems.indexer.SpindexerSubsystem;
 import frc.robot.subsystems.intake.FintakeSubsystem;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.SlapdownSubsystem;
 import frc.robot.subsystems.led.CANdleSubsystem;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -341,27 +345,43 @@ public class Robot extends LoggedRobot {
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore));
-        // TODO: FOVs
-        // intake =
-        //     (ROBOT_MODE == RobotMode.REAL)
-        //         ? new LintakeSubsystem(
-        //             new LinearRackIO(14, canivore, LintakeSubsystem.getRackMotorConfig()),
-        //             new RollerIO(8, LintakeSubsystem.getRollerMotorConfig(), canivore),
-        //             new CANrangeIOReal(0, canivore, 10))
-        //         : new LintakeSubsystem(
-        //             new LinearRackIOSim(14, canivore, LintakeSubsystem.getRackMotorConfig()),
-        //             new RollerIOSim(
-        //                 8,
-        //                 LintakeSubsystem.getRollerMotorConfig(),
-        //                 new DCMotorSim(
-        //                     LinearSystemId.createDCMotorSystem(
-        //                         DCMotor.getKrakenX44Foc(1),
-        //                         0.001,
-        //                         LintakeSubsystem.ROLLER_GEAR_RATIO),
-        //                     DCMotor.getKrakenX44Foc(1)),
-        //                 MotorType.KrakenX44,
-        //                 canivore),
-        //             new CANrangeIOReal(0, canivore, 10));
+        intake =
+            (ROBOT_MODE == RobotMode.REAL)
+                ? new SlapdownSubsystem(
+                    new PivotIO(14, SlapdownSubsystem.getPivotConfig(), canivore),
+                    new CANcoderIO(6, SlapdownSubsystem.getCancoderConfig(), canivore),
+                    new RollerIO(
+                        8,
+                        SlapdownSubsystem.getRollerConfig(),
+                        canivore)) // Assuming same can id as extension
+                : new SlapdownSubsystem(
+                    new PivotIOSim(
+                        14,
+                        SlapdownSubsystem.getPivotConfig(),
+                        canivore,
+                        new SingleJointedArmSim(
+                            DCMotor.getKrakenX44Foc(1),
+                            SlapdownSubsystem.PIVOT_GEAR_RATIO,
+                            0.01,
+                            0.5,
+                            SlapdownSubsystem.PIVOT_MIN_POSITION.getRadians(),
+                            SlapdownSubsystem.PIVOT_MAX_POSITION.getRadians(),
+                            true,
+                            0.0),
+                        MotorType.KrakenX44,
+                        SlapdownSubsystem.PIVOT_GEAR_RATIO),
+                    new CANcoderIOSim(6, SlapdownSubsystem.getCancoderConfig(), canivore),
+                    new RollerIOSim(
+                        8,
+                        SlapdownSubsystem.getRollerConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX44Foc(1),
+                                0.01,
+                                SlapdownSubsystem.ROLLER_GEAR_RATIO),
+                            DCMotor.getKrakenX44Foc(1)),
+                        MotorType.KrakenX44,
+                        canivore));
         shooter =
             new TurretSubsystem(
                 ROBOT_MODE == RobotMode.REAL

@@ -2,6 +2,12 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Volt;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,6 +34,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.kZero; // TODO
   public static final Rotation2d PIVOT_MAX_POSITION = Rotation2d.kZero; // TODO
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
+  public static final double ROLLER_GEAR_RATIO = 1.0; // TODO
+  public static final double PIVOT_GEAR_RATIO = 1.0; // TODO
 
   private final PivotIO pivotIO;
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
@@ -193,5 +201,68 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public boolean atExtension() {
     return MathUtil.isNear(
         getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 2); // TODO: TUNE TOLERANCE
+  }
+
+  public static TalonFXConfiguration getPivotConfig() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
+
+    config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
+
+    config.Slot0.kS = 0.0;
+    config.Slot0.kV = 0.0;
+    config.Slot0.kA = 0.0;
+    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    config.Slot0.GravityArmPositionOffset = 0.0; // Maybe need this??
+    config.Slot0.kP = 0.0;
+    config.Slot0.kD = 0.0;
+
+    // TODO: TUNE
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    // TODO: TUNE
+    config.MotionMagic.MotionMagicCruiseVelocity = 5;
+    config.MotionMagic.MotionMagicAcceleration = 10;
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getRollerConfig() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
+
+    config.Feedback.SensorToMechanismRatio = ROLLER_GEAR_RATIO;
+
+    config.Slot0.kS = 0.55127;
+    config.Slot0.kV = 0.19756;
+    config.Slot0.kA = 0.0074445;
+    config.Slot0.kP = 0.017985;
+    config.Slot0.kD = 0.0;
+
+    // TODO: TUNE
+    config.CurrentLimits.StatorCurrentLimit = 55.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    return config;
+  }
+
+  public static CANcoderConfiguration getCancoderConfig() {
+    CANcoderConfiguration config = new CANcoderConfiguration();
+
+    // TODO: TUNE
+    config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    config.MagnetSensor.MagnetOffset = 0.0;
+    config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+
+    return config;
   }
 }
