@@ -106,10 +106,24 @@ public class AutoAim {
     // TODO: POPULATE beyond 24 feet and time of flight
   }
 
+  //TODO should be turrets distance
   public static double distanceToHub(Pose2d pose) {
     double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
     Logger.recordOutput("Autoaim/Distance To Hub", distance);
     return distance;
+  }
+
+  public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
+    Translation2d robotToTarget = target.minus(robotPose.getTranslation());
+    Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
+    Logger.recordOutput("Autoaim/Target Rotation", rot);
+    return rot;
+  }
+
+  public static Rotation2d getVirtualTargetYaw(
+      Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, double tof) {
+    Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
+    return getTargetRotation(vtarget, robotPose);
   }
 
   // lock in
@@ -126,16 +140,12 @@ public class AutoAim {
   }
 
   public static Rotation2d getVirtualTargetYaw(
-      Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, double tof) {
-    Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
-    return getTargetRotation(vtarget, robotPose);
-  }
-
-  public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
-    Translation2d robotToTarget = target.minus(robotPose.getTranslation());
-    Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-    Logger.recordOutput("Autoaim/Target Rotation", rot);
-    return rot;
+      ChassisSpeeds fieldRelativeSpeeds,
+      Translation2d targetTranslation,
+      Pose2d robotPose,
+      InterpolatingShotTree tree) {
+    double tof = tree.calculateShot(robotPose, targetTranslation).timeOfFlightSecs();
+    return getVirtualTargetYaw(targetTranslation, fieldRelativeSpeeds, robotPose, tof);
   }
 
   // if we have a turret im going to assume we're on comp
@@ -191,15 +201,6 @@ public class AutoAim {
   public static Rotation2d getTurretFeedTargetRotation(
       Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
     return getTurretTargetRotation(target, robotPose, chassisSpeeds, FEED_SHOT_TREE);
-  }
-
-  public static Rotation2d getVirtualTargetYaw(
-      ChassisSpeeds fieldRelativeSpeeds,
-      Translation2d targetTranslation,
-      Pose2d robotPose,
-      InterpolatingShotTree tree) {
-    double tof = tree.calculateShot(robotPose, targetTranslation).timeOfFlightSecs();
-    return getVirtualTargetYaw(targetTranslation, fieldRelativeSpeeds, robotPose, tof);
   }
 
   public static ShotData getSOTMShotData(
