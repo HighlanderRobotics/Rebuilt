@@ -221,6 +221,68 @@ public class AutoAim {
 
     return tree.get(turretPose.getTranslation().getDistance(virtualTarget));
   }
+  
+
+  public static ShotData getSOTMShotDataNewtonsMethod(
+      Pose2d robotPose,
+      Translation2d targetTranslation,
+      ChassisSpeeds fieldRelativeSpeeds,
+      InterpolatingShotTree tree) {
+   
+   Pose2d turretPose = getTurretPose(robotPose);
+
+    ShotData currentShot = tree.calculateShot(robotPose, targetTranslation);
+
+   double currentDistance = turretPose.getTranslation().getDistance(targetTranslation);
+    double currentTime = currentShot.timeOfFlightSecs();
+    double currentVelocity = currentDistance / currentTime;
+
+    Translation2d virtualTarget =
+        getVirtualSOTMTarget(
+            targetTranslation, fieldRelativeSpeeds, currentShot.timeOfFlightSecs());
+
+    ShotData targetShot = tree.get(turretPose.getTranslation().getDistance(virtualTarget));
+    //TODO what is required velcity is it like horizontal so distance/tof?
+    double requiredVelocity = turretPose.getTranslation().getDistance(virtualTarget) / targetShot.timeOfFlightSecs();
+    //currentShot.flywheelVelocityRotPerSec();
+
+     // 10 rounds for now
+    for (int i = 0; i < 10 && Math.abs(currentVelocity - requiredVelocity) > 0.005; i++) {
+      // estimate derivative by taking a tiny slope
+      final double EPSILON = 0.001;
+      double lowVel =
+          (currentDistance - EPSILON) / tree.get(currentDistance - EPSILON).timeOfFlightSecs();
+      double highVel =
+          (currentDistance + EPSILON) / tree.get(currentDistance + EPSILON).timeOfFlightSecs();
+      double velDeriv = (highVel - lowVel) / (EPSILON * 2);
+      currentDistance -= (currentVelocity - requiredVelocity) / velDeriv;
+      // update currentVelocity with f(x+1)
+      currentShot = tree.get(currentDistance);
+      currentTime = currentShot.timeOfFlightSecs();
+      currentVelocity = currentDistance / currentTime;
+    }
+
+    return new ShotData(currentShot.hoodAngle(), currentShot.flywheelVelocityRotPerSec(), currentShot.timeOfFlightSecs());
+  }
+
+  //  tof is different if ur driving towards or away because the ball will
+  // be pushed forward or back by the robots velocity bc physics not just how far it is
+  //but im not really sure how to implement this at the moment
+  public static ShotData getRobotVelocityCompensatedSOTMShotData(
+      Pose2d robotPose,
+      Translation2d targetTranslation,
+      ChassisSpeeds fieldRelativeSpeeds,
+      InterpolatingShotTree tree) {
+
+    ShotData shot = getSOTMShotData(robotPose, targetTranslation, fieldRelativeSpeeds, tree);
+    Translation2d virtualTarget =
+          getVirtualSOTMTarget(targetTranslation, fieldRelativeSpeeds, shot.timeOfFlightSecs());
+    Translation2d turretTranslation = getTurretPose(robotPose).getTranslation();
+    
+    double translationNorm = (turretTranslation.minus(virtualTarget)).getNorm();
+//doesnt do anything rn, prob just delete
+    return shot;
+  }
 
   public static ShotData getCompensatedSOTMShotData(
       Pose2d robotPose,
