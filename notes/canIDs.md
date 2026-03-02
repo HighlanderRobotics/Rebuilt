@@ -53,6 +53,6 @@ Back Left Encoder (CANcoder) | 2
 Back Right Encoder (CANcoder) | 3
 Turret Encoder (26 teeth) (Throughbore CANcoder) | 4
 Turret Encoder (24 teeth) (Throughbore CANcoder) | 5
-Intake Encoder (CANcoder) | 6
+Intake Encoder (Throughbore CANcoder) | 6
 Gyro (Pigeon2) | 0
 CANivore | 0
