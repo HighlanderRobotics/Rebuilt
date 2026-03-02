@@ -265,25 +265,6 @@ public class AutoAim {
     return new ShotData(currentShot.hoodAngle(), currentShot.flywheelVelocityRotPerSec(), currentShot.timeOfFlightSecs());
   }
 
-  //  tof is different if ur driving towards or away because the ball will
-  // be pushed forward or back by the robots velocity bc physics not just how far it is
-  //but im not really sure how to implement this at the moment
-  public static ShotData getRobotVelocityCompensatedSOTMShotData(
-      Pose2d robotPose,
-      Translation2d targetTranslation,
-      ChassisSpeeds fieldRelativeSpeeds,
-      InterpolatingShotTree tree) {
-
-    ShotData shot = getSOTMShotData(robotPose, targetTranslation, fieldRelativeSpeeds, tree);
-    Translation2d virtualTarget =
-          getVirtualSOTMTarget(targetTranslation, fieldRelativeSpeeds, shot.timeOfFlightSecs());
-    Translation2d turretTranslation = getTurretPose(robotPose).getTranslation();
-    
-    double translationNorm = (turretTranslation.minus(virtualTarget)).getNorm();
-//doesnt do anything rn, prob just delete
-    return shot;
-  }
-
   public static ShotData getCompensatedSOTMShotData(
       Pose2d robotPose,
       Translation2d targetTranslation,
