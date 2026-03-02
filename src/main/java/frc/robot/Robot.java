@@ -348,12 +348,12 @@ public class Robot extends LoggedRobot {
         intake =
             (ROBOT_MODE == RobotMode.REAL)
                 ? new SlapdownSubsystem(
-                    new PivotIO(14, SlapdownSubsystem.getPivotConfig(), canivore),
+                    new PivotIO(14, SlapdownSubsystem.getPivotConfig(), canivore), // Assuming same can id as extension
                     new CANcoderIO(6, SlapdownSubsystem.getCancoderConfig(), canivore),
                     new RollerIO(
                         8,
                         SlapdownSubsystem.getRollerConfig(),
-                        canivore)) // Assuming same can id as extension
+                        canivore))
                 : new SlapdownSubsystem(
                     new PivotIOSim(
                         14,

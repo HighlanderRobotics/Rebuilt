@@ -44,7 +44,7 @@ Kicker Roller | 10 | X60-051
 Shooter Hood | 11 | X44-008
 Shooter Flywheel Leader (Left) | 12 | X60-048
 Shooter Flywheel Follower (Right) | 13 | X60-050
-intake Extension | 14 | X44-017
+intake Pivot | 14 | X44-017
 Turret Pivot | 15 | X44-001
 Climber | 16 | X60-049
 Front Left Encoder (CANcoder) | 0
@@ -53,6 +53,6 @@ Back Left Encoder (CANcoder) | 2
 Back Right Encoder (CANcoder) | 3
 Turret Encoder (26 teeth) (Throughbore CANcoder) | 4
 Turret Encoder (24 teeth) (Throughbore CANcoder) | 5
-Intake Beambreak (CANrange) | 0
+Intake Encoder (CANcoder) | 6
 Gyro (Pigeon2) | 0
 CANivore | 0
