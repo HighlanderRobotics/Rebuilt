@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
+import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.pivot.PivotIO;
 import frc.robot.components.pivot.PivotIOInputsAutoLogged;
 import frc.robot.components.rollers.RollerIO;
@@ -96,6 +97,15 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     Logger.recordOutput("Intake/Pivot/Setpoint", pivotIO.getSetpoint());
 
     currentFilterValue = currentFilter.calculate(pivotIOInputs.statorCurrentAmps);
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // Safe type cast
+    if (cancoderIO instanceof CANcoderIOSim) {
+      // This does get called after periodic so should have up-to-date info
+      ((CANcoderIOSim)cancoderIO).setSimValues(pivotIOInputs.positionRotations); // I assume this is how u do this
+    }
   }
 
   @Override
