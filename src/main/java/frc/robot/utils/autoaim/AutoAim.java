@@ -106,6 +106,13 @@ public class AutoAim {
     // TODO: POPULATE beyond 24 feet and time of flight
   }
 
+  public static Pose2d getTurretPose(Pose2d robotPose) {
+     Pose2d turretPose =
+        robotPose.transformBy(
+            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+        return turretPose;
+  }
+
   public static double distanceToHub(Pose2d pose) {
     double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
     Logger.recordOutput("Autoaim/Distance To Hub", distance);
@@ -153,9 +160,7 @@ public class AutoAim {
       Pose2d robotPose,
       ChassisSpeeds chassisSpeeds,
       InterpolatingShotTree shotTree) {
-    Pose2d turretPose =
-        robotPose.transformBy(
-            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    Pose2d turretPose = getTurretPose(robotPose);
 
     // get desired rotation to point at target
     Rotation2d turretTargetRotation =
@@ -228,9 +233,7 @@ public class AutoAim {
     Translation2d virtualTarget =
         getVirtualSOTMTarget(
             targetTranslation, fieldRelativeSpeeds, shot.timeOfFlightSecs());
-    Pose2d turretPose =
-        robotPose.transformBy(
-            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    Pose2d turretPose = getTurretPose(robotPose);
 
     //adjust new virtual target and shot with iterations but idk if it makes it better 
     for (int i = 0; i < 3; i++) {
