@@ -106,7 +106,6 @@ public class AutoAim {
     // TODO: POPULATE beyond 24 feet and time of flight
   }
 
-  //TODO should be turrets distance
   public static double distanceToHub(Pose2d pose) {
     double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
     Logger.recordOutput("Autoaim/Distance To Hub", distance);
@@ -212,7 +211,10 @@ public class AutoAim {
     Translation2d virtualTarget =
         getVirtualSOTMTarget(
             targetTranslation, fieldRelativeSpeeds, unadjustedShot.timeOfFlightSecs());
-    return tree.get(robotPose.getTranslation().getDistance(virtualTarget));
+    Pose2d turretPose =
+        robotPose.transformBy(
+            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    return tree.get(turretPose.getTranslation().getDistance(virtualTarget));
   }
 
   public static ShotData getCompensatedSOTMShotData(

@@ -388,7 +388,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public Command score(
       Supplier<Pose2d> robotPoseSupplier,
-     // Supplier<ShotData> shotDataSupplier,
+      Supplier<ShotData> shotDataSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
