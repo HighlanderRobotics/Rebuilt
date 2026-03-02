@@ -129,7 +129,7 @@ public class AutoAim {
   public static Translation2d getVirtualSOTMTarget(
       Translation2d target, ChassisSpeeds fieldRelativeSpeeds, double timeOfFlightSecs) {
     // velocity times shot time is how translated it is
-    Translation2d vtarget =
+    Translation2d vtarget = 
         target.minus(
             new Translation2d(
                 fieldRelativeSpeeds.vxMetersPerSecond * timeOfFlightSecs,
@@ -234,9 +234,8 @@ public class AutoAim {
 
     //adjust new virtual target and shot with iterations but idk if it makes it better 
     for (int i = 0; i < 3; i++) {
-        virtualTarget = targetTranslation.minus(
-            new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond * shot.timeOfFlightSecs(),
-            fieldRelativeSpeeds.vyMetersPerSecond * shot.timeOfFlightSecs()));
+        virtualTarget = getVirtualSOTMTarget(
+      targetTranslation, fieldRelativeSpeeds, shot.timeOfFlightSecs());
 
         shot = tree.get(turretPose.getTranslation().getDistance(virtualTarget));
     }
