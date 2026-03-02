@@ -201,7 +201,7 @@ public class AutoAim {
       Translation2d target, Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
     return getTurretTargetRotation(target, robotPose, chassisSpeeds, FEED_SHOT_TREE);
   }
-
+/* 
   public static ShotData getSOTMShotData(
       Pose2d robotPose,
       Translation2d targetTranslation,
@@ -215,6 +215,33 @@ public class AutoAim {
         robotPose.transformBy(
             new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
     return tree.get(turretPose.getTranslation().getDistance(virtualTarget));
+  }
+  */
+
+  public static ShotData getSOTMShotData(
+      Pose2d robotPose,
+      Translation2d targetTranslation,
+      ChassisSpeeds fieldRelativeSpeeds,
+      InterpolatingShotTree tree) {
+    
+    ShotData shot = tree.calculateShot(robotPose, targetTranslation);
+    Translation2d virtualTarget =
+        getVirtualSOTMTarget(
+            targetTranslation, fieldRelativeSpeeds, shot.timeOfFlightSecs());
+    Pose2d turretPose =
+        robotPose.transformBy(
+            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+
+    //adjust new virtual target and shot with iterations but idk if it makes it better 
+    for (int i = 0; i < 3; i++) {
+        virtualTarget = targetTranslation.minus(
+            new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond * shot.timeOfFlightSecs(),
+            fieldRelativeSpeeds.vyMetersPerSecond * shot.timeOfFlightSecs()));
+
+        shot = tree.get(turretPose.getTranslation().getDistance(virtualTarget));
+    }
+        
+    return shot;
   }
 
   public static ShotData getCompensatedSOTMShotData(
