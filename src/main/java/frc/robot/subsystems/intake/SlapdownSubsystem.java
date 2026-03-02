@@ -104,7 +104,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     // Safe type cast
     if (cancoderIO instanceof CANcoderIOSim) {
       // This does get called after periodic so should have up-to-date info
-      ((CANcoderIOSim)cancoderIO).setSimValues(pivotIOInputs.positionRotations); // I assume this is how u do this
+      ((CANcoderIOSim) cancoderIO)
+          .setSimValues(pivotIOInputs.positionRotations); // I assume this is how u do this
     }
   }
 
