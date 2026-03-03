@@ -67,7 +67,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.autoaim.AutoAim;
 import java.util.Arrays;
 import java.util.Optional;
@@ -668,22 +667,24 @@ public class Robot extends LoggedRobot {
     //                         * modifyJoystick(driver.getLeftX())
     //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
-    new Trigger(swerve::isCloseToTrench)
-        .whileTrue(
-            swerve.trenchAlign(
-                () ->
-                    DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-                        ? -1
-                        : 1
-                            * modifyJoystick(driver.getLeftY())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-                    //     ? -1
-                    //     : 1
-                    //         * modifyJoystick(driver.getLeftX())
-                    //         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
-                    0));
+    // new Trigger(swerve::isCloseToTrench)
+    //     .whileTrue(
+    //         swerve.trenchAlign(
+    //             () ->
+    //                 // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+    //                 //     ?
+    //                 -1
+    //                     // : 1
+    //                     * modifyJoystick(driver.getLeftY())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             () ->
+    //                 // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+    //                 //     ?
+    //                 -1
+    //                     // : 1
+    //                     * modifyJoystick(driver.getLeftX())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+    // 0));
 
     // current zero shooter hood
     driver
@@ -703,26 +704,26 @@ public class Robot extends LoggedRobot {
     driver
         .rightBumper()
         .whileTrue(
-            // Commands.parallel(
-            //     // shooter.torqueCurrentTest(),
-            //     shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
-            //     Commands.waitUntil(
-            //             new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(1.5)
-            //             // .and(shooter::atTurretSetpoint)
-            //             // .debounce(0.25)
-            //             )
-            //         .andThen(indexer.testShoot())));
-            swerve.alignToClimb(
-                () ->
-                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
-                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
-                        .filter(
-                            target ->
-                                target.isBlueAlliance()
-                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
-                                        == Alliance.Blue))
-                        .findFirst()
-                        .get()));
+            Commands.parallel(
+                // shooter.torqueCurrentTest(),
+                shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
+                Commands.waitUntil(
+                        new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.05)
+                        // .and(shooter::atTurretSetpoint)
+                        // .debounce(0.25)
+                        )
+                    .andThen(indexer.testShoot())));
+    // swerve.alignToClimb(
+    //     () ->
+    //         ClimbTargets.CLIMB_TARGETS_LIST.stream()
+    //             .filter(target -> target.getLeftHanded() == leftClimbTarget)
+    //             .filter(
+    //                 target ->
+    //                     target.isBlueAlliance()
+    //                         == (DriverStation.getAlliance().orElse(Alliance.Blue)
+    //                             == Alliance.Blue))
+    //             .findFirst()
+    //             .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts

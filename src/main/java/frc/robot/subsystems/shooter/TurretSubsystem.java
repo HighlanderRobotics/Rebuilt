@@ -55,9 +55,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       // Changed to avoid cooking cable chain/wires
       // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
       // (worked in sim)
-      Rotation2d.fromRotations(-0.736084).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
+      Rotation2d.fromRotations(-0.677246).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
   public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
-      Rotation2d.fromRotations(-0.02490); // -0.0354 // 0.011378);
+      Rotation2d.fromRotations(
+          0); // -0.0354 // 0.011378); //slightly short of what it actually is (0.002 ish) but
+  // otherwise wrapping gets weird
 
   public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
@@ -361,12 +363,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
-          turretIO.setTurretPosition(
-              AutoAim.getTurretHubTargetRotation(
-                  FieldUtils.getCurrentHubTranslation(),
-                  robotPoseSupplier.get(),
-                  chassisSpeedsSupplier.get()));
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          // turretIO.setTurretPosition(
+          //     AutoAim.getTurretHubTargetRotation(
+          //         FieldUtils.getCurrentHubTranslation(),
+          //         robotPoseSupplier.get(),
+          //         chassisSpeedsSupplier.get()));
         });
   }
 
