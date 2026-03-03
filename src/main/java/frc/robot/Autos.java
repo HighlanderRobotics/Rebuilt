@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
+import frc.robot.utils.FieldUtils.TrenchPoses;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -63,6 +63,7 @@ public class Autos {
     SCORE,
     FLOW,
     CLIMB,
+    OUTPOST,
     NOTHING;
   }
 
@@ -112,7 +113,7 @@ public class Autos {
     SRtoCM("SR", "CM", Action.CLIMB), //
     SRtoCR("SRT", "CR", Action.CLIMB), // this name is incorrect
     SRtoFR("SR", "FR", Action.FEED), // wait why is this needed
-    PRtoO("PRT", "O", Action.FLOW), //
+    PRtoO("PRT", "O", Action.OUTPOST), //
     PLtoD("PLT", "D", Action.FLOW), // here make intake and SCORE
     DtoIL("DT", "FL", Action.FLOW), //
     ILMtoSL("FLM", "SLT", Action.SCORE),
@@ -206,6 +207,8 @@ public class Autos {
         return climbPath(path, routine);
       case FLOW:
         return flowPath(path, routine);
+      case OUTPOST:
+        return outpostPath(path, routine);
       case NOTHING:
         return emptyPath(path, routine);
       default: // this should never happen
@@ -281,13 +284,26 @@ public class Autos {
         .get();
   }
 
+  public Command outpostPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        setAutoScoreReqTrue(),
+        setAutoFlowReqTrue(),
+        setAutoIntakeReqTrue(),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+        Commands.waitSeconds(1.5));
+  }
+
   public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
     routine
         .observe(
             () ->
-                swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
-                    < tolerance)
+                // swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
+                swerve.getPose().minus(trench).getTranslation().getNorm() < tolerance)
         .whileTrue(Commands.run(() -> setAutoScoreReqFalse()));
+  }
+
+  public Command shootPreload() {
+    return Commands.sequence(setAutoScoreReqTrue(), waitUntilEmpty(), setAutoScoreReqFalse());
   }
 
   public Command setAutoIntakeReqTrue() {
@@ -354,7 +370,10 @@ public class Autos {
 
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL};
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {
+      Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
+    }; // , Path.SLtoCL};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
 
@@ -364,10 +383,7 @@ public class Autos {
 
     routine.active().onTrue(autoCommand);
 
-    return Commands.parallel(
-        routine.cmd(),
-        Commands.run(
-            () -> lockHoodUnderTrench(routine, FieldUtils.TrenchPoses.RED_LEFT.getPose(), 5)));
+    return routine.cmd();
   }
 
   public Command getOutpostScoreClimbAuto() {

@@ -311,8 +311,8 @@ public class Superstructure {
   private void addCommands() {
     bindCommands(
         SuperState.IDLE,
-        // intake.restExtended(),
-        intake.restRetracted(),
+        intake.restExtended(),
+        // intake.restRetracted(),
         indexer.rest(),
         shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
