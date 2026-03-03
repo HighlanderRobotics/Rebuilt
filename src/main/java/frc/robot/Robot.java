@@ -66,7 +66,8 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
-import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
+import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.autoaim.AutoAim;
 import java.util.Arrays;
 import java.util.Optional;
@@ -501,16 +502,18 @@ public class Robot extends LoggedRobot {
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     shooter.setDefaultCommand(shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative));
     swerve.setDefaultCommand(
-        swerve.driveOpenLoopFieldRelative(
-            () ->
-                new ChassisSpeeds(
-                        modifyJoystick(driver.getLeftY())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getLeftX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getRightX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-                    .times(-1)));
+        swerve
+            .driveOpenLoopFieldRelative(
+                () ->
+                    new ChassisSpeeds(
+                            modifyJoystick(driver.getLeftY())
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                            modifyJoystick(driver.getLeftX())
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                            modifyJoystick(driver.getRightX())
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                        .times(-1))
+            .withName("default"));
     // swerve.setDefaultCommand(swerve.stop());
     indexer.setDefaultCommand(indexer.rest());
     intake.setDefaultCommand(intake.restExtended());
@@ -667,23 +670,27 @@ public class Robot extends LoggedRobot {
     //                         * modifyJoystick(driver.getLeftX())
     //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
-    // new Trigger(swerve::isCloseToTrench)
-    //     .whileTrue(
-    //         swerve.trenchAlign(
-    //             () ->
-    //                 // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-    //                 //     ?
-    //                 -1
-    //                     // : 1
-    //                     * modifyJoystick(driver.getLeftY())
-    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-    //             () ->
-    //                 // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-    //                 //     ?
-    //                 -1
-    //                     // : 1
-    //                     * modifyJoystick(driver.getLeftX())
-    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+    new Trigger(swerve::isNearTrench)
+        .whileTrue(
+            swerve
+                .trenchAlign(
+                    () ->
+                        // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                        // ?
+                        // -1
+                        // : 1
+                        // *
+                        modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                    () ->
+                        // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                        // ?
+                        // -1
+                        // : 1
+                        // *
+                        modifyJoystick(driver.getLeftX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed())
+                .alongWith(Commands.print("afkljsdflkjs")));
     // 0));
 
     // current zero shooter hood
@@ -845,9 +852,13 @@ public class Robot extends LoggedRobot {
     // Log climb poses
     Logger.recordOutput(
         "AutoAlign/Climb Targets",
-        Arrays.stream(FieldUtils.ClimbTargets.values())
+        Arrays.stream(ClimbTargets.values())
             .map(target -> target.getPose())
             .toArray(Pose2d[]::new));
+
+    Logger.recordOutput(
+        "trench poses",
+        Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
   }
 
   public void updateAlerts() {

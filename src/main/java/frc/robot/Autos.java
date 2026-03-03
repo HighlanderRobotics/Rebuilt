@@ -273,7 +273,7 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
-    public ClimbTargets getClimbAutoTarget() {
+  public ClimbTargets getClimbAutoTarget() {
     return ClimbTargets.CLIMB_TARGETS_LIST.stream()
         .filter(target -> target.getLeftHanded() == leftClimbAuto)
         .filter(

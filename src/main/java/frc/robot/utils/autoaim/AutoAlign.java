@@ -64,6 +64,13 @@ public class AutoAlign {
       Rotation2d robotHeading, Rotation2d targetHeading) {
     double omegaRadsPerSec =
         HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
+    System.out.println(
+        "robot heading: "
+            + robotHeading.getRadians()
+            + "target heading"
+            + targetHeading.getRadians()
+            + "omega rads per sec"
+            + omegaRadsPerSec);
     Logger.recordOutput(
         "AutoAim/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
     return omegaRadsPerSec;
