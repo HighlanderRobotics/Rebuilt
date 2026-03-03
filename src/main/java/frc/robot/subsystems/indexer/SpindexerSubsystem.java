@@ -143,7 +143,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kS = 0.41787;
     config.Slot0.kV = 0.26065;
     config.Slot0.kA = 0.029144;
-    config.Slot0.kP = 5;
+    config.Slot0.kP = 7;
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
