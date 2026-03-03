@@ -179,7 +179,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
-    config.MagnetSensor.MagnetOffset = -0.304199 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
+    // Offset measured at rear hardstop (approx -259 degrees)
+    config.MagnetSensor.MagnetOffset = -0.70922 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -190,7 +191,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
-    config.MagnetSensor.MagnetOffset = -0.371 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
+    // Offset measured at rear hardstop (approx -259 degrees)
+    config.MagnetSensor.MagnetOffset = -0.43779 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
