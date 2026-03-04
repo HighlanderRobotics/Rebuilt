@@ -69,7 +69,6 @@ import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.autoaim.AutoAim;
-import frc.robot.utils.autoaim.AutoAlign;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -676,18 +675,23 @@ public class Robot extends LoggedRobot {
     new Trigger(swerve::isNearTrench)
         .whileTrue(
             swerve
-                .driveClosedLoopFieldRelative(
+                // .driveClosedLoopFieldRelative(
+                //     () ->
+                //         new ChassisSpeeds(
+                //                 modifyJoystick(driver.getLeftY())
+                //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                //                 modifyJoystick(driver.getLeftX())
+                //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                //                 AutoAlign.calculateRotationVelocity(
+                //                     swerve.getRotation(), Rotation2d.fromDegrees(30)))
+                //             .times(-1))
+                .trenchAlign(
                     () ->
-                        new ChassisSpeeds(
-                                modifyJoystick(driver.getLeftY())
-                                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                                modifyJoystick(driver.getLeftX())
-                                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                                AutoAlign.calculateRotationVelocity(
-                                    swerve.getRotation(), Rotation2d.kZero))
-                            // modifyJoystick(driver.getRightX())
-                            //     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-                            .times(-1))
+                        modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                    () ->
+                        modifyJoystick(driver.getLeftX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed())
                 .alongWith(Commands.print("afkljsdflkjs")));
     // 0));
 

@@ -461,7 +461,18 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveClosedLoopFieldRelative(Supplier<ChassisSpeeds> speeds) {
     return this.run(
-            () -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds.get(), getRotation()), false))
+            () ->
+            // drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds.get(), getRotation()), false))
+            {
+              ChassisSpeeds speedRobotRelative =
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds.get(),
+                      // Flip so that speeds passed in are always relative to driver
+                      DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                          ? getPose().getRotation()
+                          : getPose().getRotation().minus(Rotation2d.fromDegrees(180)));
+              this.drive(speedRobotRelative, false);
+            })
         .withName("cf");
   }
 
@@ -633,10 +644,11 @@ public class SwerveSubsystem extends SubsystemBase {
             driveClosedLoopFieldRelative(
                 () ->
                     new ChassisSpeeds(
-                        xVel.getAsDouble(),
-                        yVel.getAsDouble(),
-                        -AutoAlign.calculateRotationVelocity(
-                            getRotation().plus(Rotation2d.kZero), target.get()))))
+                            xVel.getAsDouble(),
+                            yVel.getAsDouble(),
+                            -AutoAlign.calculateRotationVelocity(
+                                getRotation().plus(Rotation2d.kZero), target.get()))
+                        .times(-1)))
         .withName("drive w heading snap");
   }
 
