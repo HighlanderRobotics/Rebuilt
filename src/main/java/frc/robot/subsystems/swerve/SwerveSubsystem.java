@@ -727,10 +727,20 @@ public class SwerveSubsystem extends SubsystemBase {
   // }
 
   public Command trenchAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
-    return driveWithHeadingSnap(
-            () -> Rotation2d.kZero,
-            xVel,
-            yVel)
+    return Commands.runOnce(
+            () ->
+                AutoAlign.resetYController(
+                    getPose().getY(), getVelocityFieldRelative().vyMetersPerSecond))
+        .andThen(
+            driveWithHeadingSnap(
+                () -> Rotation2d.kZero,
+                xVel,
+                // yVel))
+                () ->
+                    -AutoAlign.calculateYVelocity(
+                        getPose().getY(), TrenchPoses.getClosestTrenchPose(getPose()).getY()
+                        // 0
+                        )))
         .withName("trench align");
   }
 

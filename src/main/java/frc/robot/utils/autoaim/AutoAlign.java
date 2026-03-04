@@ -53,6 +53,14 @@ public class AutoAlign {
         robotHeading.getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
   }
 
+  public static void resetYController(double robotY, double robotVY) {
+    VY_CONTROLLER.reset(robotY, robotVY);
+  }
+
+  public static double calculateYVelocity(double robotY, double targetY) {
+    return VY_CONTROLLER.calculate(robotY, targetY) + VY_CONTROLLER.getSetpoint().velocity;
+  }
+
   /**
    * Use PID to calculate the velocity required to align the robot heading to the target heading
    *
@@ -63,14 +71,8 @@ public class AutoAlign {
   public static double calculateRotationVelocity(
       Rotation2d robotHeading, Rotation2d targetHeading) {
     double omegaRadsPerSec =
-        HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
-    System.out.println(
-        "robot heading: "
-            + robotHeading.getRadians()
-            + "target heading"
-            + targetHeading.getRadians()
-            + "omega rads per sec"
-            + omegaRadsPerSec);
+        HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians())
+            + HEADING_CONTROLLER.getSetpoint().velocity;
     Logger.recordOutput(
         "AutoAim/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
     return omegaRadsPerSec;
