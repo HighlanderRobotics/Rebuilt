@@ -15,7 +15,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"SRB.x", "val":2.784413576126098}, "y":{"exp":"SRB.y", "val":2.601309061050415}, "heading":{"exp":"SRB.heading", "val":3.141592653589793}, "intervals":15, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"CR.x", "val":1.9429377317428589}, "y":{"exp":"CR.y", "val":2.7734005451202393}, "heading":{"exp":"CR.heading", "val":-1.5737992594811685}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"CR.x", "val":1.802473068237305}, "y":{"exp":"CR.y", "val":2.449967384338379}, "heading":{"exp":"CR.heading", "val":-1.5737992594811685}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":false},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

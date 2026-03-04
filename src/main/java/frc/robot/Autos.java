@@ -136,9 +136,9 @@ public class Autos {
     MLtoCL("ML", "CL", Action.CLIMB),
     MRtoCR("MR", "CR", Action.CLIMB),
     DtoRL("DT", "RL", Action.SCORE),
-    RLtoFL("RL", "FL", Action.FEED),
+    RLtoIL("RL", "FL", Action.INTAKE),
     OtoRR("OT", "RR", Action.SCORE),
-    RRtoFR("RR", "FR", Action.FEED),
+    RRtoIR("RR", "FR", Action.INTAKE),
     RUNtoTEST("RUN", "TEST", Action.NOTHING);
 
     private final String start;
@@ -229,9 +229,10 @@ public class Autos {
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                                 - (0.3)))),
         setAutoPreClimbReqTrue(),
+        Commands.waitSeconds(1),
         swerve
             .alignToClimb(() -> getClimbAutoTarget())
-            .until(() -> swerve.isInTolerance(getClimbAutoTarget().getPose(), 0.05, 0.05)),
+            .until(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose())),
         setAutoClimbReqTrue());
   }
 
@@ -273,7 +274,7 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
-    public ClimbTargets getClimbAutoTarget() {
+  public ClimbTargets getClimbAutoTarget() {
     return ClimbTargets.CLIMB_TARGETS_LIST.stream()
         .filter(target -> target.getLeftHanded() == leftClimbAuto)
         .filter(
@@ -290,7 +291,7 @@ public class Autos {
         setAutoFlowReqTrue(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        Commands.waitSeconds(1.5));
+        Commands.waitSeconds(0.5));
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
@@ -368,11 +369,15 @@ public class Autos {
     return Commands.runOnce(() -> leftClimbAuto = true);
   }
 
+  public Command setleftClimbAutoFalse() {
+    return Commands.runOnce(() -> leftClimbAuto = false);
+  }
+
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
-    Path[] paths = {
-      Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
+    Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
+      // Path.DtoIL,
     }; // , Path.SLtoCL};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
@@ -388,8 +393,13 @@ public class Autos {
 
   public Command getOutpostScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Score Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoMR, Path.MRtoSR, Path.SRtoCR};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {
+      Path.PRtoO, Path.OtoRR, Path.RRtoIR, Path.IRtoIRM, Path.IRMtoMR, Path.MRtoCR // , Path.SRtoCR
+    };
+    // Path.OtoIR,
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -402,7 +412,8 @@ public class Autos {
 
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoFL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoIL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
 
@@ -417,8 +428,10 @@ public class Autos {
 
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoRR, Path.RRtoFR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PRtoO, Path.OtoRR, Path.RRtoIR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));

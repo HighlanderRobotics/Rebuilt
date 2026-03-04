@@ -697,7 +697,10 @@ public class Robot extends LoggedRobot {
         .leftBumper()
         .or(Autos.autoLeftClimbReq)
         .onTrue(Commands.runOnce(() -> leftClimbTarget = true));
-    operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
+    operator
+        .rightBumper()
+        .or(Autos.autoLeftClimbReq.negate())
+        .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
 
     // TODO: ACTUAL BINDING LOL
     // test shot
