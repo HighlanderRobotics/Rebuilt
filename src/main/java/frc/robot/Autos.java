@@ -240,14 +240,14 @@ public class Autos {
     return Commands.sequence(
         setAutoScoreReqFalse(),
         setAutoFeedReqTrue(),
-        // setAutoIntakeReqTrue(),
+        setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoFeedReqFalse());
   }
 
   public Command scorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        // setAutoIntakeReqFalse(),
+        setAutoIntakeReqFalse(),
         setAutoScoreReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoScoreReqFalse());
@@ -260,7 +260,7 @@ public class Autos {
 
   public Command intakePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        // setAutoScoreReqFalse(),
+        setAutoScoreReqFalse(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoIntakeReqFalse());
