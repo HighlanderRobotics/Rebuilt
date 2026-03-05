@@ -229,25 +229,25 @@ public class Autos {
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                                 - (0.3)))),
         setAutoPreClimbReqTrue(),
-        Commands.waitSeconds(1),
-        swerve
-            .alignToClimb(() -> getClimbAutoTarget())
-            .until(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose())),
-        setAutoClimbReqTrue());
+        Commands.waitSeconds(1), // we shouldn't rly be waiting
+        Commands.parallel(
+            swerve.alignToClimb(() -> getClimbAutoTarget()),
+            Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
+                .andThen(setAutoClimbReqTrue())));
   }
 
   public Command feedPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoScoreReqFalse(),
         setAutoFeedReqTrue(),
-        setAutoIntakeReqTrue(),
+        // setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoFeedReqFalse());
   }
 
   public Command scorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoIntakeReqFalse(),
+        // setAutoIntakeReqFalse(),
         setAutoScoreReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoScoreReqFalse());
@@ -260,7 +260,7 @@ public class Autos {
 
   public Command intakePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
+        // setAutoScoreReqFalse(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoIntakeReqFalse());
@@ -270,7 +270,7 @@ public class Autos {
     return Commands.sequence(
         setAutoScoreReqTrue(),
         setAutoFlowReqTrue(),
-        setAutoIntakeReqTrue(),
+        // setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 

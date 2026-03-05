@@ -170,12 +170,12 @@ public class Superstructure {
     operator
         .a()
         .and(DriverStation::isTeleop)
-        .or(new Trigger(Autos.autoFlowReq))
+        .or(Autos.autoFlowReq)
         .onTrue(Commands.runOnce(() -> flowState = true));
     operator
         .b()
         .and(DriverStation::isTeleop)
-        .or(new Trigger(Autos.autoFlowReq).negate())
+        .or(Autos.autoFlowReq.negate())
         .onTrue(Commands.runOnce(() -> flowState = false));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
