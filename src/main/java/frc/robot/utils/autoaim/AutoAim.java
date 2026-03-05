@@ -107,10 +107,10 @@ public class AutoAim {
   }
 
   public static Pose2d getTurretPose(Pose2d robotPose) {
-     Pose2d turretPose =
+    Pose2d turretPose =
         robotPose.transformBy(
             new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
-        return turretPose;
+    return turretPose;
   }
 
   public static double distanceToHub(Pose2d pose) {
@@ -136,7 +136,7 @@ public class AutoAim {
   public static Translation2d getVirtualSOTMTarget(
       Translation2d target, ChassisSpeeds fieldRelativeSpeeds, double timeOfFlightSecs) {
     // velocity times shot time is how translated it is
-    Translation2d vtarget = 
+    Translation2d vtarget =
         target.minus(
             new Translation2d(
                 fieldRelativeSpeeds.vxMetersPerSecond * timeOfFlightSecs,
@@ -217,54 +217,53 @@ public class AutoAim {
     Translation2d virtualTarget =
         getVirtualSOTMTarget(
             targetTranslation, fieldRelativeSpeeds, unadjustedShot.timeOfFlightSecs());
-   Pose2d turretPose = getTurretPose(robotPose);
+    Pose2d turretPose = getTurretPose(robotPose);
 
     return tree.get(turretPose.getTranslation().getDistance(virtualTarget));
   }
 
-public static ShotData getSOTMShotDataNewtonsMethod(
+  public static ShotData getSOTMShotDataNewtonsMethod(
       Pose2d robotPose,
       Translation2d targetTranslation,
       ChassisSpeeds fieldRelativeSpeeds,
       InterpolatingShotTree tree) {
 
-  ShotData baseline = tree.calculateShot(robotPose, targetTranslation);
-   
-   Pose2d turretPose = getTurretPose(robotPose);
-   Translation2d turretToTarget = targetTranslation.minus(turretPose.getTranslation()); 
+    ShotData baseline = tree.calculateShot(robotPose, targetTranslation);
 
-   double distance = turretToTarget.getNorm();
+    Pose2d turretPose = getTurretPose(robotPose);
+    Translation2d turretToTarget = targetTranslation.minus(turretPose.getTranslation());
 
-   //get just direction of vector because its vector divded by length
-   //dont want to account for magnitude bc the speed we are going and shot tree do 
-   //and we just want direction to find dot product
-   Translation2d shotDirection = turretToTarget.div(distance);
+    double distance = turretToTarget.getNorm();
 
-   //dot product! <3
-   //get how fast we are going towards where we are shooting
-   //vectors of robot times direction
-   //positive if going towrds
-   //zero is moving perpedicular
-   //negative is going away
-   double robotVelocityAlongShot = fieldRelativeSpeeds.vxMetersPerSecond * shotDirection.getX() + fieldRelativeSpeeds.vyMetersPerSecond * shotDirection.getY();
-   
-   //required velocity is like velocity the ball must have so it hits the target while the robot moving
-   //because the ball velocity is robot velocity + ball velocity
-   //so velocity ball needs to go is our distance / tof - the dot product or velocity along that shot to account for the robots velocity along the shot
-   double requiredVelocity = (distance / baseline.timeOfFlightSecs()) - robotVelocityAlongShot;
+    // get just direction of vector because its vector divded by length
+    // dont want to account for magnitude bc the speed we are going and shot tree do
+    // and we just want direction to find dot product
+    Translation2d shotDirection = turretToTarget.div(distance);
 
-   return calculateShotAdjustments(
-    distance,
-    baseline,
-    requiredVelocity,
-    tree
-   );
-    }
+    // dot product! <3
+    // get how fast we are going towards where we are shooting
+    // vectors of robot times direction
+    // positive if going towrds
+    // zero is moving perpedicular
+    // negative is going away
+    double robotVelocityAlongShot =
+        fieldRelativeSpeeds.vxMetersPerSecond * shotDirection.getX()
+            + fieldRelativeSpeeds.vyMetersPerSecond * shotDirection.getY();
 
-    /**
+    // required velocity is like velocity the ball must have so it hits the target while the robot
+    // moving
+    // because the ball velocity is robot velocity + ball velocity
+    // so velocity ball needs to go is our distance / tof - the dot product or velocity along that
+    // shot to account for the robots velocity along the shot
+    double requiredVelocity = (distance / baseline.timeOfFlightSecs()) - robotVelocityAlongShot;
+
+    return calculateShotAdjustments(distance, baseline, requiredVelocity, tree);
+  }
+
+  /**
    * @param distance distance to target
    * @param baseline daseline parameters from tree
-   * @param requiredVelocity required horizontal velocity magnitude 
+   * @param requiredVelocity required horizontal velocity magnitude
    * @return adjusted shooter command
    */
   private static ShotData calculateShotAdjustments(
@@ -284,16 +283,21 @@ public static ShotData getSOTMShotDataNewtonsMethod(
       double highVel =
           (currentDistance + EPSILON) / tree.get(currentDistance + EPSILON).timeOfFlightSecs();
       double velDeriv = (highVel - lowVel) / (EPSILON * 2);
-      //newtons method: xn+1 = xn - f(xn)/deriv(xn)
-      //so estimate for new dist is difference between current velocity required velocity over the deriv
-      //this makes sense because if current vel is larger it will lower current distance to account for that and if requird is larger it will increase to account for that
+      // newtons method: xn+1 = xn - f(xn)/deriv(xn)
+      // so estimate for new dist is difference between current velocity required velocity over the
+      // deriv
+      // this makes sense because if current vel is larger it will lower current distance to account
+      // for that and if requird is larger it will increase to account for that
       currentDistance -= (currentVelocity - requiredVelocity) / velDeriv;
-      // update 
+      // update
       currentParams = tree.get(currentDistance);
       currentTime = currentParams.timeOfFlightSecs();
       currentVelocity = currentDistance / currentTime;
     }
-    return new ShotData(currentParams.hoodAngle(), currentParams.flywheelVelocityRotPerSec(), currentParams.timeOfFlightSecs());
+    return new ShotData(
+        currentParams.hoodAngle(),
+        currentParams.flywheelVelocityRotPerSec(),
+        currentParams.timeOfFlightSecs());
   }
 
   public static ShotData getCompensatedSOTMShotData(
