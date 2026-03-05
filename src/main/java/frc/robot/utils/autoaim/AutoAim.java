@@ -247,10 +247,10 @@ public static ShotData getSOTMShotDataNewtonsMethod(
    //zero is moving perpedicular
    //negative is going away
    double robotVelocityAlongShot = fieldRelativeSpeeds.vxMetersPerSecond * shotDirection.getX() + fieldRelativeSpeeds.vyMetersPerSecond * shotDirection.getY();
-
-   //vel is dis/time so velocity ball needs to go is our distance / tof - the dot product to account for the robots velocity along the shot itself
+   
+   //required velocity is like velocity the ball must have so it hits the target while the robot moving
    //because the ball velocity is robot velocity + ball velocity
-   //required velocity is like horizontal velocity the ball must have so it hits the target while the robot moving
+   //so velocity ball needs to go is our distance / tof - the dot product or velocity along that shot to account for the robots velocity along the shot
    double requiredVelocity = (distance / baseline.timeOfFlightSecs()) - robotVelocityAlongShot;
 
    return calculateShotAdjustments(
@@ -286,7 +286,7 @@ public static ShotData getSOTMShotDataNewtonsMethod(
       double velDeriv = (highVel - lowVel) / (EPSILON * 2);
       //newtons method: xn+1 = xn - f(xn)/deriv(xn)
       //so estimate for new dist is difference between current velocity required velocity over the deriv
-      //this way if current vel is larger it will lower current distance to account for that and if requird is larger it will increase to account for that
+      //this makes sense because if current vel is larger it will lower current distance to account for that and if requird is larger it will increase to account for that
       currentDistance -= (currentVelocity - requiredVelocity) / velDeriv;
       // update 
       currentParams = tree.get(currentDistance);
