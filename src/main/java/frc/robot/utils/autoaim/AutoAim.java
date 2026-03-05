@@ -17,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 public class AutoAim {
 
   public static double LATENCY_COMPENSATION_SECS =
-      new LoggedTunableNumber("Latency time", 0.0).getAsDouble(); // 0.6; // TODO tune latency comp
+      new LoggedTunableNumber("Latency time", 0.3).getAsDouble(); // 0.6; // TODO tune latency comp
   //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
 
   public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
@@ -96,13 +96,22 @@ public class AutoAim {
     FEED_SHOT_TREE.put(Units.feetToMeters(12), new ShotData(Rotation2d.fromDegrees(40), 40, 0.0));
     FEED_SHOT_TREE.put(Units.feetToMeters(14), new ShotData(Rotation2d.fromDegrees(45), 38, 0.0));
     FEED_SHOT_TREE.put(Units.feetToMeters(16), new ShotData(Rotation2d.fromDegrees(45), 40, 0.0));
-    FEED_SHOT_TREE.put(Units.feetToMeters(18), new ShotData(Rotation2d.fromDegrees(50), 40, 0.0));
-    FEED_SHOT_TREE.put(Units.feetToMeters(20), new ShotData(Rotation2d.fromDegrees(55), 40, 0.0));
-    FEED_SHOT_TREE.put(Units.feetToMeters(22), new ShotData(Rotation2d.fromDegrees(55), 44, 0.0));
-    FEED_SHOT_TREE.put(Units.feetToMeters(24), new ShotData(Rotation2d.fromDegrees(60), 44, 0.0));
-    FEED_SHOT_TREE.put(Units.feetToMeters(26), new ShotData(Rotation2d.fromDegrees(60), 47, 0.0));
-    FEED_SHOT_TREE.put(Units.feetToMeters(28), new ShotData(Rotation2d.fromDegrees(60), 58, 0.0));
-    FEED_SHOT_TREE.put(Units.feetToMeters(30), new ShotData(Rotation2d.fromDegrees(60), 50, 0.0));
+
+    FEED_SHOT_TREE.put(Units.feetToMeters(18), new ShotData(Rotation2d.fromDegrees(40), 38, 1.42));
+    FEED_SHOT_TREE.put(Units.feetToMeters(20), new ShotData(Rotation2d.fromDegrees(43), 40, 1.36));
+    FEED_SHOT_TREE.put(Units.feetToMeters(22), new ShotData(Rotation2d.fromDegrees(45), 41, 1.34));
+    FEED_SHOT_TREE.put(Units.feetToMeters(24), new ShotData(Rotation2d.fromDegrees(47), 42, 1.25));
+    FEED_SHOT_TREE.put(Units.feetToMeters(26), new ShotData(Rotation2d.fromDegrees(48), 43, 1.28));
+    FEED_SHOT_TREE.put(Units.feetToMeters(28), new ShotData(Rotation2d.fromDegrees(49), 45, 1.27));
+    FEED_SHOT_TREE.put(Units.feetToMeters(30), new ShotData(Rotation2d.fromDegrees(49), 46, 1.32));
+    FEED_SHOT_TREE.put(Units.feetToMeters(32), new ShotData(Rotation2d.fromDegrees(49), 48, 1.4));
+
+    FEED_SHOT_TREE.put(Units.feetToMeters(34), new ShotData(Rotation2d.fromDegrees(52), 49, 1.3));
+    FEED_SHOT_TREE.put(Units.feetToMeters(36), new ShotData(Rotation2d.fromDegrees(53), 53, 1.33));
+    FEED_SHOT_TREE.put(Units.feetToMeters(38), new ShotData(Rotation2d.fromDegrees(53), 57, 1.3));
+    FEED_SHOT_TREE.put(Units.feetToMeters(40), new ShotData(Rotation2d.fromDegrees(55), 57, 1.2));
+    FEED_SHOT_TREE.put(Units.feetToMeters(42), new ShotData(Rotation2d.fromDegrees(56), 59, 1.2));
+
     // TODO: POPULATE beyond 24 feet and time of flight
   }
 

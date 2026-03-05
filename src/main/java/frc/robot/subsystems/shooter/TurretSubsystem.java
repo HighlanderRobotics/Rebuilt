@@ -55,9 +55,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       // Changed to avoid cooking cable chain/wires
       // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
       // (worked in sim)
-      Rotation2d.fromRotations(-0.736084).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
+      Rotation2d.fromRotations(-0.677246).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
   public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
-      Rotation2d.fromRotations(-0.02490); // -0.0354 // 0.011378);
+      Rotation2d.fromRotations(
+          0); // -0.0354 // 0.011378); //slightly short of what it actually is (0.002 ish) but
+  // otherwise wrapping gets weird
 
   public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
@@ -179,7 +181,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
-    config.MagnetSensor.MagnetOffset = -0.304199 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
+    // Offset measured at rear hardstop (approx -259 degrees)
+    config.MagnetSensor.MagnetOffset = -0.70922 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -190,7 +193,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
-    config.MagnetSensor.MagnetOffset = -0.371 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
+    // Offset measured at rear hardstop (approx -259 degrees)
+    config.MagnetSensor.MagnetOffset = -0.43779 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -205,14 +209,13 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           Logger.recordOutput("Robot/Feed Target", feedTarget.get());
           ShotData shotData =
-              AutoAim.getSOTMShotData(
-                  robotPoseSupplier.get(),
-                  feedTarget.get().getTranslation(),
-                  chassisSpeedsSupplier.get(),
-                  AutoAim.FEED_SHOT_TREE);
-
+              AutoAim.FEED_SHOT_TREE.get(
+                  robotPoseSupplier
+                      .get()
+                      .getTranslation()
+                      .getDistance(feedTarget.get().getTranslation()));
           hoodIO.setHoodPosition(shotData.hoodAngle());
-          // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
+          //   flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
 
           //   hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
@@ -314,9 +317,20 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
   }
 
+  @Override
+  public Rotation2d getHoodPosition() {
+    return hoodInputs.hoodPositionRotations;
+  }
+
+  @Override
   @AutoLogOutput(key = "Shooter/Turret/Setpoint")
   public Rotation2d getTurretSetpoint() {
     return turretIO.getTurretSetpoint();
+  }
+
+  @Override
+  public Rotation2d getTurretPosition() {
+    return turretInputs.positionRotations;
   }
 
   @AutoLogOutput(key = "Shooter/Turret/Cancoder 24t position")
@@ -349,12 +363,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         () -> {
           hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
           flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
-          turretIO.setTurretPosition(
-              AutoAim.getTurretHubTargetRotation(
-                  FieldUtils.getCurrentHubTranslation(),
-                  robotPoseSupplier.get(),
-                  chassisSpeedsSupplier.get()));
+          turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
+          // turretIO.setTurretPosition(
+          //     AutoAim.getTurretHubTargetRotation(
+          //         FieldUtils.getCurrentHubTranslation(),
+          //         robotPoseSupplier.get(),
+          //         chassisSpeedsSupplier.get()));
         });
   }
 

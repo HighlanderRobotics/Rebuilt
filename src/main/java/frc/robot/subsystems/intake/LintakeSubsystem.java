@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -39,7 +40,9 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public static final double RACK_GEAR_RATIO = 8.0;
   public static final double RACK_PINION_DIAMETER_METERS = Units.inchesToMeters(0.975);
   public static final double ROLLER_GEAR_RATIO = 34 / 15;
-  public static final double CURRENT_ZEROING_THRESHOLD = 35; // TODO: TUNE
+  // From CAD
+  public static final Rotation2d INTAKE_ROTATION = Rotation2d.fromDegrees(17.329856);
+  public static final double CURRENT_ZEROING_THRESHOLD = 30; // TODO: TUNE
 
   private final LinearRackIO rackIO;
   private LinearRackIOInputsAutoLogged rackInputs = new LinearRackIOInputsAutoLogged();
@@ -168,8 +171,8 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command restExtended() {
     return this.run(
         () -> {
-          // rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
-          rackIO.setVoltage(0);
+          rackIO.setPositionSetpoint(EXTENDED_POSITION_METERS);
+          // rackIO.setVoltage(0);
           rollerIO.setRollerVoltage(0.0);
         });
 
@@ -182,6 +185,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
     //         new Trigger(() -> Math.abs(rackCurrentFilterValue) > CURRENT_ZEROING_THRESHOLD)
     //             .debounce(0.95))
     //     .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
+
     return Commands.deadline(
             Commands.waitSeconds(0.5)
                 .andThen(
@@ -193,9 +197,13 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
         .andThen(Commands.parallel(Commands.print("Intake Zeroed"), zeroRack()));
 
     // return this.idle();
+
+    // return zeroRack();
   }
 
   public Command zeroRack() {
+    // return this.runOnce(() -> rackIO.resetEncoder(0));
+
     return this.runOnce(() -> rackIO.resetEncoder(MAX_EXTENSION_METERS));
   }
 
@@ -217,7 +225,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
 
     config.Slot0.kP = 420.0;
 
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
+    config.CurrentLimits.StatorCurrentLimit = 20.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -256,6 +264,16 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   @Override
   public boolean beambreak() {
     return canrangeInputs.isDetected;
+  }
+
+  @Override
+  public double getExtensionMeters() {
+    return rackInputs.positionMeters;
+  }
+
+  @Override
+  public double getExtensionSetpointMeters() {
+    return rackIO.getSetpointMeters();
   }
 
   @Override
@@ -298,7 +316,7 @@ public class LintakeSubsystem extends SubsystemBase implements Intake {
   public Command restRetracted() {
     return this.run(
         () -> {
-          rackIO.setPositionSetpoint(0);
+          rackIO.setPositionSetpoint(MAX_EXTENSION_METERS - Units.inchesToMeters(11.5));
           rollerIO.setRollerVoltage(0.0);
         });
     // return this.idle();
