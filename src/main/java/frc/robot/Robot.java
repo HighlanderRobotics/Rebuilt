@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -362,12 +363,12 @@ public class Robot extends LoggedRobot {
                         new SingleJointedArmSim(
                             DCMotor.getKrakenX44Foc(1),
                             SlapdownSubsystem.PIVOT_GEAR_RATIO,
-                            0.01,
-                            0.5,
+                            0.07,
+                            Units.inchesToMeters(13.146739),
                             SlapdownSubsystem.PIVOT_MIN_POSITION.getRadians(),
                             SlapdownSubsystem.PIVOT_MAX_POSITION.getRadians(),
                             true,
-                            0.0),
+                            SlapdownSubsystem.PIVOT_MIN_POSITION.getRadians()),
                         MotorType.KrakenX44,
                         SlapdownSubsystem.PIVOT_GEAR_RATIO),
                     new CANcoderIOSim(6, SlapdownSubsystem.getCancoderConfig(), canivore),

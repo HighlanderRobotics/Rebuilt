@@ -30,13 +30,13 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
-  public static final Rotation2d PIVOT_EXTENDED_POSITION = Rotation2d.kZero; // TODO
-  public static final Rotation2d PIVOT_RETRACTED_POSITION = Rotation2d.kZero; // TODO
-  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.kZero; // TODO
-  public static final Rotation2d PIVOT_MAX_POSITION = Rotation2d.kZero; // TODO
+  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(5.425);
+  public static final Rotation2d PIVOT_MAX_POSITION = Rotation2d.fromDegrees(145.425); // Not so sure abt this one...
+  public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION; // TODO
+  public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION; // TODO
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
-  public static final double ROLLER_GEAR_RATIO = 1.0; // TODO
-  public static final double PIVOT_GEAR_RATIO = 1.0; // TODO
+  public static final double ROLLER_GEAR_RATIO = 2.0;
+  public static final double PIVOT_GEAR_RATIO = 39.375;
 
   private final PivotIO pivotIO;
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
