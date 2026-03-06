@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Inch;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -73,7 +75,9 @@ import java.util.function.Supplier;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -127,19 +131,33 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SysIdRoutine turnSysid;
 
+  private final SwerveModuleSimulationConfig mk5nModuleConfig =
+      new SwerveModuleSimulationConfig(
+          DCMotor.getKrakenX60Foc(1),
+          DCMotor.getKrakenX44Foc(1),
+          SwerveSubsystem.SWERVE_CONSTANTS.getDriveGearRatio(),
+          SwerveSubsystem.SWERVE_CONSTANTS.getTurnGearRatio(),
+          Volts.of(0.1),
+          Volts.of(0.2),
+          Inch.of(2),
+          KilogramSquareMeters.of(0.03),
+          2.25);
+  // ripped the drive friction voltage, steer friction voltage, and steer rotational inertia from
+  // the mk4n- no clue if that's right lmao
   // Maple Sim Stuff
   // TODO: UPDATE DRIVETRAIN SIM!!!
   private final DriveTrainSimulationConfig driveTrainSimConfig =
       DriveTrainSimulationConfig.Default()
           .withGyro(COTS.ofPigeon2())
           .withSwerveModule(
-              COTS.ofMark4n(
-                  DCMotor.getKrakenX60Foc(1),
-                  DCMotor.getKrakenX60Foc(1),
-                  // Still not sure where the 1.5 came from
-                  1.5,
-                  // Running l2+ swerve modules
-                  2))
+              // COTS.ofMark4n(
+              //     DCMotor.getKrakenX60Foc(1),
+              //     DCMotor.getKrakenX60Foc(1),
+              //     // Still not sure where the 1.5 came from
+              //     1.5,
+              //     // Running l2+ swerve modules
+              //     2))
+              () -> new SwerveModuleSimulation(mk5nModuleConfig))
           .withTrackLengthTrackWidth(
               Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthX()),
               Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthY()))
