@@ -166,7 +166,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
   @Override
   public Mass getMass() {
     // From CAD (retrieved 1/29/26), with bumpers and battery
-    return Pound.of(136.185702);
+    return Pound.of(145.8); // 136.185702);
   }
 
   // TODO: CANCODER OFFSETS
