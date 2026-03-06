@@ -81,7 +81,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return this.run(
         () -> {
           // spinnerIO.setRollerVoltage(12);
-          spinnerIO.setRollerVelocity(40);
+          spinnerIO.setRollerVelocity(30);
           // kickerIO.setRollerVoltage(11);
           kickerIO.setRollerVelocity(40);
         });

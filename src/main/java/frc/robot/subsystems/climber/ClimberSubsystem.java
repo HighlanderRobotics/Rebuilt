@@ -2,6 +2,7 @@ package frc.robot.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
@@ -114,5 +115,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public double getClimberSetpointMeters() {
     return io.getClimberSetpointMeters();
+  }
+
+  public boolean atFullExtension() {
+    return MathUtil.isNear(
+        getClimberExtensionMeters(), MAX_EXTENSION_METERS, Units.inchesToMeters(1));
   }
 }

@@ -203,6 +203,7 @@ public class Superstructure {
         new Trigger(shooter::atFlywheelVelocitySetpoint)
             .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
+            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
     // .and(
     //     new Trigger(
     //             () -> {
@@ -230,7 +231,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
-    // bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
+    bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
@@ -621,6 +622,7 @@ public class Superstructure {
     //            && (swerve.getPose().getX() <= 4.6914191246032715)
     //        || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
     //            && (swerve.getPose().getX() >= 11.889562606811523));
+    // TODO within alliance box AND not near trench
   }
 
   public boolean canScore() {

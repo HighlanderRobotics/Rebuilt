@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
@@ -22,6 +23,7 @@ import org.littletonrobotics.junction.Logger;
 /** Add your docs here. */
 public class Autos {
   private final SwerveSubsystem swerve;
+  private final ClimberSubsystem climber;
   private final AutoFactory factory;
   private static boolean autoFeed;
   private static boolean autoIntake;
@@ -158,8 +160,9 @@ public class Autos {
     }
   }
 
-  public Autos(SwerveSubsystem swerve) {
+  public Autos(SwerveSubsystem swerve, ClimberSubsystem climber) {
     this.swerve = swerve;
+    this.climber = climber;
     factory =
         new AutoFactory(
             swerve::getPose,
@@ -174,6 +177,7 @@ public class Autos {
                           && DriverStation.getAlliance().get().equals(Alliance.Blue)
                       ? traj.getPoses()
                       : traj.flipped().getPoses());
+              Logger.recordOutput("Choreo/Active Traj Name", traj.name());
             });
   }
 
@@ -220,6 +224,8 @@ public class Autos {
     return Commands.sequence(
         setAutoScoreReqTrue(),
         setAutoIntakeReqFalse(),
+        setAutoPreClimbReqTrue(),
+        // Commands.parallel(
         path.getTrajectory(routine)
             .cmd()
             .until(
@@ -228,12 +234,24 @@ public class Autos {
                         .atTime(
                             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                                 - (0.3)))),
-        setAutoPreClimbReqTrue(),
-        Commands.waitSeconds(1), // we shouldn't rly be waiting
+        // Commands.waitUntil(
+        //         routine.observe(
+        //             path.getTrajectory(routine)
+        //                 .atTime(
+        //                     path.getTrajectory(routine).getRawTrajectory().getTotalTime()
+        //                         - (1.3))))
+        //     .andThen(setAutoClimbReqTrue())), // TODo deadline?
+        // setAutoPreClimbReqTrue(),
+        // Commands.waitSeconds(1), // we shouldn't rly be waiting
+        // Commands.waitUntil()
+        // swerve.stop().until(new Trigger(() -> climber.atFullExtension()).debounce(0.1)),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
-                .andThen(setAutoClimbReqTrue())));
+                .andThen(
+                    Commands.print("hooray!")
+                    // setAutoClimbReqTrue()
+                    )));
   }
 
   public Command feedPath(Path path, AutoRoutine routine) {
@@ -291,7 +309,7 @@ public class Autos {
         setAutoFlowReqTrue(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        Commands.waitSeconds(0.5));
+        Commands.waitSeconds(1));
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {

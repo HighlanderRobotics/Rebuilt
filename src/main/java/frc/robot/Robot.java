@@ -544,7 +544,7 @@ public class Robot extends LoggedRobot {
     addControllerBindings(indexer, shooter, intake);
 
     // Auto things
-    autos = new Autos(swerve);
+    autos = new Autos(swerve, climber);
     autoChooser.addDefaultOption("None", Commands.none());
 
     // Run auto when auto starts. Matches Choreolib's defer impl
