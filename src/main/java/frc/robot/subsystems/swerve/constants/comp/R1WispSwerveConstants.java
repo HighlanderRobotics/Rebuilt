@@ -147,7 +147,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
   public double getMaxLinearAcceleration() {
     // Calculated in Choreo for R1 ratio
     // return 9.056;
-    return 22.073;
+    return 13.392; // 22.073;
   }
 
   @Override
