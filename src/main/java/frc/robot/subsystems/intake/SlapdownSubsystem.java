@@ -132,8 +132,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public Command intake() {
     return this.run(
         () -> {
-          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-          rollerIO.setRollerVelocity(40);
+          // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          rollerIO.setRollerVelocity(-40);
         });
   }
 
@@ -141,7 +141,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public Command restExtended() {
     return this.run(
         () -> {
-          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
           rollerIO.setRollerVoltage(0.0);
         });
   }
@@ -251,10 +251,10 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
 
     config.Feedback.SensorToMechanismRatio = ROLLER_GEAR_RATIO;
 
-    config.Slot0.kS = 0.55127;
-    config.Slot0.kV = 0.19756;
-    config.Slot0.kA = 0.0074445;
-    config.Slot0.kP = 0.017985;
+    config.Slot0.kS = 1; // 0.55127;
+    config.Slot0.kV = 0.18; // 0.19756;
+    config.Slot0.kA = 0; // 0.0074445;
+    config.Slot0.kP = 0.35; // 0.017985;
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE
