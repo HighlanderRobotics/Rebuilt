@@ -128,6 +128,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SysIdRoutine turnSysid;
 
   // Maple Sim Stuff
+  // TODO: UPDATE DRIVETRAIN SIM!!!
   private final DriveTrainSimulationConfig driveTrainSimConfig =
       DriveTrainSimulationConfig.Default()
           .withGyro(COTS.ofPigeon2())
@@ -875,8 +876,8 @@ public class SwerveSubsystem extends SubsystemBase {
   @SuppressWarnings("resource")
   public Consumer<SwerveSample> choreoDriveController() {
     // TODO: TUNE
-    final PIDController xController = new PIDController(5.0, 0.0, 0.0);
-    final PIDController yController = new PIDController(5.0, 0.0, 0.0);
+    final PIDController xController = new PIDController(10.0, 0.0, 0.0);
+    final PIDController yController = new PIDController(10.0, 0.0, 0.0);
     final PIDController headingController = new PIDController(6.0, 0.0, 0.0);
     headingController.enableContinuousInput(-Math.PI, Math.PI);
     return (sample) -> {

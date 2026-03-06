@@ -309,7 +309,9 @@ public class Autos {
         setAutoFlowReqTrue(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        Commands.waitSeconds(1));
+        swerve.stop().repeatedly().withTimeout(1)
+        // Commands.waitSeconds(1)
+        );
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
