@@ -130,6 +130,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   private final Alert turretMotorDisconnectedAlert =
       new Alert("Disconnected turret motor!", AlertType.kError);
 
+  private final Alert turretPastHardstopAlert =
+      new Alert("Turret may have gone past hardstop!! Reoffset cancoders", AlertType.kError);
+
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
@@ -142,7 +145,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
 
-    //assume we start up at min angle and not 0
+    // assume we start up at min angle and not 0
     hoodIO.resetEncoder(HOOD_MIN_ANGLE);
   }
 
@@ -182,6 +185,15 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     flywheelFollowerDisconnectedAlert.set(!flywheelInputs.flywheelFollowerConnected);
     hoodDisconnectedAlert.set(!hoodInputs.connected);
     turretMotorDisconnectedAlert.set(!turretInputs.connected);
+    turretPastHardstopAlert.set(
+        !((getTurretPosition().getDegrees()
+                    > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
+                && (getTurretPosition().getDegrees()
+                    < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
+            || (getCalculatedTurretRotations().getDegrees()
+                    > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
+                && (getCalculatedTurretRotations().getDegrees()
+                    < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())));
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
