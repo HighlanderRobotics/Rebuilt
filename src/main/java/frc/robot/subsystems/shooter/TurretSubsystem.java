@@ -186,7 +186,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     hoodDisconnectedAlert.set(!hoodInputs.connected);
     turretMotorDisconnectedAlert.set(!turretInputs.connected);
     turretPastHardstopAlert.set(
-        !((getTurretPosition().getDegrees()
+        ((getTurretPosition().getDegrees()
                     > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
                 && (getTurretPosition().getDegrees()
                     < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
