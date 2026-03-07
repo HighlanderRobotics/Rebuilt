@@ -77,7 +77,6 @@ public class Superstructure {
 
   private Timer stateTimer = new Timer();
 
-  @AutoLogOutput(key = "Superstructure/FPGA time stamp")
   private double getFPGATimestamp() {
     return Timer.getFPGATimestamp();
   }
@@ -85,12 +84,10 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/match starttime")
   public static double matchStartTime;
 
-  @AutoLogOutput(key = "Superstructure/Time elapsed")
   private double getTimeElapsed() {
     return getFPGATimestamp() - matchStartTime;
   }
 
-  @AutoLogOutput(key = "Superstructure/Time Left in match")
   private double timeLeftinMatch() {
     return 140.00 - getTimeElapsed();
   }
