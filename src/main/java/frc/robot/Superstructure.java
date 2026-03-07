@@ -54,13 +54,13 @@ public class Superstructure {
   private String currentShift = getCurrentShift();
 
   @AutoLogOutput(key = "Scoring/Scoring Active")
-  public boolean isScoringActive = isOurShift(); 
+  public boolean isScoringActive = isOurShift();
 
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
 
-  //private double timeLeftinMatch = Timer.getMatchTime();
+  // private double timeLeftinMatch = Timer.getMatchTime();
 
   private double timer = Timer.getFPGATimestamp();
 
@@ -381,8 +381,8 @@ public class Superstructure {
 
   private String getCurrentShift() {
     if (130.00 < timeLeftinMatch() && timeLeftinMatch() <= 140.00) {
-      return "Transition"; 
-    } else if (105.00 < timeLeftinMatch() && timeLeftinMatch()<= 130.00) {
+      return "Transition";
+    } else if (105.00 < timeLeftinMatch() && timeLeftinMatch() <= 130.00) {
       return "Shift 1";
     } else if (80.00 < timeLeftinMatch() && timeLeftinMatch() <= 105.00) {
       return "Shift 2";
@@ -391,21 +391,21 @@ public class Superstructure {
     } else if ((30.00 < timeLeftinMatch() && timeLeftinMatch() <= 55.00)) {
       return "Shift 4";
     } else {
-      return "End Game"; 
+      return "End Game";
     }
   }
 
   private double getTimeLeftInShift() {
-    double offset = switch(getCurrentShift()) {
-      case "Transition" -> 140.00;
-      case "Shift 1" -> 130.00;
-      case "Shift 2" -> 105.00;
-      case "Shift 3" -> 80.00;
-      case "Shift 4" -> 55.00;
-      default -> 0.00;
-    };
+    double offset =
+        switch (getCurrentShift()) {
+          case "Transition" -> 140.00;
+          case "Shift 1" -> 130.00;
+          case "Shift 2" -> 105.00;
+          case "Shift 3" -> 80.00;
+          case "Shift 4" -> 55.00;
+          default -> 0.00;
+        };
     return timeLeftinMatch() - offset;
-    
   }
 
   public boolean isOurShift() {
