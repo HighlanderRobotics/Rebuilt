@@ -57,6 +57,13 @@ public class Superstructure {
     public Trigger getTrigger() {
       return trigger;
     }
+
+    public boolean isAScoreState() {
+      return this == SCORE
+          || this == SPIN_UP_SCORE
+          || this == SPIN_UP_SCORE_FLOW
+          || this == SCORE_FLOW;
+    }
   }
 
   public enum ShotTarget {

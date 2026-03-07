@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
+  private static boolean outOfRange = false; // TODO not sure if this should be true by default
   public static double LATENCY_COMPENSATION_SECS =
       new LoggedTunableNumber("Latency time", 0.3).getAsDouble(); // 0.6; // TODO tune latency comp
   //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
@@ -171,8 +172,10 @@ public class AutoAim {
     //         TurretSubsystem.TURRET_MAX_ANGLE.getRotations());
     double turretTargetDegrees = turretTargetRotation.getDegrees();
     // If its in the deadzone, clamp to nearest hardstop
-    if (turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
-        && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())) {
+    outOfRange =
+        turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
+            && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees());
+    if (outOfRange) {
       turretTargetDegrees =
           // If the requested angle is greater than the halfway point in the deadzone, go to the
           // read hardstop, otherwise go to forward hardstop
@@ -247,5 +250,9 @@ public class AutoAim {
                     // + SPIN_UP_SECS
                     )));
     return getSOTMShotData(compensatedPose, targetTranslation, fieldRelativeSpeeds, tree);
+  }
+
+  public static boolean targetInTurretDeadzone() {
+    return outOfRange;
   }
 }
