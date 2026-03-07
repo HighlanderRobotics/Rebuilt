@@ -466,8 +466,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Command driveTrenchThing(Supplier<ChassisSpeeds> speeds) {
     return this.run(
-            () ->
-            {
+            () -> {
               ChassisSpeeds speedRobotRelative =
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds.get(),
@@ -741,10 +740,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 xVel,
                 // yVel))
                 () ->
-                    -AutoAlign.calculateYVelocity(
-                        getPose().getY(), TrenchPoses.getClosestTrenchPose(getPose()).getY()
-                        // 0
-                        )))
+                    // -AutoAlign.calculateYVelocity(
+                    //     getPose().getY(), TrenchPoses.getClosestTrenchPose(getPose()).getY())
+                    0))
         .withName("trench align");
   }
 

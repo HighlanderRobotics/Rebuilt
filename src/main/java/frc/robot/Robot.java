@@ -722,17 +722,19 @@ public class Robot extends LoggedRobot {
                         // .debounce(0.25)
                         )
                     .andThen(indexer.kick())));
-    // swerve.alignToClimb(
-    //     () ->
-    //         ClimbTargets.CLIMB_TARGETS_LIST.stream()
-    //             .filter(target -> target.getLeftHanded() == leftClimbTarget)
-    //             .filter(
-    //                 target ->
-    //                     target.isBlueAlliance()
-    //                         == (DriverStation.getAlliance().orElse(Alliance.Blue)
-    //                             == Alliance.Blue))
-    //             .findFirst()
-    //             .get()));
+    SmartDashboard.putData(
+        "climb align",
+        swerve.alignToClimb(
+            () ->
+                ClimbTargets.CLIMB_TARGETS_LIST.stream()
+                    .filter(target -> target.getLeftHanded() == leftClimbTarget)
+                    .filter(
+                        target ->
+                            target.isBlueAlliance()
+                                == (DriverStation.getAlliance().orElse(Alliance.Blue)
+                                    == Alliance.Blue))
+                    .findFirst()
+                    .get()));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
