@@ -73,29 +73,41 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/State")
   private static SuperState state = SuperState.IDLE;
 
-  @AutoLogOutput(key = "Superstructure/Shift Timer")
-  private double timeLeftInShift = getTimeLeftInShift();
-
-  @AutoLogOutput(key = "Superstructure/Current Shift")
-  private String currentShift = getCurrentShift();
-
-  @AutoLogOutput(key = "Scoring/Scoring Active")
-  public boolean isScoringActive = isOurShift();
-
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
 
-  // private double timeLeftinMatch = Timer.getMatchTime();
+  @AutoLogOutput(key = "Superstructure/FPGA time stamp")
+  private double getFPGATimestamp() {
+    return Timer.getFPGATimestamp();
+  }
 
-  private double timer = Timer.getFPGATimestamp();
-
+  @AutoLogOutput(key = "Superstructure/match starttime")
   public static double matchStartTime;
 
-  private double timeElapsed = timer - matchStartTime;
+  @AutoLogOutput(key = "Superstructure/Time elapsed")
+  private double getTimeElapsed() {
+    return getFPGATimestamp() - matchStartTime;
+  }
 
+  @AutoLogOutput(key = "Superstructure/Time Left in match")
   private double timeLeftinMatch() {
-    return 140.00 - timeElapsed;
+    return 140.00 - getTimeElapsed();
+  }
+
+  @AutoLogOutput(key = "Superstructure/Shift Timer")
+  private double getTimeStampLeftInShift() {
+    return getTimeLeftInShift();
+  }
+
+  @AutoLogOutput(key = "Superstructure/Current Shift")
+  private String getCurrentShiftName() {
+    return getCurrentShift();
+  }
+
+  @AutoLogOutput(key = "Scoring/Scoring Active")
+  public boolean isScoringActive() {
+    return isOurShift();
   }
 
   private final SwerveSubsystem swerve;
