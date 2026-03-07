@@ -260,7 +260,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
 
     // TODO: TUNE
     config.CurrentLimits.StatorCurrentLimit = 55.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 

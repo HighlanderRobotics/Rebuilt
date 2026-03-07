@@ -31,8 +31,9 @@ public interface Shooter extends Subsystem {
    */
   public Command feed(
       Supplier<Pose2d> robotPoseSupplier,
-      Supplier<Pose2d> feedTarget,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier);
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      Supplier<Pose2d> feedTarget);
 
   /** Not running (set to 0) */
   public Command rest(
@@ -105,5 +106,11 @@ public interface Shooter extends Subsystem {
       Supplier<ShotData> shotDataSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return Commands.none();
+  }
+
+  public default void turretInit() {}
+
+  public default Pose2d getTurretPose(Pose2d robotPose) {
+    return Pose2d.kZero;
   }
 }
