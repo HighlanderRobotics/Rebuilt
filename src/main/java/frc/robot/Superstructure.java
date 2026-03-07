@@ -635,11 +635,11 @@ public class Superstructure {
   private double getTimeLeftInShift() {
     double offset =
         switch (getCurrentShift()) {
-          case "Transition" -> 140.00;
-          case "Shift 1" -> 130.00;
-          case "Shift 2" -> 105.00;
-          case "Shift 3" -> 80.00;
-          case "Shift 4" -> 55.00;
+          case "Transition" -> 130.00;
+          case "Shift 1" -> 105.00;
+          case "Shift 2" -> 80.00;
+          case "Shift 3" -> 55.00;
+          case "Shift 4" -> 30.00;
           default -> 0.00;
         };
     return timeLeftinMatch() - offset;
