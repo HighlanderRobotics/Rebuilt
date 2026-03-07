@@ -461,8 +461,12 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveClosedLoopFieldRelative(Supplier<ChassisSpeeds> speeds) {
     return this.run(
+        () -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds.get(), getRotation()), false));
+  }
+
+  public Command driveTrenchThing(Supplier<ChassisSpeeds> speeds) {
+    return this.run(
             () ->
-            // drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds.get(), getRotation()), false))
             {
               ChassisSpeeds speedRobotRelative =
                   ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -641,7 +645,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     getRotation().plus(Rotation2d.kZero), getVelocityFieldRelative()))
         .withName("reset")
         .andThen(
-            driveClosedLoopFieldRelative(
+            driveTrenchThing(
                 () ->
                     new ChassisSpeeds(
                             xVel.getAsDouble(),
