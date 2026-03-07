@@ -334,7 +334,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @AutoLogOutput(key = "Shooter/Turret/At Setpoint?")
   public boolean atTurretSetpoint() {
     return MathUtil.isNear(
-        turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
+        turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 1);
   }
 
   @Override

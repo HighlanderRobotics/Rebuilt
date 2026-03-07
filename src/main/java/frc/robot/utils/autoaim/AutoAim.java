@@ -180,8 +180,8 @@ public class AutoAim {
                   > (TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
                           + TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
                       / 2
-              ? TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()
-              : TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees();
+              ? TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 2
+              : TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees() - 2;
     }
 
     Logger.recordOutput("Turret/Clamped target", Rotation2d.fromDegrees(turretTargetDegrees));
