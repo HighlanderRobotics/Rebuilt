@@ -57,10 +57,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       // Changed to avoid cooking cable chain/wires
       // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
       // (worked in sim)
-      Rotation2d.fromRotations(-0.677246).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
+      Rotation2d.fromRotations(-0.719971).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
 
   @AutoLogOutput(key = "Shooter/Turret/Forward Hardstop")
-  public static final Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
+  public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
       Rotation2d.fromRotations(
           0); // -0.0354 // 0.011378); //slightly short of what it actually is (0.002 ish) but
 
@@ -202,7 +202,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
     // Offset measured at rear hardstop (approx -259 degrees)
-    config.MagnetSensor.MagnetOffset = -0.782471 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
+    config.MagnetSensor.MagnetOffset = -0.762695 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -214,7 +214,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
     // Offset measured at rear hardstop (approx -259 degrees)
-    config.MagnetSensor.MagnetOffset = -0.503174 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
+    config.MagnetSensor.MagnetOffset = -0.487549 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
