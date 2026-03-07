@@ -58,10 +58,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
       // (worked in sim)
       Rotation2d.fromRotations(-0.677246).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
+
   @AutoLogOutput(key = "Shooter/Turret/Forward Hardstop")
   public static final Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
       Rotation2d.fromRotations(
           0); // -0.0354 // 0.011378); //slightly short of what it actually is (0.002 ish) but
+
   // otherwise wrapping gets weird
 
   public static final Translation2d ROBOT_TO_TURRET_TRANSLATION =
@@ -177,9 +179,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     flywheelFollowerDisconnectedAlert.set(!flywheelInputs.flywheelFollowerConnected);
     hoodDisconnectedAlert.set(!hoodInputs.connected);
     turretMotorDisconnectedAlert.set(!turretInputs.connected);
-
-    Logger.recordOutput("Turret/Forward hardstop angle", TURRET_FORWARD_HARDSTOP_ANGLE);
-    Logger.recordOutput("Turret/Rear hardstop angle", TURRET_REAR_HARDSTOP_ANGLE);
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
