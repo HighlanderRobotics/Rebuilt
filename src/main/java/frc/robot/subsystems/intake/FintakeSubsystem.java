@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -10,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.*;
+import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
+import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
@@ -21,6 +24,10 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   private RollerIO io;
   private RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
+  CANrangeIOInputsAutoLogged canrangeInputs = new CANrangeIOInputsAutoLogged();
+
+  private CANrangeIOReal canrangeIO;
+
   private SysIdRoutine intakeRollerSysid =
       new SysIdRoutine(
           new Config(
@@ -30,14 +37,19 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
               (state) -> Logger.recordOutput("Intake/SysID State", state.toString())),
           new Mechanism((volts) -> io.setRollerVoltage(volts.in(Volts)), null, this));
 
-  public FintakeSubsystem(RollerIO io) {
+  public FintakeSubsystem(RollerIO io, CANBus canbus) {
     this.io = io;
+
+    canrangeIO = new CANrangeIOReal(0, canbus, 10);
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
+
+    canrangeIO.updateInputs(canrangeInputs);
+    Logger.processInputs("Indexer/First Beambreak", canrangeInputs);
   }
 
   @Override
@@ -46,12 +58,12 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public Command outtake() {
+  public Command agitate() {
     return this.run(() -> io.setRollerVoltage(-5));
   }
 
   @Override
-  public Command rest() {
+  public Command restExtended() {
     return this.run(() -> io.setRollerVoltage(0));
   }
 
@@ -80,5 +92,30 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     return config;
+  }
+
+  /** for controller rumble */
+  public boolean beambreak() {
+    return canrangeInputs.isDetected;
+  }
+
+  @Override
+  public double getExtensionMeters() {
+    return 0;
+  }
+
+  @Override
+  public double getExtensionSetpointMeters() {
+    return 0;
+  }
+
+  @Override
+  public Command zeroRack() {
+    return this.idle();
+  }
+
+  @Override
+  public Command runCurrentZeroing() {
+    return this.idle();
   }
 }

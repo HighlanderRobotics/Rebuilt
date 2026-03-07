@@ -80,7 +80,7 @@ public class Camera {
     // io.updateInputs(inputs);
     futureVisionData =
         new Alert(getName() + " Vision Data Coming from ✨The Future✨", AlertType.kError);
-    disconnectedAlert = new Alert(getName() + " Disconnected!", AlertType.kError);
+    disconnectedAlert = new Alert(getName() + " Camera Disconnected!", AlertType.kError);
   }
 
   // MUST CALL FROM SUBSYSTEM! NOT PART OF COMMAND SCHEDULER
