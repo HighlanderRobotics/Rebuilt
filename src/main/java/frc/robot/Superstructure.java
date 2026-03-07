@@ -390,20 +390,16 @@ public class Superstructure {
   }
 
   private double getTimeLeftInShift(int currentShift) {
-    if (currentShift == 0) {
-      timeLeftInShift = timeLeftinMatch - 210.00;
-    } else if (currentShift == 1) {
-      timeLeftInShift = timeLeftinMatch - 145.00;
-    } else if (currentShift == 2) {
-      timeLeftInShift = timeLeftinMatch - 120.00;
-    } else if (currentShift == 3) {
-      timeLeftInShift = timeLeftinMatch - 55.00;
-    } else if (currentShift == 4) {
-      timeLeftInShift = timeLeftinMatch - 30.00;
-    } else {
-      timeLeftInShift = timeLeftinMatch;
-    }
-    return timeLeftInShift;
+    double offset = switch(currentShift) {
+      case 0 -> 210.00;
+      case 1 -> 145.00;
+      case 2 -> 120.00;
+      case 3 -> 55.00;
+      case 4 -> 30.00;
+      default -> 0.00;
+    };
+    return timeLeftinMatch - offset;
+    
   }
 
   public boolean isOurShift() {
