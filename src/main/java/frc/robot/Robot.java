@@ -490,6 +490,8 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Canivore Status", canivore.getStatus().Status);
     Logger.recordOutput("Robot Edition", ROBOT_EDITION);
 
+    shooter.turretInit();
+
     PhoenixOdometryThread.getInstance().start();
 
     SmartDashboard.putData(

@@ -106,4 +106,6 @@ public interface Shooter extends Subsystem {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return Commands.none();
   }
+
+  public default void turretInit() {}
 }

@@ -171,8 +171,8 @@ public class AutoAim {
     //         TurretSubsystem.TURRET_MAX_ANGLE.getRotations());
     double turretTargetDegrees = turretTargetRotation.getDegrees();
     // If its in the deadzone, clamp to nearest hardstop
-    if (turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
-        && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())) {
+    if (turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees() - 2
+        && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 2)) {
       turretTargetDegrees =
           // If the requested angle is greater than the halfway point in the deadzone, go to the
           // read hardstop, otherwise go to forward hardstop

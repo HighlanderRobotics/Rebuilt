@@ -42,28 +42,31 @@ import org.littletonrobotics.junction.Logger;
 public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   /** Creates a new TurretSubsystem. */
-  public static double HOOD_GEAR_RATIO = 58.96875;
+  public static final double HOOD_GEAR_RATIO = 58.96875;
 
-  public static double FLYWHEEL_GEAR_RATIO = 0.84615384615;
+  public static final double FLYWHEEL_GEAR_RATIO = 0.84615384615;
 
-  public static Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
-  public static Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
-  public static double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
+  public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
+  public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
+  public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
 
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
-  public static Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
+  // logged for ease of graph viewing
+  @AutoLogOutput(key = "Shooter/Turret/Rear Hardstop")
+  public static final Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
       // Changed to avoid cooking cable chain/wires
       // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
       // (worked in sim)
       Rotation2d.fromRotations(-0.677246).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
-  public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
+  @AutoLogOutput(key = "Shooter/Turret/Forward Hardstop")
+  public static final Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
       Rotation2d.fromRotations(
           0); // -0.0354 // 0.011378); //slightly short of what it actually is (0.002 ish) but
   // otherwise wrapping gets weird
 
-  public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
+  public static final Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
-  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
+  public static final double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
 
   private CANcoderIO cancoder24t;
@@ -136,7 +139,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     this.turretIO = turretIO;
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
+  }
 
+  @Override
+  public void turretInit() {
     // Starting positions
     this.cancoder24t.updateInputs(cancoder24tInputs);
     this.cancoder26t.updateInputs(cancoder26tInputs);
