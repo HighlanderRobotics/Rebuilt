@@ -131,7 +131,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       new Alert("Disconnected turret motor!", AlertType.kError);
 
   private final Alert turretPastHardstopAlert =
-      new Alert("Turret may have gone past hardstop!! Reoffset cancoders", AlertType.kError);
+      new Alert("Turret may have gone past hardstop!! Reoffset cancoders + min/max position", AlertType.kError);
 
   public TurretSubsystem(
       FlywheelIO flywheelIO,
