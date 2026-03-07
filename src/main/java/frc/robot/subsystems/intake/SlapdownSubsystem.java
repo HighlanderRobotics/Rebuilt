@@ -232,7 +232,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE
-    config.CurrentLimits.StatorCurrentLimit = 80.0; //glup
+    config.CurrentLimits.StatorCurrentLimit = 80.0; // glup
     config.CurrentLimits.StatorCurrentLimitEnable = false;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
