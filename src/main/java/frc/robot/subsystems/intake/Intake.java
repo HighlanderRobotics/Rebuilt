@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -22,17 +23,17 @@ public interface Intake extends Subsystem {
   /** for controller rumble */
   public boolean beambreak();
 
-  public double getExtensionMeters();
+  public Rotation2d getPosition();
 
-  public double getExtensionSetpointMeters();
+  public Rotation2d getPositionSetpoint();
 
   public Command runRollerSysid();
 
-  public default Command runExtensionSysid() {
+  public default Command runPivotSysid() {
     return Commands.none();
   }
 
-  public Command zeroRack();
+  public Command zeroRackOffCancoder();
 
   public Command runCurrentZeroing();
 

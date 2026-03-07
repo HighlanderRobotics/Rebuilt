@@ -6,6 +6,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -100,17 +101,17 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public double getExtensionMeters() {
-    return 0;
+  public Rotation2d getPosition() {
+    return Rotation2d.kZero;
   }
 
   @Override
-  public double getExtensionSetpointMeters() {
-    return 0;
+  public Rotation2d getPositionSetpoint() {
+    return Rotation2d.kZero;
   }
 
   @Override
-  public Command zeroRack() {
+  public Command zeroRackOffCancoder() {
     return this.idle();
   }
 
