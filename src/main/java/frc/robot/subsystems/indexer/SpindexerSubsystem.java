@@ -17,13 +17,20 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.LoggedTunableNumber;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 /** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double GEAR_RATIO = 2.0;
+  // i don't really know if i should be using the sushi or the stealth wheels but the sushi wheels
+  // are 1" in diameter and the stealth wheels are 3" in diameter
+  public static final double KICKER_DIAMETER_INCHES = 3;
+  // biggest wheel (smallest wheel is 2")
+  public static final double SPINNER_DIAMETER_INCHES = 8;
 
   private RollerIO spinnerIO;
 
@@ -77,19 +84,33 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick() {
+  public Command kick(DoubleSupplier flywheelSpeedSupplier) {
     return Commands.sequence(
         this.run(
-                () -> {
-                  spinnerIO.setRollerVelocity(20);
-                  kickerIO.setRollerVelocity(15);
-                })
-            .withTimeout(3),
-        this.run(
             () -> {
-              spinnerIO.setRollerVelocity(30);
-              kickerIO.setRollerVelocity(20);
-            }));
+              double surfaceSpeedInPerSec =
+                  flywheelSpeedSupplier.getAsDouble()
+                      * Math.PI
+                      * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
+              double kickerSpeed = surfaceSpeedInPerSec / (Math.PI * KICKER_DIAMETER_INCHES);
+              // arbitrarily deciding to have it match the bottom wheel although i have no clue
+              // if
+              // that's right
+              double spinnerSpeed = surfaceSpeedInPerSec / (Math.PI * SPINNER_DIAMETER_INCHES);
+              Logger.recordOutput("Indexer/Spinner/Adjusted speed", spinnerSpeed);
+              Logger.recordOutput("Indexer/Kicker/Adjusted speed", kickerSpeed);
+              spinnerIO.setRollerVelocity(spinnerSpeed);
+              kickerIO.setRollerVelocity(kickerSpeed);
+              // spinnerIO.setRollerVelocity(20);
+              // kickerIO.setRollerVelocity(15);
+            })
+        //     .withTimeout(3),
+        // this.run(
+        //     () -> {
+        //       spinnerIO.setRollerVelocity(30);
+        //       kickerIO.setRollerVelocity(20);
+        //     })
+        );
   }
 
   @Override
@@ -164,7 +185,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   @Override
   public void periodic() {
     spinnerIO.updateInputs(spinnerInputs);
-    Logger.processInputs("Indexer/Roller", spinnerInputs);
+    Logger.processInputs("Indexer/Spinner", spinnerInputs);
     kickerIO.updateInputs(kickerInputs);
     Logger.processInputs("Indexer/Kicker", kickerInputs);
     spinnerDisconnectedAlert.set(!spinnerInputs.connected);
