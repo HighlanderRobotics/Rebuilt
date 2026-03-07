@@ -141,6 +141,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     this.turretIO = turretIO;
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
+
+    //assume we start up at min angle and not 0
+    hoodIO.resetEncoder(HOOD_MIN_ANGLE);
   }
 
   @Override
