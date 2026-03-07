@@ -735,17 +735,17 @@ public class Robot extends LoggedRobot {
     driver
         .rightBumper()
         .whileTrue(
-            Commands.parallel(
-                // shooter.torqueCurrentTest(),
-                shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
-                Commands.waitUntil(
-                        new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.05)
-                        // .and(shooter::atTurretSetpoint)
-                        // .debounce(0.25)
-                        )
-                    .andThen(indexer.kick())));
-    SmartDashboard.putData(
-        "climb align",
+    //         Commands.parallel(
+    //             // shooter.torqueCurrentTest(),
+    //             shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
+    //             Commands.waitUntil(
+    //                     new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.05)
+    //                     // .and(shooter::atTurretSetpoint)
+    //                     // .debounce(0.25)
+    //                     )
+    //                 .andThen(indexer.kick())));
+    // SmartDashboard.putData(
+    //     "climb align",
         swerve.alignToClimb(
             () ->
                 ClimbTargets.CLIMB_TARGETS_LIST.stream()

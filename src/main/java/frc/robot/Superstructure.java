@@ -653,15 +653,16 @@ public class Superstructure {
 
   public boolean inScoringArea() {
     // return true;
-    return
-       (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-               && (swerve.getPose().getX() <= 4.6914191246032715))
-           || (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-               && (swerve.getPose().getX() >= 11.889562606811523));
+    return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+            && (swerve.getPose().getX() <= 4.6914191246032715))
+        || (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            && (swerve.getPose().getX() >= 11.889562606811523));
   }
 
   public boolean canScore() {
-    return (isOurShift() || !DriverStation.isFMSAttached()) && (inScoringArea() || override) && !swerve.isNearTrench();
+    return (isOurShift() || !DriverStation.isFMSAttached())
+        && (inScoringArea() || override)
+        && !swerve.isNearTrench();
   }
 
   public static ShotTarget getShotTarget() {
