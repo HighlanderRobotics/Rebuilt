@@ -93,7 +93,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
                       * Math.PI
                       * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
               double kickerSpeed = surfaceSpeedInPerSec / (Math.PI * KICKER_DIAMETER_INCHES);
-              // arbitrarily deciding to have it match the bottom wheel although i have no clue if
+              // arbitrarily deciding to have it match the bottom wheel although i have no clue
+              // if
               // that's right
               double spinnerSpeed = surfaceSpeedInPerSec / (Math.PI * SPINNER_DIAMETER_INCHES);
               Logger.recordOutput("Indexer/Spinner/Adjusted speed", spinnerSpeed);
