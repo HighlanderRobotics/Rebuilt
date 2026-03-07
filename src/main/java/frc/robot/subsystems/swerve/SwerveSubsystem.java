@@ -632,8 +632,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return translateWithIntermediatePose(
         () -> target.get().getPose(),
         () -> target.get().getPose().transformBy(new Transform2d(0.0, 0.1, Rotation2d.kZero)),
-        new TrapezoidProfile.Constraints(1.0, AutoAlign.MAX_TRANSLATIONAL_ACCELERATION),
-        new TrapezoidProfile.Constraints(6.0, AutoAlign.MAX_ANGULAR_ACCELERATION));
+        new TrapezoidProfile.Constraints(
+            1.0, AutoAlign.MAX_TRANSLATIONAL_ACCELERATION_METERS_PER_SEC_SQ),
+        new TrapezoidProfile.Constraints(6.0, AutoAlign.MAX_ANGULAR_ACCELERATION_RAD_PER_SEC_SQ));
   }
 
   private Command driveWithHeadingSnap(
