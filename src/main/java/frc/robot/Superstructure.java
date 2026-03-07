@@ -51,7 +51,7 @@ public class Superstructure {
   private double timeLeftInShift = getTimeLeftInShift();
 
   @AutoLogOutput(key = "Superstructure/Current Shift")
-  private int currentShift = getCurrentShift();
+  private String currentShift = getCurrentShift();
 
   @AutoLogOutput(key = "Scoring/Scoring Active")
   public boolean isScoringActive = isOurShift(); 
