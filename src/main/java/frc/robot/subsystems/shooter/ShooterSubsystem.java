@@ -109,8 +109,9 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   @Override
   public Command feed(
       Supplier<Pose2d> robotPoseSupplier,
-      Supplier<Pose2d> feedTarget,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
           ShotData shotData =

@@ -16,6 +16,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
@@ -49,6 +50,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
   public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
   public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
+
+  public static final double FLYWHEEL_DIAMETER_INCHES = 4;
 
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
   // logged for ease of graph viewing
@@ -221,25 +224,46 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
+  // public Command feed(
+  //     Supplier<Pose2d> robotPoseSupplier,
+  //     Supplier<Pose2d> feedTarget,
+  //     Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+  //   return this.run(
+  //       () -> {
+  //         Logger.recordOutput("Robot/Feed Target", feedTarget.get());
+  //         ShotData shotData =
+  //             AutoAim.FEED_SHOT_TREE.get(
+  //                 robotPoseSupplier
+  //                     .get()
+  //                     .getTranslation()
+  //                     .getDistance(feedTarget.get().getTranslation()));
+  //         hoodIO.setHoodPosition(shotData.hoodAngle());
+  //         //
+  // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
+  //         flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+
+  //         //   hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+  //         //   flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+  //         turretIO.setTurretPosition(
+  //             AutoAim.getTurretFeedTargetRotation(
+  //                 feedTarget.get().getTranslation(),
+  //                 robotPoseSupplier.get(),
+  //                 chassisSpeedsSupplier.get()));
+  //       });
+  // }
+
   public Command feed(
       Supplier<Pose2d> robotPoseSupplier,
-      Supplier<Pose2d> feedTarget,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
           Logger.recordOutput("Robot/Feed Target", feedTarget.get());
-          ShotData shotData =
-              AutoAim.FEED_SHOT_TREE.get(
-                  robotPoseSupplier
-                      .get()
-                      .getTranslation()
-                      .getDistance(feedTarget.get().getTranslation()));
-          hoodIO.setHoodPosition(shotData.hoodAngle());
-          //   flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
-          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-
-          //   hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          //   flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+          // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
+          flywheelIO.setMotionProfiledFlywheelVelocity(
+              shotDataSupplier.get().flywheelVelocityRotPerSec());
           turretIO.setTurretPosition(
               AutoAim.getTurretFeedTargetRotation(
                   feedTarget.get().getTranslation(),
@@ -621,5 +645,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
         });
+  }
+
+  @Override
+  public Pose2d getTurretPose(Pose2d robotPose) {
+    return robotPose.transformBy(new Transform2d(ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
   }
 }
