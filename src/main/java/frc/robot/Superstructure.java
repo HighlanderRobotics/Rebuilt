@@ -48,7 +48,7 @@ public class Superstructure {
   private static SuperState state = SuperState.IDLE;
 
   @AutoLogOutput(key = "Superstructure/Shift Timer")
-  private double timeLeftInShift = getTimeLeftInShift(getCurrentShift());
+  private double timeLeftInShift = getTimeLeftInShift();
 
   @AutoLogOutput(key = "Superstructure/Current Shift")
   private int currentShift = getCurrentShift();
@@ -56,11 +56,21 @@ public class Superstructure {
   @AutoLogOutput(key = "Scoring/Scoring Active")
   public boolean isScoringActive = isOurShift(); 
 
-  // its litterly possible
-
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
+
+  //private double timeLeftinMatch = Timer.getMatchTime();
+
+  private double timer = Timer.getFPGATimestamp();
+
+  public static double matchStartTime;
+
+  private double timeElapsed = timer - matchStartTime;
+
+  private double timeLeftinMatch() {
+    return 140.00 - timeElapsed;
+  }
 
   private final SwerveSubsystem swerve;
   private final Indexer indexer;
@@ -89,8 +99,6 @@ public class Superstructure {
   private Trigger isEmpty;
 
   private boolean shouldFeed = false;
-
-  private double timeLeftinMatch = Timer.getMatchTime();
 
   // @AutoLogOutput(key = "Superstructure/At Extension?")
   // public Trigger atExtensionTrigger = new Trigger(this::atExtension).or(Robot::isSimulation);
@@ -371,43 +379,41 @@ public class Superstructure {
     }
   }
 
-  private int getCurrentShift() {
-    // may be a nicer way to do this
-    if (210.00 < timeLeftinMatch && timeLeftinMatch <= 220.00) {
-      return 0; // transition shift
-      // My numbers were wrong for some reason not sure
-    } else if (145.00 < timeLeftinMatch && timeLeftinMatch <= 210.00) {
-      return 1;
-    } else if (120.00 < timeLeftinMatch && timeLeftinMatch <= 145.00) {
-      return 2;
-    } else if ((55.00 < timeLeftinMatch && timeLeftinMatch <= 120.00)) {
-      return 3;
-    } else if ((30.00 < timeLeftinMatch && timeLeftinMatch <= 55.00)) {
-      return 4;
+  private String getCurrentShift() {
+    if (130.00 < timeLeftinMatch() && timeLeftinMatch() <= 140.00) {
+      return "Transition"; 
+    } else if (105.00 < timeLeftinMatch() && timeLeftinMatch()<= 130.00) {
+      return "Shift 1";
+    } else if (80.00 < timeLeftinMatch() && timeLeftinMatch() <= 105.00) {
+      return "Shift 2";
+    } else if ((55.00 < timeLeftinMatch() && timeLeftinMatch() <= 80.00)) {
+      return "Shift 3";
+    } else if ((30.00 < timeLeftinMatch() && timeLeftinMatch() <= 55.00)) {
+      return "Shift 4";
     } else {
-      return 5; // endgame or whatever
+      return "End Game"; 
     }
   }
 
-  private double getTimeLeftInShift(int currentShift) {
-    double offset = switch(currentShift) {
-      case 0 -> 210.00;
-      case 1 -> 145.00;
-      case 2 -> 120.00;
-      case 3 -> 55.00;
-      case 4 -> 30.00;
+  private double getTimeLeftInShift() {
+    double offset = switch(getCurrentShift()) {
+      case "Transition" -> 140.00;
+      case "Shift 1" -> 130.00;
+      case "Shift 2" -> 105.00;
+      case "Shift 3" -> 80.00;
+      case "Shift 4" -> 55.00;
       default -> 0.00;
     };
-    return timeLeftinMatch - offset;
+    return timeLeftinMatch() - offset;
     
   }
 
   public boolean isOurShift() {
     // only cant score when its the others turn, otherwise everyone can
     if (getStartingAlliance() == DriverStation.getAlliance().orElse(Alliance.Blue)) {
-      return !(getCurrentShift() == 2 || getCurrentShift() == 4);
+      return !(getCurrentShift() == "Shift 2" || getCurrentShift() == "Shift 4");
     } else {
-      return !(getCurrentShift() == 1 || getCurrentShift() == 3);
+      return !(getCurrentShift() == "Shift 1" || getCurrentShift() == "Shift 3");
     }
   }
 

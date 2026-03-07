@@ -614,7 +614,9 @@ public class Robot extends LoggedRobot {
   public void autonomousExit() {}
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    Superstructure.matchStartTime = Timer.getFPGATimestamp();
+  }
 
   @Override
   public void teleopPeriodic() {}
