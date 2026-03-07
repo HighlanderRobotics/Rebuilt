@@ -653,6 +653,7 @@ public class Superstructure {
 
   public boolean inScoringArea() {
     // return true;
+    if (swerve == null) return false;
     return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
             && (swerve.getPose().getX() <= 4.6914191246032715))
         || (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red

@@ -736,13 +736,19 @@ public class SwerveSubsystem extends SubsystemBase {
                     getPose().getY(), getVelocityFieldRelative().vyMetersPerSecond))
         .andThen(
             driveWithHeadingSnap(
-                () -> Rotation2d.kZero,
+                () -> {
+                  if (Math.abs(getRotation().getDegrees()) < 90) {
+                    return Rotation2d.kZero;
+                  } else {
+                    return Rotation2d.k180deg;
+                  }
+                },
                 xVel,
                 // yVel))
-                () ->
-                    // -AutoAlign.calculateYVelocity(
-                    //     getPose().getY(), TrenchPoses.getClosestTrenchPose(getPose()).getY())
-                    0))
+                // () ->
+                // -AutoAlign.calculateYVelocity(
+                //     getPose().getY(), TrenchPoses.getClosestTrenchPose(getPose()).getY())
+                yVel))
         .withName("trench align");
   }
 
@@ -817,7 +823,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return new Pose3d(getPose());
   }
 
-  /** Returns the pose estimator rotation, as returned by {@link #getPose()} */
+  /**
+   * Returns the pose estimator rotation, as returned by {@link #getPose()}. between -180 and 180
+   */
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }
