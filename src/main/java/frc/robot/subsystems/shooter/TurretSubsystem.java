@@ -588,7 +588,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot0.kS = 0.79522; // 0.63933;
     config.Slot0.kV = 0.11087; // 0.11582;
     config.Slot0.kA = 0.026101; // 0.020809;
-    config.Slot0.kP = 0.2;
+    config.Slot0.kP = 0.6;
     config.Slot0.kD = 0;
 
     // slot 1 is for torque current

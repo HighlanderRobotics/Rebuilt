@@ -175,7 +175,7 @@ public class Robot extends LoggedRobot {
 
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
-      11.8; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
+      12.1; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 

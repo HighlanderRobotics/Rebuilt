@@ -54,34 +54,34 @@ public class AutoAim {
   static { // For hub shot tree
     // TODO min shot
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17), new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40, 1.04));
+        Units.inchesToMeters(24 + 17), new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 2, 1.04));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(25), 35, 1.14));
+        new ShotData(Rotation2d.fromDegrees(25), 35 - 2, 1.14));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
-        new ShotData(Rotation2d.fromDegrees(26), 37, 1.10));
+        new ShotData(Rotation2d.fromDegrees(26), 37 - 2, 1.10));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
-        new ShotData(Rotation2d.fromDegrees(30), 37, 1.09));
+        new ShotData(Rotation2d.fromDegrees(30), 37 - 2, 1.09));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
-        new ShotData(Rotation2d.fromDegrees(33), 37, 1.15));
+        new ShotData(Rotation2d.fromDegrees(33), 37 - 2, 1.15));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
-        new ShotData(Rotation2d.fromDegrees(36), 38, 1.23));
+        new ShotData(Rotation2d.fromDegrees(36), 38 - 2, 1.23));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
-        new ShotData(Rotation2d.fromDegrees(38), 39, 1.33));
+        new ShotData(Rotation2d.fromDegrees(38), 39 - 2, 1.33));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
-        new ShotData(Rotation2d.fromDegrees(39), 40.5, 1.35));
+        new ShotData(Rotation2d.fromDegrees(39), 40.5 - 1, 1.35));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
