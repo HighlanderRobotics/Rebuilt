@@ -78,10 +78,10 @@ public class AutoAim {
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
-        new ShotData(Rotation2d.fromDegrees(38), 38, 1.33));
+        new ShotData(Rotation2d.fromDegrees(38), 39, 1.33));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
-        new ShotData(Rotation2d.fromDegrees(39), 38, 1.35));
+        new ShotData(Rotation2d.fromDegrees(39), 40.5, 1.35));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -169,10 +169,10 @@ public class AutoAim {
     //         turretTargetRotations,
     //         TurretSubsystem.TURRET_MIN_ANGLE.getRotations(),
     //         TurretSubsystem.TURRET_MAX_ANGLE.getRotations());
-    double turretTargetDegrees = turretTargetRotation.getDegrees();
+    double turretTargetDegrees = turretTargetRotation.getDegrees() - 5;
     // If its in the deadzone, clamp to nearest hardstop
-    if (turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
-        && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())) {
+    if (turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees() - 2
+        && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 2)) {
       turretTargetDegrees =
           // If the requested angle is greater than the halfway point in the deadzone, go to the
           // read hardstop, otherwise go to forward hardstop
@@ -180,8 +180,8 @@ public class AutoAim {
                   > (TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
                           + TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
                       / 2
-              ? TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()
-              : TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees();
+              ? TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 2
+              : TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees() - 2;
     }
 
     Logger.recordOutput("Turret/Clamped target", Rotation2d.fromDegrees(turretTargetDegrees));

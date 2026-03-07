@@ -490,10 +490,11 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Canivore Status", canivore.getStatus().Status);
     Logger.recordOutput("Robot Edition", ROBOT_EDITION);
 
+    shooter.turretInit();
+
     PhoenixOdometryThread.getInstance().start();
 
-    SmartDashboard.putData(
-        "Current zero climber (needs to be enabled)", climber.runCurrentZeroing());
+    SmartDashboard.putData("[BE ENABLED] Current zero climber", climber.runCurrentZeroing());
     SmartDashboard.putData("Zero Intake", intake.zeroRackOffCancoder().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
@@ -706,7 +707,11 @@ public class Robot extends LoggedRobot {
     // current zero shooter hood
     driver
         .b()
-        .whileTrue(Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing()));
+        .whileTrue(
+            shooter
+                .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+                .andThen(
+                    Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing())));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 
