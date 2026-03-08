@@ -691,7 +691,7 @@ public class Robot extends LoggedRobot {
     //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
     new Trigger(swerve::isNearTrench)
-        .and(() -> Superstructure.getState() == SuperState.INTAKE)
+        .and(() -> Superstructure.getState() != SuperState.INTAKE)
         .whileTrue(
             swerve
                 // .driveClosedLoopFieldRelative(

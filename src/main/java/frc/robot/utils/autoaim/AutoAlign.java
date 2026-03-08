@@ -31,7 +31,7 @@ public class AutoAlign {
   static final ProfiledPIDController VY_CONTROLLER =
       new ProfiledPIDController(10.0, 0.01, 0.02, DEFAULT_TRANSLATIONAL_CONSTRAINTS);
   static final ProfiledPIDController HEADING_CONTROLLER =
-      new ProfiledPIDController(5.0, 0.0, 0.0, DEFAULT_ANGULAR_CONSTRAINTS);
+      new ProfiledPIDController(5.0, 0.0, 0.28, DEFAULT_ANGULAR_CONSTRAINTS);
 
   static {
     HEADING_CONTROLLER.enableContinuousInput(-Math.PI, Math.PI);
