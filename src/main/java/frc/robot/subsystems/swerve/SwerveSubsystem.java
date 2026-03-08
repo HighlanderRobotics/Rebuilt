@@ -706,7 +706,11 @@ public class SwerveSubsystem extends SubsystemBase {
           turretTargetRotation = turretTargetRotation.minus(getRotation());
           Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
           Rotation2d diff = turretTargetRotation.minus(turretRotation.get());
-          return diff;
+          Logger.recordOutput("Turret/diff", diff);
+          // if (diff.getDegrees() > 0) {
+          //   diff = Rotation2d.fromDegrees(-diff.getDegrees());
+          // }
+          return diff.plus(getRotation());
         },
         xVel,
         yVel);
