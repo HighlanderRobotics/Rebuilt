@@ -696,6 +696,7 @@ public class Robot extends LoggedRobot {
 
     new Trigger(swerve::isNearTrench)
         .and(() -> Superstructure.getState() != SuperState.INTAKE)
+        .and(() -> isTeleopEnabled())
         .whileTrue(
             swerve
                 // .driveClosedLoopFieldRelative(
