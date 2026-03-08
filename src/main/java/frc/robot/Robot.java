@@ -67,7 +67,8 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
-import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.ClimbTargets;
+import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.autoaim.AutoAim;
 import java.util.Arrays;
 import java.util.Optional;
@@ -175,7 +176,7 @@ public class Robot extends LoggedRobot {
 
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
-      11.8; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
+      12.1; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 
@@ -292,7 +293,9 @@ public class Robot extends LoggedRobot {
                         canivore,
                         ShooterSubsystem.getHoodConfig(),
                         ShooterSubsystem.HOOD_GEAR_RATIO,
-                        11),
+                        11,
+                        ShooterSubsystem.HOOD_MIN_ROTATION,
+                        ShooterSubsystem.HOOD_MAX_ROTATION),
                 ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(ShooterSubsystem.getFlywheelConfig(), canivore, 12, 13)
                     : new FlywheelIOSim(
@@ -329,7 +332,9 @@ public class Robot extends LoggedRobot {
                         SpindexerSubsystem.getIndexerConfigs(),
                         new DCMotorSim(
                             LinearSystemId.createDCMotorSystem(
-                                DCMotor.getKrakenX44Foc(1), 0.003, SpindexerSubsystem.GEAR_RATIO),
+                                DCMotor.getKrakenX44Foc(1),
+                                0.003,
+                                SpindexerSubsystem.SPINNER_GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
                         canivore),
@@ -399,7 +404,9 @@ public class Robot extends LoggedRobot {
                         canivore,
                         TurretSubsystem.getHoodConfig(),
                         TurretSubsystem.HOOD_GEAR_RATIO,
-                        11),
+                        11,
+                        TurretSubsystem.HOOD_MIN_ANGLE,
+                        TurretSubsystem.HOOD_MAX_ANGLE),
                 ROBOT_MODE == RobotMode.REAL ? new TurretIO(canivore) : new TurretIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
@@ -490,10 +497,11 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Canivore Status", canivore.getStatus().Status);
     Logger.recordOutput("Robot Edition", ROBOT_EDITION);
 
+    shooter.turretInit();
+
     PhoenixOdometryThread.getInstance().start();
 
-    SmartDashboard.putData(
-        "Current zero climber (needs to be enabled)", climber.runCurrentZeroing());
+    SmartDashboard.putData("[BE ENABLED] Current zero climber", climber.runCurrentZeroing());
     SmartDashboard.putData("Zero Intake", intake.zeroRackOffCancoder().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
@@ -518,16 +526,18 @@ public class Robot extends LoggedRobot {
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     shooter.setDefaultCommand(shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative));
     swerve.setDefaultCommand(
-        swerve.driveOpenLoopFieldRelative(
-            () ->
-                new ChassisSpeeds(
-                        modifyJoystick(driver.getLeftY())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getLeftX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                        modifyJoystick(driver.getRightX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
-                    .times(-1)));
+        swerve
+            .driveOpenLoopFieldRelative(
+                () ->
+                    new ChassisSpeeds(
+                            modifyJoystick(driver.getLeftY())
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                            modifyJoystick(driver.getLeftX())
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                            modifyJoystick(driver.getRightX())
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                        .times(-1))
+            .withName("default"));
     // swerve.setDefaultCommand(swerve.stop());
     indexer.setDefaultCommand(indexer.rest());
     intake.setDefaultCommand(intake.restExtended());
@@ -684,31 +694,42 @@ public class Robot extends LoggedRobot {
     //                         * modifyJoystick(driver.getLeftX())
     //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
 
-    // new Trigger(swerve::isCloseToTrench)
-    //     .whileTrue(
-    //         swerve.trenchAlign(
-    //             () ->
-    //                 // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-    //                 //     ?
-    //                 -1
-    //                     // : 1
-    //                     * modifyJoystick(driver.getLeftY())
-    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-    //             () ->
-    //                 // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-    //                 //     ?
-    //                 -1
-    //                     // : 1
-    //                     * modifyJoystick(driver.getLeftX())
-    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()));
+    new Trigger(swerve::isNearTrench)
+        .and(() -> Superstructure.getState() != SuperState.INTAKE)
+        .and(() -> isTeleopEnabled())
+        .whileTrue(
+            swerve
+                // .driveClosedLoopFieldRelative(
+                //     () ->
+                //         new ChassisSpeeds(
+                //                 modifyJoystick(driver.getLeftY())
+                //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                //                 modifyJoystick(driver.getLeftX())
+                //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                //                 AutoAlign.calculateRotationVelocity(
+                //                     swerve.getRotation(), Rotation2d.fromDegrees(30)))
+                //             .times(-1))
+                .trenchAlign(
+                    () ->
+                        modifyJoystick(driver.getLeftY())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                    () ->
+                        modifyJoystick(driver.getLeftX())
+                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed())
+                .alongWith(Commands.print("afkljsdflkjs")));
     // 0));
 
     // current zero shooter hood
     driver
         .b()
-        .whileTrue(Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing()));
+        .whileTrue(
+            shooter
+                .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+                .andThen(
+                    Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing())));
 
-    // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    new Trigger(() -> AutoAim.targetInTurretDeadzone())
+        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
 
     operator
         .leftBumper()
@@ -724,26 +745,44 @@ public class Robot extends LoggedRobot {
     driver
         .rightBumper()
         .whileTrue(
-            Commands.parallel(
-                // shooter.torqueCurrentTest(),
-                shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
-                Commands.waitUntil(
-                        new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.05)
-                        // .and(shooter::atTurretSetpoint)
-                        // .debounce(0.25)
-                        )
-                    .andThen(indexer.testShoot())));
-    // swerve.alignToClimb(
-    //     () ->
-    //         ClimbTargets.CLIMB_TARGETS_LIST.stream()
-    //             .filter(target -> target.getLeftHanded() == leftClimbTarget)
-    //             .filter(
-    //                 target ->
-    //                     target.isBlueAlliance()
-    //                         == (DriverStation.getAlliance().orElse(Alliance.Blue)
-    //                             == Alliance.Blue))
-    //             .findFirst()
-    //             .get()));
+            //         Commands.parallel(
+            //             // shooter.torqueCurrentTest(),
+            //             shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
+            //             Commands.waitUntil(
+            //                     new Trigger(shooter::atFlywheelVelocitySetpoint).debounce(0.05)
+            //                     // .and(shooter::atTurretSetpoint)
+            //                     // .debounce(0.25)
+            //                     )
+            //                 .andThen(indexer.kick())));
+            // SmartDashboard.putData(
+            //     "climb align",
+            swerve.alignToClimb(
+                () ->
+                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
+                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
+                        .filter(
+                            target ->
+                                target.isBlueAlliance()
+                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
+                                        == Alliance.Blue))
+                        .findFirst()
+                        .get()));
+    // turn swerve if target is in turret deadzone
+    driver
+        .leftBumper()
+        .and(AutoAim::targetInTurretDeadzone)
+        .and(() -> Superstructure.getState().isAScoreState())
+        .whileTrue(
+            swerve.faceHubComp(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                shooter::getTurretPosition));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
@@ -813,7 +852,7 @@ public class Robot extends LoggedRobot {
               .transformBy(
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123),
-                      new Rotation3d(0, shooter.getHoodPosition().getRadians() * -1, 0)))
+                      new Rotation3d(0, shooter.getHoodPosition().getRadians() * 1, 0)))
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
@@ -865,9 +904,13 @@ public class Robot extends LoggedRobot {
     // Log climb poses
     Logger.recordOutput(
         "AutoAlign/Climb Targets",
-        Arrays.stream(FieldUtils.ClimbTargets.values())
+        Arrays.stream(ClimbTargets.values())
             .map(target -> target.getPose())
             .toArray(Pose2d[]::new));
+
+    Logger.recordOutput(
+        "trench poses",
+        Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
   }
 
   public void updateAlerts() {

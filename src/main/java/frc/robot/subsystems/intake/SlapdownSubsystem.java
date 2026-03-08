@@ -134,7 +134,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     return this.run(
         () -> {
           // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-          rollerIO.setRollerVelocity(60);
+          rollerIO.setRollerVelocity(80);
         });
   }
 
@@ -219,7 +219,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
 
@@ -232,8 +232,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = 80.0; // glup
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
@@ -255,7 +255,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Slot0.kS = 1; // 0.55127;
     config.Slot0.kV = 0.18; // 0.19756;
     config.Slot0.kA = 0; // 0.0074445;
-    config.Slot0.kP = 0.35; // 0.017985;
+    config.Slot0.kP = 0.55; // 0.017985;
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE

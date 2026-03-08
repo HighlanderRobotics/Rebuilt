@@ -16,6 +16,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
@@ -42,28 +43,35 @@ import org.littletonrobotics.junction.Logger;
 public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   /** Creates a new TurretSubsystem. */
-  public static double HOOD_GEAR_RATIO = 58.96875;
+  public static final double HOOD_GEAR_RATIO = 58.96875;
 
-  public static double FLYWHEEL_GEAR_RATIO = 0.84615384615;
+  public static final double FLYWHEEL_GEAR_RATIO = 0.84615384615;
 
-  public static Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
-  public static Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
-  public static double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
+  public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
+  public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
+  public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
+
+  public static final double FLYWHEEL_DIAMETER_INCHES = 4;
 
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
-  public static Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
+  // logged for ease of graph viewing
+  @AutoLogOutput(key = "Shooter/Turret/Rear Hardstop")
+  public static final Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
       // Changed to avoid cooking cable chain/wires
       // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
       // (worked in sim)
-      Rotation2d.fromRotations(-0.677246).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
+      Rotation2d.fromDegrees(-260).plus(Rotation2d.kZero); // 0.25 // -0.75 // -0.719536);
+
+  @AutoLogOutput(key = "Shooter/Turret/Forward Hardstop")
   public static Rotation2d TURRET_FORWARD_HARDSTOP_ANGLE =
-      Rotation2d.fromRotations(
-          0); // -0.0354 // 0.011378); //slightly short of what it actually is (0.002 ish) but
+      Rotation2d.fromDegrees(
+          -10); // -0.0354 // 0.011378); //slightly short of what it actually is (0.002 ish) but
+
   // otherwise wrapping gets weird
 
-  public static Translation2d ROBOT_TO_TURRET_TRANSLATION =
+  public static final Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
-  public static double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
+  public static final double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
   double currentFilterValue = 0.0;
 
   private CANcoderIO cancoder24t;
@@ -125,6 +133,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   private final Alert turretMotorDisconnectedAlert =
       new Alert("Disconnected turret motor!", AlertType.kError);
 
+  private final Alert turretPastHardstopAlert =
+      new Alert(
+          "Turret may have gone past hardstop!! Reoffset cancoders + min/max position",
+          AlertType.kError);
+
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
@@ -137,6 +150,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
 
+    // assume we start up at min angle and not 0
+    hoodIO.resetEncoder(HOOD_MIN_ANGLE);
+  }
+
+  @Override
+  public void turretInit() {
     // Starting positions
     this.cancoder24t.updateInputs(cancoder24tInputs);
     this.cancoder26t.updateInputs(cancoder26tInputs);
@@ -171,9 +190,16 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     flywheelFollowerDisconnectedAlert.set(!flywheelInputs.flywheelFollowerConnected);
     hoodDisconnectedAlert.set(!hoodInputs.connected);
     turretMotorDisconnectedAlert.set(!turretInputs.connected);
-
-    Logger.recordOutput("Turret/Forward hardstop angle", TURRET_FORWARD_HARDSTOP_ANGLE);
-    Logger.recordOutput("Turret/Rear hardstop angle", TURRET_REAR_HARDSTOP_ANGLE);
+    boolean pastHardstop =
+        ((getTurretPosition().getDegrees() > 0.002 * 360)
+                // TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
+                && (getTurretPosition().getDegrees()
+                    < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
+            || (getCalculatedTurretRotations().getDegrees() > 0.002 * 360)
+                // TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
+                && (getCalculatedTurretRotations().getDegrees()
+                    < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
+    if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
@@ -182,7 +208,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
     // Offset measured at rear hardstop (approx -259 degrees)
-    config.MagnetSensor.MagnetOffset = -0.70922 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
+    config.MagnetSensor.MagnetOffset = -0.7768 - TurretIO.CANCODER_24T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
@@ -194,32 +220,53 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // this is to offset the position where both cancoders are equal to be inside the deadzone
     // Offset measured at rear hardstop (approx -259 degrees)
-    config.MagnetSensor.MagnetOffset = -0.43779 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
+    config.MagnetSensor.MagnetOffset = -0.4995 - TurretIO.CANCODER_26T_TO_TURRET_GEAR_RATIO / 0.1;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
   }
 
   @Override
+  // public Command feed(
+  //     Supplier<Pose2d> robotPoseSupplier,
+  //     Supplier<Pose2d> feedTarget,
+  //     Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+  //   return this.run(
+  //       () -> {
+  //         Logger.recordOutput("Robot/Feed Target", feedTarget.get());
+  //         ShotData shotData =
+  //             AutoAim.FEED_SHOT_TREE.get(
+  //                 robotPoseSupplier
+  //                     .get()
+  //                     .getTranslation()
+  //                     .getDistance(feedTarget.get().getTranslation()));
+  //         hoodIO.setHoodPosition(shotData.hoodAngle());
+  //         //
+  // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
+  //         flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
+
+  //         //   hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+  //         //   flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+  //         turretIO.setTurretPosition(
+  //             AutoAim.getTurretFeedTargetRotation(
+  //                 feedTarget.get().getTranslation(),
+  //                 robotPoseSupplier.get(),
+  //                 chassisSpeedsSupplier.get()));
+  //       });
+  // }
+
   public Command feed(
       Supplier<Pose2d> robotPoseSupplier,
-      Supplier<Pose2d> feedTarget,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+      Supplier<ShotData> shotDataSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
           Logger.recordOutput("Robot/Feed Target", feedTarget.get());
-          ShotData shotData =
-              AutoAim.FEED_SHOT_TREE.get(
-                  robotPoseSupplier
-                      .get()
-                      .getTranslation()
-                      .getDistance(feedTarget.get().getTranslation()));
-          hoodIO.setHoodPosition(shotData.hoodAngle());
-          //   flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
-          flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
-
-          //   hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          //   flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+          // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
+          flywheelIO.setMotionProfiledFlywheelVelocity(
+              shotDataSupplier.get().flywheelVelocityRotPerSec());
           turretIO.setTurretPosition(
               AutoAim.getTurretFeedTargetRotation(
                   feedTarget.get().getTranslation(),
@@ -314,7 +361,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @AutoLogOutput(key = "Shooter/Turret/At Setpoint?")
   public boolean atTurretSetpoint() {
     return MathUtil.isNear(
-        turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 2);
+        turretInputs.positionRotations.getDegrees(), getTurretSetpoint().getDegrees(), 1);
   }
 
   @Override
@@ -542,7 +589,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot0.kS = 0.79522; // 0.63933;
     config.Slot0.kV = 0.11087; // 0.11582;
     config.Slot0.kA = 0.026101; // 0.020809;
-    config.Slot0.kP = 0.2;
+    config.Slot0.kP = 0.6;
     config.Slot0.kD = 0;
 
     // slot 1 is for torque current
@@ -601,5 +648,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
         });
+  }
+
+  @Override
+  public Pose2d getTurretPose(Pose2d robotPose) {
+    return robotPose.transformBy(new Transform2d(ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
   }
 }
