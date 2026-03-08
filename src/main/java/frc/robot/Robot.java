@@ -727,7 +727,8 @@ public class Robot extends LoggedRobot {
                 .andThen(
                     Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing())));
 
-    // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    new Trigger(() -> AutoAim.targetInTurretDeadzone())
+        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
 
     operator
         .leftBumper()
