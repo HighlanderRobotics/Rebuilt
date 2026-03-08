@@ -1,5 +1,5 @@
 {
- "name":"OTtoFR",
+ "name":"OtoFR",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -18,7 +18,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"0.7321799635887146 m", "val":0.7321799635887146}, "y":{"exp":"O.y", "val":0.7198631167411804}, "heading":{"exp":"O.heading", "val":1.5707963267948966}, "intervals":30, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"O.x", "val":0.7321799635887146}, "y":{"exp":"O.y", "val":0.7198631167411804}, "heading":{"exp":"O.heading", "val":1.5707963267948966}, "intervals":30, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.405749559402466 m", "val":2.405749559402466}, "y":{"exp":"0.7364640235900879 m", "val":0.7364640235900879}, "heading":{"exp":"0.8728935406274366 rad", "val":0.8728935406274366}, "intervals":38, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"4.684704303741455 m", "val":4.684704303741455}, "y":{"exp":"0.7244694828987122 m", "val":0.7244694828987122}, "heading":{"exp":"8.196575740831445 mrad", "val":0.008196575740831446}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.24398946762085 m", "val":6.24398946762085}, "y":{"exp":"0.7484585046768188 m", "val":0.7484585046768188}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
