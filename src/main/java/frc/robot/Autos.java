@@ -103,9 +103,10 @@ public class Autos {
 
   public enum Path {
     // OUTPOST
-    PRtoO("PRT", "O", Action.OUTPOST),
+    PRtoO("PR", "O", Action.OUTPOST),
+    MRtoO("MR", "O", Action.OUTPOST),
     // DEPOT
-    PLtoD("PLT", "D", Action.FLOW),
+    PLtoD("PL", "D", Action.FLOW),
     // FEED
     DtoFL("DT", "FL", Action.FEED),
     FLtoFLM("FL", "FLM", Action.FEED),
@@ -120,17 +121,22 @@ public class Autos {
     IRMtoMR("FRM", "MR", Action.INTAKE),
     RLtoIL("RL", "FL", Action.INTAKE),
     RRtoIR("RR", "FR", Action.INTAKE),
+    PRtoIR("PR", "FR", Action.INTAKE),
+    PLtoIL("PL", "FL", Action.INTAKE),
     // SCORE
     DtoRL("D", "RL", Action.SCORE),
     OtoRR("O", "RR", Action.SCORE),
     // FLOW
     OtoIR("O", "FR", Action.FLOW),
     DtoIL("D", "FL", Action.FLOW),
+    MLtoD("ML", "D", Action.FLOW),
     // CLIMB
     MLtoCL("ML", "CL", Action.CLIMB),
     MRtoCR("MR", "CR", Action.CLIMB),
     FRMtoCR("FRM", "CR", Action.CLIMB),
     FLMtoCL("FLM", "CL", Action.CLIMB),
+    OtoCR("O", "CR", Action.CLIMB),
+    DtoCL("D", "CL", Action.CLIMB),
 
     RUNtoTEST("RUN", "TEST", Action.NOTHING);
 
@@ -441,6 +447,39 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.PRtoO, Path.OtoRR, Path.RRtoIR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  // awful names.. mb
+  public Command getFillDepotScoreClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoD, Path.DtoCL};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getFillOutpostScoreClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PRtoIR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoO, Path.OtoCR};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
