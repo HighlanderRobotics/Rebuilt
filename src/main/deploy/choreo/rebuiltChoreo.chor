@@ -7,8 +7,8 @@
    "slow":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1.15 m / s",
-     "val":1.15
+     "exp":"2 m / s",
+     "val":2.0
     }
    },
    "slowaccel":{
@@ -16,6 +16,20 @@
     "var":{
      "exp":"1.5 m / s ^ 2",
      "val":1.5
+    }
+   },
+   "slower":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"1.5 m / s",
+     "val":1.5
+    }
+   },
+   "slowest":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"1 m / s",
+     "val":1.0
     }
    }
   },
