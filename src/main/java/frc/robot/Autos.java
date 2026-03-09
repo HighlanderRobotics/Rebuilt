@@ -222,7 +222,7 @@ public class Autos {
 
   public Command climbPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqTrue(),
+        // setAutoScoreReqTrue(),
         setAutoIntakeReqFalse(),
         setAutoPreClimbReqTrue(),
         // Commands.parallel(
