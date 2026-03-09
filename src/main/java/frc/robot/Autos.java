@@ -466,7 +466,7 @@ public class Autos {
     Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoD, Path.DtoCL};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
-        //TODO set left climb true
+    // TODO set left climb true
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
