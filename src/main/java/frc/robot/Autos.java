@@ -108,10 +108,8 @@ public class Autos {
     // DEPOT
     PLtoD("PL", "D", Action.FLOW),
     // FEED
-    DtoFL("DT", "FL", Action.FEED),
     FLtoFLM("FL", "FLM", Action.FEED),
     FRtoFRM("FR", "FRM", Action.FEED),
-    OtoFR("O", "FR", Action.FEED),
     FLMtoML("FLM", "ML", Action.FEED),
     FRMtoMR("FRM", "MR", Action.FEED),
     // INTAKE
@@ -127,14 +125,10 @@ public class Autos {
     DtoRL("D", "RL", Action.SCORE),
     OtoRR("O", "RR", Action.SCORE),
     // FLOW
-    OtoIR("O", "FR", Action.FLOW),
-    DtoIL("D", "FL", Action.FLOW),
     MLtoD("ML", "D", Action.FLOW),
     // CLIMB
     MLtoCL("ML", "CL", Action.CLIMB),
     MRtoCR("MR", "CR", Action.CLIMB),
-    FRMtoCR("FRM", "CR", Action.CLIMB),
-    FLMtoCL("FLM", "CL", Action.CLIMB),
     OtoCR("O", "CR", Action.CLIMB),
     DtoCL("D", "CL", Action.CLIMB),
 
