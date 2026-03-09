@@ -465,7 +465,8 @@ public class Autos {
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoD, Path.DtoCL};
     Command autoCommand =
-        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
+        //TODO set left climb true
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
