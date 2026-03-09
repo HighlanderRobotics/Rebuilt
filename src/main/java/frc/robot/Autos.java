@@ -96,51 +96,42 @@ public class Autos {
   (each routine has a varition) (only for crossing paths ig)
 
   climb no climb variations
+
+  R is a middle point facing towards the neutral zone
+  M is middle poitns facing our alliance
     */
 
   public enum Path {
-    DtoFL("DT", "FL", Action.FEED), //
-    FLMtoCL("FLM", "CL", Action.CLIMB), //
-    FLMtoSL("FLM", "SLT", Action.SCORE), //
-    FLtoFLM("FL", "FLM", Action.FEED), //
-    // FLtoSL("FL", "SL", Action.SCORE), //not even used
-    FRMtoCR("FRM", "CR", Action.CLIMB), // todo make the bumper vs trench
-    FRMtoSR("FRM", "SR", Action.SCORE), // todo make the bumper vs trench
-    FRtoFRM("FR", "FRM", Action.FEED), //
-    // FRtoSR("FR", "SR", Action.SCORE), //not used so whatever
-    OtoFR("OT", "FR", Action.FEED), //
-    SLtoCL("SL", "CL", Action.CLIMB), //
-    SLtoCM("SL", "CM", Action.CLIMB), //
-    SLtoFL("SLT", "FL", Action.FEED), // todo make the bumper vs trench
-    SRtoCM("SR", "CM", Action.CLIMB), //
-    SRtoCR("SRT", "CR", Action.CLIMB), // this name is incorrect
-    SRtoFR("SR", "FR", Action.FEED), // wait why is this needed
-    PRtoO("PRT", "O", Action.OUTPOST), //
-    PLtoD("PLT", "D", Action.FLOW), // here make intake and SCORE
-    DtoIL("DT", "FL", Action.FLOW), //
-    ILMtoSL("FLM", "SLT", Action.SCORE),
-    ILtoILM("FL", "FLM", Action.INTAKE),
-    // ILtoSL("FL", "SL", Action.SCORE), //not even used
-    IRMtoSR("FRM", "SR", Action.SCORE), // todo make the bumper vs trench
-    IRtoIRM("FR", "FRM", Action.INTAKE), // todo make the bumper vs trench
-    // IRtoSR("FR", "SR", Action.SCORE), //not even used
-    OtoIR("OT", "FR", Action.FLOW),
-    // SLtoIL("SL", "FL", Action.INTAKE), //not even used
-    //  SRtoIR("SR", "FR", Action.INTAKE); //not even used
-    // better naming for DLt etc
-    ILMtoML("FLM", "ML", Action.INTAKE),
-    MLtoSL("ML", "SL", Action.SCORE),
-    IRMtoMR("FRM", "MR", Action.INTAKE),
-    MRtoSR("MR", "SR", Action.SCORE),
-    // feeding ones
+    // OUTPOST
+    PRtoO("PR", "O", Action.OUTPOST),
+    MRtoO("MR", "O", Action.OUTPOST),
+    // DEPOT
+    PLtoD("PL", "D", Action.FLOW),
+    // FEED
+    FLtoFLM("FL", "FLM", Action.FEED),
+    FRtoFRM("FR", "FRM", Action.FEED),
     FLMtoML("FLM", "ML", Action.FEED),
     FRMtoMR("FRM", "MR", Action.FEED),
+    // INTAKE
+    ILtoILM("FL", "FLM", Action.INTAKE),
+    IRtoIRM("FR", "FRM", Action.INTAKE),
+    ILMtoML("FLM", "ML", Action.INTAKE),
+    IRMtoMR("FRM", "MR", Action.INTAKE),
+    RLtoIL("RL", "FL", Action.INTAKE),
+    RRtoIR("RR", "FR", Action.INTAKE),
+    PRtoIR("PR", "FR", Action.INTAKE),
+    PLtoIL("PL", "FL", Action.INTAKE),
+    // SCORE
+    DtoRL("D", "RL", Action.SCORE),
+    OtoRR("O", "RR", Action.SCORE),
+    // FLOW
+    MLtoD("ML", "D", Action.FLOW),
+    // CLIMB
     MLtoCL("ML", "CL", Action.CLIMB),
     MRtoCR("MR", "CR", Action.CLIMB),
-    DtoRL("DT", "RL", Action.SCORE),
-    RLtoIL("RL", "FL", Action.INTAKE),
-    OtoRR("OT", "RR", Action.SCORE),
-    RRtoIR("RR", "FR", Action.INTAKE),
+    OtoCR("O", "CR", Action.CLIMB),
+    DtoCL("D", "CL", Action.CLIMB),
+
     RUNtoTEST("RUN", "TEST", Action.NOTHING);
 
     private final String start;
@@ -456,6 +447,40 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.PRtoO, Path.OtoRR, Path.RRtoIR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  // awful names.. mb
+  public Command getFillDepotScoreClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoD, Path.DtoCL};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
+    // TODO set left climb true
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getFillOutpostScoreClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PRtoIR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoO, Path.OtoCR};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 

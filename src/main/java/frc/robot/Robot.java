@@ -805,6 +805,8 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
+    autoChooser.addOption("Fill Depot Score Climb", autos.getFillDepotScoreClimbAuto());
+    autoChooser.addOption("Fill Outpost Score Climb", autos.getFillOutpostScoreClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
 
     haveAutosGenerated = true;
