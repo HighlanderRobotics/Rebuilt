@@ -804,6 +804,7 @@ public class SwerveSubsystem extends SubsystemBase {
         .withName("trench align");
   }
 
+  @AutoLogOutput(key = "Swerve/Near Trench")
   public boolean isNearTrench() {
     double x = getPose().getX();
     double y = getPose().getY();

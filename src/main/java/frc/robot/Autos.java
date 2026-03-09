@@ -219,7 +219,7 @@ public class Autos {
 
   public Command climbPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqTrue(),
+        // setAutoScoreReqTrue(),
         setAutoIntakeReqFalse(),
         setAutoPreClimbReqTrue(),
         // Commands.parallel(
@@ -393,7 +393,13 @@ public class Autos {
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
-    Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
+    Path[] paths = {
+      Path.PLtoD,
+      Path.DtoRL,
+      Path.RLtoIL,
+      // Path.ILtoILM,
+      Path.ILMtoML,
+      Path.MLtoCL
       // Path.DtoIL,
     }; // , Path.SLtoCL};
     Command autoCommand =

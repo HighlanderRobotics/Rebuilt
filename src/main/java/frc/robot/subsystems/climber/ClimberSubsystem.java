@@ -63,6 +63,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public ClimberSubsystem(ClimberIO climberIO) {
     this.io = climberIO;
+    io.resetEncoder(Units.inchesToMeters(1));
   }
 
   public Command extend() {

@@ -913,6 +913,8 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput(
         "trench poses",
         Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
+
+    Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
   }
 
   public void updateAlerts() {
@@ -993,6 +995,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     addAutos();
+    System.out.println("--------------Robot Disabled-----------");
   }
 
   @Override
