@@ -239,7 +239,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
-    bindTransition(SuperState.SCORE, SuperState.IDLE, shootReq.negate());
+    bindTransition(SuperState.SCORE, SuperState.IDLE, shootReq.negate().or(scoreReq.negate()));
 
     // SCORE_FLOW transitions
     {
@@ -253,14 +253,14 @@ public class Superstructure {
       bindTransition(
           SuperState.SPIN_UP_SCORE_FLOW,
           SuperState.IDLE,
-          intakeReq.negate().and(shootReq.negate()));
+          intakeReq.negate().and(shootReq.negate()).or(scoreReq.negate()));
 
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate());
 
       bindTransition(
-          SuperState.SCORE_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
+          SuperState.SCORE_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()).or(scoreReq.negate()));
     }
 
     // --------------------------------------------------------------------------
