@@ -74,6 +74,13 @@ public class Superstructure {
     RIGHT
   }
 
+  public enum FixedShotTarget {
+    LEFT,
+    MID,
+    RIGHT,
+    NONE
+  }
+
   @AutoLogOutput(key = "Superstructure/State")
   private static SuperState state = SuperState.IDLE;
 
@@ -138,8 +145,11 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Ready?")
   private Trigger readyTrigger;
 
-  @AutoLogOutput(key = "Superstructure/Operator Override?")
+  @AutoLogOutput(key = "Superstructure/Operator Pose Override?")
   private boolean override;
+
+  @AutoLogOutput(key = "Superstructure/Fixed Shot")
+  private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
 
   /** Creates a new Superstructure. */
   public Superstructure(
@@ -187,6 +197,11 @@ public class Superstructure {
 
     operator.leftTrigger().onTrue(Commands.runOnce(() -> override = true));
     operator.rightTrigger().onTrue(Commands.runOnce(() -> override = false));
+
+    operator.povLeft().onTrue(Commands.runOnce(() -> fixedShotTarget = FixedShotTarget.LEFT));
+    operator.povUp().onTrue(Commands.runOnce(() -> fixedShotTarget = FixedShotTarget.MID));
+    operator.povRight().onTrue(Commands.runOnce(() -> fixedShotTarget = FixedShotTarget.RIGHT));
+    operator.povDown().onTrue(Commands.runOnce(() -> fixedShotTarget = FixedShotTarget.NONE));
 
     shootReq =
         driver
@@ -679,5 +694,9 @@ public class Superstructure {
 
   public static FeedTarget getFeedTarget() {
     return feedTarget;
+  }
+
+  public static FixedShotTarget getFixedShotTarget() {
+    return fixedShotTarget;
   }
 }

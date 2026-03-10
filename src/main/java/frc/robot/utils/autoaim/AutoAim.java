@@ -255,4 +255,16 @@ public class AutoAim {
   public static boolean targetInTurretDeadzone() {
     return outOfRange;
   }
+
+  public static ShotData getLeftFixedShotData() {
+    return new ShotData(Rotation2d.kZero, 0, 0);
+  }
+
+  public static ShotData getRightFixedShotData() {
+    return new ShotData(Rotation2d.kZero, 0, 0);
+  }
+
+  public static ShotData getMidFixedShotData() {
+    return new ShotData(Rotation2d.kZero, 0, 0);
+  }
 }

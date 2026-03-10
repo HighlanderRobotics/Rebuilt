@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
@@ -458,15 +459,35 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
-          // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
-          flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(
-              AutoAim.getTurretHubTargetRotation(
-                  FieldUtils.getCurrentHubTranslation(),
-                  robotPoseSupplier.get(),
-                  chassisSpeedsSupplier.get()));
+          switch (Superstructure.getFixedShotTarget()) {
+              // in front of left trench with intake facing trench
+            case LEFT:
+              hoodIO.setHoodPosition(AutoAim.getLeftFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getLeftFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+              // in front of tower with intake facing left (to avoid deadzone)
+            case MID:
+              hoodIO.setHoodPosition(AutoAim.getMidFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getMidFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+              // in front of right trench with intake facing alliance wall
+            case RIGHT:
+              hoodIO.setHoodPosition(AutoAim.getRightFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getRightFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+            case NONE:
+              hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  shotDataSupplier.get().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(
+                  AutoAim.getTurretHubTargetRotation(
+                      FieldUtils.getCurrentHubTranslation(),
+                      robotPoseSupplier.get(),
+                      chassisSpeedsSupplier.get()));
+          }
         });
   }
 
@@ -639,14 +660,35 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(
-              AutoAim.getTurretHubTargetRotation(
-                  FieldUtils.getCurrentHubTranslation(),
-                  robotPoseSupplier.get(),
-                  chassisSpeedsSupplier.get()));
+          switch (Superstructure.getFixedShotTarget()) {
+              // in front of left trench with intake facing trench
+            case LEFT:
+              hoodIO.setHoodPosition(AutoAim.getLeftFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getLeftFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+              // in front of tower with intake facing left (to avoid deadzone)
+            case MID:
+              hoodIO.setHoodPosition(AutoAim.getMidFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getMidFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+              // in front of right trench with intake facing alliance wall
+            case RIGHT:
+              hoodIO.setHoodPosition(AutoAim.getRightFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getRightFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+            case NONE:
+              hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  shotDataSupplier.get().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(
+                  AutoAim.getTurretHubTargetRotation(
+                      FieldUtils.getCurrentHubTranslation(),
+                      robotPoseSupplier.get(),
+                      chassisSpeedsSupplier.get()));
+          }
         });
   }
 
