@@ -762,6 +762,20 @@ public class SwerveSubsystem extends SubsystemBase {
     return inXTol && inYTol;
   }
 
+  @AutoLogOutput(key = "Swerve/Near Trench for hood")
+  public boolean isNearTrenchForHood() {
+    double x = getPose().getX();
+    double y = getPose().getY();
+
+    boolean inXTol =
+        MathUtil.isNear(TrenchPoses.BLUE_RIGHT.getPose().getX(), x, 1)
+            || MathUtil.isNear(TrenchPoses.RED_RIGHT.getPose().getX(), x, 1);
+    boolean inYTol =
+        MathUtil.isNear(TrenchPoses.BLUE_RIGHT.getPose().getY(), y, 0.515)
+            || MathUtil.isNear(TrenchPoses.RED_RIGHT.getPose().getY(), y, 0.515);
+    return inXTol && inYTol;
+  }
+
   public boolean isCloseToBump() {
     double x = getPose().getX();
     double y = getPose().getY();
