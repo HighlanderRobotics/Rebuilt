@@ -51,6 +51,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
   public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
   public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
+  public static final double TURRET_CURRENT_ZERO_THRESHOLD = 30.0; // TODO find
 
   public static final double FLYWHEEL_DIAMETER_INCHES = 4;
 
@@ -73,7 +74,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
   public static final double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
-  double currentFilterValue = 0.0;
+  double hoodCurrentFilterValue = 0.0;
+  double turretCurrentFilterValue = 0.0;
 
   private CANcoderIO cancoder24t;
   private CANcoderIO cancoder26t;
@@ -183,7 +185,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Turret Cancoder24t", cancoder24tInputs);
     cancoder26t.updateInputs(cancoder26tInputs);
     Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
-    currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
+    hoodCurrentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
 
     cancoder24tDisconnectedAlert.set(!cancoder24tInputs.connected);
     cancoder26tDisconnectedAlert.set(!cancoder26tInputs.connected);
@@ -399,7 +401,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command runCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
-            new Trigger(() -> Math.abs(currentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)
+            new Trigger(() -> Math.abs(hoodCurrentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)
                 .debounce(0.25))
         .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
   }
@@ -695,5 +697,19 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @Override
   public Pose2d getTurretPose(Pose2d robotPose) {
     return robotPose.transformBy(new Transform2d(ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+  }
+
+  @Override
+  public Command currentZeroTurret() {
+    // TODO idk which hardstop we should zero against but
+    return this.run(() -> turretIO.setVoltage(1.0))
+        .until(
+            new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
+                .debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurret()));
+  }
+
+  public Command zeroTurret() {
+    return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
   }
 }

@@ -322,7 +322,7 @@ public class Superstructure {
 
     (preClimbReq.and(climbReq.negate())).onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
-    bindTransition(SuperState.PRE_CLIMB, SuperState.CLIMB, climbReq);
+    bindTransition(SuperState.PRE_CLIMB, SuperState.CLIMB, climbReq); //TODO maybe add transition out of climb in case we fall
     bindTransition(
         SuperState.PRE_CLIMB, SuperState.IDLE, preClimbReq.negate().and(climbReq.negate()));
   }
