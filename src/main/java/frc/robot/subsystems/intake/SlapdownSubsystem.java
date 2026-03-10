@@ -30,9 +30,9 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
-  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(5.425);
+  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(-18.61);
   public static final Rotation2d PIVOT_MAX_POSITION =
-      Rotation2d.fromDegrees(145.425); // Not so sure abt this one...
+      Rotation2d.fromDegrees(128); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
