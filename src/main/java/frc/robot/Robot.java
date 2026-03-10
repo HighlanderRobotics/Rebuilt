@@ -498,6 +498,7 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Robot Edition", ROBOT_EDITION);
 
     shooter.turretInit();
+    intake.slapdownInit();
 
     PhoenixOdometryThread.getInstance().start();
 
