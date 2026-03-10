@@ -495,8 +495,8 @@ public class Robot extends LoggedRobot {
     PhoenixOdometryThread.getInstance().start();
 
     SmartDashboard.putData("[BE ENABLED] Current zero climber", climber.runCurrentZeroing());
-    SmartDashboard.putData("Zero Intake Off Cancoder", intake.zeroPivotOffCancoder().ignoringDisable(true));
-    SmartDashboard.putData("Zero intake 90 deg", intake.);
+    SmartDashboard.putData(
+        "Zero Intake Off Cancoder", intake.zeroPivotOffCancoder().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot",
