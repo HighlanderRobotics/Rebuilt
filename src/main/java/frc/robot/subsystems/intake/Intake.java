@@ -14,6 +14,8 @@ public interface Intake extends Subsystem {
   /** Run balls towards the shooter */
   public Command intake();
 
+  public Command outtake();
+
   /** Run balls away from the shooter. This is for antijamming the robot */
   public Command agitate();
 

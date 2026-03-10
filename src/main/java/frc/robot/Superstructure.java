@@ -491,7 +491,7 @@ public class Superstructure {
         climber.retract());
 
     bindCommands(
-        SuperState.SPIT, intake.agitate(), indexer.spit(), shooter.spit(), climber.retract());
+        SuperState.SPIT, intake.outtake(), indexer.spit(), shooter.spit(), climber.retract());
     bindCommands(
         SuperState.PRE_CLIMB,
         intake.restRetracted(),
