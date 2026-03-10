@@ -40,6 +40,7 @@ import frc.robot.Superstructure;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
+import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.constants.AlphaSwerveConstants;
 import frc.robot.subsystems.swerve.constants.SwerveConstants;
 import frc.robot.subsystems.swerve.constants.comp.R1WispSwerveConstants;
@@ -450,7 +451,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return a command driving to target speeds
    */
   public Command driveClosedLoopRobotRelative(Supplier<ChassisSpeeds> speeds) {
-    return this.run(() -> drive(speeds.get(), false));
+    return this.run(() -> drive(speeds.get(), false)).withName("cr");
   }
 
   /**
@@ -464,6 +465,21 @@ public class SwerveSubsystem extends SubsystemBase {
         () -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds.get(), getRotation()), false));
   }
 
+  public Command driveTrenchThing(Supplier<ChassisSpeeds> speeds) {
+    return this.run(
+            () -> {
+              ChassisSpeeds speedRobotRelative =
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds.get(),
+                      // Flip so that speeds passed in are always relative to driver
+                      DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                          ? getPose().getRotation()
+                          : getPose().getRotation().minus(Rotation2d.fromDegrees(180)));
+              this.drive(speedRobotRelative, false);
+            })
+        .withName("cf");
+  }
+
   /**
    * Drive closed-loop at field relative speeds (i.e. for autoaim)
    *
@@ -471,7 +487,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return a Command driving to the target speeds
    */
   public Command driveOpenLoopRobotRelative(Supplier<ChassisSpeeds> speeds) {
-    return this.run(() -> drive(speeds.get(), true));
+    return this.run(() -> drive(speeds.get(), true)).withName("or");
   }
 
   /**
@@ -482,16 +498,17 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveOpenLoopFieldRelative(Supplier<ChassisSpeeds> speeds) {
     return this.run(
-        () -> {
-          ChassisSpeeds speedRobotRelative =
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds.get(),
-                  // Flip so that speeds passed in are always relative to driver
-                  DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                      ? getPose().getRotation()
-                      : getPose().getRotation().minus(Rotation2d.fromDegrees(180)));
-          this.drive(speedRobotRelative, true);
-        });
+            () -> {
+              ChassisSpeeds speedRobotRelative =
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds.get(),
+                      // Flip so that speeds passed in are always relative to driver
+                      DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                          ? getPose().getRotation()
+                          : getPose().getRotation().minus(Rotation2d.fromDegrees(180)));
+              this.drive(speedRobotRelative, true);
+            })
+        .withName("of");
   }
 
   /**
@@ -616,21 +633,28 @@ public class SwerveSubsystem extends SubsystemBase {
     return translateWithIntermediatePose(
         () -> target.get().getPose(),
         () -> target.get().getPose().transformBy(new Transform2d(0.0, 0.1, Rotation2d.kZero)),
-        new TrapezoidProfile.Constraints(1.0, AutoAlign.MAX_TRANSLATIONAL_ACCELERATION),
-        new TrapezoidProfile.Constraints(6.0, AutoAlign.MAX_ANGULAR_ACCELERATION));
+        new TrapezoidProfile.Constraints(
+            1.0, AutoAlign.MAX_TRANSLATIONAL_ACCELERATION_METERS_PER_SEC_SQ),
+        new TrapezoidProfile.Constraints(6.0, AutoAlign.MAX_ANGULAR_ACCELERATION_RAD_PER_SEC_SQ));
   }
 
   private Command driveWithHeadingSnap(
       Supplier<Rotation2d> target, DoubleSupplier xVel, DoubleSupplier yVel) {
     return Commands.runOnce(
-            () -> AutoAlign.resetHeadingController(getRotation(), getVelocityFieldRelative()))
+            () ->
+                AutoAlign.resetHeadingController(
+                    getRotation().plus(Rotation2d.kZero), getVelocityFieldRelative()))
+        .withName("reset")
         .andThen(
-            driveClosedLoopFieldRelative(
+            driveTrenchThing(
                 () ->
                     new ChassisSpeeds(
-                        xVel.getAsDouble(),
-                        yVel.getAsDouble(),
-                        AutoAlign.calculateRotationVelocity(getRotation(), target.get()))));
+                            xVel.getAsDouble(),
+                            yVel.getAsDouble(),
+                            -AutoAlign.calculateRotationVelocity(
+                                getRotation().plus(Rotation2d.kZero), target.get()))
+                        .times(-1)))
+        .withName("drive w heading snap");
   }
 
   // public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel) {
@@ -657,6 +681,37 @@ public class SwerveSubsystem extends SubsystemBase {
         () ->
             AutoAim.getVirtualTargetYaw(
                 getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree),
+        xVel,
+        yVel);
+  }
+
+  public Command faceHubComp(
+      DoubleSupplier xVel, DoubleSupplier yVel, Supplier<Rotation2d> turretRotation) {
+    return driveWithHeadingSnap(
+        () -> {
+          Pose2d turretPose =
+              getPose()
+                  .transformBy(
+                      new Transform2d(
+                          TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+
+          // get desired rotation to point at target
+          Rotation2d turretTargetRotation =
+              AutoAim.getVirtualTargetYaw(
+                  getVelocityFieldRelative(),
+                  FieldUtils.getCurrentHubTranslation(),
+                  turretPose,
+                  AutoAim.COMP_HUB_SHOT_TREE);
+          // subtract that from rotation to point at target
+          turretTargetRotation = turretTargetRotation.minus(getRotation());
+          Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
+          Rotation2d diff = turretTargetRotation.minus(turretRotation.get());
+          Logger.recordOutput("Turret/diff", diff);
+          // if (diff.getDegrees() > 0) {
+          //   diff = Rotation2d.fromDegrees(-diff.getDegrees());
+          // }
+          return diff.plus(getRotation());
+        },
         xVel,
         yVel);
   }
@@ -688,81 +743,62 @@ public class SwerveSubsystem extends SubsystemBase {
         target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   }
 
-  public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
-    return driveWithHeadingSnap(
-        () -> {
-          if (getPose().getRotation().getDegrees() <= 90) {
-            return new Rotation2d(Math.PI / 4);
-          } else if (getPose().getRotation().getDegrees() >= 90
-              && (getPose().getRotation().getDegrees() <= 180)) {
-            return new Rotation2d((3 * Math.PI) / 4);
-          } else if (getPose().getRotation().getDegrees() >= 180
-              && (getPose().getRotation().getDegrees() <= 270)) {
-            return new Rotation2d((5 * Math.PI) / 4);
-          } else {
-            return new Rotation2d((7 * Math.PI) / 4);
-          }
-        },
-        xVel,
-        yVel);
-  }
-
-  public Command trenchAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
-    return driveWithHeadingSnap(
-        () -> {
-          // if (xVel.getAsDouble() > 0) {
-          // if (getPose().getX() < TrenchPoses.getClosestTrenchPose(getPose()).getX()) {
-          return Rotation2d.k180deg;
-          // } else {
-          //   return Rotation2d.kZero;
-          // }
-        },
-        xVel,
-        yVel);
-  }
-
-  // public boolean isCloseToTrench() {
-  //   // Pose2d nearestTrenchPose = TrenchPoses.getClosestTrenchPose(getPose());
-  //   // return (Math.abs(getPose().getX() - nearestTrenchPose.getX()) < 2)
-  //   //     && (Math.abs((getPose().getY() - nearestTrenchPose.getY())) < 0.5);
-  //   Pose2d closestTrench = TrenchPoses.getClosestTrenchPose(getPose());
-  //   double x = getPose().getX();
-  //   double y = getPose().getY();
-  //   boolean inXTol = Math.abs(x - closestTrench.getX()) < 2;
-  //   boolean inYTol = Math.abs(y - closestTrench.getY()) < 0.515;
-  //   return inXTol && inYTol;
-
-  //   // return (((Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2)
-  //   //         || (Math.abs(x - TrenchPoses.RED_LEFT.getPose().getX()) < 2))
-  //   //     && ((y > (TrenchPoses.BLUE_LEFT.getPose().getY() - 0.515)
-  //   //             && y < (TrenchPoses.BLUE_LEFT.getPose().getY() + 0.515)
-  //   //         || (y > (TrenchPoses.RED_LEFT.getPose().getY() - 0.515)
-  //   //             && y < (TrenchPoses.RED_LEFT.getPose().getY() + 0.515)))));
+  // public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
+  //   return driveWithHeadingSnap(
+  //       () -> {
+  //         if (getPose().getRotation().getDegrees() <= 90) {
+  //           return new Rotation2d(Math.PI / 4);
+  //         } else if (getPose().getRotation().getDegrees() >= 90
+  //             && (getPose().getRotation().getDegrees() <= 180)) {
+  //           return new Rotation2d((3 * Math.PI) / 4);
+  //         } else if (getPose().getRotation().getDegrees() >= 180
+  //             && (getPose().getRotation().getDegrees() <= 270)) {
+  //           return new Rotation2d((5 * Math.PI) / 4);
+  //         } else {
+  //           return new Rotation2d((7 * Math.PI) / 4);
+  //         }
+  //       },
+  //       xVel,
+  //       yVel);
   // }
 
-  public boolean isCloseToTrench() {
+  public Command trenchAlign(DoubleSupplier xVel, DoubleSupplier yVel) {
+    return Commands.runOnce(
+            () ->
+                AutoAlign.resetYController(
+                    getPose().getY(), getVelocityFieldRelative().vyMetersPerSecond))
+        .andThen(
+            driveWithHeadingSnap(
+                () -> {
+                  if (Math.abs(getRotation().getDegrees()) < 90) {
+                    return Rotation2d.kZero;
+                  } else {
+                    return Rotation2d.k180deg;
+                  }
+                },
+                xVel,
+                // yVel))
+                // () ->
+                // -AutoAlign.calculateYVelocity(
+                //     getPose().getY(), TrenchPoses.getClosestTrenchPose(getPose()).getY())
+                yVel))
+        .withName("trench align");
+  }
+
+  public boolean isNearTrench() {
     double x = getPose().getX();
     double y = getPose().getY();
 
     boolean inXTol =
-        Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2.5
-            || Math.abs(x - TrenchPoses.RED_RIGHT.getPose().getX()) < 2.5;
+        MathUtil.isNear(TrenchPoses.BLUE_RIGHT.getPose().getX(), x, 2)
+            || MathUtil.isNear(TrenchPoses.RED_RIGHT.getPose().getX(), x, 2);
     boolean inYTol =
-        (y > TrenchPoses.BLUE_LEFT.getPose().getY() - 0.515
-                && y < TrenchPoses.BLUE_LEFT.getPose().getY() + 0.515)
-            || (y > TrenchPoses.RED_LEFT.getPose().getY() - 0.515
-                && y < TrenchPoses.RED_LEFT.getPose().getY() + 0.515);
-
-    // return (((Math.abs(x - TrenchPoses.BLUE_RIGHT.getPose().getX()) < 2)
-    //             || (Math.abs(x - TrenchPoses.RED_RIGHT.getPose().getX()) < 2))
-    //         && (y > (TrenchPoses.BLUE_LEFT.getPose().getY() - 0.515)
-    //             && y < (TrenchPoses.BLUE_LEFT.getPose().getY() + 0.515))
-    //     || (y > (TrenchPoses.RED_RIGHT.getPose().getY() - 0.515)
-    //         && y < (TrenchPoses.RED_RIGHT.getPose().getY() + 0.515)));
+        MathUtil.isNear(TrenchPoses.BLUE_RIGHT.getPose().getY(), y, 0.515)
+            || MathUtil.isNear(TrenchPoses.RED_RIGHT.getPose().getY(), y, 0.515);
     return inXTol && inYTol;
   }
 
-  public boolean isCloseToBump() {
+  public boolean isNearBump() {
     double x = getPose().getX();
     double y = getPose().getY();
     return (((Math.abs(x - FieldUtils.BLUE_BUMP_RIGHT_POS.getX()) < 2)
@@ -820,7 +856,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return new Pose3d(getPose());
   }
 
-  /** Returns the pose estimator rotation, as returned by {@link #getPose()} */
+  /**
+   * Returns the pose estimator rotation, as returned by {@link #getPose()}. between -180 and 180
+   */
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }
