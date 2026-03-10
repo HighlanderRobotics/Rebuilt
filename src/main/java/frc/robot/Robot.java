@@ -495,7 +495,8 @@ public class Robot extends LoggedRobot {
     PhoenixOdometryThread.getInstance().start();
 
     SmartDashboard.putData("[BE ENABLED] Current zero climber", climber.runCurrentZeroing());
-    SmartDashboard.putData("Zero Intake", intake.zeroRackOffCancoder().ignoringDisable(true));
+    SmartDashboard.putData("Zero Intake Off Cancoder", intake.zeroPivotOffCancoder().ignoringDisable(true));
+    SmartDashboard.putData("Zero intake 90 deg", intake.);
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot",
@@ -780,7 +781,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
     autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    autoChooser.addOption("Intake Extension Sysid", intake.runPivotSysid());
+    autoChooser.addOption("Intake Pivot Sysid", intake.runPivotSysid());
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());

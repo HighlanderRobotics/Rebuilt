@@ -33,8 +33,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(5.425);
   public static final Rotation2d PIVOT_MAX_POSITION =
       Rotation2d.fromDegrees(145.425); // Not so sure abt this one...
-  public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION; // TODO
-  public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION; // TODO
+  public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
+  public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
   public static final double ROLLER_GEAR_RATIO = 2.0;
   public static final double PIVOT_GEAR_RATIO = 39.375;
@@ -190,7 +190,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public Command zeroRackOffCancoder() {
+  public Command zeroPivotOffCancoder() {
     return this.runOnce(() -> pivotIO.resetEncoder(cancoderIOInputs.cancoderPositionRotations));
   }
 

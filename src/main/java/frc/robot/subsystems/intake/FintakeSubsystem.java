@@ -111,7 +111,7 @@ public class FintakeSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public Command zeroRackOffCancoder() {
+  public Command zeroPivotOffCancoder() {
     return this.idle();
   }
 

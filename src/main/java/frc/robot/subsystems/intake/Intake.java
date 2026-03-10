@@ -33,7 +33,7 @@ public interface Intake extends Subsystem {
     return Commands.none();
   }
 
-  public Command zeroRackOffCancoder();
+  public Command zeroPivotOffCancoder();
 
   public Command runCurrentZeroing();
 
