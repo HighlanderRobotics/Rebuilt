@@ -74,7 +74,6 @@ public class PivotIO {
     inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.tempC = temp.getValueAsDouble();
-    inputs.voltage = voltage.getValueAsDouble();
   }
 
   public void setMotorVoltage(double voltage) {

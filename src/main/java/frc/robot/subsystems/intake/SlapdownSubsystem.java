@@ -39,8 +39,6 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final double ROLLER_GEAR_RATIO = 2.0;
   public static final double PIVOT_GEAR_RATIO = 39.375;
 
-  public static final double PIVOT_CURRENT_THRESHOLD = 18;
-
   private final PivotIO pivotIO;
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
 
@@ -120,107 +118,65 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command agitate() {
     return Commands.sequence(
-        this.run(
-            () -> {
-              // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-              // assume it's starting down i guess
-              pivotIO.setMotorVoltage(7);
-              rollerIO.setRollerVelocity(10.0);
-            })
-        // .until(atExtensionTrigger))
-        //         .withTimeout(1),
-        //     this.run(
-        //             () -> {
-        //               // pivotIO.setMotorPositionSetpoint(
-        //               //     PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
-        //               pivotIO.setMotorVoltage(-5);
-        //               rollerIO.setRollerVelocity(10.0);
-        //             })
-        //         // .until(atExtensionTrigger))
-        //         .withTimeout(1))
-        // .repeatedly();
-        );
+            this.run(
+                    () -> {
+                      pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+                      rollerIO.setRollerVelocity(10.0);
+                    })
+                .until(atExtensionTrigger),
+            this.run(
+                    () -> {
+                      pivotIO.setMotorPositionSetpoint(
+                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
+                      rollerIO.setRollerVelocity(10.0);
+                    })
+                .until(atExtensionTrigger))
+        .repeatedly();
   }
 
   @Override
   public Command intake() {
-    // return this.run(
-    //     () -> {
-    //       // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-    //       pivotIO.setMotorVoltage(3);
-    //       rollerIO.setRollerVelocity(80);
-    //     }).until(pivotIOInputs.statorCurrentAmps > 30);
-
-    return Commands.sequence(
-        this.run(
-                () -> {
-                  pivotIO.setMotorVoltage(-5);
-                  rollerIO.setRollerVelocity(80);
-                })
-            .until(
-                new Trigger(() -> currentFilterValue > PIVOT_CURRENT_THRESHOLD)
-                // .debounce(0.1)
-                ),
-        // .withTimeout(1),
-        this.run(
-            () -> {
-              pivotIO.setMotorVoltage(0);
-              rollerIO.setRollerVelocity(80);
-            }));
+    return this.run(
+        () -> {
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          rollerIO.setRollerVelocity(80);
+        });
   }
 
   @Override
   public Command outtake() {
     return this.run(
         () -> {
-          // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-          pivotIO.setMotorVoltage(0);
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
           rollerIO.setRollerVelocity(-80);
         });
   }
 
   @Override
   public Command restExtended() {
-    // return this.run(
-    //     () -> {
-    //       pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-    //       rollerIO.setRollerVoltage(0.0);
-    //     });
-    return Commands.sequence(
-        // this.run(
-        //         () -> {
-        //           pivotIO.setMotorVoltage(-3);
-        //           rollerIO.setRollerVoltage(0);
-        //         })
-        //     .until(
-        //         new Trigger(() -> pivotIOInputs.statorCurrentAmps > PIVOT_CURRENT_THRESHOLD)
-        //         // .debounce(0.1)
-        //         ),
-        this.run(
-            () -> {
-              pivotIO.setMotorVoltage(0);
-              rollerIO.setRollerVoltage(0);
-            }));
+    return this.run(
+        () -> {
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          rollerIO.setRollerVoltage(0.0);
+        });
   }
 
   @Override
   public Command restRetracted() {
     return this.run(
         () -> {
-          // pivotIO.setMotorPositionSetpoint(PIVOT_RETRACTED_POSITION);
-          pivotIO.setMotorVoltage(0);
+          pivotIO.setMotorPositionSetpoint(PIVOT_RETRACTED_POSITION);
           rollerIO.setRollerVoltage(0.0);
         });
   }
 
   @Override
   public Command runCurrentZeroing() {
-    // return Commands.sequence(
-    //     this.run(() -> pivotIO.setMotorVoltage(-2)), // TODO: TUNE VOLTAGE
-    //     Commands.waitUntil(() -> currentFilterValue > CURRENT_ZEROING_THRESHOLD),
-    //     this.runOnce(() -> pivotIO.resetEncoder(Rotation2d.kZero)),
-    //     Commands.print("Intake pivot zeroed"));
-    return Commands.none();
+    return Commands.sequence(
+        this.run(() -> pivotIO.setMotorVoltage(-2)), // TODO: TUNE VOLTAGE
+        Commands.waitUntil(() -> currentFilterValue > CURRENT_ZEROING_THRESHOLD),
+        this.runOnce(() -> pivotIO.resetEncoder(Rotation2d.kZero)),
+        Commands.print("Intake pivot zeroed"));
   }
 
   @Override
