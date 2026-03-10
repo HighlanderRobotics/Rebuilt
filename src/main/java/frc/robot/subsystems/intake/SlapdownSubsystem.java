@@ -84,6 +84,11 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
+  public void slapdownInit() {
+    pivotIO.resetEncoder(cancoderIOInputs.cancoderPositionRotations);
+  }
+
+  @Override
   public void periodic() {
     pivotIO.updateInputs(pivotIOInputs);
     Logger.processInputs("Intake/Pivot", pivotIOInputs);
@@ -122,7 +127,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
             this.run(
                     () -> {
                       pivotIO.setMotorPositionSetpoint(
-                          PIVOT_EXTENDED_POSITION.minus(Rotation2d.fromDegrees(30))); // TODO: TUNE
+                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
                       rollerIO.setRollerVelocity(10.0);
                     })
                 .until(atExtensionTrigger))
@@ -142,7 +147,16 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public Command restExtended() {
     return this.run(
         () -> {
-          // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          rollerIO.setRollerVoltage(0.0);
+        });
+  }
+
+  @Override
+  public Command restRetracted() {
+    return this.run(
+        () -> {
+          pivotIO.setMotorPositionSetpoint(PIVOT_RETRACTED_POSITION);
           rollerIO.setRollerVoltage(0.0);
         });
   }
@@ -211,8 +225,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   public boolean atExtension() {
-    return MathUtil.isNear(
-        getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 2); // TODO: TUNE TOLERANCE
+    return MathUtil.isNear(getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 10);
   }
 
   public static TalonFXConfiguration getPivotConfig() {

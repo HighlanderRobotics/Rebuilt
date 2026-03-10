@@ -44,4 +44,6 @@ public interface Intake extends Subsystem {
   public default Command restRetracted() {
     return Commands.none();
   }
+
+  public default void slapdownInit() {}
 }
