@@ -30,9 +30,9 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
-  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(-18.61);
+  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(-12);
   public static final Rotation2d PIVOT_MAX_POSITION =
-      Rotation2d.fromDegrees(128); // Not so sure abt this one...
+      Rotation2d.fromDegrees(122); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
@@ -223,13 +223,14 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
 
     config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.0;
+    config.Slot0.kS = 0.05;
+    config.Slot0.kV = 8.0; // Might suck
     config.Slot0.kA = 0.0;
+    config.Slot0.kG = 0.55;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.GravityArmPositionOffset = 0.0; // Maybe need this??
-    config.Slot0.kP = 0.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kP = 8.0;
+    config.Slot0.kD = 0.3;
 
     // TODO: TUNE
     config.CurrentLimits.StatorCurrentLimit = 80.0; // glup
@@ -238,8 +239,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     // TODO: TUNE
-    config.MotionMagic.MotionMagicCruiseVelocity = 5;
-    config.MotionMagic.MotionMagicAcceleration = 10;
+    config.MotionMagic.MotionMagicCruiseVelocity = 1;
+    config.MotionMagic.MotionMagicAcceleration = 1;
 
     return config;
   }
