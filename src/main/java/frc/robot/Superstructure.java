@@ -174,12 +174,12 @@ public class Superstructure {
     operator
         .a()
         .and(DriverStation::isTeleop)
-        .or(new Trigger(Autos.autoFlowReq))
+        .or(Autos.autoFlowReq)
         .onTrue(Commands.runOnce(() -> flowState = true));
     operator
         .b()
         .and(DriverStation::isTeleop)
-        .or(new Trigger(Autos.autoFlowReq).negate())
+        .or(Autos.autoFlowReq.negate())
         .onTrue(Commands.runOnce(() -> flowState = false));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
@@ -207,6 +207,7 @@ public class Superstructure {
         new Trigger(shooter::atFlywheelVelocitySetpoint)
             .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
+            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
     // .and(
     //     new Trigger(
     //             () -> {
@@ -234,7 +235,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
-    // bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
+    bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
