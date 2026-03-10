@@ -293,7 +293,9 @@ public class Robot extends LoggedRobot {
                         canivore,
                         ShooterSubsystem.getHoodConfig(),
                         ShooterSubsystem.HOOD_GEAR_RATIO,
-                        11),
+                        11,
+                        ShooterSubsystem.HOOD_MIN_ROTATION,
+                        ShooterSubsystem.HOOD_MAX_ROTATION),
                 ROBOT_MODE == RobotMode.REAL
                     ? new FlywheelIO(ShooterSubsystem.getFlywheelConfig(), canivore, 12, 13)
                     : new FlywheelIOSim(
@@ -402,7 +404,9 @@ public class Robot extends LoggedRobot {
                         canivore,
                         TurretSubsystem.getHoodConfig(),
                         TurretSubsystem.HOOD_GEAR_RATIO,
-                        11),
+                        11,
+                        TurretSubsystem.HOOD_MIN_ANGLE,
+                        TurretSubsystem.HOOD_MAX_ANGLE),
                 ROBOT_MODE == RobotMode.REAL ? new TurretIO(canivore) : new TurretIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
@@ -692,6 +696,7 @@ public class Robot extends LoggedRobot {
 
     new Trigger(swerve::isNearTrench)
         .and(() -> Superstructure.getState() != SuperState.INTAKE)
+        .and(() -> isTeleopEnabled())
         .whileTrue(
             swerve
                 // .driveClosedLoopFieldRelative(
@@ -723,7 +728,8 @@ public class Robot extends LoggedRobot {
                 .andThen(
                     Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing())));
 
-    // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
+    new Trigger(() -> AutoAim.targetInTurretDeadzone())
+        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
 
     operator
         .leftBumper()
@@ -758,6 +764,22 @@ public class Robot extends LoggedRobot {
                                         == Alliance.Blue))
                         .findFirst()
                         .get()));
+    // turn swerve if target is in turret deadzone
+    driver
+        .leftBumper()
+        .and(AutoAim::targetInTurretDeadzone)
+        .and(() -> Superstructure.getState().isAScoreState())
+        .whileTrue(
+            swerve.faceHubComp(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                shooter::getTurretPosition));
     // ---zeroing stuff---
 
     // create triggers for joystick disconnect alerts
@@ -827,7 +849,7 @@ public class Robot extends LoggedRobot {
               .transformBy(
                   new Transform3d(
                       new Translation3d(-0.095638, 0, 0.095123),
-                      new Rotation3d(0, shooter.getHoodPosition().getRadians() * -1, 0)))
+                      new Rotation3d(0, shooter.getHoodPosition().getRadians() * 1, 0)))
               // Then, transform the hood back to the correct location relative to the turret
               .transformBy(
                   new Transform3d(
