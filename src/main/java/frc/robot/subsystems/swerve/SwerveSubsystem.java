@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -75,6 +76,7 @@ import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -133,13 +135,19 @@ public class SwerveSubsystem extends SubsystemBase {
       DriveTrainSimulationConfig.Default()
           .withGyro(COTS.ofPigeon2())
           .withSwerveModule(
-              COTS.ofMark4n(
+              new SwerveModuleSimulationConfig(
                   DCMotor.getKrakenX60Foc(1),
-                  DCMotor.getKrakenX60Foc(1),
-                  // Still not sure where the 1.5 came from
-                  1.5,
-                  // Running l2+ swerve modules
-                  2))
+                  DCMotor.getKrakenX44Foc(1),
+                  SWERVE_CONSTANTS.getDriveGearRatio(),
+                  SWERVE_CONSTANTS.getTurnGearRatio(),
+                  // These are from the maple sim cots module config for all modules (including
+                  // mk5n)
+                  Volts.of(0.1),
+                  Volts.of(0.2),
+                  Meter.of(SWERVE_CONSTANTS.getWheelRadiusMeters()),
+                  // Also from cots config
+                  KilogramSquareMeters.of(0.03),
+                  2.25))
           .withTrackLengthTrackWidth(
               Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthX()),
               Meter.of(SwerveSubsystem.SWERVE_CONSTANTS.getTrackWidthY()))
