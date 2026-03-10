@@ -25,7 +25,8 @@ import org.littletonrobotics.junction.Logger;
 /** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
-  public static final double GEAR_RATIO = 2.0;
+  public static final double SPINNER_GEAR_RATIO = 67.0 / 12.0;
+  public static final double KICKER_GEAR_RATIO = 24.0 / 18.0;
   // i don't really know if i should be using the sushi or the stealth wheels but the sushi wheels
   // are 1" in diameter and the stealth wheels are 3" in diameter
   public static final double KICKER_DIAMETER_INCHES = 3;
@@ -59,7 +60,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
-  public static final double KICKER_GEAR_RATIO = 2.0;
 
   private LoggedTunableNumber testKickVolts = new LoggedTunableNumber("Indexer/Kicker Voltage", 10);
   private LoggedTunableNumber testSpinVolts = new LoggedTunableNumber("Indexer/Spinner Voltage", 8);
@@ -138,11 +138,11 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = SPINNER_GEAR_RATIO;
 
-    config.Slot0.kS = 0.12567;
-    config.Slot0.kV = 0.23782;
-    config.Slot0.kA = 0.019071;
+    config.Slot0.kS = 0.25181;
+    config.Slot0.kV = 0.66739;
+    config.Slot0.kA = 0.038125;
     config.Slot0.kP = 0.1;
     config.Slot0.kD = 0;
 
@@ -166,9 +166,9 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     // Converts angular motion to linear motion
     config.Feedback.SensorToMechanismRatio = KICKER_GEAR_RATIO;
 
-    config.Slot0.kS = 0.41787;
-    config.Slot0.kV = 0.26065;
-    config.Slot0.kA = 0.029144;
+    config.Slot0.kS = 0.22251;
+    config.Slot0.kV = 0.17199;
+    config.Slot0.kA = 0.024802;
     config.Slot0.kP = 7;
     config.Slot0.kD = 0;
 
