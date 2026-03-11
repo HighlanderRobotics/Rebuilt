@@ -224,18 +224,7 @@ public class Superstructure {
         new Trigger(shooter::atFlywheelVelocitySetpoint)
             .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
-            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
-    // .and(
-    //     new Trigger(
-    //             () -> {
-    //               if (Robot.ROBOT_EDITION == RobotEdition.ALPHA) {
-    //                 return swerve.isFacingTarget();
-    //               } else {
-    //                 return shooter.isFacingTarget();
-    //               }
-    //             })
-    //         .debounce(0.07));
-    ;
+            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05));
   }
 
   private void addTransitions() {
@@ -431,7 +420,7 @@ public class Superstructure {
         SuperState.SPIN_UP_SCORE,
         intake.restExtended(),
         indexer.rest(),
-        shooter.spinUp(
+        shooter.score(
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
@@ -469,8 +458,6 @@ public class Superstructure {
                         ? AutoAim.ALPHA_HUB_SHOT_TREE
                         : AutoAim.COMP_HUB_SHOT_TREE),
             swerve::getVelocityFieldRelative),
-        // shooter.testShoot(),
-        // shooter.torqueCurrentTest(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
@@ -488,7 +475,6 @@ public class Superstructure {
                         ? AutoAim.ALPHA_HUB_SHOT_TREE
                         : AutoAim.COMP_HUB_SHOT_TREE),
             swerve::getVelocityFieldRelative),
-        // shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
         climber.retract());
 
     bindCommands(
@@ -504,7 +490,6 @@ public class Superstructure {
                             ? AutoAim.ALPHA_HUB_SHOT_TREE
                             : AutoAim.COMP_HUB_SHOT_TREE)
                     .flywheelVelocityRotPerSec()),
-        // shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
         shooter.score(
             swerve::getPose,
             () ->
