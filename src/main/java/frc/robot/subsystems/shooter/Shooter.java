@@ -118,7 +118,7 @@ public interface Shooter extends Subsystem {
     return Commands.none();
   }
 
-    public default Command currentZeroTurretAgainstLeftHardstop() {
+  public default Command currentZeroTurretAgainstLeftHardstop() {
     return Commands.none();
   }
 }

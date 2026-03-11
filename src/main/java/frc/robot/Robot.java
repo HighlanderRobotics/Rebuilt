@@ -729,7 +729,8 @@ public class Robot extends LoggedRobot {
             shooter
                 .resetTurretToPosition(shooter.getCalculatedTurretRotations())
                 .andThen(
-                    Commands.parallel(shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
+                    Commands.parallel(
+                        shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> AutoAim.targetInTurretDeadzone())
         .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
@@ -737,8 +738,12 @@ public class Robot extends LoggedRobot {
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
     driver.povLeft().whileTrue(shooter.currentZeroTurretAgainstLeftHardstop());
 
-    driver.leftBumper().onTrue(Commands.parallel(shooter
-                .resetTurretToPosition(shooter.getCalculatedTurretRotations()), intake.zeroRackOffCancoder()));
+    driver
+        .leftBumper()
+        .onTrue(
+            Commands.parallel(
+                shooter.resetTurretToPosition(shooter.getCalculatedTurretRotations()),
+                intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -780,8 +785,7 @@ public class Robot extends LoggedRobot {
     // driver
     //     .leftBumper()
     //     .and(
-    new Trigger(
-            AutoAim::targetInTurretDeadzone)
+    new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
         .and(() -> !Superstructure.getPoseOverride())
         .whileTrue(
