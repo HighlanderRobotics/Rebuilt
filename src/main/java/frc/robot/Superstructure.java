@@ -124,7 +124,7 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Score Request")
   private Trigger scoreReq =
       new Trigger(() -> shotTarget == ShotTarget.SCORE)
-          .and(() -> canScore())
+          // .and(() -> canScore())
           .or(Autos.autoScoreReq);
 
   @AutoLogOutput(key = "Superstructure/Feed Request")
@@ -207,7 +207,9 @@ public class Superstructure {
         driver
             .rightTrigger()
             .and(DriverStation::isTeleop)
-            .or(Autos.autoScoreReq); // Maybe should include if its our turn? //TODO fix auto
+            .and(() -> canShoot())
+            .or(Autos.autoScoreReq)
+            .and(() -> canShoot()); // Maybe should include if its our turn? //TODO fix auto
     // bindings
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
@@ -274,7 +276,9 @@ public class Superstructure {
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate());
 
       bindTransition(
-          SuperState.SCORE_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
+          SuperState.SCORE_FLOW,
+          SuperState.IDLE,
+          intakeReq.negate().and(shootReq.negate()));
     }
 
     // --------------------------------------------------------------------------
@@ -686,6 +690,10 @@ public class Superstructure {
     return (isOurShift() || !DriverStation.isFMSAttached())
         && (inScoringArea() || override)
         && !swerve.isNearTrench();
+  }
+
+  public boolean canShoot() {
+    return !swerve.isNearTrenchForHood();
   }
 
   public static ShotTarget getShotTarget() {
