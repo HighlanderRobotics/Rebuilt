@@ -69,6 +69,7 @@ import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
+import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
 import java.util.Arrays;
 import java.util.Optional;
@@ -200,6 +201,8 @@ public class Robot extends LoggedRobot {
   private Shooter shooter = null;
   private final CANdleSubsystem candle =
       new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
+
+  private FuelSim fuelSim = new FuelSim();
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -413,7 +416,8 @@ public class Robot extends LoggedRobot {
                     : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
-                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
+                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore),
+                fuelSim);
         break;
     }
     climber =
@@ -608,6 +612,24 @@ public class Robot extends LoggedRobot {
                   "Interrputing: "
                       + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
             });
+
+    fuelSim.spawnStartingFuel();
+    fuelSim.registerIntake(
+        Units.inchesToMeters(-14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(20) // robot-centric coordinates for bounding box in meters
+        // (optional) BooleanSupplier for whether the intake should be active at a given moment
+        ); // (optional) Runnable called whenever a fuel is intaked
+
+    fuelSim.registerRobot(
+        Units.inchesToMeters(28), // from left to right in meters
+        Units.inchesToMeters(28), // from front to back in meters
+        Units.inchesToMeters(4), // from floor to top of bumpers in meters
+        swerve::getPose, // Supplier<Pose2d> of robot pose
+        swerve
+            ::getVelocityFieldRelative); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+    fuelSim.start();
   }
 
   /** Scales a joystick value for teleop driving */
@@ -981,6 +1003,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
+    fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",

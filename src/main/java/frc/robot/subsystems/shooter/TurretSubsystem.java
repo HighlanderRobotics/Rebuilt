@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -19,6 +21,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,9 +33,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FuelSim;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
@@ -138,17 +144,21 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           "Turret may have gone past hardstop!! Reoffset cancoders + min/max position",
           AlertType.kError);
 
+  private FuelSim fuelSim;
+
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
       TurretIO turretIO,
       CANcoderIO cancoder24t,
-      CANcoderIO cancoder26t) {
+      CANcoderIO cancoder26t,
+      FuelSim fuelSim) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
     this.turretIO = turretIO;
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
+    this.fuelSim = fuelSim;
 
     // assume we start up at min angle and not 0
     hoodIO.resetEncoder(HOOD_MIN_ANGLE);
@@ -200,6 +210,18 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                 && (getCalculatedTurretRotations().getDegrees()
                     < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
     if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    if (Superstructure.getState().isAScoreState())
+      fuelSim.launchFuel(
+          LinearVelocity.ofBaseUnits(
+              flywheelIO.getSetpointRotPerSec() * Math.PI * FLYWHEEL_DIAMETER_INCHES,
+              MetersPerSecond),
+          Rotation2d.kCW_90deg.minus(hoodIO.getHoodSetpoint()).getMeasure(),
+          turretIO.getTurretSetpoint().getMeasure(),
+          Distance.ofBaseUnits(0.350341, Meters));
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {
