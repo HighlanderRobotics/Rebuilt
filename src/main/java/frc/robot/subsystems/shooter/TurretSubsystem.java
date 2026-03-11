@@ -61,8 +61,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
   // logged for ease of graph viewing
-  @AutoLogOutput(key = "Shooter/Turret/Rear Hardstop")
-  public static final Rotation2d TURRET_REAR_HARDSTOP_ANGLE =
+  @AutoLogOutput(key = "Shooter/Turret/Left Hardstop")
+  public static final Rotation2d TURRET_LEFT_HARDSTOP_ANGLE =
       // Changed to avoid cooking cable chain/wires
       // Plus 0 because then the rotation2d automatically wraps the value between -0.5 and 0.5
       // (worked in sim)
@@ -402,7 +402,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ANGLE));
   }
 
-  public Command runCurrentZeroing() {
+  public Command runHoodCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
             new Trigger(() -> Math.abs(hoodCurrentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)
@@ -549,7 +549,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 5)),
+                        < (TURRET_LEFT_HARDSTOP_ANGLE.getDegrees() + 5)),
         turretSysid
             .dynamic(Direction.kForward)
             .until(
@@ -561,7 +561,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             .until(
                 () ->
                     turretInputs.positionRotations.getDegrees()
-                        < (TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 5)));
+                        < (TURRET_LEFT_HARDSTOP_ANGLE.getDegrees() + 5)));
   }
 
   // public boolean isFacingTarget() {
@@ -704,16 +704,28 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command currentZeroTurret() {
-    // TODO idk which hardstop we should zero against but
+  public Command currentZeroTurretAgainstForwardHardstop() {
     return this.run(() -> turretIO.setVoltage(1.0))
         .until(
             new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
                 .debounce(0.25))
-        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurret()));
+        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurretForwardHardstop()));
   }
 
-  public Command zeroTurret() {
+  public Command zeroTurretForwardHardstop() {
     return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
+  }
+
+    @Override
+  public Command currentZeroTurretAgainstLeftHardstop() {
+    return this.run(() -> turretIO.setVoltage(-1.0))
+        .until(
+            new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
+                .debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurretLeftHardstop()));
+  }
+
+  public Command zeroTurretLeftHardstop() {
+    return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_LEFT_HARDSTOP_ANGLE));
   }
 }

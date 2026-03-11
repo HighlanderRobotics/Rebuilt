@@ -428,15 +428,15 @@ public class Robot extends LoggedRobot {
         new Superstructure(swerve, indexer, intake, shooter, climber, driver, operator);
     addCompSysids(climber, indexer, intake, shooter);
 
-    autoAimReq =
-        driver
-            .leftBumper()
-            .or(
-                new Trigger(
-                        () ->
-                            Superstructure.getState() == SuperState.SPIN_UP_SCORE
-                                || Superstructure.getState() == SuperState.SCORE)
-                    .and(() -> isTeleopEnabled()));
+    // autoAimReq =
+    //     driver
+    //         .leftBumper()
+    //         .or(
+    //             new Trigger(
+    //                     () ->
+    //                         Superstructure.getState() == SuperState.SPIN_UP_SCORE
+    //                             || Superstructure.getState() == SuperState.SCORE)
+    //                 .and(() -> isTeleopEnabled()));
 
     //  climbAutoAlignInAutoReq = Autos.autoAlignClimbReq;
 
@@ -727,10 +727,16 @@ public class Robot extends LoggedRobot {
             shooter
                 .resetTurretToPosition(shooter.getCalculatedTurretRotations())
                 .andThen(
-                    Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing())));
+                    Commands.parallel(shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> AutoAim.targetInTurretDeadzone())
         .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
+
+    driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
+    driver.povLeft().whileTrue(shooter.currentZeroTurretAgainstLeftHardstop());
+
+    driver.leftBumper().onTrue(Commands.parallel(shooter
+                .resetTurretToPosition(shooter.getCalculatedTurretRotations()), intake.zeroRackOffCancoder()));
 
     operator
         .leftBumper()

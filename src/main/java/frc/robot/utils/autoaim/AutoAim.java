@@ -178,16 +178,16 @@ public class AutoAim {
     // If its in the deadzone, clamp to nearest hardstop
     outOfRange =
         turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
-            && (turretTargetDegrees < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees());
+            && (turretTargetDegrees < TurretSubsystem.TURRET_LEFT_HARDSTOP_ANGLE.getDegrees());
     if (outOfRange) {
       turretTargetDegrees =
           // If the requested angle is greater than the halfway point in the deadzone, go to the
           // read hardstop, otherwise go to forward hardstop
           turretTargetDegrees
                   > (TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
-                          + TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
+                          + TurretSubsystem.TURRET_LEFT_HARDSTOP_ANGLE.getDegrees())
                       / 2
-              ? TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees() + 2
+              ? TurretSubsystem.TURRET_LEFT_HARDSTOP_ANGLE.getDegrees() + 2
               : TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees() - 2;
     }
 

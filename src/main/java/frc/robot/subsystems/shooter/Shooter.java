@@ -64,7 +64,7 @@ public interface Shooter extends Subsystem {
    * Runs the hood backwards until it hits its hard stop and the current spikes, then resets encoder
    * position.
    */
-  public Command runCurrentZeroing();
+  public Command runHoodCurrentZeroing();
 
   public Rotation2d getHoodSetpoint();
 
@@ -114,7 +114,11 @@ public interface Shooter extends Subsystem {
     return Pose2d.kZero;
   }
 
-  public default Command currentZeroTurret() {
+  public default Command currentZeroTurretAgainstForwardHardstop() {
+    return Commands.none();
+  }
+
+    public default Command currentZeroTurretAgainstLeftHardstop() {
     return Commands.none();
   }
 }
