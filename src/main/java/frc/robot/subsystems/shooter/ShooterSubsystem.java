@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -127,7 +129,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command rest(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier, BooleanSupplier canScore) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION);

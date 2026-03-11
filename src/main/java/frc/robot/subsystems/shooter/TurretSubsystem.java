@@ -30,12 +30,16 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Superstructure;
+import frc.robot.Superstructure.ShotTarget;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -283,18 +287,26 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  // TODO make this work with feeding also
+
   public Command rest(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier, BooleanSupplier canScore) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
           flywheelIO.setFlywheelVoltage(0.0);
+          if (canScore.getAsBoolean()) {
           turretIO.setTurretPosition(
+              AutoAim.getTurretFeedTargetRotation(
+                  FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
+          } else {
+            turretIO.setTurretPosition(
               AutoAim.getTurretHubTargetRotation(
                   FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
+          }
         });
   }
 
@@ -303,7 +315,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
-          flywheelIO.setMotionProfiledFlywheelVelocity(20);
+          flywheelIO.setMotionProfiledFlywheelVelocity(30);
           // i think we want it to eject as far out from the robot as possible
           turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY

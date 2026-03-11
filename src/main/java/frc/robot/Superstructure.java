@@ -339,14 +339,14 @@ public class Superstructure {
         intake.restExtended(),
         // intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
         climber.retract());
 
     bindCommands(
         SuperState.INTAKE,
         intake.intake(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
         climber.retract());
 
     bindCommands(
@@ -524,19 +524,19 @@ public class Superstructure {
         SuperState.PRE_CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
         climber.extend());
     bindCommands(
         SuperState.CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
         climber.retract());
     bindCommands(
         SuperState.POST_CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
         climber.extend());
   }
 

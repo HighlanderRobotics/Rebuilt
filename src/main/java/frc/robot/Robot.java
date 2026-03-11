@@ -526,7 +526,7 @@ public class Robot extends LoggedRobot {
     // Set default commands
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
-    shooter.setDefaultCommand(shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative));
+    shooter.setDefaultCommand(shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, superstructure::canScore));
     swerve.setDefaultCommand(
         swerve
             .driveOpenLoopFieldRelative(
