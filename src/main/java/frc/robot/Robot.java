@@ -753,6 +753,8 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .or(Autos.autoLeftClimbReq.negate())
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
+//I HATE THIS!
+        operator.leftStick().whileTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
 
     // TODO: ACTUAL BINDING LOL
     // test shot
