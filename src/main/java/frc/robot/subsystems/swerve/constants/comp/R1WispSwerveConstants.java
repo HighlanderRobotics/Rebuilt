@@ -147,7 +147,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
   public double getMaxLinearAcceleration() {
     // Calculated in Choreo for R1 ratio
     // return 9.056;
-    return 22.073;
+    return 13.392; // 22.073;
   }
 
   @Override
@@ -166,7 +166,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
   @Override
   public Mass getMass() {
     // From CAD (retrieved 1/29/26), with bumpers and battery
-    return Pound.of(136.185702);
+    return Pound.of(145.8); // 136.185702);
   }
 
   // TODO: CANCODER OFFSETS
