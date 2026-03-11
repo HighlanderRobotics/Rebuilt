@@ -697,6 +697,7 @@ public class Robot extends LoggedRobot {
     new Trigger(swerve::isNearTrench)
         .and(() -> Superstructure.getState() != SuperState.INTAKE)
         .and(() -> isTeleopEnabled())
+        .and(() -> !Superstructure.getPoseOverride())
         .whileTrue(
             swerve
                 // .driveClosedLoopFieldRelative(
@@ -765,10 +766,13 @@ public class Robot extends LoggedRobot {
                         .findFirst()
                         .get()));
     // turn swerve if target is in turret deadzone
-    driver
-        .leftBumper()
-        .and(AutoAim::targetInTurretDeadzone)
+    // driver
+    //     .leftBumper()
+    //     .and(
+    new Trigger(
+            AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
+        .and(() -> !Superstructure.getPoseOverride())
         .whileTrue(
             swerve.faceHubComp(
                 () ->

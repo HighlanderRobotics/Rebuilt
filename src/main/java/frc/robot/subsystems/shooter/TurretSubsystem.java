@@ -197,16 +197,16 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     flywheelFollowerDisconnectedAlert.set(!flywheelInputs.flywheelFollowerConnected);
     hoodDisconnectedAlert.set(!hoodInputs.connected);
     turretMotorDisconnectedAlert.set(!turretInputs.connected);
-    boolean pastHardstop =
-        ((getTurretPosition().getDegrees() > 0.002 * 360)
-                // TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
-                && (getTurretPosition().getDegrees()
-                    < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
-            || (getCalculatedTurretRotations().getDegrees() > 0.002 * 360)
-                // TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
-                && (getCalculatedTurretRotations().getDegrees()
-                    < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
-    if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
+    // boolean pastHardstop =
+    //     ((getTurretPosition().getDegrees() > 0.002 * 360)
+    //             // TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
+    //             && (getTurretPosition().getDegrees()
+    //                 < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees())
+    //         || (getCalculatedTurretRotations().getDegrees() > 0.002 * 360)
+    //             // TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees())
+    //             && (getCalculatedTurretRotations().getDegrees()
+    //                 < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
+    // if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
   }
 
   public static CANcoderConfiguration getCancoder24tConfigs() {

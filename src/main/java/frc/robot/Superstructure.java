@@ -146,7 +146,7 @@ public class Superstructure {
   private Trigger readyTrigger;
 
   @AutoLogOutput(key = "Superstructure/Operator Pose Override?")
-  private boolean override;
+  private static boolean poseOverride = false;
 
   @AutoLogOutput(key = "Superstructure/Fixed Shot")
   private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
@@ -195,8 +195,8 @@ public class Superstructure {
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
     operator.rightBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.RIGHT));
 
-    operator.leftTrigger().onTrue(Commands.runOnce(() -> override = true));
-    operator.rightTrigger().onTrue(Commands.runOnce(() -> override = false));
+    operator.leftTrigger().onTrue(Commands.runOnce(() -> poseOverride = true));
+    operator.rightTrigger().onTrue(Commands.runOnce(() -> poseOverride = false));
 
     operator.povLeft().onTrue(Commands.runOnce(() -> fixedShotTarget = FixedShotTarget.LEFT));
     operator.povUp().onTrue(Commands.runOnce(() -> fixedShotTarget = FixedShotTarget.MID));
@@ -689,7 +689,7 @@ public class Superstructure {
 
   public boolean canScore() {
     return (isOurShift() || !DriverStation.isFMSAttached())
-        && (inScoringArea() || override)
+        && (inScoringArea() || poseOverride)
         && !swerve.isNearTrench();
   }
 
@@ -707,5 +707,9 @@ public class Superstructure {
 
   public static FixedShotTarget getFixedShotTarget() {
     return fixedShotTarget;
+  }
+
+  public static boolean getPoseOverride() {
+    return poseOverride;
   }
 }
