@@ -276,9 +276,7 @@ public class Superstructure {
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate());
 
       bindTransition(
-          SuperState.SCORE_FLOW,
-          SuperState.IDLE,
-          intakeReq.negate().and(shootReq.negate()));
+          SuperState.SCORE_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
     }
 
     // --------------------------------------------------------------------------
@@ -326,7 +324,10 @@ public class Superstructure {
 
     (preClimbReq.and(climbReq.negate())).onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
-    bindTransition(SuperState.PRE_CLIMB, SuperState.CLIMB, climbReq); //TODO maybe add transition out of climb in case we fall
+    bindTransition(
+        SuperState.PRE_CLIMB,
+        SuperState.CLIMB,
+        climbReq); // TODO maybe add transition out of climb in case we fall
     bindTransition(
         SuperState.PRE_CLIMB, SuperState.IDLE, preClimbReq.negate().and(climbReq.negate()));
   }

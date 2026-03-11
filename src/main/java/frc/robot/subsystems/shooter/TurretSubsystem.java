@@ -56,9 +56,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final double FLYWHEEL_DIAMETER_INCHES = 4;
 
   public static final Rotation2d TURRET_LEFT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
-    public static final Rotation2d TURRET_RIGHT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
+  public static final Rotation2d TURRET_RIGHT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
   public static final Rotation2d TURRET_MID_FIXED_SHOT_ANGLE = Rotation2d.kZero;
-
 
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
   // logged for ease of graph viewing
@@ -472,19 +471,19 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
               hoodIO.setHoodPosition(AutoAim.getLeftFixedShotData().hoodAngle());
               flywheelIO.setMotionProfiledFlywheelVelocity(
                   AutoAim.getLeftFixedShotData().flywheelVelocityRotPerSec());
-              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+              turretIO.setTurretPosition(AutoAim.LEFT_FIXED_SHOT_TURRET_ANGLE);
               // in front of tower with intake facing left (to avoid deadzone)
             case MID:
               hoodIO.setHoodPosition(AutoAim.getMidFixedShotData().hoodAngle());
               flywheelIO.setMotionProfiledFlywheelVelocity(
                   AutoAim.getMidFixedShotData().flywheelVelocityRotPerSec());
-              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+              turretIO.setTurretPosition(AutoAim.MID_FIXED_SHOT_TURRET_ANGLE);
               // in front of right trench with intake facing alliance wall
             case RIGHT:
               hoodIO.setHoodPosition(AutoAim.getRightFixedShotData().hoodAngle());
               flywheelIO.setMotionProfiledFlywheelVelocity(
                   AutoAim.getRightFixedShotData().flywheelVelocityRotPerSec());
-              turretIO.setTurretPosition(Rotation2d.kZero); // TODO
+              turretIO.setTurretPosition(AutoAim.RIGHT_FIXED_SHOT_TURRET_ANGLE);
             case NONE:
               hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
               flywheelIO.setMotionProfiledFlywheelVelocity(

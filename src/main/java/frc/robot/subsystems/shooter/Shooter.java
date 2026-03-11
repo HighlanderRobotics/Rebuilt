@@ -114,7 +114,7 @@ public interface Shooter extends Subsystem {
     return Pose2d.kZero;
   }
 
-    public default Command currentZeroTurret() {
-      return Commands.none();
-    }
+  public default Command currentZeroTurret() {
+    return Commands.none();
+  }
 }
