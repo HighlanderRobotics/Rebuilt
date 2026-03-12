@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+import com.playingwithfusion.BattFuelGauge;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -237,6 +238,8 @@ public class Robot extends LoggedRobot {
   static {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
+
+  private final BattFuelGauge bfg = new BattFuelGauge(0);
 
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
@@ -960,6 +963,14 @@ public class Robot extends LoggedRobot {
         && lowBatteryCycleCount >= lowBatteryMinCycleCount) {
       lowBatteryAlert.set(true);
     }
+    logBFG();
+  }
+
+  private void logBFG() {
+    Logger.recordOutput("BFG/Name", bfg.getNickname());
+    Logger.recordOutput("BFG/Is Connected", bfg.isConnected());
+    // Logger.recordOutput("BFG/
+    bfg.saveLog("");
   }
 
   @Override
