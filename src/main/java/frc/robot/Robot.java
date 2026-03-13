@@ -616,20 +616,20 @@ public class Robot extends LoggedRobot {
                     ? AutoAim.ALPHA_HUB_SHOT_TREE
                     : AutoAim.COMP_HUB_SHOT_TREE));
 
-    new Trigger(swerve::isNearTrench)
-        .and(() -> Superstructure.getState() != SuperState.INTAKE)
-        .and(() -> isTeleopEnabled())
-        .and(() -> !Superstructure.getPoseOverride())
-        .whileTrue(
-            swerve
-                .trenchAlign(
-                    () ->
-                        modifyJoystick(driver.getLeftY())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                    () ->
-                        modifyJoystick(driver.getLeftX())
-                            * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed())
-                .alongWith(Commands.print("afkljsdflkjs")));
+    // new Trigger(swerve::isNearTrench)
+    //     .and(() -> Superstructure.getState() != SuperState.INTAKE)
+    //     .and(() -> isTeleopEnabled())
+    //     .and(() -> !Superstructure.getPoseOverride())
+    //     .whileTrue(
+    //         swerve
+    //             .trenchAlign(
+    //                 () ->
+    //                     modifyJoystick(driver.getLeftY())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //                 () ->
+    //                     modifyJoystick(driver.getLeftX())
+    //                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed())
+    //             .alongWith(Commands.print("afkljsdflkjs")));
 
     // current zero shooter hood
     driver
