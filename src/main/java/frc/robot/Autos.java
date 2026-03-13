@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
@@ -22,6 +23,7 @@ import org.littletonrobotics.junction.Logger;
 /** Add your docs here. */
 public class Autos {
   private final SwerveSubsystem swerve;
+  private final ClimberSubsystem climber;
   private final AutoFactory factory;
   private static boolean autoFeed;
   private static boolean autoIntake;
@@ -94,51 +96,44 @@ public class Autos {
   (each routine has a varition) (only for crossing paths ig)
 
   climb no climb variations
+
+  R is a middle point facing towards the neutral zone
+  M is middle poitns facing our alliance
     */
 
   public enum Path {
-    DtoFL("DT", "FL", Action.FEED), //
-    FLMtoCL("FLM", "CL", Action.CLIMB), //
-    FLMtoSL("FLM", "SLT", Action.SCORE), //
-    FLtoFLM("FL", "FLM", Action.FEED), //
-    // FLtoSL("FL", "SL", Action.SCORE), //not even used
-    FRMtoCR("FRM", "CR", Action.CLIMB), // todo make the bumper vs trench
-    FRMtoSR("FRM", "SR", Action.SCORE), // todo make the bumper vs trench
-    FRtoFRM("FR", "FRM", Action.FEED), //
-    // FRtoSR("FR", "SR", Action.SCORE), //not used so whatever
-    OtoFR("OT", "FR", Action.FEED), //
-    SLtoCL("SL", "CL", Action.CLIMB), //
-    SLtoCM("SL", "CM", Action.CLIMB), //
-    SLtoFL("SLT", "FL", Action.FEED), // todo make the bumper vs trench
-    SRtoCM("SR", "CM", Action.CLIMB), //
-    SRtoCR("SRT", "CR", Action.CLIMB), // this name is incorrect
-    SRtoFR("SR", "FR", Action.FEED), // wait why is this needed
-    PRtoO("PRT", "O", Action.OUTPOST), //
-    PLtoD("PLT", "D", Action.FLOW), // here make intake and SCORE
-    DtoIL("DT", "FL", Action.FLOW), //
-    ILMtoSL("FLM", "SLT", Action.SCORE),
-    ILtoILM("FL", "FLM", Action.INTAKE),
-    // ILtoSL("FL", "SL", Action.SCORE), //not even used
-    IRMtoSR("FRM", "SR", Action.SCORE), // todo make the bumper vs trench
-    IRtoIRM("FR", "FRM", Action.INTAKE), // todo make the bumper vs trench
-    // IRtoSR("FR", "SR", Action.SCORE), //not even used
-    OtoIR("OT", "FR", Action.FLOW),
-    // SLtoIL("SL", "FL", Action.INTAKE), //not even used
-    //  SRtoIR("SR", "FR", Action.INTAKE); //not even used
-    // better naming for DLt etc
-    ILMtoML("FLM", "ML", Action.INTAKE),
-    MLtoSL("ML", "SL", Action.SCORE),
-    IRMtoMR("FRM", "MR", Action.INTAKE),
-    MRtoSR("MR", "SR", Action.SCORE),
-    // feeding ones
+    // OUTPOST
+    PRtoO("PR", "O", Action.OUTPOST),
+    MRtoO("MR", "O", Action.OUTPOST),
+    CtoO("C", "O", Action.OUTPOST),
+    // DEPOT
+    PLtoD("PL", "D", Action.INTAKE),
+    // FEED
+    FLtoFLM("FL", "FLM", Action.FEED),
+    FRtoFRM("FR", "FRM", Action.FEED),
     FLMtoML("FLM", "ML", Action.FEED),
     FRMtoMR("FRM", "MR", Action.FEED),
+    // INTAKE
+    ILtoILM("FL", "FLM", Action.INTAKE),
+    IRtoIRM("FR", "FRM", Action.INTAKE),
+    ILMtoML("FLM", "ML", Action.INTAKE),
+    IRMtoMR("FRM", "MR", Action.INTAKE),
+    RLtoIL("RL", "FL", Action.INTAKE),
+    RRtoIR("RR", "FR", Action.INTAKE),
+    PRtoIR("PR", "FR", Action.INTAKE),
+    PLtoIL("PL", "FL", Action.INTAKE),
+    // SCORE
+    DtoRL("D", "RL", Action.SCORE),
+    OtoRR("O", "RR", Action.SCORE),
+    DtoC("D", "C", Action.SCORE),
+    // FLOW
+    MLtoD("ML", "D", Action.FLOW),
+    // CLIMB
     MLtoCL("ML", "CL", Action.CLIMB),
     MRtoCR("MR", "CR", Action.CLIMB),
-    DtoRL("DT", "RL", Action.SCORE),
-    RLtoFL("RL", "FL", Action.FEED),
-    OtoRR("OT", "RR", Action.SCORE),
-    RRtoFR("RR", "FR", Action.FEED),
+    OtoCR("O", "CR", Action.CLIMB),
+    DtoCL("D", "CL", Action.CLIMB),
+
     RUNtoTEST("RUN", "TEST", Action.NOTHING);
 
     private final String start;
@@ -158,8 +153,9 @@ public class Autos {
     }
   }
 
-  public Autos(SwerveSubsystem swerve) {
+  public Autos(SwerveSubsystem swerve, ClimberSubsystem climber) {
     this.swerve = swerve;
+    this.climber = climber;
     factory =
         new AutoFactory(
             swerve::getPose,
@@ -174,6 +170,7 @@ public class Autos {
                           && DriverStation.getAlliance().get().equals(Alliance.Blue)
                       ? traj.getPoses()
                       : traj.flipped().getPoses());
+              Logger.recordOutput("Choreo/Active Traj Name", traj.name());
             });
   }
 
@@ -218,21 +215,27 @@ public class Autos {
 
   public Command climbPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqTrue(),
+        setAutoScoreReqFalse(),
         setAutoIntakeReqFalse(),
+        setAutoPreClimbReqTrue(),
+        // Commands.parallel(
         path.getTrajectory(routine)
             .cmd()
             .until(
-                routine.observe(
-                    path.getTrajectory(routine)
-                        .atTime(
-                            path.getTrajectory(routine).getRawTrajectory().getTotalTime()
-                                - (0.3)))),
-        setAutoPreClimbReqTrue(),
-        swerve
-            .alignToClimb(() -> getClimbAutoTarget())
-            .until(() -> swerve.isInTolerance(getClimbAutoTarget().getPose(), 0.05, 0.05)),
-        setAutoClimbReqTrue());
+                // routine.observe(
+                //     path.getTrajectory(routine)
+                //         .atTime(
+                //             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
+                //                 - (0.3)))),
+                path.getTrajectory(routine).done()),
+        Commands.parallel(swerve.stop(), setAutoScoreReqTrue()).repeatedly().withTimeout(4),
+        Commands.parallel(
+            swerve.alignToClimb(() -> getClimbAutoTarget()),
+            Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
+                .andThen(
+                    Commands.print("hooray!")
+                    // setAutoClimbReqTrue()
+                    )));
   }
 
   public Command feedPath(Path path, AutoRoutine routine) {
@@ -247,9 +250,13 @@ public class Autos {
   public Command scorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoIntakeReqFalse(),
-        setAutoScoreReqTrue(),
+        // setAutoScoreReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        setAutoScoreReqFalse());
+        // setAutoScoreReqTrue()
+        // ,
+        // setAutoScoreReqFalse()
+        setAutoScoreReqTrue(),
+        swerve.stop().repeatedly().withTimeout(3));
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
@@ -260,6 +267,7 @@ public class Autos {
   public Command intakePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         setAutoScoreReqFalse(),
+        setAutoFlowReqFalse(),
         setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         setAutoIntakeReqFalse());
@@ -269,7 +277,7 @@ public class Autos {
     return Commands.sequence(
         setAutoScoreReqTrue(),
         setAutoFlowReqTrue(),
-        setAutoIntakeReqTrue(),
+        // setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
@@ -286,11 +294,13 @@ public class Autos {
 
   public Command outpostPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqTrue(),
-        setAutoFlowReqTrue(),
-        setAutoIntakeReqTrue(),
+        setAutoScoreReqFalse(),
+        setAutoFlowReqFalse(),
+        setAutoIntakeReqFalse(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        Commands.waitSeconds(1.5));
+        swerve.stop().repeatedly().withTimeout(2)
+        // Commands.waitSeconds(1)
+        );
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
@@ -364,15 +374,34 @@ public class Autos {
         setAutoClimbReqFalse());
   }
 
+  public void setAllReqsFalsenotcmd() {
+    autoIntake = false;
+    autoScore = false;
+    autoFeed = false;
+    autoPreClimb = false;
+    autoFlow = false;
+    autoClimb = false;
+  }
+
   public Command setleftClimbAutoTrue() {
     return Commands.runOnce(() -> leftClimbAuto = true);
+  }
+
+  public Command setleftClimbAutoFalse() {
+    return Commands.runOnce(() -> leftClimbAuto = false);
   }
 
   public Command getDepotScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Score Climb Auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {
-      Path.PLtoD, Path.DtoIL, Path.ILtoILM, Path.ILMtoML, Path.MLtoCL
+      Path.PLtoD,
+      Path.DtoRL,
+      Path.RLtoIL,
+      // Path.ILtoILM,
+      Path.ILMtoML,
+      Path.MLtoCL
+      // Path.DtoIL,
     }; // , Path.SLtoCL};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
@@ -388,8 +417,13 @@ public class Autos {
 
   public Command getOutpostScoreClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Score Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoIR, Path.IRtoIRM, Path.IRMtoMR, Path.MRtoSR, Path.SRtoCR};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {
+      Path.PRtoO, Path.OtoRR, Path.RRtoIR, Path.IRtoIRM, Path.IRMtoMR, Path.MRtoCR // , Path.SRtoCR
+    };
+    // Path.OtoIR,
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -402,7 +436,8 @@ public class Autos {
 
   public Command getDepotFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Depot Feed Climb Auto");
-    Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoFL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoD, Path.DtoRL, Path.RLtoIL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoCL};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
 
@@ -417,8 +452,75 @@ public class Autos {
 
   public Command getOutpostFeedClimbAuto() {
     final AutoRoutine routine = factory.newRoutine("Outpost Feed Climb Auto");
-    Path[] paths = {Path.PRtoO, Path.OtoRR, Path.RRtoFR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
-    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PRtoO, Path.OtoRR, Path.RRtoIR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoCR};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  // awful names.. mb
+  public Command getFillDepotScoreClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Fill Depot Score Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLMtoML, Path.MLtoD, Path.DtoCL};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
+    // TODO set left climb true
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getFillOutpostScoreClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Fill Outpost Score Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PRtoIR, Path.FRtoFRM, Path.FRMtoMR, Path.MRtoO, Path.OtoCR};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getDepotClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Depot Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoD, Path.DtoCL};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getDepotOutpostClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Depot Outpost Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoD, Path.DtoC, Path.CtoO, Path.OtoCR};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));

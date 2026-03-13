@@ -17,6 +17,7 @@ import org.littletonrobotics.junction.Logger;
 public class AutoAim {
 
   private static boolean outOfRange = false; // TODO not sure if this should be true by default
+
   public static double LATENCY_COMPENSATION_SECS =
       new LoggedTunableNumber("Latency time", 0.3).getAsDouble(); // 0.6; // TODO tune latency comp
   //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
