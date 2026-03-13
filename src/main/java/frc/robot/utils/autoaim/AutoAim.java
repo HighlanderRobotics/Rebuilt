@@ -26,7 +26,8 @@ public class AutoAim {
 
   public static final Rotation2d LEFT_FIXED_SHOT_TURRET_ANGLE = Rotation2d.fromDegrees(-73.916016);
   public static final Rotation2d MID_FIXED_SHOT_TURRET_ANGLE = Rotation2d.fromDegrees(-82);
-  public static final Rotation2d RIGHT_FIXED_SHOT_TURRET_ANGLE = Rotation2d.fromDegrees(-109.775391);
+  public static final Rotation2d RIGHT_FIXED_SHOT_TURRET_ANGLE =
+      Rotation2d.fromDegrees(-109.775391);
 
   static { // For hub shot tree
     ALPHA_HUB_SHOT_TREE.put(
