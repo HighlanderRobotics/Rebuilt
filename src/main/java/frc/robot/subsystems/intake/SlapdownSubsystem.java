@@ -156,10 +156,11 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command restExtended() {
     return this.run(
-        () -> {
-          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-          rollerIO.setRollerVoltage(0.0);
-        }).unless(atExtensionTrigger);
+            () -> {
+              pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+              rollerIO.setRollerVoltage(0.0);
+            })
+        .unless(atExtensionTrigger);
   }
 
   @Override
