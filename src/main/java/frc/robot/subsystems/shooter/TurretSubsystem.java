@@ -414,6 +414,14 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return cancoder26tInputs.cancoderPositionRotations;
   }
 
+  public Command runCurrentZeroing() {
+    return this.run(() -> hoodIO.setHoodVoltage(-3.0))
+        .until(
+            new Trigger(() -> Math.abs(hoodCurrentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)
+                .debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
+  }
+
   @Override
   public Rotation2d getHoodSetpoint() {
     return hoodIO.getHoodSetpoint();

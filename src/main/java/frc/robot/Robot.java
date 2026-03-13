@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+import com.playingwithfusion.BattFuelGauge;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -233,6 +234,8 @@ public class Robot extends LoggedRobot {
   static {
     SimulatedArena.overrideInstance(new EvergreenArena());
   }
+
+  private final BattFuelGauge bfg = new BattFuelGauge(0);
 
   // this is here because it doesn't like that the power distribution logger is never closed
   @SuppressWarnings("resource")
@@ -716,6 +719,8 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
     autoChooser.addOption("Fill Depot Score Climb", autos.getFillDepotScoreClimbAuto());
     autoChooser.addOption("Fill Outpost Score Climb", autos.getFillOutpostScoreClimbAuto());
+    autoChooser.addOption("Depot Climb", autos.getDepotClimbAuto());
+    autoChooser.addOption("Depot Outpost Climb", autos.getDepotOutpostClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
 
     haveAutosGenerated = true;
@@ -855,6 +860,14 @@ public class Robot extends LoggedRobot {
         && lowBatteryCycleCount >= lowBatteryMinCycleCount) {
       lowBatteryAlert.set(true);
     }
+    logBFG();
+  }
+
+  private void logBFG() {
+    Logger.recordOutput("BFG/Name", bfg.getNickname());
+    Logger.recordOutput("BFG/Is Connected", bfg.isConnected());
+    // Logger.recordOutput("BFG/
+
   }
 
   @Override
@@ -893,22 +906,31 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    intake.slapdownInit();
+  }
 
   @Override
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+    autos.setAllReqsFalsenotcmd();
+  }
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    intake.slapdownInit();
+  }
 
   @Override
   public void teleopPeriodic() {}
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+    System.out.println("Saving BFG Log");
+    bfg.saveLog("");
+  }
 
   @Override
   public void testInit() {

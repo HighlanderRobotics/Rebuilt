@@ -44,7 +44,9 @@ public class Superstructure {
     SPIT,
     PRE_CLIMB,
     CLIMB,
-    POST_CLIMB;
+    POST_CLIMB,
+    SPIN_UP_SCORE_PRE_CLIMB,
+    SCORE_PRE_CLIMB;
     public final Trigger trigger;
 
     private SuperState() {
@@ -189,7 +191,7 @@ public class Superstructure {
     operator
         .b()
         .and(DriverStation::isTeleop)
-        .or(Autos.autoFlowReq.negate())
+        .or(Autos.autoFlowReq.negate().and(DriverStation::isAutonomous))
         .onTrue(Commands.runOnce(() -> flowState = false));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
@@ -222,7 +224,7 @@ public class Superstructure {
 
     readyTrigger =
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .debounce(0.05)
+            // .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
             .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05));
   }
@@ -312,7 +314,8 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
 
-    (preClimbReq.and(climbReq.negate())).onTrue(changeStateTo(SuperState.PRE_CLIMB));
+    (preClimbReq.and(climbReq.negate()).and(() -> DriverStation.isTeleop()))
+        .onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
     bindTransition(
         SuperState.PRE_CLIMB,
@@ -320,6 +323,32 @@ public class Superstructure {
         climbReq); // TODO maybe add transition out of climb in case we fall
     bindTransition(
         SuperState.PRE_CLIMB, SuperState.IDLE, preClimbReq.negate().and(climbReq.negate()));
+
+    bindTransition(
+        SuperState.SPIN_UP_SCORE_FLOW,
+        SuperState.SPIN_UP_SCORE_PRE_CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous()).and(preClimbReq).and(scoreReq));
+
+    bindTransition(
+        SuperState.SPIN_UP_SCORE_PRE_CLIMB,
+        SuperState.SCORE_PRE_CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous())
+            .and(preClimbReq)
+            .and(scoreReq)
+            .and(readyTrigger));
+
+    bindTransition(
+        SuperState.SCORE_FLOW,
+        SuperState.SCORE_PRE_CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous())
+            .and(preClimbReq)
+            .and(scoreReq)
+            .and(readyTrigger));
+
+    bindTransition(
+        SuperState.SCORE_PRE_CLIMB,
+        SuperState.CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous()).and(climbReq));
   }
 
   private void addCommands() {
@@ -522,6 +551,49 @@ public class Superstructure {
         intake.restRetracted(),
         indexer.rest(),
         shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
+        climber.extend());
+
+    bindCommands(
+        SuperState.SPIN_UP_SCORE_PRE_CLIMB,
+        intake.restRetracted(),
+        indexer.rest(),
+        shooter.score(
+            swerve::getPose,
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                        ? AutoAim.ALPHA_HUB_SHOT_TREE
+                        : AutoAim.COMP_HUB_SHOT_TREE),
+            swerve::getVelocityFieldRelative),
+        climber.extend());
+
+    bindCommands(
+        SuperState.SCORE_PRE_CLIMB,
+        intake.restRetracted(),
+        indexer.kick(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                        shooter.getTurretPose(swerve.getPose()),
+                        FieldUtils.getCurrentHubTranslation(),
+                        swerve.getVelocityFieldRelative(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .flywheelVelocityRotPerSec()),
+        shooter.score(
+            swerve::getPose,
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                        ? AutoAim.ALPHA_HUB_SHOT_TREE
+                        : AutoAim.COMP_HUB_SHOT_TREE),
+            swerve::getVelocityFieldRelative),
         climber.extend());
   }
 
