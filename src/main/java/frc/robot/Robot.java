@@ -36,7 +36,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Superstructure.SuperState;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.candle.CANdleIOReal;
@@ -69,6 +68,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils.ClimbTargets;
+import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.autoaim.AutoAim;
 import java.util.Arrays;
@@ -508,7 +508,7 @@ public class Robot extends LoggedRobot {
     driver.setDefaultCommand(driver.rumbleCmd(0.0, 0.0));
     operator.setDefaultCommand(operator.rumbleCmd(0.0, 0.0));
     shooter.setDefaultCommand(
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, superstructure::canScore));
+        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, superstructure::inScoringArea, () -> FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose()));
     swerve.setDefaultCommand(
         swerve
             .driveOpenLoopFieldRelative(
@@ -600,21 +600,21 @@ public class Robot extends LoggedRobot {
                             : Rotation2d.k180deg)));
 
     // autoaim (alpha)
-    autoAimReq
-        .and(() -> ROBOT_EDITION == RobotEdition.ALPHA)
-        .whileTrue(
-            swerve.faceHub(
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                ROBOT_EDITION == RobotEdition.ALPHA
-                    ? AutoAim.ALPHA_HUB_SHOT_TREE
-                    : AutoAim.COMP_HUB_SHOT_TREE));
+    // autoAimReq
+    //     .and(() -> ROBOT_EDITION == RobotEdition.ALPHA)
+    //     .whileTrue(
+    //         swerve.faceHub(
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftY())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftX())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             ROBOT_EDITION == RobotEdition.ALPHA
+    //                 ? AutoAim.ALPHA_HUB_SHOT_TREE
+    //                 : AutoAim.COMP_HUB_SHOT_TREE));
 
     // new Trigger(swerve::isNearTrench)
     //     .and(() -> Superstructure.getState() != SuperState.INTAKE)

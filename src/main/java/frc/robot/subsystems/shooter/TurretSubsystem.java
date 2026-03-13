@@ -27,7 +27,6 @@ import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.BooleanSupplier;
@@ -204,24 +203,33 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command rest(
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
-      BooleanSupplier canScore) {
+      BooleanSupplier inScoringArea,
+      Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
           flywheelIO.setFlywheelVoltage(0.0);
-          if (canScore.getAsBoolean()) {
-            turretIO.setTurretPosition(
-                AutoAim.getTurretFeedTargetRotation(
-                    FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getTranslation(),
-                    robotPoseSupplier.get(),
-                    chassisSpeedsSupplier.get()));
+          // if (canScore.getAsBoolean()) {
+          //   turretIO.setTurretPosition(
+          //       AutoAim.getTurretFeedTargetRotation(
+          //           FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getTranslation(),
+          //           robotPoseSupplier.get(),
+          //           chassisSpeedsSupplier.get()));
+          // } else {
+          if (inScoringArea.getAsBoolean()) {
+          turretIO.setTurretPosition(
+              AutoAim.getTurretHubTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
           } else {
             turretIO.setTurretPosition(
-                AutoAim.getTurretHubTargetRotation(
-                    FieldUtils.getCurrentHubTranslation(),
-                    robotPoseSupplier.get(),
-                    chassisSpeedsSupplier.get()));
+              AutoAim.getTurretFeedTargetRotation(
+                  feedTarget.get().getTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
           }
+          // }
         });
   }
 

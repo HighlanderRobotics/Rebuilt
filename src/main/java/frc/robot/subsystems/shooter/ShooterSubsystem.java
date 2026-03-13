@@ -119,7 +119,8 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   public Command rest(
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
-      BooleanSupplier canScore) {
+      BooleanSupplier canScore, 
+      Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
