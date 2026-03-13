@@ -200,10 +200,37 @@ public class Superstructure {
     operator.leftTrigger().onTrue(Commands.runOnce(() -> poseOverride = true));
     operator.rightTrigger().onTrue(Commands.runOnce(() -> poseOverride = false));
 
-    operator.povLeft().onTrue(Commands.runOnce(() -> {fixedShotTarget = FixedShotTarget.LEFT; poseOverride = true;}));
-    operator.povUp().onTrue(Commands.runOnce(() -> {fixedShotTarget = FixedShotTarget.MID; poseOverride = true;}));
-    operator.povRight().onTrue(Commands.runOnce(() -> {fixedShotTarget = FixedShotTarget.RIGHT; poseOverride = true;}));
-    operator.povDown().onTrue(Commands.runOnce(() -> {fixedShotTarget = FixedShotTarget.NONE;}));
+    operator
+        .povLeft()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  fixedShotTarget = FixedShotTarget.LEFT;
+                  poseOverride = true;
+                }));
+    operator
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  fixedShotTarget = FixedShotTarget.MID;
+                  poseOverride = true;
+                }));
+    operator
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  fixedShotTarget = FixedShotTarget.RIGHT;
+                  poseOverride = true;
+                }));
+    operator
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  fixedShotTarget = FixedShotTarget.NONE;
+                }));
 
     shootReq =
         driver
