@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
@@ -50,8 +51,13 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
   public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
   public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
+  public static final double TURRET_CURRENT_ZERO_THRESHOLD = 30.0; // TODO find
 
   public static final double FLYWHEEL_DIAMETER_INCHES = 4;
+
+  public static final Rotation2d TURRET_LEFT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
+  public static final Rotation2d TURRET_RIGHT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
+  public static final Rotation2d TURRET_MID_FIXED_SHOT_ANGLE = Rotation2d.kZero;
 
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
   // logged for ease of graph viewing
@@ -72,7 +78,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final Translation2d ROBOT_TO_TURRET_TRANSLATION =
       new Translation2d(-0.177413, -0.111702); // , 0.350341);
   public static final double FLYWHEEL_VELOCITY_TOLERANCE_ROTATIONS_PER_SECOND = 5.0;
-  double currentFilterValue = 0.0;
+  double hoodCurrentFilterValue = 0.0;
+  double turretCurrentFilterValue = 0.0;
 
   private CANcoderIO cancoder24t;
   private CANcoderIO cancoder26t;
@@ -182,7 +189,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     Logger.processInputs("Shooter/Turret Cancoder24t", cancoder24tInputs);
     cancoder26t.updateInputs(cancoder26tInputs);
     Logger.processInputs("Shooter/Turret Cancoder26t", cancoder26tInputs);
-    currentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
+    hoodCurrentFilterValue = currentFilter.calculate(hoodInputs.hoodStatorCurrentAmps);
 
     cancoder24tDisconnectedAlert.set(!cancoder24tInputs.connected);
     cancoder26tDisconnectedAlert.set(!cancoder26tInputs.connected);
@@ -398,7 +405,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public Command runHoodCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
-            new Trigger(() -> Math.abs(currentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)
+            new Trigger(() -> Math.abs(hoodCurrentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)
                 .debounce(0.25))
         .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
   }
@@ -458,15 +465,35 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
-          // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
-          flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(
-              AutoAim.getTurretHubTargetRotation(
-                  FieldUtils.getCurrentHubTranslation(),
-                  robotPoseSupplier.get(),
-                  chassisSpeedsSupplier.get()));
+          switch (Superstructure.getFixedShotTarget()) {
+              // in front of left trench with intake facing trench
+            case LEFT:
+              hoodIO.setHoodPosition(AutoAim.getLeftFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getLeftFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(AutoAim.LEFT_FIXED_SHOT_TURRET_ANGLE);
+              // in front of tower with intake facing left (to avoid deadzone)
+            case MID:
+              hoodIO.setHoodPosition(AutoAim.getMidFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getMidFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(AutoAim.MID_FIXED_SHOT_TURRET_ANGLE);
+              // in front of right trench with intake facing alliance wall
+            case RIGHT:
+              hoodIO.setHoodPosition(AutoAim.getRightFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getRightFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(AutoAim.RIGHT_FIXED_SHOT_TURRET_ANGLE);
+            case NONE:
+              hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  shotDataSupplier.get().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(
+                  AutoAim.getTurretHubTargetRotation(
+                      FieldUtils.getCurrentHubTranslation(),
+                      robotPoseSupplier.get(),
+                      chassisSpeedsSupplier.get()));
+          }
         });
   }
 
@@ -639,19 +666,54 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return this.run(
         () -> {
-          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
-          flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(
-              AutoAim.getTurretHubTargetRotation(
-                  FieldUtils.getCurrentHubTranslation(),
-                  robotPoseSupplier.get(),
-                  chassisSpeedsSupplier.get()));
+          switch (Superstructure.getFixedShotTarget()) {
+              // in front of left trench with intake facing trench
+            case LEFT:
+              hoodIO.setHoodPosition(AutoAim.getLeftFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getLeftFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(TURRET_LEFT_FIXED_SHOT_ANGLE); // TODO
+              // in front of tower with intake facing left (to avoid deadzone)
+            case MID:
+              hoodIO.setHoodPosition(AutoAim.getMidFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getMidFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(TURRET_MID_FIXED_SHOT_ANGLE); // TODO
+              // in front of right trench with intake facing alliance wall
+            case RIGHT:
+              hoodIO.setHoodPosition(AutoAim.getRightFixedShotData().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  AutoAim.getRightFixedShotData().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(TURRET_RIGHT_FIXED_SHOT_ANGLE); // TODO
+            case NONE:
+              hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+              flywheelIO.setMotionProfiledFlywheelVelocity(
+                  shotDataSupplier.get().flywheelVelocityRotPerSec());
+              turretIO.setTurretPosition(
+                  AutoAim.getTurretHubTargetRotation(
+                      FieldUtils.getCurrentHubTranslation(),
+                      robotPoseSupplier.get(),
+                      chassisSpeedsSupplier.get()));
+          }
         });
   }
 
   @Override
   public Pose2d getTurretPose(Pose2d robotPose) {
     return robotPose.transformBy(new Transform2d(ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+  }
+
+  @Override
+  public Command currentZeroTurret() {
+    // TODO idk which hardstop we should zero against but
+    return this.run(() -> turretIO.setVoltage(1.0))
+        .until(
+            new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
+                .debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurret()));
+  }
+
+  public Command zeroTurret() {
+    return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
   }
 }

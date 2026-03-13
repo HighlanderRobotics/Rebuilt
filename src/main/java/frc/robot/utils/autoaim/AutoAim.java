@@ -24,6 +24,11 @@ public class AutoAim {
 
   public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
 
+  public static final Rotation2d LEFT_FIXED_SHOT_TURRET_ANGLE = Rotation2d.fromDegrees(-73.916016);
+  public static final Rotation2d MID_FIXED_SHOT_TURRET_ANGLE = Rotation2d.fromDegrees(-82);
+  public static final Rotation2d RIGHT_FIXED_SHOT_TURRET_ANGLE =
+      Rotation2d.fromDegrees(-109.775391);
+
   static { // For hub shot tree
     ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46));
@@ -255,5 +260,17 @@ public class AutoAim {
 
   public static boolean targetInTurretDeadzone() {
     return outOfRange;
+  }
+
+  public static ShotData getLeftFixedShotData() {
+    return new ShotData(Rotation2d.fromDegrees(36), 36, 0);
+  }
+
+  public static ShotData getRightFixedShotData() {
+    return new ShotData(Rotation2d.fromDegrees(23.16), 35.7, 0);
+  }
+
+  public static ShotData getMidFixedShotData() {
+    return new ShotData(Rotation2d.fromDegrees(32.84), 35, 0);
   }
 }

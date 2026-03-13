@@ -113,4 +113,8 @@ public interface Shooter extends Subsystem {
   public default Pose2d getTurretPose(Pose2d robotPose) {
     return Pose2d.kZero;
   }
+
+  public default Command currentZeroTurret() {
+    return Commands.none();
+  }
 }
