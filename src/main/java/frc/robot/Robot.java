@@ -728,7 +728,8 @@ public class Robot extends LoggedRobot {
             shooter
                 .resetTurretToPosition(shooter.getCalculatedTurretRotations())
                 .andThen(
-                    Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing())));
+                    Commands.parallel(
+                        shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> AutoAim.targetInTurretDeadzone())
         .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
@@ -809,6 +810,8 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
     autoChooser.addOption("Fill Depot Score Climb", autos.getFillDepotScoreClimbAuto());
     autoChooser.addOption("Fill Outpost Score Climb", autos.getFillOutpostScoreClimbAuto());
+    autoChooser.addOption("Depot Climb", autos.getDepotClimbAuto());
+    autoChooser.addOption("Depot Outpost Climb", autos.getDepotOutpostClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
 
     haveAutosGenerated = true;
@@ -1007,16 +1010,22 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    intake.slapdownInit();
+  }
 
   @Override
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+    autos.setAllReqsFalsenotcmd();
+  }
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    intake.slapdownInit();
+  }
 
   @Override
   public void teleopPeriodic() {}
