@@ -29,12 +29,6 @@ public interface Intake extends Subsystem {
 
   public Rotation2d getPositionSetpoint();
 
-  public Command runRollerSysid();
-
-  public default Command runPivotSysid() {
-    return Commands.none();
-  }
-
   public Command zeroPivotOffCancoder();
 
   public Command runCurrentZeroing();

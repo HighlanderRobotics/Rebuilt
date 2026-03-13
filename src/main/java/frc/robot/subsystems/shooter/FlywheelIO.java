@@ -196,7 +196,7 @@ public class FlywheelIO {
     inputs.flywheelFollowerTorqueCurrent = flywheelFollowerTorqueCurrent.getValueAsDouble();
   }
 
-  @AutoLogOutput(key = "Shooter/Setpoint")
+  @AutoLogOutput(key = "Shooter/Flywheel/Setpoint")
   public double getSetpointRotPerSec() {
     return velocitySetpointRotPerSec;
   }

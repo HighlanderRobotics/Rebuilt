@@ -28,11 +28,6 @@ public class EmptyClimberSubsystem extends ClimberSubsystem {
   }
 
   @Override
-  public Command runClimberSysid() {
-    return this.idle();
-  }
-
-  @Override
   public Command runCurrentZeroing() {
     return this.idle();
   }
