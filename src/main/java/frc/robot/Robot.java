@@ -728,7 +728,7 @@ public class Robot extends LoggedRobot {
             shooter
                 .resetTurretToPosition(shooter.getCalculatedTurretRotations())
                 .andThen(
-                    Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing())));
+                    Commands.parallel(shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> AutoAim.targetInTurretDeadzone())
         .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
