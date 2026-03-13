@@ -706,7 +706,12 @@ public class Robot extends LoggedRobot {
     // current zero shooter hood
     driver
         .b()
-        .whileTrue(Commands.parallel(shooter.runCurrentZeroing(), intake.runCurrentZeroing()));
+        .whileTrue(
+            Commands.parallel(
+                shooter.runHoodCurrentZeroing()
+                // ,
+                // intake.runCurrentZeroing()
+                ));
 
     // new Trigger(() -> intake.beambreak()).onTrue(driver.rumbleCmd(1, 1).withTimeout(0.5));
 

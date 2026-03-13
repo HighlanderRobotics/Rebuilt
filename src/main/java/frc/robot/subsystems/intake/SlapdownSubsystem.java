@@ -37,7 +37,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION; // TODO
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION; // TODO
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
-  public static final double ROLLER_GEAR_RATIO = 2.0;
+  public static final double ROLLER_GEAR_RATIO = 60.0 / 29.0;
   public static final double PIVOT_GEAR_RATIO = 39.375;
 
   private final PivotIO pivotIO;
@@ -123,7 +123,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
             this.run(
                     () -> {
                       pivotIO.setMotorPositionSetpoint(
-                          PIVOT_EXTENDED_POSITION.minus(Rotation2d.fromDegrees(30))); // TODO: TUNE
+                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(30))); // TODO: TUNE
                       rollerIO.setRollerVelocity(10.0);
                     })
                 .until(atExtensionTrigger))
@@ -134,7 +134,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public Command intake() {
     return this.run(
         () -> {
-          // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
           rollerIO.setRollerVelocity(80);
         });
   }
@@ -143,7 +143,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public Command restExtended() {
     return this.run(
         () -> {
-          // pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
           rollerIO.setRollerVoltage(0.0);
         });
   }
@@ -153,7 +153,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     return Commands.sequence(
         this.run(() -> pivotIO.setMotorVoltage(-2)), // TODO: TUNE VOLTAGE
         Commands.waitUntil(() -> currentFilterValue > CURRENT_ZEROING_THRESHOLD),
-        this.runOnce(() -> pivotIO.resetEncoder(Rotation2d.kZero)),
+        this.runOnce(() -> pivotIO.resetEncoder(PIVOT_MIN_POSITION)),
         Commands.print("Intake pivot zeroed"));
   }
 
@@ -225,7 +225,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Feedback.FeedbackRemoteSensorID = 6;
     config.Feedback.RotorToSensorRatio = PIVOT_GEAR_RATIO;
 
-    config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = 1;
     config.Feedback.FeedbackRemoteSensorID = 6;
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 

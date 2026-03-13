@@ -177,7 +177,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command runCurrentZeroing() {
+  public Command runHoodCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
             new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD).debounce(0.25))

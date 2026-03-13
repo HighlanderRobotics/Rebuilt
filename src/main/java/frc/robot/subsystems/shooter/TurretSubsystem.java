@@ -348,7 +348,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.runOnce(() -> hoodIO.resetEncoder(HOOD_MIN_ANGLE));
   }
 
-  public Command runCurrentZeroing() {
+  public Command runHoodCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
             new Trigger(() -> Math.abs(currentFilterValue) > HOOD_CURRENT_ZERO_THRESHOLD)

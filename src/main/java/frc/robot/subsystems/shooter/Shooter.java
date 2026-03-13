@@ -63,7 +63,7 @@ public interface Shooter extends Subsystem {
    * Runs the hood backwards until it hits its hard stop and the current spikes, then resets encoder
    * position.
    */
-  public Command runCurrentZeroing();
+  public Command runHoodCurrentZeroing();
 
   public Rotation2d getHoodSetpoint();
 
