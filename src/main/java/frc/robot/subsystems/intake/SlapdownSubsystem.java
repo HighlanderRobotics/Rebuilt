@@ -31,7 +31,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
-  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromRotations(-0.051025);
+  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromRotations(-0.052002);
   public static final Rotation2d PIVOT_MAX_POSITION =
       Rotation2d.fromDegrees(122); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
@@ -160,7 +160,13 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
               pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
               rollerIO.setRollerVoltage(0.0);
             })
-        .unless(atExtensionTrigger);
+        .until(atExtensionTrigger)
+        .andThen(
+            this.run(
+                () -> {
+                  pivotIO.setMotorVoltage(0);
+                  rollerIO.setRollerVoltage(0);
+                }));
   }
 
   @Override
