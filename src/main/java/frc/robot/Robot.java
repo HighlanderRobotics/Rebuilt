@@ -498,11 +498,13 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Robot Edition", ROBOT_EDITION);
 
     shooter.turretInit();
+    intake.slapdownInit();
 
     PhoenixOdometryThread.getInstance().start();
 
     SmartDashboard.putData("[BE ENABLED] Current zero climber", climber.runCurrentZeroing());
-    SmartDashboard.putData("Zero Intake", intake.zeroRackOffCancoder().ignoringDisable(true));
+    SmartDashboard.putData(
+        "Zero Intake Off Cancoder", intake.zeroPivotOffCancoder().ignoringDisable(true));
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
     SmartDashboard.putData(
         "Test shot",
@@ -554,7 +556,7 @@ public class Robot extends LoggedRobot {
     addControllerBindings(indexer, shooter, intake);
 
     // Auto things
-    autos = new Autos(swerve);
+    autos = new Autos(swerve, climber);
     autoChooser.addDefaultOption("None", Commands.none());
 
     // Run auto when auto starts. Matches Choreolib's defer impl
@@ -735,7 +737,10 @@ public class Robot extends LoggedRobot {
         .leftBumper()
         .or(Autos.autoLeftClimbReq)
         .onTrue(Commands.runOnce(() -> leftClimbTarget = true));
-    operator.rightBumper().onTrue(Commands.runOnce(() -> leftClimbTarget = false));
+    operator
+        .rightBumper()
+        .or(Autos.autoLeftClimbReq.negate())
+        .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
 
     // TODO: ACTUAL BINDING LOL
     // test shot
@@ -802,6 +807,8 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
     autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
+    autoChooser.addOption("Fill Depot Score Climb", autos.getFillDepotScoreClimbAuto());
+    autoChooser.addOption("Fill Outpost Score Climb", autos.getFillOutpostScoreClimbAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
 
     haveAutosGenerated = true;
@@ -814,7 +821,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Climber Sysid", climber.runClimberSysid());
     autoChooser.addOption("Indexer Roller Sysid", indexer.runRollerSysId());
     autoChooser.addOption("Intake Roller Sysid", intake.runRollerSysid());
-    autoChooser.addOption("Intake Extension Sysid", intake.runPivotSysid());
+    autoChooser.addOption("Intake Pivot Sysid", intake.runPivotSysid());
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
 
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
@@ -908,6 +915,8 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput(
         "trench poses",
         Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
+
+    Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
   }
 
   public void updateAlerts() {
@@ -988,6 +997,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     addAutos();
+    System.out.println("--------------Robot Disabled-----------");
   }
 
   @Override

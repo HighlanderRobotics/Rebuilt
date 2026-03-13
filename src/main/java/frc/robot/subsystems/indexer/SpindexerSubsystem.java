@@ -99,10 +99,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               double spinnerSpeed = surfaceSpeedInPerSec / (Math.PI * SPINNER_DIAMETER_INCHES);
               Logger.recordOutput("Indexer/Spinner/Adjusted speed", spinnerSpeed);
               Logger.recordOutput("Indexer/Kicker/Adjusted speed", kickerSpeed);
-              spinnerIO.setRollerVelocity(spinnerSpeed);
-              kickerIO.setRollerVelocity(kickerSpeed);
+              spinnerIO.setRollerVelocity(spinnerSpeed - 1);
+              // kickerIO.setRollerVelocity(kickerSpeed - 5);
               // spinnerIO.setRollerVelocity(20);
-              // kickerIO.setRollerVelocity(15);
+              kickerIO.setRollerVelocity(15);
             })
         //     .withTimeout(3),
         // this.run(
