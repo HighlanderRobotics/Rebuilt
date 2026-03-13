@@ -970,7 +970,7 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("BFG/Name", bfg.getNickname());
     Logger.recordOutput("BFG/Is Connected", bfg.isConnected());
     // Logger.recordOutput("BFG/
-    bfg.saveLog("");
+
   }
 
   @Override
@@ -1023,7 +1023,10 @@ public class Robot extends LoggedRobot {
   public void teleopPeriodic() {}
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+    System.out.println("Saving BFG Log");
+    bfg.saveLog("");
+  }
 
   @Override
   public void testInit() {
