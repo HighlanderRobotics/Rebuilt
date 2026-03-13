@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Volt;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -30,7 +31,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
-  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(5.425);
+  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromRotations(-0.049805);
   public static final Rotation2d PIVOT_MAX_POSITION =
       Rotation2d.fromDegrees(145.425); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION; // TODO
@@ -222,6 +223,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
+    config.Feedback.FeedbackRemoteSensorID = 6;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 
     config.Slot0.kS = 0.0;
     config.Slot0.kV = 0.0;
