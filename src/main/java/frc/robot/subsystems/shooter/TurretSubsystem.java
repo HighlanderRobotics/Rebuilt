@@ -310,6 +310,15 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
   }
 
+  @Override
+  public Command currentZeroTurretAgainstLeftHardstop() {
+    return this.run(() -> turretIO.setVoltage(-1.0))
+        .until(
+            new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
+                .debounce(0.25))
+        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurretLeftHardstop()));
+  }
+
   public Command zeroTurretLeftHardstop() {
     return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_LEFT_HARDSTOP_ANGLE));
   }

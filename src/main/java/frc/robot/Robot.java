@@ -645,6 +645,7 @@ public class Robot extends LoggedRobot {
         .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
     // ---zeroing stuff---
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
+    driver.povLeft().whileTrue(shooter.currentZeroTurretAgainstLeftHardstop());
 
     driver
         .leftBumper()
