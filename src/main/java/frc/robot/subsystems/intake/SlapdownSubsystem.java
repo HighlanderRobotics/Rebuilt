@@ -248,8 +248,6 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Feedback.RotorToSensorRatio = PIVOT_GEAR_RATIO;
 
     config.Feedback.SensorToMechanismRatio = 1;
-    config.Feedback.FeedbackRemoteSensorID = 6;
-    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 
     config.Slot0.kS = 0.05;
     config.Slot0.kV = 8.0; // Might suck
