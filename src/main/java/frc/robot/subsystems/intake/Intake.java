@@ -14,6 +14,8 @@ public interface Intake extends Subsystem {
   /** Run balls towards the shooter */
   public Command intake();
 
+  public Command outtake();
+
   /** Run balls away from the shooter. This is for antijamming the robot */
   public Command agitate();
 
@@ -33,7 +35,7 @@ public interface Intake extends Subsystem {
     return Commands.none();
   }
 
-  public Command zeroRackOffCancoder();
+  public Command zeroPivotOffCancoder();
 
   public Command runCurrentZeroing();
 
@@ -44,4 +46,6 @@ public interface Intake extends Subsystem {
   public default Command restRetracted() {
     return Commands.none();
   }
+
+  public default void slapdownInit() {}
 }

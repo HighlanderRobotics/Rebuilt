@@ -5,9 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,7 +19,6 @@ import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
@@ -47,7 +44,9 @@ public class Superstructure {
     SPIT,
     PRE_CLIMB,
     CLIMB,
-    POST_CLIMB;
+    POST_CLIMB,
+    SPIN_UP_SCORE_PRE_CLIMB,
+    SCORE_PRE_CLIMB;
     public final Trigger trigger;
 
     private SuperState() {
@@ -56,6 +55,13 @@ public class Superstructure {
 
     public Trigger getTrigger() {
       return trigger;
+    }
+
+    public boolean isAScoreState() {
+      return this == SCORE
+          || this == SPIN_UP_SCORE
+          || this == SPIN_UP_SCORE_FLOW
+          || this == SCORE_FLOW;
     }
   }
 
@@ -170,12 +176,12 @@ public class Superstructure {
     operator
         .a()
         .and(DriverStation::isTeleop)
-        .or(new Trigger(Autos.autoFlowReq))
+        .or(Autos.autoFlowReq)
         .onTrue(Commands.runOnce(() -> flowState = true));
     operator
         .b()
         .and(DriverStation::isTeleop)
-        .or(new Trigger(Autos.autoFlowReq).negate())
+        .or(Autos.autoFlowReq.negate().and(DriverStation::isAutonomous))
         .onTrue(Commands.runOnce(() -> flowState = false));
 
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
@@ -201,8 +207,9 @@ public class Superstructure {
 
     readyTrigger =
         new Trigger(shooter::atFlywheelVelocitySetpoint)
-            .debounce(0.05)
+            // .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
+            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
     // .and(
     //     new Trigger(
     //             () -> {
@@ -230,7 +237,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
-    // bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
+    bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
@@ -301,11 +308,38 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
 
-    (preClimbReq.and(climbReq.negate())).onTrue(changeStateTo(SuperState.PRE_CLIMB));
+    (preClimbReq.and(climbReq.negate()).and(() -> DriverStation.isTeleop()))
+        .onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
     bindTransition(SuperState.PRE_CLIMB, SuperState.CLIMB, climbReq);
     bindTransition(
         SuperState.PRE_CLIMB, SuperState.IDLE, preClimbReq.negate().and(climbReq.negate()));
+
+    bindTransition(
+        SuperState.SPIN_UP_SCORE_FLOW,
+        SuperState.SPIN_UP_SCORE_PRE_CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous()).and(preClimbReq).and(scoreReq));
+
+    bindTransition(
+        SuperState.SPIN_UP_SCORE_PRE_CLIMB,
+        SuperState.SCORE_PRE_CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous())
+            .and(preClimbReq)
+            .and(scoreReq)
+            .and(readyTrigger));
+
+    bindTransition(
+        SuperState.SCORE_FLOW,
+        SuperState.SCORE_PRE_CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous())
+            .and(preClimbReq)
+            .and(scoreReq)
+            .and(readyTrigger));
+
+    bindTransition(
+        SuperState.SCORE_PRE_CLIMB,
+        SuperState.CLIMB,
+        new Trigger(() -> DriverStation.isAutonomous()).and(climbReq));
   }
 
   private void addCommands() {
@@ -330,18 +364,37 @@ public class Superstructure {
         indexer.rest(),
         shooter.feed(
             swerve::getPose,
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getVelocityFieldRelative),
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    AutoAim.FEED_SHOT_TREE),
+            swerve::getVelocityFieldRelative,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
 
     bindCommands(
         SuperState.FEED,
         intake.agitate(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                        shooter.getTurretPose(swerve.getPose()),
+                        FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                        swerve.getVelocityFieldRelative(),
+                        AutoAim.FEED_SHOT_TREE)
+                    .flywheelVelocityRotPerSec()),
         shooter.feed(
             swerve::getPose,
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getVelocityFieldRelative),
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    AutoAim.FEED_SHOT_TREE),
+            swerve::getVelocityFieldRelative,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
 
     bindCommands(
@@ -350,18 +403,37 @@ public class Superstructure {
         indexer.index(),
         shooter.feed(
             swerve::getPose,
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getVelocityFieldRelative),
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    AutoAim.FEED_SHOT_TREE),
+            swerve::getVelocityFieldRelative,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
 
     bindCommands(
         SuperState.FEED_FLOW,
         intake.intake(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                        shooter.getTurretPose(swerve.getPose()),
+                        FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                        swerve.getVelocityFieldRelative(),
+                        AutoAim.FEED_SHOT_TREE)
+                    .flywheelVelocityRotPerSec()),
         shooter.feed(
             swerve::getPose,
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getVelocityFieldRelative),
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    AutoAim.FEED_SHOT_TREE),
+            swerve::getVelocityFieldRelative,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
 
     bindCommands(
@@ -372,11 +444,7 @@ public class Superstructure {
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
-                    swerve
-                        .getPose()
-                        .transformBy(
-                            new Transform2d(
-                                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
+                    shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
@@ -389,16 +457,21 @@ public class Superstructure {
         SuperState.SCORE,
         intake.agitate(),
         // intake.restExtended(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                        shooter.getTurretPose(swerve.getPose()),
+                        FieldUtils.getCurrentHubTranslation(),
+                        swerve.getVelocityFieldRelative(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .flywheelVelocityRotPerSec()),
         shooter.score(
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
-                    swerve
-                        .getPose()
-                        .transformBy(
-                            new Transform2d(
-                                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
+                    shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
@@ -417,11 +490,7 @@ public class Superstructure {
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
-                    swerve
-                        .getPose()
-                        .transformBy(
-                            new Transform2d(
-                                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
+                    shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
@@ -434,17 +503,22 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE_FLOW,
         intake.intake(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                        shooter.getTurretPose(swerve.getPose()),
+                        FieldUtils.getCurrentHubTranslation(),
+                        swerve.getVelocityFieldRelative(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .flywheelVelocityRotPerSec()),
         // shooter.testShoot(swerve::getPose, swerve::getVelocityFieldRelative),
         shooter.score(
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
-                    swerve
-                        .getPose()
-                        .transformBy(
-                            new Transform2d(
-                                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero)),
+                    shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
@@ -454,7 +528,7 @@ public class Superstructure {
         climber.retract());
 
     bindCommands(
-        SuperState.SPIT, intake.agitate(), indexer.spit(), shooter.spit(), climber.retract());
+        SuperState.SPIT, intake.outtake(), indexer.spit(), shooter.spit(), climber.retract());
     bindCommands(
         SuperState.PRE_CLIMB,
         intake.restRetracted(),
@@ -472,6 +546,49 @@ public class Superstructure {
         intake.restRetracted(),
         indexer.rest(),
         shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative),
+        climber.extend());
+
+    bindCommands(
+        SuperState.SPIN_UP_SCORE_PRE_CLIMB,
+        intake.restRetracted(),
+        indexer.rest(),
+        shooter.score(
+            swerve::getPose,
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                        ? AutoAim.ALPHA_HUB_SHOT_TREE
+                        : AutoAim.COMP_HUB_SHOT_TREE),
+            swerve::getVelocityFieldRelative),
+        climber.extend());
+
+    bindCommands(
+        SuperState.SCORE_PRE_CLIMB,
+        intake.restRetracted(),
+        indexer.kick(
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                        shooter.getTurretPose(swerve.getPose()),
+                        FieldUtils.getCurrentHubTranslation(),
+                        swerve.getVelocityFieldRelative(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .flywheelVelocityRotPerSec()),
+        shooter.score(
+            swerve::getPose,
+            () ->
+                AutoAim.getCompensatedSOTMShotData(
+                    shooter.getTurretPose(swerve.getPose()),
+                    FieldUtils.getCurrentHubTranslation(),
+                    swerve.getVelocityFieldRelative(),
+                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                        ? AutoAim.ALPHA_HUB_SHOT_TREE
+                        : AutoAim.COMP_HUB_SHOT_TREE),
+            swerve::getVelocityFieldRelative),
         climber.extend());
   }
 
@@ -615,16 +732,18 @@ public class Superstructure {
   }
 
   public boolean inScoringArea() {
-    return true;
-    // return
-    //    (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-    //            && (swerve.getPose().getX() <= 4.6914191246032715)
-    //        || DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-    //            && (swerve.getPose().getX() >= 11.889562606811523));
+    // return true;
+    if (swerve == null) return false;
+    return (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+            && (swerve.getPose().getX() <= 4.6914191246032715))
+        || (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            && (swerve.getPose().getX() >= 11.889562606811523));
   }
 
   public boolean canScore() {
-    return (isOurShift() || !DriverStation.isFMSAttached()) && (inScoringArea() || override);
+    return (isOurShift() || !DriverStation.isFMSAttached())
+        && (inScoringArea() || override)
+        && !swerve.isNearTrench();
   }
 
   public static ShotTarget getShotTarget() {

@@ -33,9 +33,9 @@ import org.littletonrobotics.junction.Logger;
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromRotations(-0.049805);
   public static final Rotation2d PIVOT_MAX_POSITION =
-      Rotation2d.fromDegrees(145.425); // Not so sure abt this one...
-  public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION; // TODO
-  public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION; // TODO
+      Rotation2d.fromDegrees(122); // Not so sure abt this one...
+  public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
+  public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
   public static final double ROLLER_GEAR_RATIO = 60.0 / 29.0;
   public static final double PIVOT_GEAR_RATIO = 39.375;
@@ -85,6 +85,11 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
+  public void slapdownInit() {
+    pivotIO.resetEncoder(cancoderIOInputs.cancoderPositionRotations);
+  }
+
+  @Override
   public void periodic() {
     pivotIO.updateInputs(pivotIOInputs);
     Logger.processInputs("Intake/Pivot", pivotIOInputs);
@@ -123,7 +128,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
             this.run(
                     () -> {
                       pivotIO.setMotorPositionSetpoint(
-                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(30))); // TODO: TUNE
+                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
                       rollerIO.setRollerVelocity(10.0);
                     })
                 .until(atExtensionTrigger))
@@ -140,10 +145,28 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
+  public Command outtake() {
+    return this.run(
+        () -> {
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          rollerIO.setRollerVelocity(-80);
+        });
+  }
+
+  @Override
   public Command restExtended() {
     return this.run(
         () -> {
           pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          rollerIO.setRollerVoltage(0.0);
+        });
+  }
+
+  @Override
+  public Command restRetracted() {
+    return this.run(
+        () -> {
+          pivotIO.setMotorPositionSetpoint(PIVOT_RETRACTED_POSITION);
           rollerIO.setRollerVoltage(0.0);
         });
   }
@@ -191,7 +214,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   @Override
-  public Command zeroRackOffCancoder() {
+  public Command zeroPivotOffCancoder() {
     return this.runOnce(() -> pivotIO.resetEncoder(cancoderIOInputs.cancoderPositionRotations));
   }
 
@@ -212,8 +235,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   public boolean atExtension() {
-    return MathUtil.isNear(
-        getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 2); // TODO: TUNE TOLERANCE
+    return MathUtil.isNear(getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 10);
   }
 
   public static TalonFXConfiguration getPivotConfig() {
@@ -229,23 +251,23 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Feedback.FeedbackRemoteSensorID = 6;
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.0;
+    config.Slot0.kS = 0.05;
+    config.Slot0.kV = 8.0; // Might suck
     config.Slot0.kA = 0.0;
+    config.Slot0.kG = 0.55;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.GravityArmPositionOffset = 0.0; // Maybe need this??
-    config.Slot0.kP = 0.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kP = 8.0;
+    config.Slot0.kD = 0.3;
 
-    // TODO: TUNE
-    config.CurrentLimits.StatorCurrentLimit = 80.0; // glup
-    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.StatorCurrentLimit = 45.0; // glup
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     // TODO: TUNE
-    config.MotionMagic.MotionMagicCruiseVelocity = 5;
-    config.MotionMagic.MotionMagicAcceleration = 10;
+    config.MotionMagic.MotionMagicCruiseVelocity = 1;
+    config.MotionMagic.MotionMagicAcceleration = 1;
 
     return config;
   }
@@ -276,9 +298,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static CANcoderConfiguration getCancoderConfig() {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
-    // TODO: TUNE
     config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    config.MagnetSensor.MagnetOffset = 0.0;
+    config.MagnetSensor.MagnetOffset = 0.262;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
 
     return config;
