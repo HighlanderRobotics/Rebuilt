@@ -22,11 +22,11 @@ public class TurretIOSim extends TurretIO {
   private double lastSimTime = 0.0;
 
   public TurretIOSim(CANBus canivore) {
-    super(canivore);
+    super(canivore, TurretSubsystem.getTurretConfig());
     physicsSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX44Foc(1), 0.01, TurretIO.TURRET_GEAR_RATIO),
+                DCMotor.getKrakenX44Foc(1), 0.01, TurretSubsystem.TURRET_GEAR_RATIO),
             DCMotor.getKrakenX44Foc(1));
 
     motorSim = motor.getSimState();
@@ -48,10 +48,10 @@ public class TurretIOSim extends TurretIO {
 
               motorSim.setRawRotorPosition(
                   Units.radiansToRotations(physicsSim.getAngularPositionRad())
-                      * (TurretIO.TURRET_GEAR_RATIO));
+                      * (TurretSubsystem.TURRET_GEAR_RATIO));
               motorSim.setRotorVelocity(
                   Units.radiansToRotations(physicsSim.getAngularVelocityRadPerSec())
-                      * TurretIO.TURRET_GEAR_RATIO);
+                      * TurretSubsystem.TURRET_GEAR_RATIO);
             });
 
     simNotifier.startPeriodic(simLoopPeriod);
