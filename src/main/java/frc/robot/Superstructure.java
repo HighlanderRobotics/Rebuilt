@@ -800,6 +800,7 @@ public class Superstructure {
   }
 
   private double getTimeLeftInShift() {
+    if (DriverStation.isDisabled()) return 0;
     double offset =
         switch (getCurrentShift()) {
           case "Transition" -> 130.00;
