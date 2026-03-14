@@ -210,8 +210,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     // TODO: TUNE
-    config.MotionMagic.MotionMagicCruiseVelocity = 5;
-    config.MotionMagic.MotionMagicAcceleration = 5;
+    config.MotionMagic.MotionMagicCruiseVelocity = 10;
+    config.MotionMagic.MotionMagicAcceleration = 10;
 
     return config;
   }
