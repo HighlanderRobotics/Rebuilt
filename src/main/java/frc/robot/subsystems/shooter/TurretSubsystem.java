@@ -38,7 +38,7 @@ import org.littletonrobotics.junction.Logger;
 public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   /** Creates a new TurretSubsystem. */
-  public static final double HOOD_GEAR_RATIO = 33.8671875;//58.96875;
+  public static final double HOOD_GEAR_RATIO = 33.8671875; // 58.96875;
 
   public static final double FLYWHEEL_GEAR_RATIO = 0.84615384615;
 

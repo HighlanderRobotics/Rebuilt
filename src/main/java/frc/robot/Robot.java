@@ -903,6 +903,7 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     addAutos();
     System.out.println("--------------Robot Disabled-----------");
+    Superstructure.matchStartTime = 0;
   }
 
   @Override
@@ -927,7 +928,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopInit() {
     Superstructure.matchStartTime = Timer.getFPGATimestamp();
-  
+
     intake.slapdownInit();
   }
 
