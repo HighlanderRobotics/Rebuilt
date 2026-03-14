@@ -235,6 +235,7 @@ public class Autos {
         Commands.parallel(swerve.stop(), setAutoScoreReqTrue()).repeatedly().withTimeout(2.5),
         setAutoScoreReqFalse(),
         setAutoPreClimbReqTrue(),
+        swerve.stop().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
