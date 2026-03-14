@@ -815,6 +815,7 @@ public class Superstructure {
 
   @AutoLogOutput(key = "Is our shift?")
   public boolean isOurShift() {
+    if (DriverStation.isDisabled()) return false;
     // only cant score when its the others turn, otherwise everyone can
     if (getStartingAlliance() == DriverStation.getAlliance().orElse(Alliance.Blue)) {
       return !(getCurrentShift() == "Shift 2" || getCurrentShift() == "Shift 4");
