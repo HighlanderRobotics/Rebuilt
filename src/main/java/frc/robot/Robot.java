@@ -651,7 +651,11 @@ public class Robot extends LoggedRobot {
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> AutoAim.targetInTurretDeadzone())
-        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25).alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
+        .onTrue(
+            driver
+                .rumbleCmd(1, 1)
+                .withTimeout(0.25)
+                .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
 
@@ -705,7 +709,7 @@ public class Robot extends LoggedRobot {
                     -1
                         * modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                shooter::getTurretPosition));  
+                shooter::getTurretPosition));
 
     new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAFeedState())
@@ -722,9 +726,7 @@ public class Robot extends LoggedRobot {
                         * modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 shooter::getTurretPosition,
-                 () -> Superstructure.getFeedTarget()));  
-                
-                
+                () -> Superstructure.getFeedTarget()));
 
     // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))

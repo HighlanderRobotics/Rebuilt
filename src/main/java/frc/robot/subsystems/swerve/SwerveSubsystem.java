@@ -38,8 +38,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
-import frc.robot.Superstructure.FeedTarget;
 import frc.robot.Superstructure;
+import frc.robot.Superstructure.FeedTarget;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
@@ -737,7 +737,10 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command faceFeedComp(
-      DoubleSupplier xVel, DoubleSupplier yVel, Supplier<Rotation2d> turretRotation, Supplier<FeedTarget> feedTargetSupplier) {
+      DoubleSupplier xVel,
+      DoubleSupplier yVel,
+      Supplier<Rotation2d> turretRotation,
+      Supplier<FeedTarget> feedTargetSupplier) {
     return driveWithHeadingSnap(
         () -> {
           Pose2d turretPose =
@@ -766,7 +769,6 @@ public class SwerveSubsystem extends SubsystemBase {
         xVel,
         yVel);
   }
-
 
   public boolean isFacingTarget(InterpolatingShotTree tree) {
     switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java

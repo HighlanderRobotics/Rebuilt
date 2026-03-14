@@ -243,7 +243,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    config.MagnetSensor.MagnetOffset = 0.262;
+    config.MagnetSensor.MagnetOffset = 0.26196;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
 
     return config;

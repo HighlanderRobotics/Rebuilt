@@ -221,7 +221,7 @@ public class Autos {
     return Commands.sequence(
         setAutoScoreReqFalse(),
         setAutoIntakeReqFalse(),
-        setAutoPreClimbReqTrue(),
+
         // Commands.parallel(
         path.getTrajectory(routine)
             .cmd()
@@ -234,6 +234,7 @@ public class Autos {
                 path.getTrajectory(routine).done()),
         Commands.parallel(swerve.stop(), setAutoScoreReqTrue()).repeatedly().withTimeout(2.5),
         setAutoScoreReqFalse(),
+        setAutoPreClimbReqTrue(),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))

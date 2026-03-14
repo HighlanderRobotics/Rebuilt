@@ -65,10 +65,7 @@ public class Superstructure {
     }
 
     public boolean isAFeedState() {
-      return this == FEED
-          || this == SPIN_UP_FEED
-          || this == SPIN_UP_FEED_FLOW
-          || this == FEED_FLOW;
+      return this == FEED || this == SPIN_UP_FEED || this == SPIN_UP_FEED_FLOW || this == FEED_FLOW;
     }
   }
 
@@ -373,8 +370,8 @@ public class Superstructure {
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
 
     (preClimbReq.and(climbReq.negate())
-    // .and(() -> DriverStation.isTeleop())
-    )
+        // .and(() -> DriverStation.isTeleop())
+        )
         .onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
     bindTransition(
