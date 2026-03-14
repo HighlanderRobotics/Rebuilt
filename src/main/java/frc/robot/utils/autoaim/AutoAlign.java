@@ -11,21 +11,19 @@ import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoAlign {
-  public static final double MAX_ANGULAR_SPEED = 15.614;
-  public static final double MAX_ANGULAR_ACCELERATION = 47.613;
-  public static final double MAX_TRANSLATIONAL_SPEED = 5.678;
-  public static final double MAX_TRANSLATIONAL_ACCELERATION = 14.715;
+  public static final double MAX_ANGULAR_SPEED_RAD_PER_SEC = 8.989;
+  public static final double MAX_ANGULAR_ACCELERATION_RAD_PER_SEC_SQ = 90.090;
+  public static final double MAX_TRANSLATIONAL_SPEED_METERS_PER_SEC = 3.511;
+  public static final double MAX_TRANSLATIONAL_ACCELERATION_METERS_PER_SEC_SQ = 16.740;
   public static final Constraints DEFAULT_TRANSLATIONAL_CONSTRAINTS =
-      new Constraints(MAX_TRANSLATIONAL_SPEED, MAX_TRANSLATIONAL_ACCELERATION);
+      new Constraints(
+          MAX_TRANSLATIONAL_SPEED_METERS_PER_SEC, MAX_TRANSLATIONAL_ACCELERATION_METERS_PER_SEC_SQ);
   public static final Constraints DEFAULT_ANGULAR_CONSTRAINTS =
-      new Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION);
+      new Constraints(MAX_ANGULAR_SPEED_RAD_PER_SEC, MAX_ANGULAR_ACCELERATION_RAD_PER_SEC_SQ);
 
   public static final double TRANSLATION_TOLERANCE_METERS = Units.inchesToMeters(1.0);
   public static final double ROTATION_TOLERANCE_RADIANS = Units.degreesToRadians(2.0);
   public static final double VELOCITY_TOLERANCE_METERSPERSECOND = 0.5;
-  public static final double INITIAL_REEF_KEEPOFF_DISTANCE_METERS = -0.1;
-
-  //   public static final double ALGAE_APPROACH_SPEED_METERS_PER_SECOND = 1.0;
 
   // Velocity controllers
   static final ProfiledPIDController VX_CONTROLLER =
@@ -33,7 +31,7 @@ public class AutoAlign {
   static final ProfiledPIDController VY_CONTROLLER =
       new ProfiledPIDController(10.0, 0.01, 0.02, DEFAULT_TRANSLATIONAL_CONSTRAINTS);
   static final ProfiledPIDController HEADING_CONTROLLER =
-      new ProfiledPIDController(5.0, 0.0, 0.0, DEFAULT_ANGULAR_CONSTRAINTS);
+      new ProfiledPIDController(5.0, 0.0, 0.08, DEFAULT_ANGULAR_CONSTRAINTS);
 
   static {
     HEADING_CONTROLLER.enableContinuousInput(-Math.PI, Math.PI);
@@ -53,6 +51,14 @@ public class AutoAlign {
         robotHeading.getRadians(), robotVelocityFieldRelative.omegaRadiansPerSecond);
   }
 
+  public static void resetYController(double robotY, double robotVY) {
+    VY_CONTROLLER.reset(robotY, robotVY);
+  }
+
+  public static double calculateYVelocity(double robotY, double targetY) {
+    return VY_CONTROLLER.calculate(robotY, targetY) + VY_CONTROLLER.getSetpoint().velocity;
+  }
+
   /**
    * Use PID to calculate the velocity required to align the robot heading to the target heading
    *
@@ -63,7 +69,8 @@ public class AutoAlign {
   public static double calculateRotationVelocity(
       Rotation2d robotHeading, Rotation2d targetHeading) {
     double omegaRadsPerSec =
-        HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians());
+        HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians())
+            + HEADING_CONTROLLER.getSetpoint().velocity;
     Logger.recordOutput(
         "AutoAim/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
     return omegaRadsPerSec;
