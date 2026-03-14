@@ -793,8 +793,10 @@ public class Superstructure {
   }
 
   public boolean canScore() {
-    return (isOurShift() || !DriverStation.isFMSAttached())
-        && (inScoringArea() || poseOverride)
+    return 
+    // (isOurShift() || !DriverStation.isFMSAttached())
+    //     && 
+        (inScoringArea() || poseOverride)
         && (!swerve.isNearTrench() || poseOverride || fixedShotTarget != FixedShotTarget.NONE);
   }
 
