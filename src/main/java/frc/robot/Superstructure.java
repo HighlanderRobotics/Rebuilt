@@ -372,7 +372,9 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
 
-    (preClimbReq.and(climbReq.negate()).and(() -> DriverStation.isTeleop()))
+    (preClimbReq.and(climbReq.negate())
+    // .and(() -> DriverStation.isTeleop())
+    )
         .onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
     bindTransition(
