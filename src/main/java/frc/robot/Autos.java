@@ -136,7 +136,9 @@ public class Autos {
     OtoCR("O", "CR", Action.CLIMB),
     DtoCL("D", "CL", Action.CLIMB),
 
-    RUNtoTEST("RUN", "TEST", Action.NOTHING);
+    RUNtoTEST("RUN", "TEST", Action.NOTHING),
+
+    BtoD("B", "D", Action.INTAKE);
 
     private final String start;
     private final String end;
@@ -536,6 +538,22 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine("Depot Outpost Climb Auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.PLtoD, Path.DtoS, Path.StoO, Path.OtoCR};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().whileTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getBumpOutpostClimbAuto() {
+    final AutoRoutine routine = factory.newRoutine("Bump Outpost Climb Auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.BtoD, Path.DtoS, Path.StoO, Path.OtoCR};
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
