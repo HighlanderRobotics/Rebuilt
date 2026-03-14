@@ -783,6 +783,7 @@ public class Superstructure {
   }
 
   private String getCurrentShift() {
+    if (DriverStation.isDisabled()) return "Disabled";
     if (130.00 < timeLeftinMatch() && timeLeftinMatch() <= 140.00) {
       return "Transition";
     } else if (105.00 < timeLeftinMatch() && timeLeftinMatch() <= 130.00) {
