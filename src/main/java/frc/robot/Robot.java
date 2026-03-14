@@ -735,7 +735,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Score in Center", autos.getCenterScoreAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
     autoChooser.addOption("Just Score", autos.getJustScoreAuto());
-    autoChooser.addOption("Bump Outpost Climb", autos.getBumpOutpostClimbAuto());
+    autoChooser.addOption("Bump Depot Outpost Climb", autos.getBumpOutpostClimbAuto());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
