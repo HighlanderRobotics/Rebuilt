@@ -552,8 +552,7 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine("Center Score Auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.PMtoM};
-    Command autoCommand =
-        paths[0].getTrajectory(routine).resetOdometry();
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry();
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
