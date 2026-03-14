@@ -220,7 +220,7 @@ public class Autos {
         setAutoPreClimbReqTrue(),
         // Commands.parallel(
         path.getTrajectory(routine)
-            .cmd()
+            .cmd() 
             .until(
                 // routine.observe(
                 //     path.getTrajectory(routine)
@@ -228,13 +228,14 @@ public class Autos {
                 //             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                 //                 - (0.3)))),
                 path.getTrajectory(routine).done()),
-        Commands.parallel(swerve.stop(), setAutoScoreReqTrue()).repeatedly().withTimeout(4),
+        Commands.parallel(swerve.stop(), setAutoScoreReqTrue()).repeatedly().withTimeout(2.5),
+        setAutoScoreReqFalse(),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
                 .andThen(
-                    Commands.print("hooray!")
-                    // setAutoClimbReqTrue()
+                    // Commands.print("hooray!")
+                    setAutoClimbReqTrue()
                     )));
   }
 
