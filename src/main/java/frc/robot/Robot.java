@@ -144,7 +144,7 @@ public class Robot extends LoggedRobot {
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
    * complete
    */
-  public static final boolean TUNING_MODE = true;
+  public static final boolean TUNING_MODE = false;
 
   public boolean hasZeroedSinceStartup = false;
 
@@ -426,7 +426,7 @@ public class Robot extends LoggedRobot {
     superstructure =
         new Superstructure(swerve, indexer, intake, shooter, climber, driver, operator);
 
-    DriverStation.silenceJoystickConnectionWarning(true);
+    DriverStation.silenceJoystickConnectionWarning(false);
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
 
@@ -709,6 +709,7 @@ public class Robot extends LoggedRobot {
 
     new Trigger(() -> DriverStation.isJoystickConnected(1))
         .negate()
+        .or(() -> DriverStation.getStickButton(1, 3))
         .onTrue(Commands.runOnce(() -> operatorJoystickDisconnectedAlert.set(true)))
         .onFalse(Commands.runOnce(() -> operatorJoystickDisconnectedAlert.set(false)));
   }
