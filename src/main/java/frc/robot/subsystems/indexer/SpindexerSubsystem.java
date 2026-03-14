@@ -73,7 +73,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               Logger.recordOutput("Indexer/Kicker/Adjusted speed", kickerSpeed);
               // spinnerIO.setRollerVelocity(spinnerSpeed - 1);
               // kickerIO.setRollerVelocity(kickerSpeed - 5);
-              spinnerIO.setRollerVelocity(30);
+              spinnerIO.setRollerVelocity(60);
               kickerIO.setRollerVelocity(25);
             })
         //     .withTimeout(3),
