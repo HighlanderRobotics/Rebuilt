@@ -100,7 +100,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
             this.run(
                     () -> {
                       pivotIO.setMotorPositionSetpoint(
-                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(30)));
+                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
                       rollerIO.setRollerVelocity(10.0);
                     })
                 .until(atExtensionTrigger))
