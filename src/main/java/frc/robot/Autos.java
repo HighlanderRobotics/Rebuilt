@@ -222,7 +222,7 @@ public class Autos {
         setAutoPreClimbReqTrue(),
         // Commands.parallel(
         path.getTrajectory(routine)
-            .cmd() 
+            .cmd()
             .until(
                 // routine.observe(
                 //     path.getTrajectory(routine)
@@ -237,8 +237,7 @@ public class Autos {
             Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
                 .andThen(
                     // Commands.print("hooray!")
-                    setAutoClimbReqTrue()
-                    )));
+                    setAutoClimbReqTrue())));
   }
 
   public Command feedPath(Path path, AutoRoutine routine) {
