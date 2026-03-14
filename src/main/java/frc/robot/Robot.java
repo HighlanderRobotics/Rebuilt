@@ -926,6 +926,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    Superstructure.matchStartTime = Timer.getFPGATimestamp();
+  
     intake.slapdownInit();
   }
 

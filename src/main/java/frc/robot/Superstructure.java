@@ -86,15 +86,39 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/State")
   private static SuperState state = SuperState.IDLE;
 
-  @AutoLogOutput(key = "Scoring/Scoring Active")
-  public boolean isScoringActive =
-      isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
-
-  // its litterly possible
-
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
+
+  private double getFPGATimestamp() {
+    return Timer.getFPGATimestamp();
+  }
+
+  @AutoLogOutput(key = "Superstructure/match starttime")
+  public static double matchStartTime;
+
+  private double getTimeElapsed() {
+    return getFPGATimestamp() - matchStartTime;
+  }
+
+  private double timeLeftinMatch() {
+    return 140.00 - getTimeElapsed();
+  }
+
+  @AutoLogOutput(key = "Superstructure/Shift Timer")
+  private double getTimeStampLeftInShift() {
+    return getTimeLeftInShift();
+  }
+
+  @AutoLogOutput(key = "Superstructure/Current Shift")
+  private String getCurrentShiftName() {
+    return getCurrentShift();
+  }
+
+  @AutoLogOutput(key = "Scoring/Scoring Active")
+  public boolean isScoringActive() {
+    return isOurShift();
+  }
 
   private final SwerveSubsystem swerve;
   private final Indexer indexer;
@@ -758,28 +782,41 @@ public class Superstructure {
     }
   }
 
-  private int getCurrentShift() {
-    double timeLeftinMatch = Timer.getMatchTime();
-    // may be a nicer way to do this
-    if (105.00 <= timeLeftinMatch && timeLeftinMatch <= 130.00) {
-      return 1;
-    } else if (80.00 <= timeLeftinMatch && timeLeftinMatch <= 105.00) {
-      return 2;
-    } else if ((55.00 <= timeLeftinMatch && timeLeftinMatch <= 80.00)) {
-      return 3;
-    } else if ((30.00 <= timeLeftinMatch && timeLeftinMatch <= 55.00)) {
-      return 4;
+  private String getCurrentShift() {
+    if (130.00 < timeLeftinMatch() && timeLeftinMatch() <= 140.00) {
+      return "Transition";
+    } else if (105.00 < timeLeftinMatch() && timeLeftinMatch() <= 130.00) {
+      return "Shift 1";
+    } else if (80.00 < timeLeftinMatch() && timeLeftinMatch() <= 105.00) {
+      return "Shift 2";
+    } else if ((55.00 < timeLeftinMatch() && timeLeftinMatch() <= 80.00)) {
+      return "Shift 3";
+    } else if ((30.00 < timeLeftinMatch() && timeLeftinMatch() <= 55.00)) {
+      return "Shift 4";
     } else {
-      return 0;
+      return "End Game";
     }
+  }
+
+  private double getTimeLeftInShift() {
+    double offset =
+        switch (getCurrentShift()) {
+          case "Transition" -> 130.00;
+          case "Shift 1" -> 105.00;
+          case "Shift 2" -> 80.00;
+          case "Shift 3" -> 55.00;
+          case "Shift 4" -> 30.00;
+          default -> 0.00;
+        };
+    return timeLeftinMatch() - offset;
   }
 
   public boolean isOurShift() {
     // only cant score when its the others turn, otherwise everyone can
     if (getStartingAlliance() == DriverStation.getAlliance().orElse(Alliance.Blue)) {
-      return !(getCurrentShift() == 2 || getCurrentShift() == 4);
+      return !(getCurrentShift() == "Shift 2" || getCurrentShift() == "Shift 4");
     } else {
-      return !(getCurrentShift() == 1 || getCurrentShift() == 3);
+      return !(getCurrentShift() == "Shift 1" || getCurrentShift() == "Shift 3");
     }
   }
 
