@@ -8,8 +8,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import com.playingwithfusion.BattFuelGauge;
-
-import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -73,7 +71,6 @@ import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.autoaim.AutoAim;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
@@ -83,7 +80,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.ConsoleSource.RoboRIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
@@ -113,9 +109,11 @@ public class Robot extends LoggedRobot {
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
   private static final Alert unknownRioAlert =
       new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
-      private static final Alert noLogStickAlert = new Alert("NO LOG STICK!! POWER OFF BEFORE PLUGGING IT IN", AlertType.kError);
+  private static final Alert noLogStickAlert =
+      new Alert("NO LOG STICK!! POWER OFF BEFORE PLUGGING IT IN", AlertType.kError);
 
-      File directory = new File("/U");
+  File directory = new File("/U");
+
   // for replay to work properly this needs to match the edition in the log
   static {
     switch (ROBOT_MODE) {
