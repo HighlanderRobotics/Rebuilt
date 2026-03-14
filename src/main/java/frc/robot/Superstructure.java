@@ -811,6 +811,7 @@ public class Superstructure {
     return timeLeftinMatch() - offset;
   }
 
+  @AutoLogOutput(key = "Is our shift?")
   public boolean isOurShift() {
     // only cant score when its the others turn, otherwise everyone can
     if (getStartingAlliance() == DriverStation.getAlliance().orElse(Alliance.Blue)) {
