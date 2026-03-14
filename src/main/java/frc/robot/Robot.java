@@ -694,6 +694,7 @@ public class Robot extends LoggedRobot {
     new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
         .and(() -> !Superstructure.getPoseOverride())
+        .and(() -> superstructure.inScoringArea())
         .whileTrue(
             swerve.faceHubComp(
                 () ->
@@ -704,7 +705,26 @@ public class Robot extends LoggedRobot {
                     -1
                         * modifyJoystick(driver.getLeftX())
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                shooter::getTurretPosition));
+                shooter::getTurretPosition));  
+
+    new Trigger(AutoAim::targetInTurretDeadzone)
+        .and(() -> Superstructure.getState().isAFeedState())
+        .and(() -> !Superstructure.getPoseOverride())
+        .and(() -> !superstructure.inScoringArea())
+        .whileTrue(
+            swerve.faceFeedComp(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                shooter::getTurretPosition,
+                 () -> Superstructure.getFeedTarget()));  
+                
+                
 
     // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))

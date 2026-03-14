@@ -63,6 +63,13 @@ public class Superstructure {
           || this == SPIN_UP_SCORE_FLOW
           || this == SCORE_FLOW;
     }
+
+    public boolean isAFeedState() {
+      return this == FEED
+          || this == SPIN_UP_FEED
+          || this == SPIN_UP_FEED_FLOW
+          || this == FEED_FLOW;
+    }
   }
 
   public enum ShotTarget {
