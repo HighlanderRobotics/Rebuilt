@@ -505,7 +505,7 @@ public class Autos {
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.PLtoD, Path.DtoCL};
     Command autoCommand =
-        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -547,5 +547,9 @@ public class Autos {
 
   public Command waitUntilEmpty() {
     return Commands.waitSeconds(3.0);
+  }
+
+  public Command getJustScoreAuto() {
+    return setAutoScoreReqTrue().andThen(Commands.waitSeconds(5)).andThen(setAutoScoreReqFalse());
   }
 }

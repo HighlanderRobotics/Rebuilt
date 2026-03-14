@@ -197,8 +197,8 @@ public class Superstructure {
     operator.leftBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.LEFT));
     operator.rightBumper().onTrue(Commands.runOnce(() -> feedTarget = FeedTarget.RIGHT));
 
-    operator.leftTrigger().onTrue(Commands.runOnce(() -> poseOverride = true));
-    operator.rightTrigger().onTrue(Commands.runOnce(() -> poseOverride = false));
+    // operator.leftTrigger().onTrue(Commands.runOnce(() -> poseOverride = true));
+    // operator.rightTrigger().onTrue(Commands.runOnce(() -> poseOverride = false));
 
     operator
         .povLeft()
@@ -384,14 +384,22 @@ public class Superstructure {
         intake.restExtended(),
         // intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
+        shooter.rest(
+            swerve::getPose,
+            swerve::getVelocityFieldRelative,
+            this::inScoringArea,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
 
     bindCommands(
         SuperState.INTAKE,
         intake.intake(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
+        shooter.rest(
+            swerve::getPose,
+            swerve::getVelocityFieldRelative,
+            this::inScoringArea,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
 
     bindCommands(
@@ -565,19 +573,31 @@ public class Superstructure {
         SuperState.PRE_CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
+        shooter.rest(
+            swerve::getPose,
+            swerve::getVelocityFieldRelative,
+            this::inScoringArea,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.extend());
     bindCommands(
         SuperState.CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
+        shooter.rest(
+            swerve::getPose,
+            swerve::getVelocityFieldRelative,
+            this::inScoringArea,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
     bindCommands(
         SuperState.POST_CLIMB,
         intake.restRetracted(),
         indexer.rest(),
-        shooter.rest(swerve::getPose, swerve::getVelocityFieldRelative, this::canScore),
+        shooter.rest(
+            swerve::getPose,
+            swerve::getVelocityFieldRelative,
+            this::inScoringArea,
+            () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.extend());
 
     bindCommands(

@@ -40,7 +40,8 @@ public interface Shooter extends Subsystem {
   public Command rest(
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
-      BooleanSupplier canScore);
+      BooleanSupplier canScore,
+      Supplier<Pose2d> feedTarget);
 
   /** Run balls out from the shooter. This is for antijamming the robot */
   public Command spit();
