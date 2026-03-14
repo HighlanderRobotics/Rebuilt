@@ -62,14 +62,14 @@ public class AutoAim {
   static { // For hub shot tree
     // TODO min shot
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17), new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 6, 1.04));
+        Units.inchesToMeters(24 + 17), new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 6 + 3, 1.04));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
         new ShotData(
             Rotation2d.fromDegrees(25),
             35
-             - 6
+             - 6 + 3
             ,
             1.14));
 
@@ -77,7 +77,7 @@ public class AutoAim {
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
         new ShotData(
             Rotation2d.fromDegrees(26),
-            37 - 6
+            37 - 6 + 3
             // - 6
             ,
             1.10));
@@ -86,7 +86,7 @@ public class AutoAim {
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
         new ShotData(
             Rotation2d.fromDegrees(30),
-            37 -6
+            37 -6 + 3
             // - 6
             ,
             1.09));
@@ -95,7 +95,7 @@ public class AutoAim {
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
         new ShotData(
             Rotation2d.fromDegrees(33),
-            37 -6
+            37 -6 + 3
             // - 6
             ,
             1.15));
@@ -104,7 +104,7 @@ public class AutoAim {
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
         new ShotData(
             Rotation2d.fromDegrees(36),
-            38 -6
+            38 -6 + 3
             // - 6
             ,
             1.23));
@@ -113,7 +113,7 @@ public class AutoAim {
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
         new ShotData(
             Rotation2d.fromDegrees(38),
-            39 -6
+            39 -6 + 3
             // - 6
             ,
             1.33));
@@ -121,7 +121,7 @@ public class AutoAim {
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
         new ShotData(
             Rotation2d.fromDegrees(39),
-            40.5 -6 
+            40.5 -6  + 3
             // - 6
             ,
             1.35));
