@@ -46,7 +46,8 @@ public class Superstructure {
     CLIMB,
     POST_CLIMB,
     SPIN_UP_SCORE_PRE_CLIMB,
-    SCORE_PRE_CLIMB;
+    SCORE_PRE_CLIMB,
+    DEFENSE;
     public final Trigger trigger;
 
     private SuperState() {
@@ -178,8 +179,14 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Operator Pose Override?")
   private static boolean poseOverride = false;
 
-  @AutoLogOutput(key = "Superstructure/Fixed Shot")
-  private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
+  @AutoLogOutput(key = "Superstructure/Defense?")
+  private boolean defense = false;
+
+  @AutoLogOutput(key = "Superstructure/Defense Req")
+  private Trigger defenseReq = new Trigger(() -> defense);
+
+  // @AutoLogOutput(key = "Superstructure/Fixed Shot")
+  // private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
 
   /** Creates a new Superstructure. */
   public Superstructure(
@@ -210,6 +217,9 @@ public class Superstructure {
     operator.x().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.SCORE));
     operator.y().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.FEED));
 
+    operator.povUp().onTrue(Commands.runOnce(() -> defense = true));
+    operator.povDown().onTrue(Commands.runOnce(() -> defense = false));
+
     // toggle for flow state
     operator
         .a()
@@ -228,38 +238,40 @@ public class Superstructure {
     // operator.leftTrigger().onTrue(Commands.runOnce(() -> poseOverride = true));
     // operator.rightTrigger().onTrue(Commands.runOnce(() -> poseOverride = false));
 
-    operator
-        .povLeft()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.LEFT;
-                  poseOverride = true;
-                }));
-    operator
-        .povUp()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.MID;
-                  poseOverride = true;
-                }));
-    operator
-        .povRight()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.RIGHT;
-                  poseOverride = true;
-                }));
-    operator
-        .povDown()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.NONE;
-                }));
+    // operator
+    //     .povLeft()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.LEFT;
+    //               poseOverride = true;
+    //             }));
+    // operator
+    //     .povUp()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.MID;
+    //               poseOverride = true;
+    //             }));
+    // operator
+    //     .povRight()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.RIGHT;
+    //               poseOverride = true;
+    //             }));
+    // operator
+    //     .povDown()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.NONE;
+    //             }));
 
+    operator.povUp().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
+    operator.povDown().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     shootReq =
         driver
             .rightTrigger()
@@ -368,6 +380,10 @@ public class Superstructure {
     antiJamReq.onTrue(changeStateTo(SuperState.SPIT));
 
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
+
+    defenseReq.onTrue(changeStateTo(SuperState.DEFENSE));
+
+    bindTransition(SuperState.DEFENSE, SuperState.IDLE, defenseReq.negate());
 
     (preClimbReq.and(climbReq.negate())
         // .and(() -> DriverStation.isTeleop())
@@ -672,6 +688,13 @@ public class Superstructure {
                         : AutoAim.COMP_HUB_SHOT_TREE),
             swerve::getVelocityFieldRelative),
         climber.extend());
+
+    bindCommands(
+        SuperState.DEFENSE,
+        intake.restRetracted(),
+        indexer.rest(),
+        shooter.stopTurret(),
+        climber.retract());
   }
 
   public void periodic() {
@@ -844,7 +867,9 @@ public class Superstructure {
     // (isOurShift() || !DriverStation.isFMSAttached())
     //     &&
     (inScoringArea() || poseOverride)
-        && (!swerve.isNearTrench() || poseOverride || fixedShotTarget != FixedShotTarget.NONE);
+        && (!swerve.isNearTrench() || poseOverride
+        // || fixedShotTarget != FixedShotTarget.NONE
+        );
   }
 
   public boolean canShoot() {
@@ -859,9 +884,9 @@ public class Superstructure {
     return feedTarget;
   }
 
-  public static FixedShotTarget getFixedShotTarget() {
-    return fixedShotTarget;
-  }
+  // public static FixedShotTarget getFixedShotTarget() {
+  //   return fixedShotTarget;
+  // }
 
   public static boolean getPoseOverride() {
     return poseOverride;
