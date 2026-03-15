@@ -319,7 +319,7 @@ public class Autos {
   }
 
   public Command shootPreload() {
-    return Commands.sequence(setAutoScoreReqTrue(), waitUntilEmpty(), setAutoScoreReqFalse());
+    return Commands.sequence(setAutoScoreReqTrue(), swerve.stop().repeatedly().withTimeout(3));
   }
 
   public Command setAutoIntakeReqTrue() {
@@ -557,7 +557,11 @@ public class Autos {
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.BtoD, Path.DtoS, Path.StoO, Path.OtoCR};
     Command autoCommand =
-        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+        paths[0]
+            .getTrajectory(routine)
+            .resetOdometry()
+            .alongWith(setleftClimbAutoFalse())
+            .andThen(shootPreload());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
