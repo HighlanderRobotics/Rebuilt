@@ -196,12 +196,12 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Feedback.SensorToMechanismRatio = 1;
 
     config.Slot0.kS = 0.05;
-    config.Slot0.kV = 15.0;
+    config.Slot0.kV = 8.0; // Might suck\
     config.Slot0.kA = 0.0;
     config.Slot0.kG = 0.55;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.GravityArmPositionOffset = 0.0; // Maybe need this??
-    config.Slot0.kP = 8.0;
+    config.Slot0.kP = 15.0;
     config.Slot0.kD = 0.3;
 
     config.CurrentLimits.StatorCurrentLimit = 45.0; // glup
