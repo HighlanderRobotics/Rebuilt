@@ -251,7 +251,7 @@ public class Autos {
         swerve.stop().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
-            Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
+            Commands.waitUntil(new Trigger(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose())).debounce(0.2))
                 .andThen(
                     // Commands.print("hooray!")
                     setAutoClimbReqTrue())));
@@ -267,7 +267,7 @@ public class Autos {
         swerve.stop().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
-            Commands.waitUntil(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
+            Commands.waitUntil(new Trigger(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose())).debounce(0.2))
                 .andThen(setAutoClimbReqTrue())));
   }
 
