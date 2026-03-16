@@ -39,6 +39,7 @@ import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
 import frc.robot.Superstructure;
+import frc.robot.Superstructure.FeedTarget;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
 import frc.robot.components.camera.CameraIOSim;
@@ -721,6 +722,40 @@ public class SwerveSubsystem extends SubsystemBase {
                   FieldUtils.getCurrentHubTranslation(),
                   turretPose,
                   AutoAim.COMP_HUB_SHOT_TREE);
+          // subtract that from rotation to point at target
+          turretTargetRotation = turretTargetRotation.minus(getRotation());
+          Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
+          Rotation2d diff = turretTargetRotation.minus(turretRotation.get());
+          Logger.recordOutput("Turret/diff", diff);
+          // if (diff.getDegrees() > 0) {
+          //   diff = Rotation2d.fromDegrees(-diff.getDegrees());
+          // }
+          return diff.plus(getRotation());
+        },
+        xVel,
+        yVel);
+  }
+
+  public Command faceFeedComp(
+      DoubleSupplier xVel,
+      DoubleSupplier yVel,
+      Supplier<Rotation2d> turretRotation,
+      Supplier<FeedTarget> feedTargetSupplier) {
+    return driveWithHeadingSnap(
+        () -> {
+          Pose2d turretPose =
+              getPose()
+                  .transformBy(
+                      new Transform2d(
+                          TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+
+          // get desired rotation to point at target
+          Rotation2d turretTargetRotation =
+              AutoAim.getVirtualTargetYaw(
+                  getVelocityFieldRelative(),
+                  FeedTargets.getFeedTarget(feedTargetSupplier.get()).getTranslation(),
+                  turretPose,
+                  AutoAim.FEED_SHOT_TREE);
           // subtract that from rotation to point at target
           turretTargetRotation = turretTargetRotation.minus(getRotation());
           Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);

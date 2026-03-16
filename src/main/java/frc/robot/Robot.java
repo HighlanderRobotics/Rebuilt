@@ -71,6 +71,7 @@ import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.autoaim.AutoAim;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -108,6 +109,10 @@ public class Robot extends LoggedRobot {
   public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
   private static final Alert unknownRioAlert =
       new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
+  private static final Alert noLogStickAlert =
+      new Alert("NO LOG STICK!! POWER OFF BEFORE PLUGGING IT IN", AlertType.kError);
+
+  File directory = new File("/U");
 
   // for replay to work properly this needs to match the edition in the log
   static {
@@ -144,7 +149,7 @@ public class Robot extends LoggedRobot {
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
    * complete
    */
-  public static final boolean TUNING_MODE = true;
+  public static final boolean TUNING_MODE = false;
 
   public boolean hasZeroedSinceStartup = false;
 
@@ -426,7 +431,7 @@ public class Robot extends LoggedRobot {
     superstructure =
         new Superstructure(swerve, indexer, intake, shooter, climber, driver, operator);
 
-    DriverStation.silenceJoystickConnectionWarning(true);
+    DriverStation.silenceJoystickConnectionWarning(false);
     SignalLogger.enableAutoLogging(false);
     RobotController.setBrownoutVoltage(6.0);
 
@@ -455,7 +460,7 @@ public class Robot extends LoggedRobot {
     // set up logging stuff depending on robot mode
     switch (ROBOT_MODE) {
       case REAL:
-        Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
+        Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick)
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
         // TODO confirm pdp vs pdh
         // apparently LoggedPowerDistribution doesn't work with the pdp 2.0
@@ -646,7 +651,11 @@ public class Robot extends LoggedRobot {
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> AutoAim.targetInTurretDeadzone())
-        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
+        .onTrue(
+            driver
+                .rumbleCmd(1, 1)
+                .withTimeout(0.25)
+                .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
 
@@ -689,6 +698,7 @@ public class Robot extends LoggedRobot {
     new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
         .and(() -> !Superstructure.getPoseOverride())
+        .and(() -> superstructure.inScoringArea())
         .whileTrue(
             swerve.faceHubComp(
                 () ->
@@ -701,6 +711,23 @@ public class Robot extends LoggedRobot {
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 shooter::getTurretPosition));
 
+    new Trigger(AutoAim::targetInTurretDeadzone)
+        .and(() -> Superstructure.getState().isAFeedState())
+        .and(() -> !Superstructure.getPoseOverride())
+        .and(() -> !superstructure.inScoringArea())
+        .whileTrue(
+            swerve.faceFeedComp(
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftY())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                () ->
+                    -1
+                        * modifyJoystick(driver.getLeftX())
+                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                shooter::getTurretPosition,
+                () -> Superstructure.getFeedTarget()));
+
     // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))
         .negate()
@@ -709,6 +736,7 @@ public class Robot extends LoggedRobot {
 
     new Trigger(() -> DriverStation.isJoystickConnected(1))
         .negate()
+        .or(() -> DriverStation.getStickButton(1, 3))
         .onTrue(Commands.runOnce(() -> operatorJoystickDisconnectedAlert.set(true)))
         .onFalse(Commands.runOnce(() -> operatorJoystickDisconnectedAlert.set(false)));
   }
@@ -725,8 +753,14 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Fill Outpost Score Climb", autos.getFillOutpostScoreClimbAuto());
     autoChooser.addOption("Depot Climb", autos.getDepotClimbAuto());
     autoChooser.addOption("Depot Outpost Climb", autos.getDepotOutpostClimbAuto());
+    autoChooser.addOption("Outpost Climb", autos.getOutpostClimbAuto());
+    autoChooser.addOption("Score in Center", autos.getCenterScoreAuto());
     autoChooser.addOption("Test Auto", autos.getTestAuto());
     autoChooser.addOption("Just Score", autos.getJustScoreAuto());
+    autoChooser.addOption(
+        "Left Bump Depot Outpost Climb", autos.getLeftBumpDepotOutpostClimbAuto());
+    autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
+    autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
@@ -813,6 +847,8 @@ public class Robot extends LoggedRobot {
         Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
 
     Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
+
+    noLogStickAlert.set(!directory.exists());
   }
 
   public void updateAlerts() {
@@ -902,6 +938,7 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     addAutos();
     System.out.println("--------------Robot Disabled-----------");
+    Superstructure.matchStartTime = 0;
   }
 
   @Override
@@ -925,6 +962,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    Superstructure.matchStartTime = Timer.getFPGATimestamp();
+
     intake.slapdownInit();
   }
 

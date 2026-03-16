@@ -46,7 +46,8 @@ public class Superstructure {
     CLIMB,
     POST_CLIMB,
     SPIN_UP_SCORE_PRE_CLIMB,
-    SCORE_PRE_CLIMB;
+    SCORE_PRE_CLIMB,
+    DEFENSE;
     public final Trigger trigger;
 
     private SuperState() {
@@ -62,6 +63,10 @@ public class Superstructure {
           || this == SPIN_UP_SCORE
           || this == SPIN_UP_SCORE_FLOW
           || this == SCORE_FLOW;
+    }
+
+    public boolean isAFeedState() {
+      return this == FEED || this == SPIN_UP_FEED || this == SPIN_UP_FEED_FLOW || this == FEED_FLOW;
     }
   }
 
@@ -86,15 +91,39 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/State")
   private static SuperState state = SuperState.IDLE;
 
-  @AutoLogOutput(key = "Scoring/Scoring Active")
-  public boolean isScoringActive =
-      isOurShift(); // assuming we want the dashboard to show if the time allows us to score not if
-
-  // its litterly possible
-
   private SuperState prevState = SuperState.IDLE;
 
   private Timer stateTimer = new Timer();
+
+  private double getFPGATimestamp() {
+    return Timer.getFPGATimestamp();
+  }
+
+  @AutoLogOutput(key = "Superstructure/match starttime")
+  public static double matchStartTime;
+
+  private double getTimeElapsed() {
+    return getFPGATimestamp() - matchStartTime;
+  }
+
+  private double timeLeftinMatch() {
+    return 140.00 - getTimeElapsed();
+  }
+
+  @AutoLogOutput(key = "Superstructure/Shift Timer")
+  private double getTimeStampLeftInShift() {
+    return getTimeLeftInShift();
+  }
+
+  @AutoLogOutput(key = "Superstructure/Current Shift")
+  private String getCurrentShiftName() {
+    return getCurrentShift();
+  }
+
+  @AutoLogOutput(key = "Scoring/Scoring Active")
+  public boolean isScoringActive() {
+    return isOurShift();
+  }
 
   private final SwerveSubsystem swerve;
   private final Indexer indexer;
@@ -150,8 +179,14 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Operator Pose Override?")
   private static boolean poseOverride = false;
 
-  @AutoLogOutput(key = "Superstructure/Fixed Shot")
-  private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
+  @AutoLogOutput(key = "Superstructure/Defense?")
+  private boolean defense = false;
+
+  @AutoLogOutput(key = "Superstructure/Defense Req")
+  private Trigger defenseReq = new Trigger(() -> defense);
+
+  // @AutoLogOutput(key = "Superstructure/Fixed Shot")
+  // private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
 
   /** Creates a new Superstructure. */
   public Superstructure(
@@ -182,6 +217,9 @@ public class Superstructure {
     operator.x().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.SCORE));
     operator.y().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.FEED));
 
+    operator.povUp().onTrue(Commands.runOnce(() -> defense = true));
+    operator.povDown().onTrue(Commands.runOnce(() -> defense = false));
+
     // toggle for flow state
     operator
         .a()
@@ -200,38 +238,40 @@ public class Superstructure {
     // operator.leftTrigger().onTrue(Commands.runOnce(() -> poseOverride = true));
     // operator.rightTrigger().onTrue(Commands.runOnce(() -> poseOverride = false));
 
-    operator
-        .povLeft()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.LEFT;
-                  poseOverride = true;
-                }));
-    operator
-        .povUp()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.MID;
-                  poseOverride = true;
-                }));
-    operator
-        .povRight()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.RIGHT;
-                  poseOverride = true;
-                }));
-    operator
-        .povDown()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  fixedShotTarget = FixedShotTarget.NONE;
-                }));
+    // operator
+    //     .povLeft()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.LEFT;
+    //               poseOverride = true;
+    //             }));
+    // operator
+    //     .povUp()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.MID;
+    //               poseOverride = true;
+    //             }));
+    // operator
+    //     .povRight()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.RIGHT;
+    //               poseOverride = true;
+    //             }));
+    // operator
+    //     .povDown()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               fixedShotTarget = FixedShotTarget.NONE;
+    //             }));
 
+    operator.povUp().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
+    operator.povDown().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     shootReq =
         driver
             .rightTrigger()
@@ -270,7 +310,7 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
-    bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
+    // bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.IDLE, shootReq.negate());
 
@@ -341,7 +381,13 @@ public class Superstructure {
 
     bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
 
-    (preClimbReq.and(climbReq.negate()).and(() -> DriverStation.isTeleop()))
+    defenseReq.onTrue(changeStateTo(SuperState.DEFENSE));
+
+    bindTransition(SuperState.DEFENSE, SuperState.IDLE, defenseReq.negate());
+
+    (preClimbReq.and(climbReq.negate())
+        // .and(() -> DriverStation.isTeleop())
+        )
         .onTrue(changeStateTo(SuperState.PRE_CLIMB));
 
     bindTransition(
@@ -642,6 +688,13 @@ public class Superstructure {
                         : AutoAim.COMP_HUB_SHOT_TREE),
             swerve::getVelocityFieldRelative),
         climber.extend());
+
+    bindCommands(
+        SuperState.DEFENSE,
+        intake.restRetracted(),
+        indexer.rest(),
+        shooter.stopTurret(),
+        climber.retract());
   }
 
   public void periodic() {
@@ -758,28 +811,45 @@ public class Superstructure {
     }
   }
 
-  private int getCurrentShift() {
-    double timeLeftinMatch = Timer.getMatchTime();
-    // may be a nicer way to do this
-    if (105.00 <= timeLeftinMatch && timeLeftinMatch <= 130.00) {
-      return 1;
-    } else if (80.00 <= timeLeftinMatch && timeLeftinMatch <= 105.00) {
-      return 2;
-    } else if ((55.00 <= timeLeftinMatch && timeLeftinMatch <= 80.00)) {
-      return 3;
-    } else if ((30.00 <= timeLeftinMatch && timeLeftinMatch <= 55.00)) {
-      return 4;
+  private String getCurrentShift() {
+    if (DriverStation.isDisabled()) return "Disabled";
+    if (130.00 < timeLeftinMatch() && timeLeftinMatch() <= 140.00) {
+      return "Transition";
+    } else if (105.00 < timeLeftinMatch() && timeLeftinMatch() <= 130.00) {
+      return "Shift 1";
+    } else if (80.00 < timeLeftinMatch() && timeLeftinMatch() <= 105.00) {
+      return "Shift 2";
+    } else if ((55.00 < timeLeftinMatch() && timeLeftinMatch() <= 80.00)) {
+      return "Shift 3";
+    } else if ((30.00 < timeLeftinMatch() && timeLeftinMatch() <= 55.00)) {
+      return "Shift 4";
     } else {
-      return 0;
+      return "End Game";
     }
   }
 
+  private double getTimeLeftInShift() {
+    if (DriverStation.isDisabled()) return 0;
+    double offset =
+        switch (getCurrentShift()) {
+          case "Transition" -> 130.00;
+          case "Shift 1" -> 105.00;
+          case "Shift 2" -> 80.00;
+          case "Shift 3" -> 55.00;
+          case "Shift 4" -> 30.00;
+          default -> 0.00;
+        };
+    return timeLeftinMatch() - offset;
+  }
+
+  @AutoLogOutput(key = "Is our shift?")
   public boolean isOurShift() {
+    if (DriverStation.isDisabled()) return false;
     // only cant score when its the others turn, otherwise everyone can
     if (getStartingAlliance() == DriverStation.getAlliance().orElse(Alliance.Blue)) {
-      return !(getCurrentShift() == 2 || getCurrentShift() == 4);
+      return !(getCurrentShift() == "Shift 2" || getCurrentShift() == "Shift 4");
     } else {
-      return !(getCurrentShift() == 1 || getCurrentShift() == 3);
+      return !(getCurrentShift() == "Shift 1" || getCurrentShift() == "Shift 3");
     }
   }
 
@@ -793,9 +863,13 @@ public class Superstructure {
   }
 
   public boolean canScore() {
-    return (isOurShift() || !DriverStation.isFMSAttached())
-        && (inScoringArea() || poseOverride)
-        && (!swerve.isNearTrench() || poseOverride || fixedShotTarget != FixedShotTarget.NONE);
+    return
+    // (isOurShift() || !DriverStation.isFMSAttached())
+    //     &&
+    (inScoringArea() || poseOverride)
+        && (!swerve.isNearTrench() || poseOverride
+        // || fixedShotTarget != FixedShotTarget.NONE
+        );
   }
 
   public boolean canShoot() {
@@ -810,9 +884,9 @@ public class Superstructure {
     return feedTarget;
   }
 
-  public static FixedShotTarget getFixedShotTarget() {
-    return fixedShotTarget;
-  }
+  // public static FixedShotTarget getFixedShotTarget() {
+  //   return fixedShotTarget;
+  // }
 
   public static boolean getPoseOverride() {
     return poseOverride;

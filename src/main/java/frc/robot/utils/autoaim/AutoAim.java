@@ -10,7 +10,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,7 +18,9 @@ public class AutoAim {
   private static boolean outOfRange = false; // TODO not sure if this should be true by default
 
   public static double LATENCY_COMPENSATION_SECS =
-      new LoggedTunableNumber("Latency time", 0.3).getAsDouble(); // 0.6; // TODO tune latency comp
+      //   new LoggedTunableNumber("Latency time", 0.3).getAsDouble(); // 0.6; // TODO tune latency
+      // comp
+      0.3;
   //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
 
   public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
@@ -61,34 +62,73 @@ public class AutoAim {
   static { // For hub shot tree
     // TODO min shot
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17), new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 6, 1.04));
+        Units.inchesToMeters(24 + 17),
+        new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 6 + 3, 1.04));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(25), 35 - 6, 1.14));
+        new ShotData(Rotation2d.fromDegrees(25), 35 - 6 + 3, 1.14));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
-        new ShotData(Rotation2d.fromDegrees(26), 37 - 6, 1.10));
+        new ShotData(
+            Rotation2d.fromDegrees(26),
+            37 - 6 + 3
+            // - 6
+            ,
+            1.10));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
-        new ShotData(Rotation2d.fromDegrees(30), 37 - 6, 1.09));
+        new ShotData(
+            Rotation2d.fromDegrees(30),
+            37 - 6 + 3
+            // - 6
+            ,
+            1.09));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
-        new ShotData(Rotation2d.fromDegrees(33), 37 - 6, 1.15));
+        new ShotData(
+            Rotation2d.fromDegrees(33),
+            37 - 6 + 3
+            // - 6
+            ,
+            1.15));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
-        new ShotData(Rotation2d.fromDegrees(36), 38 - 6, 1.23));
+        new ShotData(
+            Rotation2d.fromDegrees(36),
+            38 - 6 + 3
+            // - 6
+            ,
+            1.23));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
-        new ShotData(Rotation2d.fromDegrees(38), 39 - 6, 1.33));
+        new ShotData(
+            Rotation2d.fromDegrees(38),
+            39 - 6 + 3
+            // - 6
+            ,
+            1.33));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
-        new ShotData(Rotation2d.fromDegrees(39), 40.5 - 6, 1.35));
+        new ShotData(
+            Rotation2d.fromDegrees(39),
+            40.5 - 6 + 3
+            // - 6
+            ,
+            1.35));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12 + 6),
+        new ShotData(
+            Rotation2d.fromDegrees(39),
+            40.5 - 6 + 3 + 2
+            // - 6
+            ,
+            1.35));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -96,49 +136,69 @@ public class AutoAim {
 
   static { // For feed shot tree
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(2), new ShotData(Rotation2d.fromDegrees(23.16), 20 - 2, 0));
+        Units.feetToMeters(2), new ShotData(Rotation2d.fromDegrees(23.16), 20 - 2, 0)); // - 2, 0));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(4), new ShotData(Rotation2d.fromDegrees(30), 40 - 2, 0.0));
+        Units.feetToMeters(4),
+        new ShotData(Rotation2d.fromDegrees(30), 40 - 2, 0.0)); // - 2, 0.0));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(6), new ShotData(Rotation2d.fromDegrees(40), 30 - 2, 0.0));
+        Units.feetToMeters(6),
+        new ShotData(Rotation2d.fromDegrees(40), 30 - 2, 0.0)); // - 2, 0.0));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(8), new ShotData(Rotation2d.fromDegrees(40), 32 - 2, 0.0));
+        Units.feetToMeters(8),
+        new ShotData(Rotation2d.fromDegrees(40), 32 - 2, 0.0)); // - 2, 0.0));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(10), new ShotData(Rotation2d.fromDegrees(40), 35 - 2, 0.0));
+        Units.feetToMeters(10),
+        new ShotData(Rotation2d.fromDegrees(40), 35 - 2, 0.0)); // - 2, 0.0));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(12), new ShotData(Rotation2d.fromDegrees(40), 40 - 2, 0.0));
+        Units.feetToMeters(12),
+        new ShotData(Rotation2d.fromDegrees(40), 40 - 2, 0.0)); // - 2, 0.0));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(14), new ShotData(Rotation2d.fromDegrees(45), 38 - 2, 0.0));
+        Units.feetToMeters(14),
+        new ShotData(Rotation2d.fromDegrees(45), 38 - 2, 0.0)); // - 2, 0.0));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(16), new ShotData(Rotation2d.fromDegrees(45), 40 - 2, 0.0));
+        Units.feetToMeters(16),
+        new ShotData(Rotation2d.fromDegrees(45), 40 - 2, 0.0)); // - 2, 0.0));
 
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(18), new ShotData(Rotation2d.fromDegrees(40), 38 - 2, 1.42));
+        Units.feetToMeters(18),
+        new ShotData(Rotation2d.fromDegrees(40), 38 - 2, 1.42)); // - 2, 1.42));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(20), new ShotData(Rotation2d.fromDegrees(43), 40 - 2, 1.36));
+        Units.feetToMeters(20),
+        new ShotData(Rotation2d.fromDegrees(43), 40 - 2, 1.36)); // - 2, 1.36));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(22), new ShotData(Rotation2d.fromDegrees(45), 41 - 2, 1.34));
+        Units.feetToMeters(22),
+        new ShotData(Rotation2d.fromDegrees(45), 41 - 2, 1.34)); // - 2, 1.34));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(24), new ShotData(Rotation2d.fromDegrees(47), 42 - 2, 1.25));
+        Units.feetToMeters(24),
+        new ShotData(Rotation2d.fromDegrees(47), 42 - 2, 1.25)); // - 2, 1.25));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(26), new ShotData(Rotation2d.fromDegrees(48), 43 - 2, 1.28));
+        Units.feetToMeters(26),
+        new ShotData(Rotation2d.fromDegrees(48), 43 - 2, 1.28)); // - 2, 1.28));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(28), new ShotData(Rotation2d.fromDegrees(49), 45 - 2, 1.27));
+        Units.feetToMeters(28),
+        new ShotData(Rotation2d.fromDegrees(49), 45 - 2, 1.27)); // - 2, 1.27));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(30), new ShotData(Rotation2d.fromDegrees(49), 46 - 2, 1.32));
+        Units.feetToMeters(30),
+        new ShotData(Rotation2d.fromDegrees(49), 46 - 2, 1.32)); // - 2, 1.32));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(32), new ShotData(Rotation2d.fromDegrees(49), 48 - 2, 1.4));
+        Units.feetToMeters(32),
+        new ShotData(Rotation2d.fromDegrees(49), 48 - 2, 1.4)); // - 2, 1.4));
 
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(34), new ShotData(Rotation2d.fromDegrees(52), 49 - 2, 1.3));
+        Units.feetToMeters(34),
+        new ShotData(Rotation2d.fromDegrees(52), 49 - 2, 1.3)); // - 2, 1.3));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(36), new ShotData(Rotation2d.fromDegrees(53), 53 - 2, 1.33));
+        Units.feetToMeters(36),
+        new ShotData(Rotation2d.fromDegrees(53), 53 - 2, 1.33)); // - 2, 1.33));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(38), new ShotData(Rotation2d.fromDegrees(53), 57 - 2, 1.3));
+        Units.feetToMeters(38),
+        new ShotData(Rotation2d.fromDegrees(53), 57 - 2, 1.3)); // - 2, 1.3));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(40), new ShotData(Rotation2d.fromDegrees(55), 57 - 2, 1.2));
+        Units.feetToMeters(40),
+        new ShotData(Rotation2d.fromDegrees(55), 57 - 2, 1.2)); // - 2, 1.2));
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(42), new ShotData(Rotation2d.fromDegrees(56), 59 - 2, 1.2));
+        Units.feetToMeters(42),
+        new ShotData(Rotation2d.fromDegrees(56), 59 - 2, 1.2)); // - 2, 1.2));
 
     // TODO: POPULATE beyond 24 feet and time of flight
   }
