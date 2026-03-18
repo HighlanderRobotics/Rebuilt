@@ -593,14 +593,7 @@ public class Robot extends LoggedRobot {
                       + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
             });
 
-    fuelSim.spawnStartingFuel();
-    fuelSim.registerIntake(
-        Units.inchesToMeters(-14),
-        Units.inchesToMeters(14),
-        Units.inchesToMeters(14),
-        Units.inchesToMeters(20) // robot-centric coordinates for bounding box in meters
-        // (optional) BooleanSupplier for whether the intake should be active at a given moment
-        ); // (optional) Runnable called whenever a fuel is intaked
+    // fuelSim.spawnStartingFuel();
 
     fuelSim.registerRobot(
         Units.inchesToMeters(28), // from left to right in meters
@@ -609,6 +602,20 @@ public class Robot extends LoggedRobot {
         swerve::getPose, // Supplier<Pose2d> of robot pose
         swerve
             ::getVelocityFieldRelative); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+
+    fuelSim.registerIntake(
+        Units.inchesToMeters(-14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(20), // robot-centric coordinates for bounding box in meters
+        () ->
+            Superstructure.getState()
+                .isAnIntakeState() // (optional) BooleanSupplier for whether the intake should be
+        // active at a given moment
+        ); // (optional) Runnable called whenever a fuel is intaked
+
+    fuelSim.setSubticks(5);
+
     fuelSim.start();
   }
 

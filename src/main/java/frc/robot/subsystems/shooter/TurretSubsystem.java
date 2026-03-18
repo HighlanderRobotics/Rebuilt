@@ -4,9 +4,10 @@
 
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -29,16 +30,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FuelSim;
-import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.BooleanSupplier;
@@ -192,15 +188,41 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     //             && (getCalculatedTurretRotations().getDegrees()
     //                 < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
     // if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
+
+    if (Superstructure.getState().isAScoreState()) {
+      System.out.println("launching fuel");
+      fuelSim.launchFuel(
+          // LinearVelocity.ofBaseUnits(
+          //     flywheelIO.getSetpointRotPerSec()
+          //         * Math.PI
+          //         * Units.inchesToMeters(FLYWHEEL_DIAMETER_INCHES),
+          //     // 2,
+          //     MetersPerSecond),
+          // there are few things i despise more than the units library
+          // InchesPerSecond.of(
+          // flywheelIO.getSetpointRotPerSec() * Math.PI * FLYWHEEL_DIAMETER_INCHES),
+          InchesPerSecond.of(flywheelIO.getSetpointRotPerSec() * 2 * Math.PI),
+          // Rotation2d.kCW_90deg.minus(
+          Rotation2d.fromDegrees(90)
+              .minus(hoodIO.getHoodSetpoint())
+              // )
+              .getMeasure(),
+          // Rotation2d.fromDegrees(90).getMeasure(),
+          turretIO.getTurretSetpoint().getMeasure(),
+          // Distance.ofBaseUnits(0.350341, Meters)
+          Inches.of(13.75));
+    }
   }
-    @Override
+
+  @Override
   public void simulationPeriodic() {
     if (Superstructure.getState().isAScoreState())
       fuelSim.launchFuel(
           LinearVelocity.ofBaseUnits(
               flywheelIO.getSetpointRotPerSec() * Math.PI * FLYWHEEL_DIAMETER_INCHES,
               MetersPerSecond),
-          Rotation2d.kCW_90deg.minus(hoodIO.getHoodSetpoint()).getMeasure(),
+          // Rotation2d.kCW_90deg.minus(hoodIO.getHoodSetpoint()).getMeasure(),
+          Rotation2d.fromDegrees(90).getMeasure(),
           turretIO.getTurretSetpoint().getMeasure(),
           Distance.ofBaseUnits(0.350341, Meters));
   }

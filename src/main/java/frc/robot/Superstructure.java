@@ -68,6 +68,14 @@ public class Superstructure {
     public boolean isAFeedState() {
       return this == FEED || this == SPIN_UP_FEED || this == SPIN_UP_FEED_FLOW || this == FEED_FLOW;
     }
+
+    public boolean isAnIntakeState() {
+      return this == INTAKE
+          || this == SPIN_UP_FEED_FLOW
+          || this == FEED_FLOW
+          || this == SPIN_UP_SCORE_FLOW
+          || this == SCORE_FLOW;
+    }
   }
 
   public enum ShotTarget {
