@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /** Add your docs here. */
@@ -37,7 +38,10 @@ public interface Shooter extends Subsystem {
 
   /** Not running (set to 0) */
   public Command rest(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier);
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      BooleanSupplier canScore,
+      Supplier<Pose2d> feedTarget);
 
   /** Run balls out from the shooter. This is for antijamming the robot */
   public Command spit();
@@ -51,34 +55,17 @@ public interface Shooter extends Subsystem {
   /** Reset hood encoder to its minimum position */
   public Command zeroHood();
 
-  /** Shoots based on dashboard numbers. For testing only */
-  public Command testShoot(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier);
-
-  public default Command torqueCurrentTest(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
-    return Commands.none();
-  }
-
   /**
    * Runs the hood backwards until it hits its hard stop and the current spikes, then resets encoder
    * position.
    */
-  public Command runCurrentZeroing();
+  public Command runHoodCurrentZeroing();
 
   public Rotation2d getHoodSetpoint();
 
   public Rotation2d getHoodPosition();
 
   public boolean atTurretSetpoint();
-
-  public Command runFlywheelSysid();
-
-  public Command runHoodSysid();
-
-  public default Command runTurretSysid() {
-    return Commands.none();
-  }
 
   public default Command resetTurretToPosition(Rotation2d rot) {
     return Commands.none();
@@ -96,21 +83,17 @@ public interface Shooter extends Subsystem {
     return Rotation2d.kZero;
   }
 
-  public default Command spinUpTest(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
-    return Commands.none();
-  }
-
-  public default Command spinUp(
-      Supplier<Pose2d> robotPoseSupplier,
-      Supplier<ShotData> shotDataSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
-    return Commands.none();
-  }
-
   public default void turretInit() {}
 
   public default Pose2d getTurretPose(Pose2d robotPose) {
     return Pose2d.kZero;
+  }
+
+  public default Command currentZeroTurretAgainstForwardHardstop() {
+    return Commands.none();
+  }
+
+  public default Command stopTurret() {
+    return Commands.none();
   }
 }

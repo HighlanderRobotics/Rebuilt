@@ -1,7 +1,5 @@
 package frc.robot.subsystems.indexer;
 
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -11,14 +9,9 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.subsystems.shooter.TurretSubsystem;
-import frc.robot.utils.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -40,29 +33,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   RollerIO kickerIO;
   RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
-  private SysIdRoutine indexRollerSysid =
-      new SysIdRoutine(
-          new Config(
-              null,
-              null,
-              null,
-              (state) -> Logger.recordOutput("Indexer/Roller/SysID State", state.toString())),
-          new Mechanism((volts) -> spinnerIO.setRollerVoltage(volts.in(Volts)), null, this));
-
-  private SysIdRoutine kickerSysid =
-      new SysIdRoutine(
-          new Config(
-              null,
-              null,
-              null,
-              (state) -> Logger.recordOutput("Indexer/Kicker/SysID State", state.toString())),
-          new Mechanism((volts) -> kickerIO.setRollerVoltage(volts.in(Volts)), null, this));
-
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
-
-  private LoggedTunableNumber testKickVolts = new LoggedTunableNumber("Indexer/Kicker Voltage", 10);
-  private LoggedTunableNumber testSpinVolts = new LoggedTunableNumber("Indexer/Spinner Voltage", 8);
 
   private final Alert spinnerDisconnectedAlert =
       new Alert("Disconnected spinner motor!", AlertType.kError);
@@ -99,10 +71,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               double spinnerSpeed = surfaceSpeedInPerSec / (Math.PI * SPINNER_DIAMETER_INCHES);
               Logger.recordOutput("Indexer/Spinner/Adjusted speed", spinnerSpeed);
               Logger.recordOutput("Indexer/Kicker/Adjusted speed", kickerSpeed);
-              spinnerIO.setRollerVelocity(spinnerSpeed - 1);
+              // spinnerIO.setRollerVelocity(spinnerSpeed - 1);
               // kickerIO.setRollerVelocity(kickerSpeed - 5);
-              // spinnerIO.setRollerVelocity(20);
-              kickerIO.setRollerVelocity(15);
+              spinnerIO.setRollerVelocity(60);
+              kickerIO.setRollerVelocity(25);
             })
         //     .withTimeout(3),
         // this.run(
@@ -131,7 +103,17 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
         });
   }
 
-  public static TalonFXConfiguration getIndexerConfigs() {
+  @Override
+  public void periodic() {
+    spinnerIO.updateInputs(spinnerInputs);
+    Logger.processInputs("Indexer/Spinner", spinnerInputs);
+    kickerIO.updateInputs(kickerInputs);
+    Logger.processInputs("Indexer/Kicker", kickerInputs);
+    spinnerDisconnectedAlert.set(!spinnerInputs.connected);
+    kickerDisconnectedAlert.set(!kickerInputs.connected);
+  }
+
+  public static TalonFXConfiguration getIndexerConfig() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -156,7 +138,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return config;
   }
 
-  public static TalonFXConfiguration getKickerConfigs() {
+  public static TalonFXConfiguration getKickerConfig() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -180,41 +162,5 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
 
     return config;
-  }
-
-  @Override
-  public void periodic() {
-    spinnerIO.updateInputs(spinnerInputs);
-    Logger.processInputs("Indexer/Spinner", spinnerInputs);
-    kickerIO.updateInputs(kickerInputs);
-    Logger.processInputs("Indexer/Kicker", kickerInputs);
-    spinnerDisconnectedAlert.set(!spinnerInputs.connected);
-    kickerDisconnectedAlert.set(!kickerInputs.connected);
-  }
-
-  public Command runRollerSysId() {
-    return Commands.sequence(
-        indexRollerSysid.quasistatic(Direction.kForward),
-        indexRollerSysid.quasistatic(Direction.kReverse),
-        indexRollerSysid.dynamic(Direction.kForward),
-        indexRollerSysid.dynamic(Direction.kReverse));
-  }
-
-  @Override
-  public Command runKickerSysId() {
-    return Commands.sequence(
-        kickerSysid.quasistatic(Direction.kForward),
-        kickerSysid.quasistatic(Direction.kReverse),
-        kickerSysid.dynamic(Direction.kForward),
-        kickerSysid.dynamic(Direction.kReverse));
-  }
-
-  @Override
-  public Command testShoot() {
-    return this.run(
-        () -> {
-          kickerIO.setRollerVoltage(testKickVolts.get());
-          spinnerIO.setRollerVoltage(testSpinVolts.get());
-        });
   }
 }

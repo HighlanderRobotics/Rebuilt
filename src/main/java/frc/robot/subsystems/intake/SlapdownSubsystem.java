@@ -1,9 +1,8 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Volt;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -15,10 +14,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.components.cancoder.CANcoderIOSim;
@@ -30,13 +25,13 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
-  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromDegrees(-12);
+  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromRotations(-0.052002);
   public static final Rotation2d PIVOT_MAX_POSITION =
       Rotation2d.fromDegrees(122); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
-  public static final double ROLLER_GEAR_RATIO = 2.0;
+  public static final double ROLLER_GEAR_RATIO = 60.0 / 29.0;
   public static final double PIVOT_GEAR_RATIO = 39.375;
 
   private final PivotIO pivotIO;
@@ -55,32 +50,10 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @AutoLogOutput(key = "Intake/Pivot/Current Filter Value")
   private double currentFilterValue = 0.0;
 
-  private final SysIdRoutine rollerSysid;
-
-  private final SysIdRoutine pivotSysid;
-
   public SlapdownSubsystem(PivotIO pivotIO, CANcoderIO cancoderIO, RollerIO rollerIO) {
     this.pivotIO = pivotIO;
     this.cancoderIO = cancoderIO;
     this.rollerIO = rollerIO;
-
-    rollerSysid =
-        new SysIdRoutine(
-            new Config(
-                null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Intake/Roller/Sysid State", state.toString())),
-            new Mechanism((volts) -> rollerIO.setRollerVoltage(volts.in(Volt)), null, this));
-
-    pivotSysid =
-        new SysIdRoutine(
-            new Config(
-                null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Intake/Pivot/Sysid State", state.toString())),
-            new Mechanism((volts) -> pivotIO.setMotorVoltage(volts.in(Volt)), null, this));
   }
 
   @Override
@@ -155,10 +128,17 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command restExtended() {
     return this.run(
-        () -> {
-          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-          rollerIO.setRollerVoltage(0.0);
-        });
+            () -> {
+              pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+              rollerIO.setRollerVoltage(0.0);
+            })
+        .until(atExtensionTrigger)
+        .andThen(
+            this.run(
+                () -> {
+                  pivotIO.setMotorVoltage(0);
+                  rollerIO.setRollerVoltage(0);
+                }));
   }
 
   @Override
@@ -175,41 +155,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     return Commands.sequence(
         this.run(() -> pivotIO.setMotorVoltage(-2)), // TODO: TUNE VOLTAGE
         Commands.waitUntil(() -> currentFilterValue > CURRENT_ZEROING_THRESHOLD),
-        this.runOnce(() -> pivotIO.resetEncoder(Rotation2d.kZero)),
+        this.runOnce(() -> pivotIO.resetEncoder(PIVOT_MIN_POSITION)),
         Commands.print("Intake pivot zeroed"));
-  }
-
-  @Override
-  public Command runRollerSysid() {
-    return Commands.sequence(
-        rollerSysid.quasistatic(Direction.kForward),
-        rollerSysid.quasistatic(Direction.kReverse),
-        rollerSysid.dynamic(Direction.kForward),
-        rollerSysid.dynamic(Direction.kReverse));
-  }
-
-  @Override
-  public Command runPivotSysid() {
-    return Commands.sequence(
-        pivotSysid
-            .quasistatic(Direction.kForward)
-            .until(
-                () ->
-                    pivotIOInputs.position.getDegrees()
-                        > (PIVOT_MAX_POSITION.getDegrees() - 5) // Stop 5 degrees before hardstop
-                ),
-        pivotSysid
-            .quasistatic(Direction.kReverse)
-            .until(
-                () -> pivotIOInputs.position.getDegrees() < (PIVOT_MIN_POSITION.getDegrees() + 5)),
-        pivotSysid
-            .dynamic(Direction.kForward)
-            .until(
-                () -> pivotIOInputs.position.getDegrees() > (PIVOT_MAX_POSITION.getDegrees() - 5)),
-        pivotSysid
-            .dynamic(Direction.kReverse)
-            .until(
-                () -> pivotIOInputs.position.getDegrees() < (PIVOT_MIN_POSITION.getDegrees() + 5)));
   }
 
   @Override
@@ -234,7 +181,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   public boolean atExtension() {
-    return MathUtil.isNear(getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 10);
+    return MathUtil.isNear(getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 5);
   }
 
   public static TalonFXConfiguration getPivotConfig() {
@@ -242,16 +189,19 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    config.Feedback.FeedbackRemoteSensorID = 6;
+    config.Feedback.RotorToSensorRatio = PIVOT_GEAR_RATIO;
 
-    config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = 1;
 
     config.Slot0.kS = 0.05;
-    config.Slot0.kV = 8.0; // Might suck
+    config.Slot0.kV = 8.0; // Might suck\
     config.Slot0.kA = 0.0;
     config.Slot0.kG = 0.55;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.GravityArmPositionOffset = 0.0; // Maybe need this??
-    config.Slot0.kP = 8.0;
+    config.Slot0.kP = 15.0;
     config.Slot0.kD = 0.3;
 
     config.CurrentLimits.StatorCurrentLimit = 45.0; // glup
@@ -260,8 +210,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     // TODO: TUNE
-    config.MotionMagic.MotionMagicCruiseVelocity = 1;
-    config.MotionMagic.MotionMagicAcceleration = 1;
+    config.MotionMagic.MotionMagicCruiseVelocity = 10;
+    config.MotionMagic.MotionMagicAcceleration = 10;
 
     return config;
   }
@@ -293,7 +243,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
     config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    config.MagnetSensor.MagnetOffset = 0.262;
+    config.MagnetSensor.MagnetOffset = 0.26196;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
 
     return config;

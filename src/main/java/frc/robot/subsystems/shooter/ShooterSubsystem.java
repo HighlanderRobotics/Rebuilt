@@ -21,11 +21,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -83,16 +83,6 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
     this.flywheelIO = flywheelIO;
   }
 
-  @Override
-  public Command testShoot(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
-    return this.run(
-        () -> {
-          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-        });
-  }
-
   public Command score(
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ShotData> shotDataSupplier,
@@ -127,7 +117,10 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command rest(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+      Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      BooleanSupplier canScore,
+      Supplier<Pose2d> feedTarget) {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ROTATION);
@@ -178,7 +171,7 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command runCurrentZeroing() {
+  public Command runHoodCurrentZeroing() {
     return this.run(() -> hoodIO.setHoodVoltage(-3.0))
         .until(
             new Trigger(() -> Math.abs(currentFilterValue) > CURRENT_ZERO_THRESHOLD).debounce(0.25))
@@ -199,44 +192,6 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
   @Override
   public boolean atTurretSetpoint() {
     return false;
-  }
-
-  @Override
-  public Command runHoodSysid() {
-    return Commands.sequence(
-        hoodSysid
-            .quasistatic(Direction.kForward)
-            .until(
-                () ->
-                    hoodInputs.hoodPositionRotations.getDegrees()
-                        > (HOOD_MAX_ROTATION.getDegrees() - 5)), // Stop before endstop
-        hoodSysid
-            .quasistatic(Direction.kReverse)
-            .until(
-                () ->
-                    hoodInputs.hoodPositionRotations.getDegrees()
-                        < (HOOD_MIN_ROTATION.getDegrees() + 5)),
-        hoodSysid
-            .dynamic(Direction.kForward)
-            .until(
-                () ->
-                    hoodInputs.hoodPositionRotations.getDegrees()
-                        > (HOOD_MAX_ROTATION.getDegrees() - 5)),
-        hoodSysid
-            .dynamic(Direction.kReverse)
-            .until(
-                () ->
-                    hoodInputs.hoodPositionRotations.getDegrees()
-                        < (HOOD_MIN_ROTATION.getDegrees() + 5)));
-  }
-
-  @Override
-  public Command runFlywheelSysid() {
-    return Commands.sequence(
-        flywheelSysid.quasistatic(Direction.kForward),
-        flywheelSysid.quasistatic(Direction.kReverse),
-        flywheelSysid.dynamic(Direction.kForward),
-        flywheelSysid.dynamic(Direction.kReverse));
   }
 
   public static TalonFXConfiguration getFlywheelConfig() {
