@@ -208,7 +208,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   public static LinearVelocity angularToLinearVelocity(AngularVelocity vel, Distance radius) {
-    return MetersPerSecond.of(vel.in(RadiansPerSecond) * radius.in(Meters) * 0.54);
+    return MetersPerSecond.of(vel.in(RadiansPerSecond) * radius.in(Meters) * 0.54 + 1);
   }
 
   @Override
