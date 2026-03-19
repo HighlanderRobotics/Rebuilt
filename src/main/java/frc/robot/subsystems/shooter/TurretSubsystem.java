@@ -5,9 +5,10 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -22,6 +23,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
@@ -55,7 +57,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
   public static final double TURRET_CURRENT_ZERO_THRESHOLD = 30.0; // TODO find
 
-  public static final double FLYWHEEL_DIAMETER_INCHES = 4;
+  public static final double FLYWHEEL_DIAMETER_INCHES = 4.0;
 
   public static final Rotation2d TURRET_LEFT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
   public static final Rotation2d TURRET_RIGHT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
@@ -192,40 +194,25 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     if (Superstructure.getState().isAScoreState()) {
       System.out.println("launching fuel");
       fuelSim.launchFuel(
-          // LinearVelocity.ofBaseUnits(
-          //     flywheelIO.getSetpointRotPerSec()
-          //         * Math.PI
-          //         * Units.inchesToMeters(FLYWHEEL_DIAMETER_INCHES),
-          //     // 2,
-          //     MetersPerSecond),
-          // there are few things i despise more than the units library
+          // there are few things i despise more than the units library\
           // InchesPerSecond.of(
-          // flywheelIO.getSetpointRotPerSec() * Math.PI * FLYWHEEL_DIAMETER_INCHES),
-          InchesPerSecond.of(flywheelIO.getSetpointRotPerSec() * 2 * Math.PI),
-          // Rotation2d.kCW_90deg.minus(
-          Rotation2d.fromDegrees(90)
-              .minus(hoodIO.getHoodSetpoint())
-              // )
-              .getMeasure(),
-          // Rotation2d.fromDegrees(90).getMeasure(),
+          //     flywheelIO.getSetpointRotPerSec() * FLYWHEEL_DIAMETER_INCHES * Math.PI),
+          // InchesPerSecond.of(200),
+          angularToLinearVelocity(
+              RotationsPerSecond.of(flywheelIO.getSetpointRotPerSec()),
+              Inches.of(FLYWHEEL_DIAMETER_INCHES / 2)),
+          Rotation2d.fromDegrees(90).minus(hoodIO.getHoodSetpoint()).getMeasure(),
           turretIO.getTurretSetpoint().getMeasure(),
-          // Distance.ofBaseUnits(0.350341, Meters)
           Inches.of(13.75));
     }
   }
 
-  @Override
-  public void simulationPeriodic() {
-    if (Superstructure.getState().isAScoreState())
-      fuelSim.launchFuel(
-          LinearVelocity.ofBaseUnits(
-              flywheelIO.getSetpointRotPerSec() * Math.PI * FLYWHEEL_DIAMETER_INCHES,
-              MetersPerSecond),
-          // Rotation2d.kCW_90deg.minus(hoodIO.getHoodSetpoint()).getMeasure(),
-          Rotation2d.fromDegrees(90).getMeasure(),
-          turretIO.getTurretSetpoint().getMeasure(),
-          Distance.ofBaseUnits(0.350341, Meters));
+  public static LinearVelocity angularToLinearVelocity(AngularVelocity vel, Distance radius) {
+    return MetersPerSecond.of(vel.in(RadiansPerSecond) * radius.in(Meters) * 0.54);
   }
+
+  @Override
+  public void simulationPeriodic() {}
 
   @Override
   public Command feed(
