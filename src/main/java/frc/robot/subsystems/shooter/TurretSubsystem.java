@@ -4,6 +4,12 @@
 
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -17,15 +23,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.BooleanSupplier;
@@ -46,7 +57,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
   public static final double TURRET_CURRENT_ZERO_THRESHOLD = 30.0; // TODO find
 
-  public static final double FLYWHEEL_DIAMETER_INCHES = 4;
+  public static final double FLYWHEEL_DIAMETER_INCHES = 4.0;
 
   public static final Rotation2d TURRET_LEFT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
   public static final Rotation2d TURRET_RIGHT_FIXED_SHOT_ANGLE = Rotation2d.kZero;
@@ -113,17 +124,21 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           "Turret may have gone past hardstop!! Reoffset cancoders + min/max position",
           AlertType.kError);
 
+  private FuelSim fuelSim;
+
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
       TurretIO turretIO,
       CANcoderIO cancoder24t,
-      CANcoderIO cancoder26t) {
+      CANcoderIO cancoder26t,
+      FuelSim fuelSim) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
     this.turretIO = turretIO;
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
+    this.fuelSim = fuelSim;
 
     // assume we start up at min angle and not 0
     hoodIO.resetEncoder(HOOD_MIN_ANGLE);
@@ -175,7 +190,29 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     //             && (getCalculatedTurretRotations().getDegrees()
     //                 < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
     // if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
+
+    if (Superstructure.getState().isAScoreState()) {
+      System.out.println("launching fuel");
+      fuelSim.launchFuel(
+          // there are few things i despise more than the units library\
+          // InchesPerSecond.of(
+          //     flywheelIO.getSetpointRotPerSec() * FLYWHEEL_DIAMETER_INCHES * Math.PI),
+          // InchesPerSecond.of(200),
+          angularToLinearVelocity(
+              RotationsPerSecond.of(flywheelIO.getSetpointRotPerSec()),
+              Inches.of(FLYWHEEL_DIAMETER_INCHES / 2)),
+          Rotation2d.fromDegrees(90).minus(hoodIO.getHoodSetpoint()).getMeasure(),
+          turretIO.getTurretSetpoint().getMeasure(),
+          Inches.of(13.75));
+    }
   }
+
+  public static LinearVelocity angularToLinearVelocity(AngularVelocity vel, Distance radius) {
+    return MetersPerSecond.of(vel.in(RadiansPerSecond) * radius.in(Meters) * 0.54 + 1);
+  }
+
+  @Override
+  public void simulationPeriodic() {}
 
   @Override
   public Command feed(
