@@ -7,6 +7,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -21,16 +22,17 @@ public class TurretIOSim extends TurretIO {
   private double lastSimTime = 0.0;
 
   public TurretIOSim(CANBus canivore) {
-    super(canivore);
+    super(canivore, TurretSubsystem.getTurretConfig());
     physicsSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX44Foc(1), 0.01, TurretIO.TURRET_GEAR_RATIO),
+                DCMotor.getKrakenX44Foc(1), 0.01, TurretSubsystem.TURRET_GEAR_RATIO),
             DCMotor.getKrakenX44Foc(1));
 
     motorSim = motor.getSimState();
     motorSim.setMotorType(MotorType.KrakenX44);
     motorSim.Orientation = ChassisReference.Clockwise_Positive;
+    motorSim.setRawRotorPosition(0);
 
     simNotifier =
         new Notifier(
@@ -45,9 +47,11 @@ public class TurretIOSim extends TurretIO {
               physicsSim.update(deltaTime);
 
               motorSim.setRawRotorPosition(
-                  physicsSim.getAngularPositionRad() * (TurretIO.TURRET_GEAR_RATIO));
+                  Units.radiansToRotations(physicsSim.getAngularPositionRad())
+                      * (TurretSubsystem.TURRET_GEAR_RATIO));
               motorSim.setRotorVelocity(
-                  physicsSim.getAngularVelocityRPM() * TurretIO.TURRET_GEAR_RATIO);
+                  Units.radiansToRotations(physicsSim.getAngularVelocityRadPerSec())
+                      * TurretSubsystem.TURRET_GEAR_RATIO);
             });
 
     simNotifier.startPeriodic(simLoopPeriod);

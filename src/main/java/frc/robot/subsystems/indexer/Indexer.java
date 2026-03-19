@@ -5,8 +5,8 @@
 package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.function.DoubleSupplier;
 
 /** Add your docs here. */
 public interface Indexer extends Subsystem {
@@ -18,18 +18,8 @@ public interface Indexer extends Subsystem {
   public Command spit();
 
   /** Run both indexer and kicker towards the shooter */
-  public Command kick();
+  public Command kick(DoubleSupplier flywheelSpeedSupplier);
 
   /** Not running (set to 0) */
   public Command rest();
-
-  public Command runRollerSysId();
-
-  public default Command runKickerSysId() {
-    return Commands.none();
-  } // alpha also has a kicker but ig we didn't use sysid for that and i'm too lazy to add it just
-
-  // for this
-
-  public Command testShoot();
 }
