@@ -125,12 +125,15 @@ public class Autos {
     RRtoIR("RR", "FR", Action.INTAKE),
     PRtoIR("PR", "FR", Action.INTAKE),
     PLtoIL("PL", "FL", Action.INTAKE),
+    FRtoSRT("FR", "SRT", Action.INTAKE),
+
     // SCORE
     DtoRL("D", "RL", Action.SCORE),
     OtoRR("O", "RR", Action.NOTHING),
     DtoS("D", "S", Action.SCORE),
     OtoS("O", "S", Action.SCORE),
     PMtoM("PM", "M", Action.SCORE),
+    SRTtoO("SRT", "O", Action.SCORE),
     // FLOW
     MLtoD("ML", "D", Action.FLOW),
     // CLIMB
@@ -682,6 +685,12 @@ public class Autos {
     routine.active().whileTrue(autoCommand);
 
     return routine.cmd();
+  }
+
+  public Command getNeutralOutpostScore() {
+    final AutoRoutine routine = factory.newRoutine("Neutral Outpost Score");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {};
   }
 
   public Command getTestAuto() {
