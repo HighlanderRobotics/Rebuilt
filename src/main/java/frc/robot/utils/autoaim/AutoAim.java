@@ -374,7 +374,7 @@ public class AutoAim {
     double currentVelocity = currentDistance / currentTime;
 
     // iterate
-    for (int i = 0; i < 10 && Math.abs(currentVelocity - requiredVelocity) > 0.005; i++) {
+    for (int i = 0; i < 20 && Math.abs(currentVelocity - requiredVelocity) > 0.005; i++) {
       final double EPSILON = 0.001;
       // get deriv of velocity (dis/time)
       double lowVel =
