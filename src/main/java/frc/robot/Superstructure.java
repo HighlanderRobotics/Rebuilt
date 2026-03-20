@@ -481,7 +481,7 @@ public class Superstructure {
         shooter.feed(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -495,7 +495,7 @@ public class Superstructure {
         intake.agitate(),
         indexer.kick(
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                         swerve.getVelocityFieldRelative(),
@@ -504,7 +504,7 @@ public class Superstructure {
         shooter.feed(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -520,7 +520,7 @@ public class Superstructure {
         shooter.feed(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -534,7 +534,7 @@ public class Superstructure {
         intake.intake(),
         indexer.kick(
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                         swerve.getVelocityFieldRelative(),
@@ -543,7 +543,7 @@ public class Superstructure {
         shooter.feed(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -559,7 +559,7 @@ public class Superstructure {
         shooter.score(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -575,7 +575,7 @@ public class Superstructure {
         // intake.restExtended(),
         indexer.kick(
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FieldUtils.getCurrentHubTranslation(),
                         swerve.getVelocityFieldRelative(),
@@ -586,7 +586,7 @@ public class Superstructure {
         shooter.score(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -603,7 +603,7 @@ public class Superstructure {
         shooter.score(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -618,7 +618,7 @@ public class Superstructure {
         intake.intake(),
         indexer.kick(
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FieldUtils.getCurrentHubTranslation(),
                         swerve.getVelocityFieldRelative(),
@@ -629,7 +629,7 @@ public class Superstructure {
         shooter.score(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -679,7 +679,7 @@ public class Superstructure {
         shooter.score(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
@@ -694,7 +694,7 @@ public class Superstructure {
         intake.restRetracted(),
         indexer.kick(
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FieldUtils.getCurrentHubTranslation(),
                         swerve.getVelocityFieldRelative(),
@@ -705,7 +705,7 @@ public class Superstructure {
         shooter.score(
             swerve::getPose,
             () ->
-                AutoAim.getCompensatedSOTMShotData(
+                AutoAim.getSOTMShotDataNewtonsMethod(
                     shooter.getTurretPose(swerve.getPose()),
                     FieldUtils.getCurrentHubTranslation(),
                     swerve.getVelocityFieldRelative(),
