@@ -68,6 +68,13 @@ public class Superstructure {
     public boolean isAFeedState() {
       return this == FEED || this == SPIN_UP_FEED || this == SPIN_UP_FEED_FLOW || this == FEED_FLOW;
     }
+
+    public boolean isAFlowState() {
+      return this == FEED_FLOW
+          || this == SCORE_FLOW
+          || this == SPIN_UP_FEED_FLOW
+          || this == SPIN_UP_SCORE_FLOW;
+    }
   }
 
   public enum ShotTarget {
@@ -293,7 +300,8 @@ public class Superstructure {
         new Trigger(shooter::atFlywheelVelocitySetpoint)
             // .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
-            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05));
+            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
+            .and(new Trigger(AutoAim::targetInTurretDeadzone).negate());
   }
 
   private void addTransitions() {
@@ -324,6 +332,11 @@ public class Superstructure {
           scoreReq.and(flowReq).and(shootReq.or(intakeReq)));
 
       bindTransition(SuperState.SPIN_UP_SCORE_FLOW, SuperState.SCORE_FLOW, readyTrigger);
+
+      bindTransition(
+          SuperState.SCORE_FLOW,
+          SuperState.SPIN_UP_SCORE_FLOW,
+          new Trigger(AutoAim::targetInTurretDeadzone));
 
       bindTransition(
           SuperState.SPIN_UP_SCORE_FLOW,
@@ -359,6 +372,11 @@ public class Superstructure {
           feedReq.and(flowReq).and(shootReq.or(intakeReq)));
 
       bindTransition(SuperState.SPIN_UP_FEED_FLOW, SuperState.FEED_FLOW, readyTrigger);
+
+      bindTransition(
+          SuperState.FEED_FLOW,
+          SuperState.SPIN_UP_FEED_FLOW,
+          new Trigger(AutoAim::targetInTurretDeadzone));
 
       bindTransition(
           SuperState.SPIN_UP_FEED_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
@@ -572,7 +590,7 @@ public class Superstructure {
 
     bindCommands(
         SuperState.SPIN_UP_SCORE_FLOW,
-        intake.restExtended(),
+        intake.intake(),
         indexer.rest(),
         shooter.score(
             swerve::getPose,
