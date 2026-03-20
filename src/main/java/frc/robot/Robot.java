@@ -726,6 +726,7 @@ public class Robot extends LoggedRobot {
     //     .and(
     new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
+        .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
         .and(() -> superstructure.inScoringArea())
         .whileTrue(
@@ -742,6 +743,7 @@ public class Robot extends LoggedRobot {
 
     new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAFeedState())
+        .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
         .and(() -> !superstructure.inScoringArea())
         .whileTrue(
