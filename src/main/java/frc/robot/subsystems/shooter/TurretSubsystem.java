@@ -32,13 +32,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Robot;
 import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
-import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import frc.robot.utils.autoaim.NewAutoAim.ShotParams;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -191,7 +192,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     //                 < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
     // if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
 
-    if (Superstructure.getState().isAScoreState()) {
+    if (Superstructure.getState().isAScoreState() && Robot.isSimulation()) {
       System.out.println("launching fuel");
       fuelSim.launchFuel(
           // there are few things i despise more than the units library\
@@ -216,22 +217,17 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command feed(
-      Supplier<Pose2d> robotPoseSupplier,
-      Supplier<ShotData> shotDataSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
-      Supplier<Pose2d> feedTarget) {
+      Supplier<ShotParams> shotParamsSupplier,
+      Supplier<Pose2d> feedTarget,
+      Supplier<Pose2d> robotPoseSupplier) {
     return this.run(
         () -> {
           Logger.recordOutput("Robot/Feed Target", feedTarget.get());
-          hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+          hoodIO.setHoodPosition(shotParamsSupplier.get().shotData().hoodAngle());
           // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
           flywheelIO.setMotionProfiledFlywheelVelocity(
-              shotDataSupplier.get().flywheelVelocityRotPerSec());
-          turretIO.setTurretPosition(
-              AutoAim.getTurretFeedTargetRotation(
-                  feedTarget.get().getTranslation(),
-                  robotPoseSupplier.get(),
-                  chassisSpeedsSupplier.get()));
+              shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec());
+          turretIO.setTurretPosition(shotParamsSupplier.get().turretAngle());
         });
   }
 
@@ -293,10 +289,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         .andThen(Commands.parallel(Commands.print("Hood Zeroed"), zeroHood()));
   }
 
-  public Command score(
-      Supplier<Pose2d> robotPoseSupplier,
-      Supplier<ShotData> shotDataSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+  public Command score(Supplier<ShotParams> shotParamsSupplier) {
     return resetTurretToCalculatedPosition()
         .andThen(
             this.run(
@@ -321,14 +314,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   //         AutoAim.getRightFixedShotData().flywheelVelocityRotPerSec());
                   //     turretIO.setTurretPosition(AutoAim.RIGHT_FIXED_SHOT_TURRET_ANGLE);
                   //   case NONE:
-                  hoodIO.setHoodPosition(shotDataSupplier.get().hoodAngle());
+                  hoodIO.setHoodPosition(shotParamsSupplier.get().shotData().hoodAngle());
                   flywheelIO.setMotionProfiledFlywheelVelocity(
-                      shotDataSupplier.get().flywheelVelocityRotPerSec());
-                  turretIO.setTurretPosition(
-                      AutoAim.getTurretHubTargetRotation(
-                          FieldUtils.getCurrentHubTranslation(),
-                          robotPoseSupplier.get(),
-                          chassisSpeedsSupplier.get()));
+                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec());
+                  turretIO.setTurretPosition(shotParamsSupplier.get().turretAngle());
                   // }
                 }));
   }

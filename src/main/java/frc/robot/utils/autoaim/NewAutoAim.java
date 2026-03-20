@@ -21,7 +21,11 @@ public class NewAutoAim {
 
   public record ShotParams(ShotData shotData, Rotation2d turretAngle) {}
 
-  public ShotParams calculate(Pose2d robotPose, ChassisSpeeds fieldRelativeSpeeds, Translation2d target, InterpolatingShotTree tree) {
+  public static ShotParams calculate(
+      Pose2d robotPose,
+      ChassisSpeeds fieldRelativeSpeeds,
+      Translation2d target,
+      InterpolatingShotTree tree) {
     ChassisSpeeds robotRelativeSpeeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, robotPose.getRotation());
     // this is robot relative speeds because "The twist is a change in pose in the robot's
@@ -59,13 +63,14 @@ public class NewAutoAim {
     //   lookaheadPose =
     //       turretPose.transformBy(
     //           new Transform2d(
-    //               new Translation2d(turretFieldRelativeVelocityX * tof, turretFieldRelativeVelocityY * tof),
+    //               new Translation2d(turretFieldRelativeVelocityX * tof,
+    // turretFieldRelativeVelocityY * tof),
     //               Rotation2d.kZero));
     //   distanceToTarget = lookaheadPose.getTranslation().getDistance(target);
     // }
     double tof = tree.get(distanceToTarget).timeOfFlightSecs();
 
-        ShotData baseline = tree.calculateShot(robotPose, target);
+    ShotData baseline = tree.calculateShot(robotPose, target);
 
     Translation2d turretToTarget = target.minus(turretPose.getTranslation());
 
@@ -93,7 +98,7 @@ public class NewAutoAim {
     // shot to account for the robots velocity along the shot
     double requiredVelocity = (distance / baseline.timeOfFlightSecs()) - turretVelocityAlongShot;
 
-    //we be newtoning
+    // we be newtoning
     for (int i = 0; i < 20; i++) {
       final double EPSILON = 0.001;
       // get deriv of velocity (dis/time)
@@ -112,11 +117,11 @@ public class NewAutoAim {
       tof = tree.get(distanceToTarget).timeOfFlightSecs();
     }
 
-    //TODO if we're behind the hub just don't shoot
+    // TODO if we're behind the hub just don't shoot
 
-    Rotation2d turretTarget =
-        target.minus(lookaheadPose.getTranslation()).getAngle();
-    return new ShotParams(tree.get(distanceToTarget), getTurretTargetRotation(turretTarget, robotPose));
+    Rotation2d turretTarget = target.minus(lookaheadPose.getTranslation()).getAngle();
+    return new ShotParams(
+        tree.get(distanceToTarget), getTurretTargetRotation(turretTarget, robotPose));
   }
 
   public static Rotation2d getTurretTargetRotation(
@@ -149,5 +154,66 @@ public class NewAutoAim {
     Logger.recordOutput("Turret/Wrapped target", Rotation2d.fromDegrees(turretTargetDegrees));
     // ship it
     return Rotation2d.fromDegrees(turretTargetDegrees);
+  }
+
+  public static ShotParams getParameters(
+      Pose2d estimatedPose,
+      ChassisSpeeds robotRelativeVelocity,
+      Translation2d target,
+      InterpolatingShotTree tree) {
+
+    // Calculate estimated pose while accounting for phase delay
+    estimatedPose =
+        estimatedPose.exp(
+            new Twist2d(
+                robotRelativeVelocity.vxMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS,
+                robotRelativeVelocity.vyMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS,
+                robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS));
+
+    // Calculate distance from turret to target
+    Pose2d turretPosition =
+        estimatedPose.transformBy(
+            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    double turretToTargetDistance = target.getDistance(turretPosition.getTranslation());
+
+    // Calculate field relative turret velocity
+    ChassisSpeeds robotVelocity =
+        ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeVelocity, estimatedPose.getRotation());
+    double robotAngle = estimatedPose.getRotation().getRadians();
+    double turretVelocityX =
+        robotVelocity.vxMetersPerSecond
+            + robotVelocity.omegaRadiansPerSecond
+                * (TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY() * Math.cos(robotAngle)
+                    - TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX() * Math.sin(robotAngle));
+    double turretVelocityY =
+        robotVelocity.vyMetersPerSecond
+            + robotVelocity.omegaRadiansPerSecond
+                * (TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX() * Math.cos(robotAngle)
+                    - TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY() * Math.sin(robotAngle));
+
+    // Account for imparted velocity by robot (turret) to offset
+    double timeOfFlight;
+    Pose2d lookaheadPose = turretPosition;
+    double lookaheadTurretToTargetDistance = turretToTargetDistance;
+    for (int i = 0; i < 20; i++) {
+      timeOfFlight = tree.get(lookaheadTurretToTargetDistance).timeOfFlightSecs();
+      double offsetX = turretVelocityX * timeOfFlight;
+      double offsetY = turretVelocityY * timeOfFlight;
+      lookaheadPose =
+          new Pose2d(
+              turretPosition.getTranslation().plus(new Translation2d(offsetX, offsetY)),
+              turretPosition.getRotation());
+      lookaheadTurretToTargetDistance = target.getDistance(lookaheadPose.getTranslation());
+    }
+
+    // Calculate parameters accounted for imparted velocity
+    Rotation2d turretAngle = target.minus(lookaheadPose.getTranslation()).getAngle();
+    turretAngle = getTurretTargetRotation(turretAngle, estimatedPose);
+
+    // Log calculated values
+    Logger.recordOutput("LaunchCalculator/LookaheadPose", lookaheadPose);
+    Logger.recordOutput("LaunchCalculator/TurretToTargetDistance", lookaheadTurretToTargetDistance);
+
+    return new ShotParams(tree.get(lookaheadTurretToTargetDistance), turretAngle);
   }
 }
