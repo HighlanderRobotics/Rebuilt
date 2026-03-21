@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.BooleanSupplier;
@@ -113,6 +114,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           "Turret may have gone past hardstop!! Reoffset cancoders + min/max position",
           AlertType.kError);
 
+  private LoggedTunableNumber testDegrees =
+      new LoggedTunableNumber("Shooter/Test Hood Degrees", 50.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 50.0);
+
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
@@ -193,6 +198,20 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           turretIO.setTurretPosition(
               AutoAim.getTurretFeedTargetRotation(
                   feedTarget.get().getTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
+        });
+  }
+
+  public Command testShot(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          turretIO.setTurretPosition(
+              AutoAim.getTurretHubTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
         });
