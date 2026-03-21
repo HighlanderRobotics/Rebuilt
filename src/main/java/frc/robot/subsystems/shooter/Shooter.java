@@ -92,4 +92,9 @@ public interface Shooter extends Subsystem {
   public default Command stopTurret() {
     return Commands.none();
   }
+
+  public default Command testShot(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+    return Commands.none();
+  }
 }

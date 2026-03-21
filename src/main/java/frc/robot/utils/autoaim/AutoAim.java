@@ -58,6 +58,30 @@ public class AutoAim {
 
   public static final InterpolatingShotTree COMP_HUB_SHOT_TREE = new InterpolatingShotTree();
 
+  static {
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 24),
+        new ShotData(Rotation2d.fromDegrees(25), 32, 0.81));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 2 * 24),
+        new ShotData(Rotation2d.fromDegrees(27), 34, 1.09));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 3 * 24),
+        new ShotData(Rotation2d.fromDegrees(29), 36, 1.1));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 4 * 24),
+        new ShotData(Rotation2d.fromDegrees(31), 40, 1.3));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 5 * 24),
+        new ShotData(Rotation2d.fromDegrees(33), 42, 1.02));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 6 * 24),
+        new ShotData(Rotation2d.fromDegrees(35), 43, 1.3));
+    COMP_HUB_SHOT_TREE.put(
+        Units.inchesToMeters(24 * Math.sqrt(2) + 7 * 24),
+        new ShotData(Rotation2d.fromDegrees(37), 47, 1.46));
+  }
+
   // TODO update tof
   static { // For hub shot tree
     // TODO min shot
@@ -67,7 +91,7 @@ public class AutoAim {
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(25), 35 - 6 + 3, 1.14));
+        new ShotData(Rotation2d.fromDegrees(25), 35 - 6 + 3, 0.9));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
@@ -76,7 +100,7 @@ public class AutoAim {
             37 - 6 + 3
             // - 6
             ,
-            1.10));
+            1.02));
 
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
