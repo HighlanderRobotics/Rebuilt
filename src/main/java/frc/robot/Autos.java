@@ -125,6 +125,7 @@ public class Autos {
     RRtoIR("RR", "FR", Action.INTAKE),
     PRtoIR("PR", "FR", Action.INTAKE),
     PLtoIL("PL", "FL", Action.INTAKE),
+    MRRtoFRM("MRR", "FRM", Action.INTAKE),
 
     // SCORE
     DtoRL("D", "RL", Action.SCORE),
@@ -132,7 +133,8 @@ public class Autos {
     DtoS("D", "S", Action.SCORE),
     OtoS("O", "S", Action.SCORE),
     PMtoM("PM", "M", Action.SCORE),
-    ILtoRL("FL", "RL", Action.SCORE),
+    FLMtoRL("FLM", "RL", Action.SCORE),
+    FRMtoMRR("FRM", "MRR", Action.SCORE),
     // FLOW
     MLtoD("ML", "D", Action.FLOW),
     // CLIMB
@@ -295,7 +297,8 @@ public class Autos {
         // ,
         // setAutoScoreReqFalse()
         setAutoScoreReqTrue(),
-        swerve.stop().repeatedly().withTimeout(3));
+        swerve.stop().repeatedly().withTimeout(3)
+        );
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
@@ -485,10 +488,21 @@ public class Autos {
     return routine.cmd();
   }
 
-  public Command getDoubleDipLeftTrenchAuto() {
-    final AutoRoutine routine = factory.newRoutine("Double dip left trench auto");
+  public Command getDoubleDipRightTrench() {
+    final AutoRoutine routine = factory.newRoutine("Double dip right trench auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
-    Path[] paths = {Path.PLtoIL, Path.ILtoILM, Path.ILtoRL, Path.RLtoIL,Path.ILtoRL,Path.RLtoIL,};
+    Path[] paths = {
+      Path.PRtoIR,
+      // start to intake
+      Path.IRtoIRM,
+      // intake to 2nd intake point (area of iteration)
+      Path.FRMtoMRR,
+      // 2nd intake to shoot
+      Path.MRRtoFRM,
+      // shoot to intake
+      Path.FRMtoMRR,
+      // intake to shoot
+    };
 
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
