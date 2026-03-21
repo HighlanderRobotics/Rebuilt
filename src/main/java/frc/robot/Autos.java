@@ -125,7 +125,9 @@ public class Autos {
     RRtoIR("RR", "FR", Action.INTAKE),
     PRtoIR("PR", "FR", Action.INTAKE),
     PLtoIL("PL", "FL", Action.INTAKE),
-    FRtoSRT("FR", "SRT", Action.INTAKE),
+    FRtoSRT("FR", "SRT", Action.INTAKE),//chopped, do not use until fixed
+    PRtoFR("PR", "FR", Action.INTAKE),
+
 
     // SCORE
     DtoRL("D", "RL", Action.SCORE),
@@ -145,6 +147,7 @@ public class Autos {
     RBtoO("RB", "O", Action.OUTPOST_SCORE),
 
     FRMtoMRScore("FRM", "MR", Action.INTAKE_SCORE),
+    FLMtoMLScore("FLM", "ML", Action.INTAKE_SCORE),
 
     RUNtoTEST("RUN", "TEST", Action.NOTHING),
 
@@ -687,10 +690,37 @@ public class Autos {
     return routine.cmd();
   }
 
-  public Command getNeutralOutpostScore() {
-    final AutoRoutine routine = factory.newRoutine("Neutral Outpost Score");
+  public Command getRightNeutralOutpostScore() {
+    final AutoRoutine routine = factory.newRoutine("Right Neutral Outpost Score");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
-    Path[] paths = {};
+    Path[] paths = {Path.PRtoFR, Path.FRtoFRM, Path.FRMtoMRScore, Path.MRtoO};
+
+        Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().onTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getLeftNeutralOutpostScore() {
+   final AutoRoutine routine = factory.newRoutine("Left Neutral Outpost Score");
+   lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+   Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLtoFLM, Path.FLMtoMLScore,Path.MLtoD};
+
+       Command autoCommand =
+       paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+   for (Path p : paths) {
+     autoCommand = autoCommand.andThen(runPath(p, routine));
+   }
+
+   routine.active().onTrue(autoCommand);
+
+   return routine.cmd();
   }
 
   public Command getTestAuto() {
