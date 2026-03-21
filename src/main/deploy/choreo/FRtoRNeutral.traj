@@ -1,5 +1,5 @@
 {
- "name":"FRtoFRM",
+ "name":"FRtoRNeutral",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -15,7 +15,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"FR.x", "val":7.82036542892456}, "y":{"exp":"FR.y", "val":2.2169458866119385}, "heading":{"exp":"FR.heading", "val":1.5707963267948966}, "intervals":17, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"FRM.x", "val":7.82036542892456}, "y":{"exp":"FRM.y", "val":3.55698299407959}, "heading":{"exp":"FRM.heading", "val":1.5707963267948966}, "intervals":52, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RNeutral.x", "val":7.82036542892456}, "y":{"exp":"RNeutral.y", "val":3.55698299407959}, "heading":{"exp":"RNeutral.heading", "val":1.5707963267948966}, "intervals":52, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":false},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":false},

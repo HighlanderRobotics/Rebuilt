@@ -1,5 +1,5 @@
 {
- "name":"OtoCR",
+ "name":"OutposttoRClimb",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -15,7 +15,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"O.x", "val":0.4355199635028839}, "y":{"exp":"O.y", "val":0.5460934042930603}, "heading":{"exp":"O.heading", "val":1.5707963267948966}, "intervals":69, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"1.918229579925537 m", "val":1.918229579925537}, "y":{"exp":"2.5445938110351562 m", "val":2.544593811035156}, "heading":{"exp":"CR.heading", "val":-1.5737992594811685}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"1.918229579925537 m", "val":1.918229579925537}, "y":{"exp":"2.5445938110351562 m", "val":2.544593811035156}, "heading":{"exp":"RClimb.heading", "val":-1.5737992594811685}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

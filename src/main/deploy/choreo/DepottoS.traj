@@ -1,5 +1,5 @@
 {
- "name":"DtoS",
+ "name":"DepottoS",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -15,7 +15,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"D.x - 6 in", "val":0.551599767303467}, "y":{"exp":"D.y", "val":5.975247383117676}, "heading":{"exp":"D.heading", "val":3.141592653589793}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"Depot.x - 6 in", "val":0.551599767303467}, "y":{"exp":"Depot.y", "val":5.975247383117676}, "heading":{"exp":"Depot.heading", "val":3.141592653589793}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.1980347633361816 m", "val":2.1980347633361816}, "y":{"exp":"5.884655952453613 m", "val":5.884655952453613}, "heading":{"exp":"3.1416668452644734 rad", "val":3.141666845264474}, "intervals":32, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"SC.x", "val":2.4044814109802246}, "y":{"exp":"SC.y", "val":2.0}, "heading":{"exp":"SC.heading", "val":-3.141507624207323}, "intervals":50, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[

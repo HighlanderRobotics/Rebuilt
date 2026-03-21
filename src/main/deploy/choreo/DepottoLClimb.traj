@@ -1,5 +1,5 @@
 {
- "name":"DtoCL",
+ "name":"DepottoLClimb",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -15,9 +15,9 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"D.x", "val":0.703999767303467}, "y":{"exp":"D.y", "val":5.975247383117676}, "heading":{"exp":"D.heading", "val":3.141592653589793}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"1.4133210182189941 m", "val":1.413321018218994}, "y":{"exp":"6.265956878662109 m", "val":6.265956878662109}, "heading":{"exp":"D.heading", "val":3.141592653589793}, "intervals":45, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"CL.x", "val":1.998773455619812}, "y":{"exp":"CL.y", "val":4.835856914520264}, "heading":{"exp":"CL.heading", "val":1.5728533535678788}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"Depot.x", "val":0.703999767303467}, "y":{"exp":"Depot.y", "val":5.975247383117676}, "heading":{"exp":"Depot.heading", "val":3.141592653589793}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"1.4133210182189941 m", "val":1.413321018218994}, "y":{"exp":"6.265956878662109 m", "val":6.265956878662109}, "heading":{"exp":"Depot.heading", "val":3.141592653589793}, "intervals":45, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"LClimb.x", "val":1.998773455619812}, "y":{"exp":"LClimb.y", "val":4.835856914520264}, "heading":{"exp":"LClimb.heading", "val":1.5728533535678788}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
