@@ -297,8 +297,7 @@ public class Autos {
         // ,
         // setAutoScoreReqFalse()
         setAutoScoreReqTrue(),
-        swerve.stop().repeatedly().withTimeout(3)
-        );
+        swerve.stop().repeatedly().withTimeout(3));
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
@@ -494,8 +493,8 @@ public class Autos {
     Path[] paths = {
       Path.PRtoIR,
       // start to intake
-      Path.IRtoIRM,
-      // intake to 2nd intake point (area of iteration)
+
+      // cooked
       Path.FRMtoMRR,
       // 2nd intake to shoot
       Path.MRRtoFRM,
