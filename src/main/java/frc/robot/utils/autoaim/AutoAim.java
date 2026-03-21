@@ -235,18 +235,26 @@ public class AutoAim {
       Translation2d target,
       ChassisSpeeds fieldRelativeSpeeds,
       double timeOfFlightSecs) {
-    Pose2d vrobot =
+
+    Translation2d vtarget = target;
+    Pose2d vrobot= robotPose;
+
+     for (int i = 0; i < 20; i++) {
+    double tof = COMP_HUB_SHOT_TREE.get(distanceToHub(vrobot)).timeOfFlightSecs();
+     vrobot =
         robotPose.exp(
             new Twist2d(
-                fieldRelativeSpeeds.vxMetersPerSecond * (timeOfFlightSecs),
-                fieldRelativeSpeeds.vyMetersPerSecond * (timeOfFlightSecs),
-                fieldRelativeSpeeds.omegaRadiansPerSecond * (timeOfFlightSecs)));
+                fieldRelativeSpeeds.vxMetersPerSecond * (tof),
+                fieldRelativeSpeeds.vyMetersPerSecond * (tof),
+                fieldRelativeSpeeds.omegaRadiansPerSecond * (tof)));
 
     Translation2d delta = vrobot.getTranslation().minus(robotPose.getTranslation());
 
-    Translation2d vtarget = target.minus(delta);
-    Logger.recordOutput("Autoaim/Virtual Target", vtarget);
+    vtarget = target.minus(delta);
+     }
+        Logger.recordOutput("Autoaim/Virtual Target", vtarget);
     return vtarget;
+     
   }
 
   public static Rotation2d getVirtualTargetYaw(
