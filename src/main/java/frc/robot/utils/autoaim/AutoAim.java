@@ -225,19 +225,26 @@ public class AutoAim {
 
   public static Rotation2d getVirtualTargetYaw(
       Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, double tof) {
-    Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
+    Translation2d vtarget = getVirtualSOTMTarget(robotPose, target, fieldRelativeSpeeds, tof);
     return getTargetRotation(vtarget, robotPose);
   }
 
   // lock in
   public static Translation2d getVirtualSOTMTarget(
-      Translation2d target, ChassisSpeeds fieldRelativeSpeeds, double timeOfFlightSecs) {
-    // velocity times shot time is how translated it is
-    Translation2d vtarget =
-        target.minus(
-            new Translation2d(
-                fieldRelativeSpeeds.vxMetersPerSecond * timeOfFlightSecs,
-                fieldRelativeSpeeds.vyMetersPerSecond * timeOfFlightSecs));
+      Pose2d robotPose,
+      Translation2d target,
+      ChassisSpeeds fieldRelativeSpeeds,
+      double timeOfFlightSecs) {
+    Pose2d vrobot =
+        robotPose.exp(
+            new Twist2d(
+                fieldRelativeSpeeds.vxMetersPerSecond * (timeOfFlightSecs),
+                fieldRelativeSpeeds.vyMetersPerSecond * (timeOfFlightSecs),
+                fieldRelativeSpeeds.omegaRadiansPerSecond * (timeOfFlightSecs)));
+
+    Translation2d delta = vrobot.getTranslation().minus(robotPose.getTranslation());
+
+    Translation2d vtarget = target.minus(delta);
     Logger.recordOutput("Autoaim/Virtual Target", vtarget);
     return vtarget;
   }
@@ -315,7 +322,7 @@ public class AutoAim {
     ShotData unadjustedShot = tree.calculateShot(robotPose, targetTranslation);
     Translation2d virtualTarget =
         getVirtualSOTMTarget(
-            targetTranslation, fieldRelativeSpeeds, unadjustedShot.timeOfFlightSecs());
+            robotPose, targetTranslation, fieldRelativeSpeeds, unadjustedShot.timeOfFlightSecs());
     Pose2d turretPose = getTurretPose(robotPose);
 
     return tree.get(turretPose.getTranslation().getDistance(virtualTarget));
