@@ -120,6 +120,8 @@ public class NewAutoAim {
     // TODO if we're behind the hub just don't shoot
 
     Rotation2d turretTarget = target.minus(lookaheadPose.getTranslation()).getAngle();
+    turretTarget = getTurretTargetRotation(turretTarget, robotPose);
+
     return new ShotParams(
         tree.get(distanceToTarget), getTurretTargetRotation(turretTarget, robotPose));
   }
@@ -156,7 +158,7 @@ public class NewAutoAim {
     return Rotation2d.fromDegrees(turretTargetDegrees);
   }
 
-  public static ShotParams getParameters(
+  public static ShotParams getParametersMechA(
       Pose2d estimatedPose,
       ChassisSpeeds robotRelativeVelocity,
       Translation2d target,
@@ -177,17 +179,17 @@ public class NewAutoAim {
     double turretToTargetDistance = target.getDistance(turretPosition.getTranslation());
 
     // Calculate field relative turret velocity
-    ChassisSpeeds robotVelocity =
+    ChassisSpeeds robotFieldRelVelocity =
         ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeVelocity, estimatedPose.getRotation());
     double robotAngle = estimatedPose.getRotation().getRadians();
     double turretVelocityX =
-        robotVelocity.vxMetersPerSecond
-            + robotVelocity.omegaRadiansPerSecond
+        robotFieldRelVelocity.vxMetersPerSecond
+            + robotFieldRelVelocity.omegaRadiansPerSecond
                 * (TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY() * Math.cos(robotAngle)
                     - TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX() * Math.sin(robotAngle));
     double turretVelocityY =
-        robotVelocity.vyMetersPerSecond
-            + robotVelocity.omegaRadiansPerSecond
+        robotFieldRelVelocity.vyMetersPerSecond
+            + robotFieldRelVelocity.omegaRadiansPerSecond
                 * (TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX() * Math.cos(robotAngle)
                     - TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY() * Math.sin(robotAngle));
 
@@ -200,9 +202,15 @@ public class NewAutoAim {
       double offsetX = turretVelocityX * timeOfFlight;
       double offsetY = turretVelocityY * timeOfFlight;
       lookaheadPose =
-          new Pose2d(
-              turretPosition.getTranslation().plus(new Translation2d(offsetX, offsetY)),
-              turretPosition.getRotation());
+          turretPosition.transformBy(new Transform2d(offsetX, offsetY, Rotation2d.kZero));
+      //   lookaheadPose =
+      //       lookaheadPose.plus(
+      //           new Transform2d(new Translation2d(offsetX, offsetY), Rotation2d.kZero));
+      //   lookaheadPose =
+      //       new Pose2d(
+      //           new Translation2d(turretPosition.getX() + offsetX, turretPosition.getY() +
+      // offsetY),
+      //           turretPosition.getRotation());
       lookaheadTurretToTargetDistance = target.getDistance(lookaheadPose.getTranslation());
     }
 

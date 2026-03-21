@@ -33,13 +33,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
+import frc.robot.Robot.RobotEdition;
 import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FuelSim;
-import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.NewAutoAim;
 import frc.robot.utils.autoaim.NewAutoAim.ShotParams;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -250,11 +251,21 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           //           chassisSpeedsSupplier.get()));
           // } else {
           if (inScoringArea.getAsBoolean()) {
+
             turretIO.setTurretPosition(
-                AutoAim.getTurretHubTargetRotation(
-                    FieldUtils.getCurrentHubTranslation(),
-                    robotPoseSupplier.get(),
-                    chassisSpeedsSupplier.get()));
+                NewAutoAim.getParametersMechA(
+                        robotPoseSupplier.get(),
+                        chassisSpeedsSupplier.get(),
+                        FieldUtils.getCurrentHubTranslation(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .turretAngle());
+            // turretIO.setTurretPosition(
+            //     AutoAim.getTurretHubTargetRotation(
+            //         FieldUtils.getCurrentHubTranslation(),
+            //         robotPoseSupplier.get(),
+            //         chassisSpeedsSupplier.get()));
           } else {
             turretIO.setTurretPosition(
                 AutoAim.getTurretFeedTargetRotation(
@@ -534,8 +545,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot0.kV = 5.7;
     config.Slot0.kP = 240.0;
 
-    config.MotionMagic.MotionMagicAcceleration = 20; // 2.064;
-    config.MotionMagic.MotionMagicCruiseVelocity = 50; // 8.0;
+    config.MotionMagic.MotionMagicAcceleration = 10; // 2.064;
+    config.MotionMagic.MotionMagicCruiseVelocity = 20; // 8.0;
 
     return config;
   }

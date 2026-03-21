@@ -20,7 +20,7 @@ public class AutoAim {
   public static double LATENCY_COMPENSATION_SECS =
       //   new LoggedTunableNumber("Latency time", 0.3).getAsDouble(); // 0.6; // TODO tune latency
       // comp
-      0.3;
+      0;
   //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
 
   public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
@@ -73,86 +73,13 @@ public class AutoAim {
         new ShotData(Rotation2d.fromDegrees(31), 40, 1.3));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 5 * 24),
-        new ShotData(Rotation2d.fromDegrees(33), 42, 1.02));
+        new ShotData(Rotation2d.fromDegrees(33), 41, 1.02));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 * 24),
         new ShotData(Rotation2d.fromDegrees(35), 43, 1.3));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 7 * 24),
         new ShotData(Rotation2d.fromDegrees(37), 47, 1.46));
-  }
-
-  // TODO update tof
-  static { // For hub shot tree
-    // TODO min shot
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17),
-        new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 6 + 3, 1.04));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(25), 35 - 6 + 3, 0.9));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
-        new ShotData(
-            Rotation2d.fromDegrees(26),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.02));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
-        new ShotData(
-            Rotation2d.fromDegrees(30),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.09));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
-        new ShotData(
-            Rotation2d.fromDegrees(33),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.15));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
-        new ShotData(
-            Rotation2d.fromDegrees(36),
-            38 - 6 + 3
-            // - 6
-            ,
-            1.23));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
-        new ShotData(
-            Rotation2d.fromDegrees(38),
-            39 - 6 + 3
-            // - 6
-            ,
-            1.33));
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
-        new ShotData(
-            Rotation2d.fromDegrees(39),
-            40.5 - 6 + 3
-            // - 6
-            ,
-            1.35));
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12 + 6),
-        new ShotData(
-            Rotation2d.fromDegrees(39),
-            40.5 - 6 + 3 + 2
-            // - 6
-            ,
-            1.35));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
