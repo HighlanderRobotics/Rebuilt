@@ -488,7 +488,7 @@ public class Autos {
   public Command getDoubleDipLeftTrenchAuto() {
     final AutoRoutine routine = factory.newRoutine("Double dip left trench auto");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
-    Path[] paths = {Path.PLtoIL, Path.ILtoRL, Path.RLtoIL,};
+    Path[] paths = {Path.PLtoIL, Path.ILtoILM, Path.ILtoRL, Path.RLtoIL,Path.ILtoRL,Path.RLtoIL,};
 
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
