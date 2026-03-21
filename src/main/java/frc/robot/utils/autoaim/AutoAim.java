@@ -62,22 +62,22 @@ public class AutoAim {
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 24),
         new ShotData(Rotation2d.fromDegrees(25), 32, 0.81));
-        COMP_HUB_SHOT_TREE.put(
+    COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 2 * 24),
         new ShotData(Rotation2d.fromDegrees(27), 34, 1.09));
-        COMP_HUB_SHOT_TREE.put(
+    COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 3 * 24),
         new ShotData(Rotation2d.fromDegrees(29), 36, 1.1));
-        COMP_HUB_SHOT_TREE.put(
+    COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 4 * 24),
         new ShotData(Rotation2d.fromDegrees(31), 40, 1.3));
-        COMP_HUB_SHOT_TREE.put(
+    COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 5 * 24),
         new ShotData(Rotation2d.fromDegrees(33), 42, 1.02));
-        COMP_HUB_SHOT_TREE.put(
+    COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 * 24),
         new ShotData(Rotation2d.fromDegrees(35), 43, 1.3));
-        COMP_HUB_SHOT_TREE.put(
+    COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 7 * 24),
         new ShotData(Rotation2d.fromDegrees(37), 47, 1.46));
   }
