@@ -125,8 +125,8 @@ public class Autos {
     RRtoIR("RR", "FR", Action.INTAKE),
     PRtoIR("PR", "FR", Action.INTAKE),
     PLtoIL("PL", "FL", Action.INTAKE),
-    FRtoSRT("FR", "SRT", Action.INTAKE),//chopped, do not use until fixed
     PRtoFR("PR", "FR", Action.INTAKE),
+    MLtoIL("PR", "FR", Action.INTAKE),
 
 
     // SCORE
@@ -136,6 +136,8 @@ public class Autos {
     OtoS("O", "S", Action.SCORE),
     PMtoM("PM", "M", Action.SCORE),
     SRTtoO("SRT", "O", Action.SCORE),
+    FRtoSRT("FR", "SRT", Action.SCORE),
+    FLtoML("FR", "SRT", Action.SCORE),
     // FLOW
     MLtoD("ML", "D", Action.FLOW),
     // CLIMB
@@ -694,8 +696,7 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine("Right Neutral Outpost Score");
     lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
     Path[] paths = {Path.PRtoFR, Path.FRtoFRM, Path.FRMtoMRScore, Path.MRtoO};
-
-        Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
     for (Path p : paths) {
       autoCommand = autoCommand.andThen(runPath(p, routine));
@@ -707,20 +708,33 @@ public class Autos {
   }
 
   public Command getLeftNeutralOutpostScore() {
-   final AutoRoutine routine = factory.newRoutine("Left Neutral Outpost Score");
-   lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
-   Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLtoFLM, Path.FLMtoMLScore,Path.MLtoD};
+    final AutoRoutine routine = factory.newRoutine("Left Neutral Outpost Score");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoIL, Path.FLtoFLM, Path.FLtoFLM, Path.FLMtoMLScore,Path.MLtoD};
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
 
-       Command autoCommand =
-       paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
-
-   for (Path p : paths) {
-     autoCommand = autoCommand.andThen(runPath(p, routine));
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
    }
 
-   routine.active().onTrue(autoCommand);
+    routine.active().onTrue(autoCommand);
 
-   return routine.cmd();
+    return routine.cmd();
+  }
+
+  public Command getLeftNeutralScoreTwice() {
+    final AutoRoutine routine = factory.newRoutine("Left Neutral Score Twice");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoIL, Path.FLtoML, Path.MLtoIL, Path.ILtoILM, Path.FLMtoML};
+    Command autoCommand = paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoFalse());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+   }
+
+    routine.active().onTrue(autoCommand);
+
+    return routine.cmd();
   }
 
   public Command getTestAuto() {
