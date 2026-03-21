@@ -7,6 +7,8 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -60,6 +62,8 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.pitcheck.Pitcheck;
+
+import java.math.MathContext;
 import java.util.Optional;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
@@ -518,28 +522,42 @@ public class Robot extends LoggedRobot {
                 () ->
                     MathUtil.isNear(7.0, this.intake.getRollerVoltage(), 1.0)
                     && this.intake.getRollerStatorCurrent() < 40.0
-                    &&MathUtil.isNear(Intake.MAX_EXTENSION_METERS, this.intake.getIntakeExtension(), 1.0)
+                    &&MathUtil.isNear(Intake.MAX_EXTENSION_METERS, this.intake.getIntakeExtension(), 0.05)
                     && this.intake.getIntakeExtensionStatorCurrent() < 30.0),
             Pitcheck.pitCheck(
                 intake.outtake(),
                 () -> MathUtil.isNear(-11.0, this.intake.getRollerVoltage(), 1.0)
-                && MathUtil.isNear(Intake.MAX_EXTENSION_METERS, this.intake.getIntakeExtension(),1.0)),
+                && MathUtil.isNear(Intake.MAX_EXTENSION_METERS, this.intake.getIntakeExtension(),0.05)),
             Pitcheck.pitCheck(
                 intake.rest(), 
                 () -> MathUtil.isNear(0.0, this.intake.getRollerVoltage(), 0.5))));
     SmartDashboard.putData(
         "spindexer",
         Commands.sequence(
-            Commands.parallel(
-                Pitcheck.pitCheck(
-                    indexer.kick(),
+            Pitcheck.pitCheck(
+                indexer.kick(),
                     () ->
-                        MathUtil.isNear(7.0, this.indexer.getKickerVoltage(), 1.0)
-                            && MathUtil.isNear(7.0, this.indexer.getRollerVoltage(), 1.0)
+                        MathUtil.isNear(-7.0, this.indexer.getKickerVoltage(), 1.0)
+                            && MathUtil.isNear(12.0, this.indexer.getRollerVoltage(), 1.0)
                             && this.indexer.getKickerStatorCurrent() < 80.0
                             && this.indexer.getRollerStatorCurrent() < 60.0
                     // i really dont know if stator current values are for which
-                    ))));
+                    ),
+            Pitcheck.pitCheck(
+                indexer.index(),
+                 ()->
+                    MathUtil.isNear(7.0, this.indexer.getKickerVoltage(),1.0)
+                    && MathUtil.isNear(7.0, this.indexer.getKickerVoltage(), 1.0)
+            )));
+    SmartDashboard.putData(
+        "climber",
+        Commands.sequence(
+            Pitcheck.pitCheck(climber.extendClimber(), 
+            ()-> 
+            MathUtil.isNear(ClimberSubsystem.MAX_EXTENSION_METERS,climber.getClimberExtension(),0.05)
+            
+        )))
+    ;
 
     // Reset alert timers
     canInitialErrorTimer.restart();

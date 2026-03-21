@@ -16,6 +16,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   ClimberIO climberIO;
   ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
+  
 
   @Override
   public void periodic() {
@@ -42,4 +43,9 @@ public class ClimberSubsystem extends SubsystemBase {
           climberIO.setClimberPosition(0.0);
         });
   }
+
+  public double getClimberExtension(){
+    return climberInputs.motorPositionMeters;
+  }
+  
 }
