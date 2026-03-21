@@ -336,15 +336,16 @@ public class AutoAim {
 
     ShotData baseline = tree.calculateShot(robotPose, targetTranslation);
 
-    Pose2d turretPose = getTurretPose(robotPose);
-    Translation2d turretToTarget = targetTranslation.minus(turretPose.getTranslation());
+   // Pose2d turretPose = getTurretPose(robotPose);
+   // Translation2d turretToTarget = targetTranslation.minus(turretPose.getTranslation());
 
-    double distance = turretToTarget.getNorm();
+    Translation2d robotToTarget = targetTranslation.minus(robotPose.getTranslation());
+    double distance = robotToTarget.getNorm();
 
     // get just direction of vector because its vector divded by length
     // dont want to account for magnitude bc the speed we are going and shot tree do
     // and we just want direction to find dot product
-    Translation2d shotDirection = turretToTarget.div(distance);
+    Translation2d shotDirection = robotToTarget.div(distance);
 
     // dot product! <3
     // get how fast we are going towards where we are shooting
