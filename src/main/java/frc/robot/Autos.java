@@ -125,12 +125,14 @@ public class Autos {
     RRtoIR("RR", "FR", Action.INTAKE),
     PRtoIR("PR", "FR", Action.INTAKE),
     PLtoIL("PL", "FL", Action.INTAKE),
+
     // SCORE
     DtoRL("D", "RL", Action.SCORE),
     OtoRR("O", "RR", Action.NOTHING),
     DtoS("D", "S", Action.SCORE),
     OtoS("O", "S", Action.SCORE),
     PMtoM("PM", "M", Action.SCORE),
+    ILtoRL("FL", "RL", Action.SCORE),
     // FLOW
     MLtoD("ML", "D", Action.FLOW),
     // CLIMB
@@ -471,6 +473,23 @@ public class Autos {
       Path.MLtoCL
       // Path.DtoIL,
     }; // , Path.SLtoCL};
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().onTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getDoubleDipLeftTrenchAuto() {
+    final AutoRoutine routine = factory.newRoutine("Double dip left trench auto");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {Path.PLtoIL, Path.ILtoRL, Path.RLtoIL,};
+
     Command autoCommand =
         paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
 
