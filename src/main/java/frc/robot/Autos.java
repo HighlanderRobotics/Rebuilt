@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -232,8 +233,8 @@ public class Autos {
 
   public Command climbScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
-        setAutoIntakeReqFalse(),
+        stopScoring(),
+        stopIntaking(),
 
         // Commands.parallel(
         path.getTrajectory(routine)
@@ -245,9 +246,9 @@ public class Autos {
                 //             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                 //                 - (0.3)))),
                 path.getTrajectory(routine).done()),
-        Commands.parallel(swerve.stop(), setAutoScoreReqTrue()).repeatedly().withTimeout(2.5),
-        setAutoScoreReqFalse(),
-        setAutoPreClimbReqTrue(),
+        Commands.parallel(swerve.stop(), startScoring()).repeatedly().withTimeout(2.5),
+        stopScoring(),
+        startPreClimb(),
         swerve.stop().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
@@ -256,14 +257,14 @@ public class Autos {
                         .debounce(0.2))
                 .andThen(
                     // Commands.print("hooray!")
-                    setAutoClimbReqTrue())));
+                    startClimb())));
   }
 
   public Command climbNoScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
-        setAutoIntakeReqFalse(),
-        setAutoPreClimbReqTrue(),
+        stopScoring(),
+        stopIntaking(),
+        startPreClimb(),
         // Commands.parallel(
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         swerve.stop().until(() -> climber.atFullExtension()),
@@ -272,27 +273,27 @@ public class Autos {
             Commands.waitUntil(
                     new Trigger(() -> swerve.isInAutoAimTolerance(getClimbAutoTarget().getPose()))
                         .debounce(0.2))
-                .andThen(setAutoClimbReqTrue())));
+                .andThen(startClimb())));
   }
 
   public Command feedPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
-        setAutoFeedReqTrue(),
-        setAutoIntakeReqTrue(),
+        stopScoring(),
+        startFeeding(),
+        startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        setAutoFeedReqFalse());
+        stopFeeding());
   }
 
   public Command scorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoIntakeReqFalse(),
+        stopIntaking(),
         // setAutoScoreReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         // setAutoScoreReqTrue()
         // ,
         // setAutoScoreReqFalse()
-        setAutoScoreReqTrue(),
+        startScoring(),
         swerve.stop().repeatedly().withTimeout(3));
   }
 
@@ -303,29 +304,29 @@ public class Autos {
 
   public Command intakePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
-        setAutoFlowReqFalse(),
-        setAutoIntakeReqTrue(),
+        stopScoring(),
+        stopFlowing(),
+        startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        setAutoIntakeReqFalse());
+        stopIntaking());
   }
 
   public Command intakeScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
-        setAutoFlowReqFalse(),
-        setAutoIntakeReqTrue(),
+        stopScoring(),
+        stopFlowing(),
+        startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        setAutoIntakeReqFalse(),
-        setAutoScoreReqTrue(),
+        stopIntaking(),
+        startScoring(),
         swerve.stop().repeatedly().withTimeout(4),
-        setAutoScoreReqFalse());
+        stopScoring());
   }
 
   public Command flowPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqTrue(),
-        setAutoFlowReqTrue(),
+        startScoring(),
+        startFlowing(),
         // setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
@@ -343,9 +344,9 @@ public class Autos {
 
   public Command outpostPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
-        setAutoFlowReqFalse(),
-        setAutoIntakeReqFalse(),
+        stopScoring(),
+        stopFlowing(),
+        stopIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         swerve.stop().repeatedly().withTimeout(2)
         // Commands.waitSeconds(1)
@@ -354,92 +355,98 @@ public class Autos {
 
   public Command outpostScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        setAutoScoreReqFalse(),
-        setAutoFlowReqFalse(),
-        setAutoIntakeReqFalse(),
+        stopScoring(),
+        stopFlowing(),
+        stopIntaking(),
         // spin up before we get there
         // Commands.parallel(
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         // Commands.waitUntil(path.getTrajectory(routine).atTimeBeforeEnd(0.2))
         // .andThen(
-        setAutoScoreReqTrue()
+        startScoring()
         // ))
         ,
         swerve.stop().repeatedly().withTimeout(4),
-        setAutoScoreReqFalse()
+        stopScoring()
         // Commands.waitSeconds(1)
         );
   }
 
-  public void lockHoodUnderTrench(AutoRoutine routine, Pose2d trench, double tolerance) {
+  public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
     routine
         .observe(
             () ->
                 // swerve.getPose().getTranslation().minus(trench.getTranslation()).getNorm()
-                swerve.getPose().minus(trench).getTranslation().getNorm() < tolerance)
-        .whileTrue(Commands.run(() -> setAutoScoreReqFalse()));
+                // swerve.getPose().minus(trench).getTranslation().getNorm() < tolerance)
+                {
+                  for (TrenchPoses t : FieldUtils.TrenchPoses.values()) {
+                    if (swerve.getPose().minus(t.getPose()).getTranslation().getNorm() < toleranceMeters) return true;
+                  }
+                  return false;
+                })
+        .whileTrue(Commands.run(() -> stopScoring()));
   }
 
   public Command shootPreload() {
-    return Commands.sequence(setAutoScoreReqTrue(), swerve.stop().repeatedly().withTimeout(3));
+    return Commands.sequence(startScoring(), swerve.stop().repeatedly().withTimeout(3));
   }
 
-  public Command setAutoIntakeReqTrue() {
+  public Command startIntaking() {
     return Commands.runOnce(() -> autoIntake = true);
   }
 
-  public Command setAutoIntakeReqFalse() {
+  public Command stopIntaking() {
     return Commands.runOnce(() -> autoIntake = false);
   }
 
-  public Command setAutoScoreReqTrue() {
+  public Command startScoring() {
     return Commands.runOnce(() -> autoScore = true);
   }
 
-  public Command setAutoScoreReqFalse() {
+  public Command stopScoring() {
     return Commands.runOnce(() -> autoScore = false);
   }
 
-  public Command setAutoFeedReqTrue() {
+  public Command startFeeding() {
     return Commands.runOnce(() -> autoFeed = true);
   }
 
-  public Command setAutoFeedReqFalse() {
+  public Command stopFeeding() {
     return Commands.runOnce(() -> autoFeed = false);
   }
 
-  public Command setAutoPreClimbReqTrue() {
+  public Command startPreClimb() {
     return Commands.runOnce(() -> autoPreClimb = true);
   }
 
-  public Command setAutoPreClimbReqFalse() {
+  public Command stopPreClimb() {
     return Commands.runOnce(() -> autoPreClimb = false);
   }
 
-  public Command setAutoFlowReqTrue() {
+  public Command startFlowing() {
     return Commands.runOnce(() -> autoFlow = true);
   }
 
-  public Command setAutoFlowReqFalse() {
+  public Command stopFlowing() {
     return Commands.runOnce(() -> autoFlow = false);
   }
 
-  public Command setAutoClimbReqTrue() {
+  public Command startClimb() {
     return Commands.runOnce(() -> autoClimb = true);
   }
 
-  public Command setAutoClimbReqFalse() {
+  public Command stopClimb() {
     return Commands.runOnce(() -> autoClimb = false);
   }
 
   public Command setAllReqsFalse() {
     return Commands.sequence(
-        setAutoIntakeReqFalse(),
-        setAutoScoreReqFalse(),
-        setAutoFeedReqFalse(),
-        setAutoPreClimbReqFalse(),
-        setAutoFlowReqFalse(),
-        setAutoClimbReqFalse());
+        stopIntaking(),
+        stopScoring(),
+        stopFeeding(),
+        stopPreClimb(),
+        stopFlowing(),
+        stopClimb());
   }
 
   public void setAllReqsFalsenotcmd() {
@@ -464,8 +471,7 @@ public class Autos {
     final AutoRoutine routine = factory.newRoutine(name);
     lockHoodUnderTrench(
         routine,
-        TrenchPoses.getClosestTrenchPose(swerve.getPose()),
-        1); // TODO the lock under trench feels suspect
+        1);
 
     Command autoCommand =
         paths[0]
@@ -593,6 +599,6 @@ public class Autos {
   }
 
   public Command getJustScoreAuto() {
-    return setAutoScoreReqTrue().andThen(Commands.waitSeconds(5)).andThen(setAutoScoreReqFalse());
+    return startScoring().andThen(Commands.waitSeconds(5)).andThen(stopScoring());
   }
 }
