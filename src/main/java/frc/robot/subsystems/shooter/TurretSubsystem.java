@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -23,9 +25,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import java.util.function.BooleanSupplier;
@@ -39,10 +46,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   /** Creates a new TurretSubsystem. */
   public static final double HOOD_GEAR_RATIO = 33.8671875; // 58.96875;
 
-  public static final double FLYWHEEL_GEAR_RATIO = 0.84615384615;
+  public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 18.0; // 0.84615384615;
 
-  public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(73);
-  public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(23.16);
+  public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(56);
+  public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(11.33);
   public static final double HOOD_CURRENT_ZERO_THRESHOLD = 30.0;
   public static final double TURRET_CURRENT_ZERO_THRESHOLD = 30.0; // TODO find
 
@@ -96,6 +103,24 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   private LinearFilter currentFilter = LinearFilter.movingAverage(10);
 
+  private SysIdRoutine hoodSysid =
+      new SysIdRoutine(
+          new Config(
+              null,
+              Volts.of(5),
+              null,
+              (state) -> Logger.recordOutput("Shooter/Hood/SysID State", state.toString())),
+          new Mechanism((voltage) -> hoodIO.setHoodVoltage(voltage.in(Volts)), null, this));
+
+  private SysIdRoutine flywheelSysid =
+      new SysIdRoutine(
+          new Config(
+              null,
+              null,
+              null,
+              (state) -> Logger.recordOutput("Shooter/Flywheel/SysID State", state.toString())),
+          new Mechanism((voltage) -> flywheelIO.setFlywheelVoltage(voltage.in(Volts)), null, this));
+
   private static final Alert cancoder24tDisconnectedAlert =
       new Alert("24T Cancoder disconnected!", AlertType.kError);
   private static final Alert cancoder26tDisconnectedAlert =
@@ -112,6 +137,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
       new Alert(
           "Turret may have gone past hardstop!! Reoffset cancoders + min/max position",
           AlertType.kError);
+
+  private LoggedTunableNumber testDegrees =
+      new LoggedTunableNumber("Shooter/Test Hood Degrees", 50.0);
+  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Shooter/Test Velocity", 50.0);
 
   public TurretSubsystem(
       FlywheelIO flywheelIO,
@@ -193,6 +222,20 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           turretIO.setTurretPosition(
               AutoAim.getTurretFeedTargetRotation(
                   feedTarget.get().getTranslation(),
+                  robotPoseSupplier.get(),
+                  chassisSpeedsSupplier.get()));
+        });
+  }
+
+  public Command testShot(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+    return this.run(
+        () -> {
+          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
+          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
+          turretIO.setTurretPosition(
+              AutoAim.getTurretHubTargetRotation(
+                  FieldUtils.getCurrentHubTranslation(),
                   robotPoseSupplier.get(),
                   chassisSpeedsSupplier.get()));
         });
@@ -446,10 +489,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
 
     // slot 0 is for motion profiled velocity
-    config.Slot0.kS = 0.79522; // 0.63933;
-    config.Slot0.kV = 0.11087; // 0.11582;
-    config.Slot0.kA = 0.026101; // 0.020809;
-    config.Slot0.kP = 0.6;
+    config.Slot0.kS = 0.33706; // 0.63933;
+    config.Slot0.kV = 0.13893; // 0.11582;
+    config.Slot0.kA = 0.030026; // 0.020809;
+    config.Slot0.kP = 0.4;
     config.Slot0.kD = 0;
 
     // slot 1 is for torque current
@@ -480,7 +523,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
     config.Slot0.kS = 0.57613;
-    config.Slot0.kG = 0.35748;
+    config.Slot0.kG = 0.55748;
     config.Slot0.kV = 5.4081;
     config.Slot0.kA = 0.14829;
     config.Slot0.kP = 260.0;
@@ -537,5 +580,43 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
 
     return config;
+  }
+
+  @Override
+  public Command runHoodSysid() {
+    return Commands.sequence(
+        hoodSysid
+            .quasistatic(Direction.kForward)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        > (HOOD_MAX_ANGLE.getDegrees() - 5)), // Stop before endstop
+        hoodSysid
+            .quasistatic(Direction.kReverse)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        < (HOOD_MIN_ANGLE.getDegrees() + 5)),
+        hoodSysid
+            .dynamic(Direction.kForward)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        > (HOOD_MAX_ANGLE.getDegrees() - 5)),
+        hoodSysid
+            .dynamic(Direction.kReverse)
+            .until(
+                () ->
+                    hoodInputs.hoodPositionRotations.getDegrees()
+                        < (HOOD_MIN_ANGLE.getDegrees() + 5)));
+  }
+
+  @Override
+  public Command runFlywheelSysid() {
+    return Commands.sequence(
+        flywheelSysid.quasistatic(Direction.kForward),
+        flywheelSysid.quasistatic(Direction.kReverse),
+        flywheelSysid.dynamic(Direction.kForward),
+        flywheelSysid.dynamic(Direction.kReverse));
   }
 }

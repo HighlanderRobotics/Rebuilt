@@ -531,6 +531,7 @@ public class Superstructure {
         intake.restExtended(),
         indexer.rest(),
         shooter.score(
+            // shooter.testShot(
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
@@ -558,6 +559,7 @@ public class Superstructure {
                             : AutoAim.COMP_HUB_SHOT_TREE)
                     .flywheelVelocityRotPerSec()),
         shooter.score(
+            // shooter.testShot(
             swerve::getPose,
             () ->
                 AutoAim.getCompensatedSOTMShotData(
