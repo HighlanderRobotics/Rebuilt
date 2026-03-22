@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +14,7 @@ import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 /** Spindexer = Spinning Indexer. !! COMP !! */
@@ -28,10 +30,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   private RollerIO spinnerIO;
 
-  RollerIOInputsAutoLogged spinnerInputs = new RollerIOInputsAutoLogged();
+  private RollerIOInputsAutoLogged spinnerInputs = new RollerIOInputsAutoLogged();
 
-  RollerIO kickerIO;
-  RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
+  private RollerIO kickerIO;
+  private RollerIOInputsAutoLogged kickerInputs = new RollerIOInputsAutoLogged();
 
   public static final double MAX_ACCELERATION = 10.0;
   public static final double MAX_VELOCITY = 10.0;
@@ -40,6 +42,13 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
       new Alert("Disconnected spinner motor!", AlertType.kError);
   private final Alert kickerDisconnectedAlert =
       new Alert("Disconnected kicker motor!", AlertType.kError);
+
+  @AutoLogOutput(key = "Kicker/Current Filter Value")
+  private double currentFilterValue = 0.0;
+
+  private LinearFilter kickerCurrentFilter = LinearFilter.movingAverage(5);
+
+  public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
@@ -111,6 +120,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     Logger.processInputs("Indexer/Kicker", kickerInputs);
     spinnerDisconnectedAlert.set(!spinnerInputs.connected);
     kickerDisconnectedAlert.set(!kickerInputs.connected);
+
+    currentFilterValue = kickerCurrentFilter.calculate(kickerInputs.statorCurrentAmps);
   }
 
   public static TalonFXConfiguration getIndexerConfig() {
@@ -162,5 +173,9 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.CurrentLimits.SupplyCurrentLowerTime = 0.25;
 
     return config;
+  }
+
+  public boolean isEmpty() {
+    return currentFilterValue < KICKER_CURRENT_THRESHOLD;
   }
 }
