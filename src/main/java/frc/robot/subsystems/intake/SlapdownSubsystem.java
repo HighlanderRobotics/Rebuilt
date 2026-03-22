@@ -32,7 +32,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
   public static final double ROLLER_GEAR_RATIO = 60.0 / 29.0;
-  public static final double PIVOT_GEAR_RATIO = 36.17578125;//39.375;
+  public static final double PIVOT_GEAR_RATIO = 36.17578125; // 39.375;
 
   private final PivotIO pivotIO;
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
@@ -91,12 +91,12 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command agitate() {
     return Commands.sequence(
-            this.run(
-                    () -> {
-                      //maybe needs to go slower but idrk how to do that rn
-                      pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-                      rollerIO.setRollerVelocity(10.0);
-                    })
+        this.run(
+            () -> {
+              // maybe needs to go slower but idrk how to do that rn
+              pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+              rollerIO.setRollerVelocity(10.0);
+            })
         //         .until(atExtensionTrigger),
         //     this.run(
         //             () -> {
@@ -106,7 +106,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
         //             })
         //         .until(atExtensionTrigger))
         // .repeatedly();
-    );
+        );
   }
 
   @Override
@@ -244,8 +244,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static CANcoderConfiguration getCancoderConfig() {
     CANcoderConfiguration config = new CANcoderConfiguration();
 
-    config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    config.MagnetSensor.MagnetOffset = 0.26196;
+    config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    config.MagnetSensor.MagnetOffset = 0.510498;
     config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
 
     return config;
