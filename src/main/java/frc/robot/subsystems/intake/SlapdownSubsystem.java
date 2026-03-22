@@ -25,7 +25,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
-  public static final Rotation2d PIVOT_MIN_POSITION = Rotation2d.fromRotations(-0.052002);
+  public static final Rotation2d PIVOT_MIN_POSITION =
+      Rotation2d.fromDegrees(-26.894531); // Rotation2d.fromRotations(-0.052002);
   public static final Rotation2d PIVOT_MAX_POSITION =
       Rotation2d.fromDegrees(122); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
@@ -112,10 +113,17 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command intake() {
     return this.run(
-        () -> {
-          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-          rollerIO.setRollerVelocity(80);
-        });
+            () -> {
+              pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+              rollerIO.setRollerVelocity(80);
+            })
+        .until(atExtensionTrigger)
+        .andThen(
+            this.run(
+                () -> {
+                  pivotIO.setMotorVoltage(0);
+                  rollerIO.setRollerVelocity(80);
+                }));
   }
 
   @Override
@@ -222,7 +230,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // TODO
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO
 
     config.Feedback.SensorToMechanismRatio = ROLLER_GEAR_RATIO;
 
@@ -233,7 +241,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Slot0.kD = 0.0;
 
     // TODO: TUNE
-    config.CurrentLimits.StatorCurrentLimit = 55.0;
+    config.CurrentLimits.StatorCurrentLimit = 25.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
