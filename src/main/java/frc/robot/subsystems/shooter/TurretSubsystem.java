@@ -236,7 +236,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   @Override
   public Command rest(
       Supplier<Pose2d> robotPoseSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplierRobotRel,
       BooleanSupplier inScoringArea,
       Supplier<Pose2d> feedTarget) {
     return this.run(
@@ -255,7 +255,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             turretIO.setTurretPosition(
                 NewAutoAim.getParametersMechA(
                         robotPoseSupplier.get(),
-                        chassisSpeedsSupplier.get(),
+                        chassisSpeedsSupplierRobotRel.get(),
                         FieldUtils.getCurrentHubTranslation(),
                         Robot.ROBOT_EDITION == RobotEdition.ALPHA
                             ? AutoAim.ALPHA_HUB_SHOT_TREE
@@ -271,7 +271,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                 AutoAim.getTurretFeedTargetRotation(
                     feedTarget.get().getTranslation(),
                     robotPoseSupplier.get(),
-                    chassisSpeedsSupplier.get()));
+                    chassisSpeedsSupplierRobotRel.get()));
           }
           // }
         });

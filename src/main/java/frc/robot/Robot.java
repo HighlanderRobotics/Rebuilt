@@ -519,7 +519,7 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             superstructure::inScoringArea,
             () -> FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose()));
     swerve.setDefaultCommand(
