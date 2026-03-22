@@ -32,7 +32,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
   public static final double ROLLER_GEAR_RATIO = 60.0 / 29.0;
-  public static final double PIVOT_GEAR_RATIO = 39.375;
+  public static final double PIVOT_GEAR_RATIO = 36.17578125;//39.375;
 
   private final PivotIO pivotIO;
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
@@ -93,18 +93,20 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     return Commands.sequence(
             this.run(
                     () -> {
+                      //maybe needs to go slower but idrk how to do that rn
                       pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
                       rollerIO.setRollerVelocity(10.0);
                     })
-                .until(atExtensionTrigger),
-            this.run(
-                    () -> {
-                      pivotIO.setMotorPositionSetpoint(
-                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
-                      rollerIO.setRollerVelocity(10.0);
-                    })
-                .until(atExtensionTrigger))
-        .repeatedly();
+        //         .until(atExtensionTrigger),
+        //     this.run(
+        //             () -> {
+        //               pivotIO.setMotorPositionSetpoint(
+        //                   PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
+        //               rollerIO.setRollerVelocity(10.0);
+        //             })
+        //         .until(atExtensionTrigger))
+        // .repeatedly();
+    );
   }
 
   @Override
