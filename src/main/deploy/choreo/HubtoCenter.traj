@@ -1,5 +1,5 @@
 {
- "name":"PMtoM",
+ "name":"HubtoCenter",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -14,8 +14,8 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"PM.x", "val":3.674594640731811}, "y":{"exp":"PM.y", "val":4.0000072192}, "heading":{"exp":"PM.heading", "val":1.5707963192945}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"M.x", "val":1.8712037801742551}, "y":{"exp":"M.y", "val":4.0}, "heading":{"exp":"M.heading", "val":1.570796319299}, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"StartingHub.x", "val":3.674594640731811}, "y":{"exp":"StartingHub.y", "val":4.0000072192}, "heading":{"exp":"StartingHub.heading", "val":1.5707963192945}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"Center.x", "val":1.8712037801742551}, "y":{"exp":"Center.y", "val":4.0}, "heading":{"exp":"Center.heading", "val":1.570796319299}, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
