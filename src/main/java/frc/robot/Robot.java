@@ -67,6 +67,7 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
@@ -149,7 +150,7 @@ public class Robot extends LoggedRobot {
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
    * complete
    */
-  public static final boolean TUNING_MODE = false;
+  public static final boolean TUNING_MODE = true;
 
   public boolean hasZeroedSinceStartup = false;
 
@@ -762,6 +763,9 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
 
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
@@ -849,6 +853,13 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
 
     noLogStickAlert.set(!directory.exists());
+
+    Logger.recordOutput(
+        "Distance to hub",
+        shooter
+            .getTurretPose(swerve.getPose())
+            .getTranslation()
+            .getDistance(FieldUtils.getCurrentHubTranslation()));
   }
 
   public void updateAlerts() {

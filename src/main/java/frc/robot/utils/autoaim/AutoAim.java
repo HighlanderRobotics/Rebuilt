@@ -58,77 +58,97 @@ public class AutoAim {
 
   public static final InterpolatingShotTree COMP_HUB_SHOT_TREE = new InterpolatingShotTree();
 
-  // TODO update tof
-  static { // For hub shot tree
-    // TODO min shot
+  static {
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17),
-        new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 6 + 3, 1.04));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(25), 35 - 6 + 3, 1.14));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
+        1.716849,
         new ShotData(
-            Rotation2d.fromDegrees(26),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.10));
-
+            Rotation2d.fromDegrees(23 - 13.16),
+            30 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            0.8));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
+        2.017596,
         new ShotData(
-            Rotation2d.fromDegrees(30),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.09));
-
+            Rotation2d.fromDegrees(23 - 13.16),
+            33 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            0.9));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
+        2.423868,
         new ShotData(
-            Rotation2d.fromDegrees(33),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.15));
-
+            Rotation2d.fromDegrees(25 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.1));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
+        2.664198,
         new ShotData(
-            Rotation2d.fromDegrees(36),
-            38 - 6 + 3
-            // - 6
-            ,
+            Rotation2d.fromDegrees(26 - 13.16),
+            36 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        2.903207,
+        new ShotData(
+            Rotation2d.fromDegrees(30 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        3.156802,
+        new ShotData(
+            Rotation2d.fromDegrees(32 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.23));
-
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
+        3.437033,
         new ShotData(
-            Rotation2d.fromDegrees(38),
-            39 - 6 + 3
-            // - 6
-            ,
-            1.33));
+            Rotation2d.fromDegrees(34 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.25));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
+        3.611052,
         new ShotData(
-            Rotation2d.fromDegrees(39),
-            40.5 - 6 + 3
-            // - 6
-            ,
-            1.35));
+            Rotation2d.fromDegrees(38 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.24));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12 + 6),
+        3.773999,
         new ShotData(
-            Rotation2d.fromDegrees(39),
-            40.5 - 6 + 3 + 2
-            // - 6
-            ,
-            1.35));
+            Rotation2d.fromDegrees(39 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.21));
+    COMP_HUB_SHOT_TREE.put(
+        3.899275,
+        new ShotData(
+            Rotation2d.fromDegrees(40 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        4.138058,
+        new ShotData(
+            Rotation2d.fromDegrees(41 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.13));
+    COMP_HUB_SHOT_TREE.put(
+        4.602258,
+        new ShotData(
+            Rotation2d.fromDegrees(43 - 13.16),
+            34.5 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.15));
+    COMP_HUB_SHOT_TREE.put(
+        4.893493,
+        new ShotData(
+            Rotation2d.fromDegrees(45 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        5.225402,
+        new ShotData(
+            Rotation2d.fromDegrees(47 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        5.584793,
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            35.5 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.17));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
