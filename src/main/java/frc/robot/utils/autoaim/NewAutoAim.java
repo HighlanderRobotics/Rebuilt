@@ -173,9 +173,12 @@ public class NewAutoAim {
     double currentTimeSec = Timer.getFPGATimestamp();
     double deltaTime = currentTimeSec - lastRunTimeSec;
 
-    double axMetersPerSecSq = (robotRelativeVelocity.vxMetersPerSecond - lastVxMetersPerSec) / deltaTime;
-    double ayMetersPerSecSq = (robotRelativeVelocity.vyMetersPerSecond - lastVyMetersPerSec) / deltaTime;
-    double alphaRadPerSecSq = (robotRelativeVelocity.omegaRadiansPerSecond - lastOmegaRadPerSec) / deltaTime;
+    double axMetersPerSecSq =
+        (robotRelativeVelocity.vxMetersPerSecond - lastVxMetersPerSec) / deltaTime;
+    double ayMetersPerSecSq =
+        (robotRelativeVelocity.vyMetersPerSecond - lastVyMetersPerSec) / deltaTime;
+    double alphaRadPerSecSq =
+        (robotRelativeVelocity.omegaRadiansPerSecond - lastOmegaRadPerSec) / deltaTime;
 
     lastVxMetersPerSec = robotRelativeVelocity.vxMetersPerSecond;
     lastVyMetersPerSec = robotRelativeVelocity.vyMetersPerSecond;
@@ -187,10 +190,12 @@ public class NewAutoAim {
     estimatedPose =
         estimatedPose.exp(
             new Twist2d(
-                (robotRelativeVelocity.vxMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS) + (0.5 * axMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
-                (robotRelativeVelocity.vyMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS) + (0.5 * ayMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
-                (robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS) + (0.5 * alphaRadPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2))
-            ));
+                (robotRelativeVelocity.vxMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS)
+                    + (0.5 * axMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
+                (robotRelativeVelocity.vyMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS)
+                    + (0.5 * ayMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
+                (robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS)
+                    + (0.5 * alphaRadPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2))));
 
     // Calculate distance from turret to target
     Pose2d turretPosition =
