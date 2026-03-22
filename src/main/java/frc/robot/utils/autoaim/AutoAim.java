@@ -20,7 +20,7 @@ public class AutoAim {
   public static double LATENCY_COMPENSATION_SECS =
       //   new LoggedTunableNumber("Latency time", 0.3).getAsDouble(); // 0.6; // TODO tune latency
       // comp
-      0.3;
+      0;
   //   public static double SPIN_UP_SECS = 0.0; // TODO tune spinup time
 
   public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
@@ -58,77 +58,97 @@ public class AutoAim {
 
   public static final InterpolatingShotTree COMP_HUB_SHOT_TREE = new InterpolatingShotTree();
 
-  // TODO update tof
-  static { // For hub shot tree
-    // TODO min shot
+  static {
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 + 17),
-        new ShotData(TurretSubsystem.HOOD_MIN_ANGLE, 40 - 6 + 3, 1.04));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 12),
-        new ShotData(Rotation2d.fromDegrees(25), 35 - 6 + 3, 1.14));
-
-    COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 3 * 12),
+        1.716849,
         new ShotData(
-            Rotation2d.fromDegrees(26),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.10));
-
+            Rotation2d.fromDegrees(23 - 13.16),
+            30 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            0.8));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 5 * 12),
+        2.017596,
         new ShotData(
-            Rotation2d.fromDegrees(30),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.09));
-
+            Rotation2d.fromDegrees(23 - 13.16),
+            33 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            0.9));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 7 * 12),
+        2.423868,
         new ShotData(
-            Rotation2d.fromDegrees(33),
-            37 - 6 + 3
-            // - 6
-            ,
-            1.15));
-
+            Rotation2d.fromDegrees(25 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.1));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 9 * 12),
+        2.664198,
         new ShotData(
-            Rotation2d.fromDegrees(36),
-            38 - 6 + 3
-            // - 6
-            ,
+            Rotation2d.fromDegrees(26 - 13.16),
+            36 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        2.903207,
+        new ShotData(
+            Rotation2d.fromDegrees(30 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        3.156802,
+        new ShotData(
+            Rotation2d.fromDegrees(32 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.23));
-
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 11 * 12),
+        3.437033,
         new ShotData(
-            Rotation2d.fromDegrees(38),
-            39 - 6 + 3
-            // - 6
-            ,
-            1.33));
+            Rotation2d.fromDegrees(34 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.25));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12),
+        3.611052,
         new ShotData(
-            Rotation2d.fromDegrees(39),
-            40.5 - 6 + 3
-            // - 6
-            ,
-            1.35));
+            Rotation2d.fromDegrees(38 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.24));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 + 13 * 12 + 6),
+        3.773999,
         new ShotData(
-            Rotation2d.fromDegrees(39),
-            40.5 - 6 + 3 + 2
-            // - 6
-            ,
-            1.35));
+            Rotation2d.fromDegrees(39 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.21));
+    COMP_HUB_SHOT_TREE.put(
+        3.899275,
+        new ShotData(
+            Rotation2d.fromDegrees(40 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        4.138058,
+        new ShotData(
+            Rotation2d.fromDegrees(41 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.13));
+    COMP_HUB_SHOT_TREE.put(
+        4.602258,
+        new ShotData(
+            Rotation2d.fromDegrees(43 - 13.16),
+            34.5 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.15));
+    COMP_HUB_SHOT_TREE.put(
+        4.893493,
+        new ShotData(
+            Rotation2d.fromDegrees(45 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        5.225402,
+        new ShotData(
+            Rotation2d.fromDegrees(47 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        5.584793,
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            35.5 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.17));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
@@ -161,52 +181,111 @@ public class AutoAim {
 
     FEED_SHOT_TREE.put(
         Units.feetToMeters(18),
-        new ShotData(Rotation2d.fromDegrees(40), 38 - 2, 1.42)); // - 2, 1.42));
+        new ShotData(
+            Rotation2d.fromDegrees(40 - 13.16),
+            36 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.42)); // - 2, 1.42));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(20),
-        new ShotData(Rotation2d.fromDegrees(43), 40 - 2, 1.36)); // - 2, 1.36));
+        new ShotData(
+            Rotation2d.fromDegrees(43 - 13.16),
+            38 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.36)); // - 2, 1.36));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(22),
-        new ShotData(Rotation2d.fromDegrees(45), 41 - 2, 1.34)); // - 2, 1.34));
+        new ShotData(
+            Rotation2d.fromDegrees(45 - 13.16),
+            39 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.34)); // - 2, 1.34));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(24),
-        new ShotData(Rotation2d.fromDegrees(47), 42 - 2, 1.25)); // - 2, 1.25));
+        new ShotData(
+            Rotation2d.fromDegrees(47 - 13.16),
+            40 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.25)); // - 2, 1.25));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(26),
-        new ShotData(Rotation2d.fromDegrees(48), 43 - 2, 1.28)); // - 2, 1.28));
+        new ShotData(
+            Rotation2d.fromDegrees(48 - 13.16),
+            41 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.28)); // - 2, 1.28));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(28),
-        new ShotData(Rotation2d.fromDegrees(49), 45 - 2, 1.27)); // - 2, 1.27));
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            43 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.27)); // - 2, 1.27));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(30),
-        new ShotData(Rotation2d.fromDegrees(49), 46 - 2, 1.32)); // - 2, 1.32));
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            44 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.32)); // - 2, 1.32));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(32),
-        new ShotData(Rotation2d.fromDegrees(49), 48 - 2, 1.4)); // - 2, 1.4));
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            46 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.4)); // - 2, 1.4));
 
     FEED_SHOT_TREE.put(
         Units.feetToMeters(34),
-        new ShotData(Rotation2d.fromDegrees(52), 49 - 2, 1.3)); // - 2, 1.3));
+        new ShotData(
+            Rotation2d.fromDegrees(52 - 13.16),
+            47 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.3)); // - 2, 1.3));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(36),
-        new ShotData(Rotation2d.fromDegrees(53), 53 - 2, 1.33)); // - 2, 1.33));
+        new ShotData(
+            Rotation2d.fromDegrees(53 - 13.16),
+            51 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.33)); // - 2, 1.33));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(38),
-        new ShotData(Rotation2d.fromDegrees(53), 57 - 2, 1.3)); // - 2, 1.3));
+        new ShotData(
+            Rotation2d.fromDegrees(53 - 13.16),
+            55 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.3)); // - 2, 1.3));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(40),
-        new ShotData(Rotation2d.fromDegrees(55), 57 - 2, 1.2)); // - 2, 1.2));
+        new ShotData(
+            Rotation2d.fromDegrees(55 - 13.16),
+            55 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2)); // - 2, 1.2));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(42),
-        new ShotData(Rotation2d.fromDegrees(56), 59 - 2, 1.2)); // - 2, 1.2));
+        new ShotData(
+            Rotation2d.fromDegrees(56 - 13.16),
+            57 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2)); // - 2, 1.2));
 
     // TODO: POPULATE beyond 24 feet and time of flight
+  }
+
+  public static Pose2d getTurretPose(Pose2d robotPose) {
+    Pose2d turretPose =
+        robotPose.transformBy(
+            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    return turretPose;
   }
 
   public static double distanceToHub(Pose2d pose) {
     double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
     Logger.recordOutput("Autoaim/Distance To Hub", distance);
     return distance;
+  }
+
+  public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
+    Translation2d robotToTarget = target.minus(robotPose.getTranslation());
+    Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
+    Logger.recordOutput("Autoaim/Target Rotation", rot);
+    return rot;
+  }
+
+  public static Rotation2d getVirtualTargetYaw(
+      Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, double tof) {
+    Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
+    return getTargetRotation(vtarget, robotPose);
   }
 
   // lock in
@@ -223,16 +302,12 @@ public class AutoAim {
   }
 
   public static Rotation2d getVirtualTargetYaw(
-      Translation2d target, ChassisSpeeds fieldRelativeSpeeds, Pose2d robotPose, double tof) {
-    Translation2d vtarget = getVirtualSOTMTarget(target, fieldRelativeSpeeds, tof);
-    return getTargetRotation(vtarget, robotPose);
-  }
-
-  public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
-    Translation2d robotToTarget = target.minus(robotPose.getTranslation());
-    Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-    Logger.recordOutput("Autoaim/Target Rotation", rot);
-    return rot;
+      ChassisSpeeds fieldRelativeSpeeds,
+      Translation2d targetTranslation,
+      Pose2d robotPose,
+      InterpolatingShotTree tree) {
+    double tof = tree.calculateShot(robotPose, targetTranslation).timeOfFlightSecs();
+    return getVirtualTargetYaw(targetTranslation, fieldRelativeSpeeds, robotPose, tof);
   }
 
   // if we have a turret im going to assume we're on comp
@@ -241,9 +316,7 @@ public class AutoAim {
       Pose2d robotPose,
       ChassisSpeeds chassisSpeeds,
       InterpolatingShotTree shotTree) {
-    Pose2d turretPose =
-        robotPose.transformBy(
-            new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    Pose2d turretPose = getTurretPose(robotPose);
 
     // get desired rotation to point at target
     Rotation2d turretTargetRotation =
@@ -292,25 +365,97 @@ public class AutoAim {
     return getTurretTargetRotation(target, robotPose, chassisSpeeds, FEED_SHOT_TREE);
   }
 
-  public static Rotation2d getVirtualTargetYaw(
-      ChassisSpeeds fieldRelativeSpeeds,
-      Translation2d targetTranslation,
-      Pose2d robotPose,
-      InterpolatingShotTree tree) {
-    double tof = tree.calculateShot(robotPose, targetTranslation).timeOfFlightSecs();
-    return getVirtualTargetYaw(targetTranslation, fieldRelativeSpeeds, robotPose, tof);
-  }
-
   public static ShotData getSOTMShotData(
       Pose2d robotPose,
       Translation2d targetTranslation,
       ChassisSpeeds fieldRelativeSpeeds,
       InterpolatingShotTree tree) {
+
     ShotData unadjustedShot = tree.calculateShot(robotPose, targetTranslation);
     Translation2d virtualTarget =
         getVirtualSOTMTarget(
             targetTranslation, fieldRelativeSpeeds, unadjustedShot.timeOfFlightSecs());
-    return tree.get(robotPose.getTranslation().getDistance(virtualTarget));
+    Pose2d turretPose = getTurretPose(robotPose);
+
+    return tree.get(turretPose.getTranslation().getDistance(virtualTarget));
+  }
+
+  public static ShotData getSOTMShotDataNewtonsMethod(
+      Pose2d robotPose,
+      Translation2d targetTranslation,
+      ChassisSpeeds fieldRelativeSpeeds,
+      InterpolatingShotTree tree) {
+
+    ShotData baseline = tree.calculateShot(robotPose, targetTranslation);
+
+    Pose2d turretPose = getTurretPose(robotPose);
+    Translation2d turretToTarget = targetTranslation.minus(turretPose.getTranslation());
+
+    double distance = turretToTarget.getNorm();
+
+    // get just direction of vector because its vector divded by length
+    // dont want to account for magnitude bc the speed we are going and shot tree do
+    // and we just want direction to find dot product
+    Translation2d shotDirection = turretToTarget.div(distance);
+
+    // dot product! <3
+    // get how fast we are going towards where we are shooting
+    // vectors of robot times direction
+    // positive if going towrds
+    // zero is moving perpedicular
+    // negative is going away
+    double robotVelocityAlongShot =
+        fieldRelativeSpeeds.vxMetersPerSecond * shotDirection.getX()
+            + fieldRelativeSpeeds.vyMetersPerSecond * shotDirection.getY();
+
+    // required velocity is like velocity the ball must have so it hits the target while the robot
+    // moving
+    // because the ball velocity is robot velocity + ball velocity
+    // so velocity ball needs to go is our distance / tof - the dot product or velocity along that
+    // shot to account for the robots velocity along the shot
+    double requiredVelocity = (distance / baseline.timeOfFlightSecs()) - robotVelocityAlongShot;
+
+    return calculateShotAdjustments(distance, baseline, requiredVelocity, tree);
+  }
+
+  /**
+   * @param distance distance to target
+   * @param baseline daseline parameters from tree
+   * @param requiredVelocity required horizontal velocity magnitude
+   * @return adjusted shooter command
+   */
+  private static ShotData calculateShotAdjustments(
+      double distance, ShotData baseline, double requiredVelocity, InterpolatingShotTree tree) {
+
+    ShotData currentParams = baseline;
+    double currentDistance = distance;
+    double currentTime = currentParams.timeOfFlightSecs();
+    double currentVelocity = currentDistance / currentTime;
+
+    // iterate
+    for (int i = 0; i < 20; i++) {
+      final double EPSILON = 0.001;
+      // get deriv of velocity (dis/time)
+      double lowVel =
+          (currentDistance - EPSILON) / tree.get(currentDistance - EPSILON).timeOfFlightSecs();
+      double highVel =
+          (currentDistance + EPSILON) / tree.get(currentDistance + EPSILON).timeOfFlightSecs();
+      double velDeriv = (highVel - lowVel) / (EPSILON * 2);
+      // newtons method: xn+1 = xn - f(xn)/deriv(xn)
+      // so estimate for new dist is difference between current velocity required velocity over the
+      // deriv
+      // this makes sense because if current vel is larger it will lower current distance to account
+      // for that and if requird is larger it will increase to account for that
+      currentDistance -= (currentVelocity - requiredVelocity) / velDeriv;
+      // update
+      currentParams = tree.get(currentDistance);
+      currentTime = currentParams.timeOfFlightSecs();
+      currentVelocity = currentDistance / currentTime;
+    }
+    return new ShotData(
+        currentParams.hoodAngle(),
+        currentParams.flywheelVelocityRotPerSec(),
+        currentParams.timeOfFlightSecs());
   }
 
   public static ShotData getCompensatedSOTMShotData(
