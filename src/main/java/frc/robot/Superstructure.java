@@ -459,7 +459,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             this::inScoringArea,
             () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
@@ -470,7 +470,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             this::inScoringArea,
             () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
@@ -483,7 +483,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     AutoAim.FEED_SHOT_TREE),
             () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
@@ -498,14 +498,14 @@ public class Superstructure {
                 AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                        swerve.getVelocityFieldRelative(),
+                        swerve.getVelocityRobotRelative(),
                         AutoAim.FEED_SHOT_TREE)
                     .flywheelVelocityRotPerSec()),
         shooter.feed(
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     AutoAim.FEED_SHOT_TREE),
             () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
@@ -520,7 +520,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     AutoAim.FEED_SHOT_TREE),
             () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
@@ -535,14 +535,14 @@ public class Superstructure {
                 AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                        swerve.getVelocityFieldRelative(),
+                        swerve.getVelocityRobotRelative(),
                         AutoAim.FEED_SHOT_TREE)
                     .flywheelVelocityRotPerSec()),
         shooter.feed(
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
                     AutoAim.FEED_SHOT_TREE),
             () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
@@ -557,7 +557,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
                         ? AutoAim.ALPHA_HUB_SHOT_TREE
@@ -573,7 +573,7 @@ public class Superstructure {
                 AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FieldUtils.getCurrentHubTranslation(),
-                        swerve.getVelocityFieldRelative(),
+                        swerve.getVelocityRobotRelative(),
                         Robot.ROBOT_EDITION == RobotEdition.ALPHA
                             ? AutoAim.ALPHA_HUB_SHOT_TREE
                             : AutoAim.COMP_HUB_SHOT_TREE)
@@ -582,7 +582,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
                         ? AutoAim.ALPHA_HUB_SHOT_TREE
@@ -597,7 +597,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
                         ? AutoAim.ALPHA_HUB_SHOT_TREE
@@ -612,7 +612,7 @@ public class Superstructure {
                 AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FieldUtils.getCurrentHubTranslation(),
-                        swerve.getVelocityFieldRelative(),
+                        swerve.getVelocityRobotRelative(),
                         Robot.ROBOT_EDITION == RobotEdition.ALPHA
                             ? AutoAim.ALPHA_HUB_SHOT_TREE
                             : AutoAim.COMP_HUB_SHOT_TREE)
@@ -621,7 +621,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
                         ? AutoAim.ALPHA_HUB_SHOT_TREE
@@ -636,7 +636,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             this::inScoringArea,
             () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.extend());
@@ -646,7 +646,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             this::inScoringArea,
             () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.retract());
@@ -656,7 +656,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             this::inScoringArea,
             () -> FeedTargets.getFeedTarget(feedTarget).getPose()),
         climber.extend());
@@ -669,7 +669,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
                         ? AutoAim.ALPHA_HUB_SHOT_TREE
@@ -684,7 +684,7 @@ public class Superstructure {
                 AutoAim.getSOTMShotDataNewtonsMethod(
                         shooter.getTurretPose(swerve.getPose()),
                         FieldUtils.getCurrentHubTranslation(),
-                        swerve.getVelocityFieldRelative(),
+                        swerve.getVelocityRobotRelative(),
                         Robot.ROBOT_EDITION == RobotEdition.ALPHA
                             ? AutoAim.ALPHA_HUB_SHOT_TREE
                             : AutoAim.COMP_HUB_SHOT_TREE)
@@ -693,7 +693,7 @@ public class Superstructure {
             () ->
                 NewAutoAim.getParametersMechA(
                     swerve.getPose(),
-                    swerve.getVelocityFieldRelative(),
+                    swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
                         ? AutoAim.ALPHA_HUB_SHOT_TREE

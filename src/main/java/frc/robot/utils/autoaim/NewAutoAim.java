@@ -178,21 +178,29 @@ public class NewAutoAim {
             new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
     double turretToTargetDistance = target.getDistance(turretPosition.getTranslation());
 
-    // Calculate field relative turret velocity
-    ChassisSpeeds robotFieldRelVelocity =
-        ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeVelocity, estimatedPose.getRotation());
-    double robotAngle = estimatedPose.getRotation().getRadians();
-    double turretVelocityX =
-        robotFieldRelVelocity.vxMetersPerSecond
-            + robotFieldRelVelocity.omegaRadiansPerSecond
-                * (TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY() * Math.cos(robotAngle)
-                    - TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX() * Math.sin(robotAngle));
-    double turretVelocityY =
-        robotFieldRelVelocity.vyMetersPerSecond
-            + robotFieldRelVelocity.omegaRadiansPerSecond
-                * (TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX() * Math.cos(robotAngle)
-                    - TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY() * Math.sin(robotAngle));
+    double turretRadiusMeters =
+        Math.hypot(
+            TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX(),
+            TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY());
+    Rotation2d turretToRobotAngleRads =
+        Rotation2d.fromRadians(
+            Math.atan2(
+                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getY(),
+                TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX()));
+    Rotation2d turretLinearVelAngle = turretToRobotAngleRads.minus(Rotation2d.kCCW_90deg);
 
+    double turretVelocityX =
+        robotRelativeVelocity.vxMetersPerSecond
+            + (robotRelativeVelocity.omegaRadiansPerSecond
+                * turretRadiusMeters
+                * turretLinearVelAngle.getSin());
+    double turretVelocityY =
+        robotRelativeVelocity.vyMetersPerSecond
+            + (robotRelativeVelocity.omegaRadiansPerSecond
+                * turretRadiusMeters
+                * turretLinearVelAngle.getCos());
+    Logger.recordOutput(
+        "LaunchCalculator/Turret Velocity", new Translation2d(turretVelocityX, turretVelocityY));
     // Account for imparted velocity by robot (turret) to offset
     double timeOfFlight;
     Pose2d lookaheadPose = turretPosition;
@@ -201,16 +209,12 @@ public class NewAutoAim {
       timeOfFlight = tree.get(lookaheadTurretToTargetDistance).timeOfFlightSecs();
       double offsetX = turretVelocityX * timeOfFlight;
       double offsetY = turretVelocityY * timeOfFlight;
+
+      Logger.recordOutput("LaunchCalculator/Offset", new Translation2d(offsetX, offsetY));
+
       lookaheadPose =
           turretPosition.transformBy(new Transform2d(offsetX, offsetY, Rotation2d.kZero));
-      //   lookaheadPose =
-      //       lookaheadPose.plus(
-      //           new Transform2d(new Translation2d(offsetX, offsetY), Rotation2d.kZero));
-      //   lookaheadPose =
-      //       new Pose2d(
-      //           new Translation2d(turretPosition.getX() + offsetX, turretPosition.getY() +
-      // offsetY),
-      //           turretPosition.getRotation());
+
       lookaheadTurretToTargetDistance = target.getDistance(lookaheadPose.getTranslation());
     }
 
