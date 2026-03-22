@@ -76,7 +76,7 @@ public class Autos {
     RPreTrenchtoOutpost("RPreTrenchtoOutpost", Action.OUTPOST), // TODO doesn't work
     PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
     // DEPOT
-    LTrenchtoDepot("LTrenchtoDepot", Action.INTAKE),
+    LTrenchtoDepot("LTrenchtoDepot", Action.FLOW),
     // FEED
     FeedLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.FEED),
     FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
@@ -153,7 +153,7 @@ public class Autos {
       case INTAKE:
         return intakePath(path, routine);
       case FEED:
-        return feedPath(path, routine);
+        return feedFlowPath(path, routine);
       case SCORE:
         return scorePath(path, routine);
       case CLIMB_SCORE:
@@ -173,8 +173,9 @@ public class Autos {
 
   public Command climbScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
+        startFlowing(),
         startScoring(),
-        stopIntaking(),
+        // stopIntaking(),
         startPreClimb(),
         // Commands.parallel(
         path.getTrajectory(routine)
@@ -213,11 +214,10 @@ public class Autos {
                 .andThen(startClimb())));
   }
 
-  public Command feedPath(Path path, AutoRoutine routine) {
+  public Command feedFlowPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        stopScoring(),
         stopIntaking(),
-        stopFlowing(),
+        startFlowing(),
         startFeeding(),
         // startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
@@ -247,8 +247,9 @@ public class Autos {
 
   public Command flowScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        startScoring(),
+        stopIntaking(),
         startFlowing(),
+        startScoring(),
         // setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
@@ -437,12 +438,11 @@ public class Autos {
 
   // awful names.. mb
   public Command getFillDepotScoreClimbAuto() {
-
     return createAuto(
         "Fill Depot Score Climb Auto",
         new Path[] {
           Path.StartingLTrenchtoLNeutral,
-          Path.FeedLNeutraltoLPreTrench,
+          Path.LNeutraltoLPreTrench,
           Path.LPreTrenchtoDepot,
           Path.DepottoLClimb
         },
