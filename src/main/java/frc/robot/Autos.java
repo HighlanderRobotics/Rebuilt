@@ -85,8 +85,8 @@ public class Autos {
     RNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.INTAKE),
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
-    RTrenchtoRNeutral("RTrenchtoRNeutral", Action.INTAKE),
-    LTrenchtoLNeutral("LTrenchtoLNeutral", Action.INTAKE),
+    StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
+    StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
     LBumptoDepot("LBumptoDepot", Action.INTAKE),
     // SCORE
     DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
@@ -270,8 +270,7 @@ public class Autos {
         stopFlowing(),
         stopIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        swerve.stop().repeatedly().withTimeout(2)
-        );
+        swerve.stop().repeatedly().withTimeout(2));
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
@@ -442,7 +441,7 @@ public class Autos {
     return createAuto(
         "Fill Depot Score Climb Auto",
         new Path[] {
-          Path.LTrenchtoLNeutral,
+          Path.StartingLTrenchtoLNeutral,
           Path.FeedLNeutraltoLPreTrench,
           Path.LPreTrenchtoDepot,
           Path.DepottoLClimb
@@ -455,7 +454,7 @@ public class Autos {
     return createAuto(
         "Fill Outpost Score Climb Auto",
         new Path[] {
-          Path.RTrenchtoRNeutral,
+          Path.StartingRTrenchtoRNeutral,
           Path.FeedRNeutraltoRPreTrench,
           Path.RPreTrenchtoOutpost,
           Path.OutposttoRClimb
