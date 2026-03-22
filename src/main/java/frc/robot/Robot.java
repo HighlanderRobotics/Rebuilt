@@ -1005,7 +1005,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopExit() {
     System.out.println("Saving BFG Log");
-    bfg.saveLog("");
+    if (bfg.isConnected()) bfg.saveLog("");
   }
 
   @Override

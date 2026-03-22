@@ -215,7 +215,8 @@ public class NewAutoAim {
     }
 
     // Calculate parameters accounted for imparted velocity
-    Rotation2d turretAngle = target.minus(lookaheadPose.getTranslation()).getAngle();
+    // Rotation2d turretAngle = target.minus(lookaheadPose.getTranslation()).getAngle();\
+    Rotation2d turretAngle = AutoAim.getTargetRotation(target, lookaheadPose);
     turretAngle = getTurretTargetRotation(turretAngle, estimatedPose);
 
     // Log calculated values

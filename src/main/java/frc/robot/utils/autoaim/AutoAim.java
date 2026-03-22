@@ -73,7 +73,7 @@ public class AutoAim {
         new ShotData(Rotation2d.fromDegrees(31), 40, 1.3));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 5 * 24),
-        new ShotData(Rotation2d.fromDegrees(33), 41, 1.02));
+        new ShotData(Rotation2d.fromDegrees(33), 41, 1.3));
     COMP_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 * Math.sqrt(2) + 6 * 24),
         new ShotData(Rotation2d.fromDegrees(35), 43, 1.3));
