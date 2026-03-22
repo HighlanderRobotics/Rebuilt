@@ -67,6 +67,7 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
@@ -849,6 +850,13 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
 
     noLogStickAlert.set(!directory.exists());
+
+    Logger.recordOutput(
+        "Distance to hub",
+        shooter
+            .getTurretPose(swerve.getPose())
+            .getTranslation()
+            .getDistance(FieldUtils.getCurrentHubTranslation()));
   }
 
   public void updateAlerts() {
