@@ -97,4 +97,12 @@ public interface Shooter extends Subsystem {
       Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     return Commands.none();
   }
+
+  public default Command runFlywheelSysid() {
+    return Commands.none();
+  }
+
+  public default Command runHoodSysid() {
+    return Commands.none();
+  }
 }

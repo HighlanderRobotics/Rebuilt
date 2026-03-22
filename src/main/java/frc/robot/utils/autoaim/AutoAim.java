@@ -60,26 +60,95 @@ public class AutoAim {
 
   static {
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 24),
-        new ShotData(Rotation2d.fromDegrees(25), 32, 0.81));
+        1.716849,
+        new ShotData(
+            Rotation2d.fromDegrees(23 - 13.16),
+            30 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            0.8));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 2 * 24),
-        new ShotData(Rotation2d.fromDegrees(27), 34, 1.09));
+        2.017596,
+        new ShotData(
+            Rotation2d.fromDegrees(23 - 13.16),
+            33 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            0.9));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 3 * 24),
-        new ShotData(Rotation2d.fromDegrees(29), 36, 1.1));
+        2.423868,
+        new ShotData(
+            Rotation2d.fromDegrees(25 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.1));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 4 * 24),
-        new ShotData(Rotation2d.fromDegrees(31), 40, 1.3));
+        2.664198,
+        new ShotData(
+            Rotation2d.fromDegrees(26 - 13.16),
+            36 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 5 * 24),
-        new ShotData(Rotation2d.fromDegrees(33), 41, 1.3));
+        2.903207,
+        new ShotData(
+            Rotation2d.fromDegrees(30 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 6 * 24),
-        new ShotData(Rotation2d.fromDegrees(35), 43, 1.3));
+        3.156802,
+        new ShotData(
+            Rotation2d.fromDegrees(32 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.23));
     COMP_HUB_SHOT_TREE.put(
-        Units.inchesToMeters(24 * Math.sqrt(2) + 7 * 24),
-        new ShotData(Rotation2d.fromDegrees(37), 47, 1.46));
+        3.437033,
+        new ShotData(
+            Rotation2d.fromDegrees(34 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.25));
+    COMP_HUB_SHOT_TREE.put(
+        3.611052,
+        new ShotData(
+            Rotation2d.fromDegrees(38 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.24));
+    COMP_HUB_SHOT_TREE.put(
+        3.773999,
+        new ShotData(
+            Rotation2d.fromDegrees(39 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.21));
+    COMP_HUB_SHOT_TREE.put(
+        3.899275,
+        new ShotData(
+            Rotation2d.fromDegrees(40 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        4.138058,
+        new ShotData(
+            Rotation2d.fromDegrees(41 - 13.16),
+            34 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.13));
+    COMP_HUB_SHOT_TREE.put(
+        4.602258,
+        new ShotData(
+            Rotation2d.fromDegrees(43 - 13.16),
+            34.5 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.15));
+    COMP_HUB_SHOT_TREE.put(
+        4.893493,
+        new ShotData(
+            Rotation2d.fromDegrees(45 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        5.225402,
+        new ShotData(
+            Rotation2d.fromDegrees(47 - 13.16),
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2));
+    COMP_HUB_SHOT_TREE.put(
+        5.584793,
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            35.5 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.17));
   }
 
   // Ig we'll see if we need more than 1 feed shot tree
