@@ -107,41 +107,36 @@ public class Autos {
   public enum Path {
     // OUTPOST
     RTrenchtoOutpost("RTrenchtoOutpost", Action.OUTPOST),
-    MRtoOutpost("MRtoOutpost", Action.OUTPOST), //TODO doesn't work
-    StoOutpost("StoOutpost", Action.OUTPOST),
+    RPreTrenchtoOutpost("RPreTrenchtoOutpost", Action.OUTPOST), // TODO doesn't work
+    PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
     // DEPOT
     LTrenchtoDepot("LTrenchtoDepot", Action.INTAKE),
     // FEED
-    FLtoFLM("FLtoFLM", Action.FEED),
-    FRtoFRM("FRtoFRM", Action.FEED),
-    FeedLNeutraltoML("LNeutraltoML", Action.FEED),
-    FeedRNeutraltoMR("RNeutraltoMR", Action.FEED),
+    FeedLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.FEED),
+    FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
     // INTAKE
-    FLtoLNeutral("FLtoLNeutral", Action.INTAKE),
-    FRtoRNeutral("FRtoRNeutral", Action.INTAKE),
-    LNeutraltoML("LNeutraltoML", Action.INTAKE),
-    RNeutraltoMR("RNeutraltoMR", Action.INTAKE),
-    RLtoLNeutral("RLtoLNeutral", Action.INTAKE),
-    RRtoIR("RRtoFR", Action.INTAKE),
-    RTrenchtoIR("RTrenchtoFR", Action.INTAKE),
-    LTrenchtoFL("PLtoFL", Action.INTAKE),
+    LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
+    RNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.INTAKE),
+    LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
+    RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
+    RTrenchtoRNeutral("RTrenchtoRNeutral", Action.INTAKE),
+    LTrenchtoLNeutral("LTrenchtoLNeutral", Action.INTAKE),
     // SCORE
-    DepottoRL("DepottoRL", Action.SCORE),
-    OutposttoRR("OutposttoRR", Action.NOTHING),
-    DepottoS("DepottoS", Action.SCORE),
-    OutposttoS("OutposttoS", Action.SCORE),
-    PMtoM("PMtoM", Action.SCORE),
+    DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
+    OutposttoRPreTrench("OutposttoRPreTrench", Action.NOTHING),
+    DepottoPreOutpost("DepottoPreOutpost", Action.SCORE),
+    OutposttoPreOutpost("OutposttoPreOutpost", Action.SCORE),
+    HubtoCenter("HubtoCenter", Action.SCORE),
     // FLOW
-    MLtoDepot("MLtoDepot", Action.FLOW),
+    LPreTrenchtoDepot("LPreTrenchtoDepot", Action.FLOW),
     // CLIMB
-    MLtoLClimb("MLtoLClimb", Action.CLIMB_SCORE),
-    MRtoRClimb("MRtoRClimb", Action.CLIMB_SCORE),
+    LPreTrenchtoLClimb("LPreTrenchtoLClimb", Action.CLIMB_SCORE),
+    RPreTrenchtoRClimb("RPreTrenchtoRClimb", Action.CLIMB_SCORE),
     OutposttoRClimb("OutposttoRClimb", Action.CLIMB_SCORE),
-    noScoreOtoCR("OutposttoRClimb", Action.CLIMB_ONLY),
+    PreOutposttoRClimb("PreOutposttoRClimb", Action.CLIMB_ONLY), //uhh
+    noScoreOutposttoRClimb("OutposttoRClimb", Action.CLIMB_ONLY),
     DepottoLClimb("DepottoLClimb", Action.CLIMB_SCORE),
-    RBtoOutpost("RBtoOutpost", Action.OUTPOST_SCORE),
-
-    FRMtoMRScore("FRMtoR", Action.INTAKE_SCORE),
+    RBumptoOutpost("RBumptoOutpost", Action.OUTPOST_SCORE),
 
     RUNtoTEST("RUNtoTEST", Action.NOTHING),
 
@@ -151,7 +146,6 @@ public class Autos {
     private final Action action;
 
     /**
-     * 
      * @param name the name of the path in choreo. MUST match
      * @param action the action to perform during/at the end of the path
      */
@@ -350,8 +344,7 @@ public class Autos {
         // .andThen(
         startScoring(),
         swerve.stop().repeatedly().withTimeout(4),
-        stopScoring()
-        );
+        stopScoring());
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
@@ -465,7 +458,9 @@ public class Autos {
   public Command getDepotScoreClimbAuto() {
     return createAuto(
         "Depot Score Climb Auto",
-        new Path[] {Path.LTrenchtoDepot, Path.DepottoRL, Path.RLtoLNeutral, Path.LNeutraltoML, Path.MLtoLClimb},
+        new Path[] {
+          Path.LTrenchtoDepot, Path.DepottoLPreTrench, Path.LPreTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoLClimb
+        },
         setLeftClimb());
   }
 
@@ -473,14 +468,26 @@ public class Autos {
 
     return createAuto(
         "Outpost Score Climb Auto",
-        new Path[] {Path.RTrenchtoOutpost, Path.OutposttoRR, Path.RRtoIR, Path.FRtoRNeutral, Path.RNeutraltoMR, Path.MRtoRClimb},
+        new Path[] {
+          Path.RTrenchtoOutpost,
+          Path.OutposttoRPreTrench,
+          Path.RPreTrenchtoRNeutral,
+          Path.RNeutraltoRPreTrench,
+          Path.RPreTrenchtoRClimb
+        },
         setRightClimb());
   }
 
   public Command getDepotFeedClimbAuto() {
     return createAuto(
         "Depot Feed Climb Auto",
-        new Path[] {Path.LTrenchtoDepot, Path.DepottoRL, Path.RLtoLNeutral, Path.FLtoFLM, Path.FeedLNeutraltoML, Path.MLtoLClimb},
+        new Path[] {
+          Path.LTrenchtoDepot,
+          Path.DepottoLPreTrench,
+          Path.LPreTrenchtoLNeutral,
+          Path.FeedLNeutraltoLPreTrench,
+          Path.LPreTrenchtoLClimb
+        },
         setLeftClimb());
   }
 
@@ -488,7 +495,13 @@ public class Autos {
 
     return createAuto(
         "Outpost Feed Climb Auto",
-        new Path[] {Path.RTrenchtoOutpost, Path.OutposttoRR, Path.RRtoIR, Path.FRtoFRM, Path.FeedRNeutraltoMR, Path.MRtoRClimb},
+        new Path[] {
+          Path.RTrenchtoOutpost,
+          Path.OutposttoRPreTrench,
+          Path.RPreTrenchtoRNeutral,
+          Path.FeedRNeutraltoRPreTrench,
+          Path.RPreTrenchtoRClimb
+        },
         setRightClimb());
   }
 
@@ -497,7 +510,9 @@ public class Autos {
 
     return createAuto(
         "Fill Depot Score Climb Auto",
-        new Path[] {Path.LTrenchtoFL, Path.FLtoFLM, Path.FeedLNeutraltoML, Path.MLtoDepot, Path.DepottoLClimb},
+        new Path[] {
+          Path.LTrenchtoLNeutral, Path.FeedLNeutraltoLPreTrench, Path.LPreTrenchtoDepot, Path.DepottoLClimb
+        },
         setLeftClimb());
   }
 
@@ -505,7 +520,12 @@ public class Autos {
 
     return createAuto(
         "Fill Outpost Score Climb Auto",
-        new Path[] {Path.RTrenchtoIR, Path.FRtoFRM, Path.FeedRNeutraltoMR, Path.MRtoOutpost, Path.OutposttoRClimb},
+        new Path[] {
+          Path.RTrenchtoRNeutral,
+          Path.FeedRNeutraltoRPreTrench,
+          Path.RPreTrenchtoOutpost,
+          Path.OutposttoRClimb
+        },
         setRightClimb());
   }
 
@@ -513,32 +533,37 @@ public class Autos {
 
     return createAuto(
         "Right Bump Outpost Center Auto",
-        new Path[] {Path.RBtoOutpost, Path.OutposttoRR, Path.RRtoIR, Path.FRtoRNeutral, Path.FRMtoMRScore},
+        new Path[] {
+          Path.RBumptoOutpost, Path.OutposttoRPreTrench, Path.RPreTrenchtoRNeutral, Path.RNeutraltoRPreTrench
+        },
         setRightClimb());
   }
 
   public Command getDepotClimbAuto() {
 
-    return createAuto("Depot Climb Auto", new Path[] {Path.LTrenchtoDepot, Path.DepottoLClimb}, setLeftClimb());
+    return createAuto(
+        "Depot Climb Auto", new Path[] {Path.LTrenchtoDepot, Path.DepottoLClimb}, setLeftClimb());
   }
 
   public Command getOutpostClimbAuto() {
 
     return createAuto(
-        "Outpost Climb Auto", new Path[] {Path.RTrenchtoOutpost, Path.OutposttoS, Path.OutposttoRClimb}, setRightClimb());
+        "Outpost Climb Auto",
+        new Path[] {Path.RTrenchtoOutpost, Path.OutposttoPreOutpost, Path.PreOutposttoRClimb},
+        setRightClimb());
   }
 
   public Command getDepotOutpostClimbAuto() {
     return createAuto(
         "Depot Outpost Climb Auto",
-        new Path[] {Path.LTrenchtoDepot, Path.DepottoS, Path.StoOutpost, Path.OutposttoRClimb},
+        new Path[] {Path.LTrenchtoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost, Path.OutposttoRClimb},
         setRightClimb());
   }
 
   public Command getLeftBumpDepotOutpostClimbAuto() {
     return createAuto(
         "Left Bump Outpost Climb Auto",
-        new Path[] {Path.LBumptoDepot, Path.DepottoS, Path.StoOutpost, Path.OutposttoRClimb},
+        new Path[] {Path.LBumptoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost, Path.OutposttoRClimb},
         setRightClimb(),
         shootPreload());
   }
@@ -547,13 +572,13 @@ public class Autos {
   public Command getRightBumpOutpostClimbAuto() {
     return createAuto(
         "Right Bump Outpost Climb Auto",
-        new Path[] {Path.RBtoOutpost, Path.noScoreOtoCR},
+        new Path[] {Path.RBumptoOutpost, Path.noScoreOutposttoRClimb},
         setRightClimb());
   }
 
   public Command getCenterScoreAuto() {
     // no climb so don't need to set climb target
-    return createAuto("Center Score Auto", new Path[] {Path.PMtoM}, Commands.none());
+    return createAuto("Center Score Auto", new Path[] {Path.HubtoCenter}, Commands.none());
   }
 
   public Command getTestAuto() {

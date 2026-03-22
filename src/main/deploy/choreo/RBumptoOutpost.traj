@@ -1,5 +1,5 @@
 {
- "name":"RBtoOutpost",
+ "name":"RBumptoOutpost",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -14,8 +14,8 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"3.5344297885894775 m", "val":3.5344297885894775}, "y":{"exp":"2.057757616043091 m", "val":2.057757616043091}, "heading":{"exp":"90 deg", "val":1.5707963267948966}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"O.x", "val":0.4355199635028839}, "y":{"exp":"O.y", "val":0.5460934042930603}, "heading":{"exp":"O.heading", "val":1.5707963267948966}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RBump.x", "val":3.5344297885894775}, "y":{"exp":"RBump.y", "val":2.057757616043091}, "heading":{"exp":"RBump.heading", "val":1.5707963267948966}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"Outpost.x", "val":0.4355199635028839}, "y":{"exp":"Outpost.y", "val":0.5460934042930603}, "heading":{"exp":"Outpost.heading", "val":1.5707963267948966}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

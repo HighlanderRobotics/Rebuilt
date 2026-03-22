@@ -18,7 +18,7 @@
   "waypoints":[
     {"x":{"exp":"RTrench.x", "val":3.7242095470428462}, "y":{"exp":"RTrench.y", "val":0.7309682965278625}, "heading":{"exp":"RTrench.heading", "val":1.5707963452742666}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.3072574138641357 m", "val":2.3072574138641357}, "y":{"exp":"0.7420299053192139 m", "val":0.7420299053192139}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":21, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"O.x", "val":0.4355199635028839}, "y":{"exp":"O.y", "val":0.5460934042930603}, "heading":{"exp":"O.heading", "val":1.5707963267948966}, "intervals":9, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"Outpost.x", "val":0.4355199635028839}, "y":{"exp":"Outpost.y", "val":0.5460934042930603}, "heading":{"exp":"Outpost.heading", "val":1.5707963267948966}, "intervals":9, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
