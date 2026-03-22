@@ -181,44 +181,83 @@ public class AutoAim {
 
     FEED_SHOT_TREE.put(
         Units.feetToMeters(18),
-        new ShotData(Rotation2d.fromDegrees(40), 38 - 2, 1.42)); // - 2, 1.42));
+        new ShotData(
+            Rotation2d.fromDegrees(40 - 13.16),
+            36 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.42)); // - 2, 1.42));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(20),
-        new ShotData(Rotation2d.fromDegrees(43), 40 - 2, 1.36)); // - 2, 1.36));
+        new ShotData(
+            Rotation2d.fromDegrees(43 - 13.16),
+            38 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.36)); // - 2, 1.36));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(22),
-        new ShotData(Rotation2d.fromDegrees(45), 41 - 2, 1.34)); // - 2, 1.34));
+        new ShotData(
+            Rotation2d.fromDegrees(45 - 13.16),
+            39 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.34)); // - 2, 1.34));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(24),
-        new ShotData(Rotation2d.fromDegrees(47), 42 - 2, 1.25)); // - 2, 1.25));
+        new ShotData(
+            Rotation2d.fromDegrees(47 - 13.16),
+            40 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.25)); // - 2, 1.25));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(26),
-        new ShotData(Rotation2d.fromDegrees(48), 43 - 2, 1.28)); // - 2, 1.28));
+        new ShotData(
+            Rotation2d.fromDegrees(48 - 13.16),
+            41 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.28)); // - 2, 1.28));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(28),
-        new ShotData(Rotation2d.fromDegrees(49), 45 - 2, 1.27)); // - 2, 1.27));
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            43 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.27)); // - 2, 1.27));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(30),
-        new ShotData(Rotation2d.fromDegrees(49), 46 - 2, 1.32)); // - 2, 1.32));
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            44 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.32)); // - 2, 1.32));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(32),
-        new ShotData(Rotation2d.fromDegrees(49), 48 - 2, 1.4)); // - 2, 1.4));
+        new ShotData(
+            Rotation2d.fromDegrees(49 - 13.16),
+            46 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.4)); // - 2, 1.4));
 
     FEED_SHOT_TREE.put(
         Units.feetToMeters(34),
-        new ShotData(Rotation2d.fromDegrees(52), 49 - 2, 1.3)); // - 2, 1.3));
+        new ShotData(
+            Rotation2d.fromDegrees(52 - 13.16),
+            47 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.3)); // - 2, 1.3));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(36),
-        new ShotData(Rotation2d.fromDegrees(53), 53 - 2, 1.33)); // - 2, 1.33));
+        new ShotData(
+            Rotation2d.fromDegrees(53 - 13.16),
+            51 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.33)); // - 2, 1.33));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(38),
-        new ShotData(Rotation2d.fromDegrees(53), 57 - 2, 1.3)); // - 2, 1.3));
+        new ShotData(
+            Rotation2d.fromDegrees(53 - 13.16),
+            55 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.3)); // - 2, 1.3));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(40),
-        new ShotData(Rotation2d.fromDegrees(55), 57 - 2, 1.2)); // - 2, 1.2));
+        new ShotData(
+            Rotation2d.fromDegrees(55 - 13.16),
+            55 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2)); // - 2, 1.2));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(42),
-        new ShotData(Rotation2d.fromDegrees(56), 59 - 2, 1.2)); // - 2, 1.2));
+        new ShotData(
+            Rotation2d.fromDegrees(56 - 13.16),
+            57 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            1.2)); // - 2, 1.2));
 
     // TODO: POPULATE beyond 24 feet and time of flight
   }
