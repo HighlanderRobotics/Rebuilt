@@ -11,8 +11,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Robot;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
@@ -20,10 +18,6 @@ import org.littletonrobotics.junction.Logger;
 /** Add your docs here. */
 public class NewAutoAim {
   private static boolean outOfRange = false; // TODO not sure if this should be true by default
-  
-  private static double prevTurretVx = 0.0;
-  private static double prevTurretVy = 0.0;
-  private static double lastRunTimeSecs = 0.0;
 
   public record ShotParams(ShotData shotData, Rotation2d turretAngle) {}
 
@@ -207,25 +201,14 @@ public class NewAutoAim {
                 * turretLinearVelAngle.getCos());
     Logger.recordOutput(
         "LaunchCalculator/Turret Velocity", new Translation2d(turretVelocityX, turretVelocityY));
-
-    double currentTimeSecs = Timer.getFPGATimestamp();
-    double dtSecs = currentTimeSecs - lastRunTimeSecs;
-    lastRunTimeSecs = currentTimeSecs;
-
-    double turretAccelerationX = (turretVelocityX - prevTurretVx) / dtSecs;
-    double turretAccelerationY = (turretVelocityY - prevTurretVy) / dtSecs;
-
-    prevTurretVx = turretVelocityX;
-    prevTurretVy = turretVelocityY;
-
     // Account for imparted velocity by robot (turret) to offset
     double timeOfFlight;
     Pose2d lookaheadPose = turretPosition;
     double lookaheadTurretToTargetDistance = turretToTargetDistance;
     for (int i = 0; i < 20; i++) {
       timeOfFlight = tree.get(lookaheadTurretToTargetDistance).timeOfFlightSecs();
-      double offsetX = (turretVelocityX * timeOfFlight) + (0.5 * turretAccelerationX * timeOfFlight * timeOfFlight);
-      double offsetY = (turretVelocityY * timeOfFlight) + (0.5 * turretAccelerationY * timeOfFlight * timeOfFlight);
+      double offsetX = turretVelocityX * timeOfFlight;
+      double offsetY = turretVelocityY * timeOfFlight;
 
       Logger.recordOutput("LaunchCalculator/Offset", new Translation2d(offsetX, offsetY));
 
