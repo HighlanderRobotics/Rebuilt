@@ -72,38 +72,6 @@ public class Autos {
     INTAKE_SCORE;
   }
 
-  public enum Obstacle {
-    TRENCH,
-    BUMP;
-  }
-
-  /* NEW NAMING  (cooked)
-
-  #1
-  I for intake
-  F for feed
-  S for score
-  (indicate action for that path/pose)
-
-  P for park
-  (starting poses)
-
-  #2
-  L for left
-  R for right
-  (indicate starting on left or right side)
-
-  #3
-  T for trench
-  B for bump
-  (each routine has a varition) (only for crossing paths ig)
-
-  climb no climb variations
-
-  R is a middle point facing towards the neutral zone
-  M is middle poitns facing our alliance
-    */
-
   public enum Path {
     // OUTPOST
     RTrenchtoOutpost("RTrenchtoOutpost", Action.OUTPOST),
@@ -121,6 +89,7 @@ public class Autos {
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
     RTrenchtoRNeutral("RTrenchtoRNeutral", Action.INTAKE),
     LTrenchtoLNeutral("LTrenchtoLNeutral", Action.INTAKE),
+    LBumptoDepot("LBumptoDepot", Action.INTAKE),
     // SCORE
     DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
     OutposttoRPreTrench("OutposttoRPreTrench", Action.NOTHING),
@@ -133,14 +102,12 @@ public class Autos {
     LPreTrenchtoLClimb("LPreTrenchtoLClimb", Action.CLIMB_SCORE),
     RPreTrenchtoRClimb("RPreTrenchtoRClimb", Action.CLIMB_SCORE),
     OutposttoRClimb("OutposttoRClimb", Action.CLIMB_SCORE),
-    PreOutposttoRClimb("PreOutposttoRClimb", Action.CLIMB_ONLY), //uhh
+    PreOutposttoRClimb("PreOutposttoRClimb", Action.CLIMB_ONLY), // uhh
     noScoreOutposttoRClimb("OutposttoRClimb", Action.CLIMB_ONLY),
     DepottoLClimb("DepottoLClimb", Action.CLIMB_SCORE),
     RBumptoOutpost("RBumptoOutpost", Action.OUTPOST_SCORE),
 
-    RUNtoTEST("RUNtoTEST", Action.NOTHING),
-
-    LBumptoDepot("LBumptoDepot", Action.INTAKE);
+    RUNtoTEST("RUNtoTEST", Action.NOTHING);
 
     private final String name;
     private final Action action;
@@ -459,7 +426,11 @@ public class Autos {
     return createAuto(
         "Depot Score Climb Auto",
         new Path[] {
-          Path.LTrenchtoDepot, Path.DepottoLPreTrench, Path.LPreTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoLClimb
+          Path.LTrenchtoDepot,
+          Path.DepottoLPreTrench,
+          Path.LPreTrenchtoLNeutral,
+          Path.LNeutraltoLPreTrench,
+          Path.LPreTrenchtoLClimb
         },
         setLeftClimb());
   }
@@ -511,7 +482,10 @@ public class Autos {
     return createAuto(
         "Fill Depot Score Climb Auto",
         new Path[] {
-          Path.LTrenchtoLNeutral, Path.FeedLNeutraltoLPreTrench, Path.LPreTrenchtoDepot, Path.DepottoLClimb
+          Path.LTrenchtoLNeutral,
+          Path.FeedLNeutraltoLPreTrench,
+          Path.LPreTrenchtoDepot,
+          Path.DepottoLClimb
         },
         setLeftClimb());
   }
@@ -534,7 +508,10 @@ public class Autos {
     return createAuto(
         "Right Bump Outpost Center Auto",
         new Path[] {
-          Path.RBumptoOutpost, Path.OutposttoRPreTrench, Path.RPreTrenchtoRNeutral, Path.RNeutraltoRPreTrench
+          Path.RBumptoOutpost,
+          Path.OutposttoRPreTrench,
+          Path.RPreTrenchtoRNeutral,
+          Path.RNeutraltoRPreTrench
         },
         setRightClimb());
   }
@@ -556,14 +533,21 @@ public class Autos {
   public Command getDepotOutpostClimbAuto() {
     return createAuto(
         "Depot Outpost Climb Auto",
-        new Path[] {Path.LTrenchtoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost, Path.OutposttoRClimb},
+        new Path[] {
+          Path.LTrenchtoDepot,
+          Path.DepottoPreOutpost,
+          Path.PreOutposttoOutpost,
+          Path.OutposttoRClimb
+        },
         setRightClimb());
   }
 
   public Command getLeftBumpDepotOutpostClimbAuto() {
     return createAuto(
         "Left Bump Outpost Climb Auto",
-        new Path[] {Path.LBumptoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost, Path.OutposttoRClimb},
+        new Path[] {
+          Path.LBumptoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost, Path.OutposttoRClimb
+        },
         setRightClimb(),
         shootPreload());
   }
