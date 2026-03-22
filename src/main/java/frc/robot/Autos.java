@@ -400,31 +400,12 @@ public class Autos {
   }
 
   public Command getDoubleDipRightTrench() {
-    final AutoRoutine routine = factory.newRoutine("Double dip right trench auto");
-    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
-    Path[] paths = {
-      Path.PRtoIR,
-      // start to intake
-
-      // cooked
-      Path.FRMtoMRR,
-      // 2nd intake to shoot
-      Path.MRRtoFRM,
-      // shoot to intake
-      Path.FRMtoMRR,
-      // intake to shoot
-    };
-
-    Command autoCommand =
-        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
-
-    for (Path p : paths) {
-      autoCommand = autoCommand.andThen(runPath(p, routine));
-    }
-
-    routine.active().onTrue(autoCommand);
-
-    return routine.cmd();
+    return createAuto("Double dip right trench auto", new Path[] {
+      Path.RTrenchtoRNeutral,
+      Path.RNeutraltoRPreTrench,
+      Path.RPreTrenchtoRNeutral,
+      Path.RNeutraltoRPreTrench,
+    }, setRightClimb());
   }
 
   public Command getOutpostScoreClimbAuto() {
