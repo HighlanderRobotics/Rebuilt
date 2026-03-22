@@ -82,13 +82,13 @@ public class Autos {
     FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
     // INTAKE
     LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
-    RNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.INTAKE),
+    RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrench", Action.INTAKE),
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
-    RTrenchtoRNeutral("RTrenchtoRNeutral", Action.INTAKE),
-    LTrenchtoLNeutral("LTrenchtoLNeutral", Action.INTAKE),
+    RPreTrenchReversedtoRNeutral("RPreTrenchReversedtoRNeutral", Action.INTAKE),
+    StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
+    StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
     LBumptoDepot("LBumptoDepot", Action.INTAKE),
-        MRRtoFRM("MRRtoFRM", Action.INTAKE),
 
     // SCORE
     DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
@@ -96,8 +96,6 @@ public class Autos {
     DepottoPreOutpost("DepottoPreOutpost", Action.SCORE),
     OutposttoPreOutpost("OutposttoPreOutpost", Action.SCORE),
     HubtoCenter("HubtoCenter", Action.SCORE),
-    FLMtoRL("FLMtoRL", Action.SCORE),
-    FRMtoMRR("FRMtoMRR", Action.SCORE),
     // FLOW
     LPreTrenchtoDepot("LPreTrenchtoDepot", Action.FLOW),
     // CLIMB
@@ -401,10 +399,10 @@ public class Autos {
 
   public Command getDoubleDipRightTrench() {
     return createAuto("Double dip right trench auto", new Path[] {
-      Path.RTrenchtoRNeutral,
-      Path.RNeutraltoRPreTrench,
-      Path.RPreTrenchtoRNeutral,
-      Path.RNeutraltoRPreTrench,
+      Path.StartingRTrenchtoRNeutral,
+      Path.RNeutraltoRPreTrenchReversed,
+      Path.RPreTrenchReversedtoRNeutral,
+      Path.RNeutraltoRPreTrenchReversed,
     }, setRightClimb());
   }
 
@@ -416,7 +414,7 @@ public class Autos {
           Path.RTrenchtoOutpost,
           Path.OutposttoRPreTrench,
           Path.RPreTrenchtoRNeutral,
-          Path.RNeutraltoRPreTrench,
+          Path.RNeutraltoRPreTrenchReversed,
           Path.RPreTrenchtoRClimb
         },
         setRightClimb());
@@ -455,7 +453,7 @@ public class Autos {
     return createAuto(
         "Fill Depot Score Climb Auto",
         new Path[] {
-          Path.LTrenchtoLNeutral,
+          Path.StartingLTrenchtoLNeutral,
           Path.FeedLNeutraltoLPreTrench,
           Path.LPreTrenchtoDepot,
           Path.DepottoLClimb
@@ -468,7 +466,7 @@ public class Autos {
     return createAuto(
         "Fill Outpost Score Climb Auto",
         new Path[] {
-          Path.RTrenchtoRNeutral,
+          Path.StartingRTrenchtoRNeutral,
           Path.FeedRNeutraltoRPreTrench,
           Path.RPreTrenchtoOutpost,
           Path.OutposttoRClimb
@@ -484,7 +482,7 @@ public class Autos {
           Path.RBumptoOutpost,
           Path.OutposttoRPreTrench,
           Path.RPreTrenchtoRNeutral,
-          Path.RNeutraltoRPreTrench
+          Path.RNeutraltoRPreTrenchReversed
         },
         setRightClimb());
   }
