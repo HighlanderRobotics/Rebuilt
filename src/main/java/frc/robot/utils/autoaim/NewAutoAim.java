@@ -229,4 +229,8 @@ public class NewAutoAim {
 
     return new ShotParams(tree.get(lookaheadTurretToTargetDistance), turretAngle);
   }
+
+  public static boolean targetInTurretDeadzone() {
+    return outOfRange;
+  }
 }
