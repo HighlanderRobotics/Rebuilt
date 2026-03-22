@@ -67,9 +67,7 @@ public class Autos {
     CLIMB_SCORE,
     OUTPOST,
     NOTHING,
-    OUTPOST_SCORE,
-    CLIMB_ONLY,
-    INTAKE_SCORE;
+    CLIMB_ONLY;
   }
 
   public enum Path {
@@ -105,7 +103,7 @@ public class Autos {
     PreOutposttoRClimb("PreOutposttoRClimb", Action.CLIMB_ONLY), // uhh
     noScoreOutposttoRClimb("OutposttoRClimb", Action.CLIMB_ONLY),
     DepottoLClimb("DepottoLClimb", Action.CLIMB_SCORE),
-    RBumptoOutpost("RBumptoOutpost", Action.OUTPOST_SCORE),
+    RBumptoOutpost("RBumptoOutpost", Action.OUTPOST),
 
     RUNtoTEST("RUNtoTEST", Action.NOTHING);
 
@@ -161,15 +159,11 @@ public class Autos {
       case CLIMB_SCORE:
         return climbScorePath(path, routine);
       case FLOW:
-        return flowPath(path, routine);
+        return flowScorePath(path, routine);
       case OUTPOST:
         return outpostPath(path, routine);
-      case OUTPOST_SCORE:
-        return outpostScorePath(path, routine);
       case CLIMB_ONLY:
         return climbNoScorePath(path, routine);
-      case INTAKE_SCORE:
-        return intakeScorePath(path, routine);
       case NOTHING:
         return emptyPath(path, routine);
       default: // this should never happen
@@ -179,9 +173,9 @@ public class Autos {
 
   public Command climbScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        stopScoring(),
+        startScoring(),
         stopIntaking(),
-
+        startPreClimb(),
         // Commands.parallel(
         path.getTrajectory(routine)
             .cmd()
@@ -192,9 +186,7 @@ public class Autos {
                 //             path.getTrajectory(routine).getRawTrajectory().getTotalTime()
                 //                 - (0.3)))),
                 path.getTrajectory(routine).done()),
-        Commands.parallel(swerve.stop(), startScoring()).repeatedly().withTimeout(2.5),
         stopScoring(),
-        startPreClimb(),
         swerve.stop().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
@@ -211,7 +203,6 @@ public class Autos {
         stopScoring(),
         stopIntaking(),
         startPreClimb(),
-        // Commands.parallel(
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         swerve.stop().until(() -> climber.atFullExtension()),
         Commands.parallel(
@@ -225,22 +216,20 @@ public class Autos {
   public Command feedPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         stopScoring(),
+        stopIntaking(),
+        stopFlowing(),
         startFeeding(),
-        startIntaking(),
-        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        stopFeeding());
+        // startIntaking(),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
   public Command scorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         stopIntaking(),
-        // setAutoScoreReqTrue(),
-        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        // setAutoScoreReqTrue()
-        // ,
-        // setAutoScoreReqFalse()
+        stopFeeding(),
+        stopFlowing(),
         startScoring(),
-        swerve.stop().repeatedly().withTimeout(3));
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
@@ -253,23 +242,10 @@ public class Autos {
         stopScoring(),
         stopFlowing(),
         startIntaking(),
-        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        stopIntaking());
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
-  public Command intakeScorePath(Path path, AutoRoutine routine) {
-    return Commands.sequence(
-        stopScoring(),
-        stopFlowing(),
-        startIntaking(),
-        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        stopIntaking(),
-        startScoring(),
-        swerve.stop().repeatedly().withTimeout(4),
-        stopScoring());
-  }
-
-  public Command flowPath(Path path, AutoRoutine routine) {
+  public Command flowScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         startScoring(),
         startFlowing(),
@@ -290,28 +266,12 @@ public class Autos {
 
   public Command outpostPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        stopScoring(),
+        startScoring(),
         stopFlowing(),
         stopIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         swerve.stop().repeatedly().withTimeout(2)
-        // Commands.waitSeconds(1)
         );
-  }
-
-  public Command outpostScorePath(Path path, AutoRoutine routine) {
-    return Commands.sequence(
-        stopScoring(),
-        stopFlowing(),
-        stopIntaking(),
-        // spin up before we get there
-        // Commands.parallel(
-        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        // Commands.waitUntil(path.getTrajectory(routine).atTimeBeforeEnd(0.2))
-        // .andThen(
-        startScoring(),
-        swerve.stop().repeatedly().withTimeout(4),
-        stopScoring());
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
