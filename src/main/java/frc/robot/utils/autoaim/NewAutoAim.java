@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
@@ -18,6 +19,11 @@ import org.littletonrobotics.junction.Logger;
 /** Add your docs here. */
 public class NewAutoAim {
   private static boolean outOfRange = false; // TODO not sure if this should be true by default
+
+  private static double lastVxMetersPerSec = 0.0;
+  private static double lastVyMetersPerSec = 0.0;
+  private static double lastOmegaRadPerSec = 0.0;
+  private static double lastRunTimeSec = 0.0;
 
   public record ShotParams(ShotData shotData, Rotation2d turretAngle) {}
 
@@ -164,13 +170,27 @@ public class NewAutoAim {
       Translation2d target,
       InterpolatingShotTree tree) {
 
+    double currentTimeSec = Timer.getFPGATimestamp();
+    double deltaTime = currentTimeSec - lastRunTimeSec;
+
+    double axMetersPerSecSq = (robotRelativeVelocity.vxMetersPerSecond - lastVxMetersPerSec) / deltaTime;
+    double ayMetersPerSecSq = (robotRelativeVelocity.vyMetersPerSecond - lastVyMetersPerSec) / deltaTime;
+    double alphaRadPerSecSq = (robotRelativeVelocity.omegaRadiansPerSecond - lastOmegaRadPerSec) / deltaTime;
+
+    lastVxMetersPerSec = robotRelativeVelocity.vxMetersPerSecond;
+    lastVyMetersPerSec = robotRelativeVelocity.vyMetersPerSecond;
+    lastOmegaRadPerSec = robotRelativeVelocity.omegaRadiansPerSecond;
+
+    lastRunTimeSec = currentTimeSec;
+
     // Calculate estimated pose while accounting for phase delay
     estimatedPose =
         estimatedPose.exp(
             new Twist2d(
-                robotRelativeVelocity.vxMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS,
-                robotRelativeVelocity.vyMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS,
-                robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS));
+                (robotRelativeVelocity.vxMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS) + (0.5 * axMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
+                (robotRelativeVelocity.vyMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS) + (0.5 * ayMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
+                (robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS) + (0.5 * alphaRadPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2))
+            ));
 
     // Calculate distance from turret to target
     Pose2d turretPosition =
