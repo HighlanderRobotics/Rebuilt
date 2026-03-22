@@ -186,7 +186,7 @@ public class NewAutoAim {
 
     lastRunTimeSec = currentTimeSec;
 
-    // Calculate estimated pose while accounting for phase delay
+    // Calculate estimated pose while accounting movement and acceleration during phase delay
     estimatedPose =
         estimatedPose.exp(
             new Twist2d(
@@ -197,12 +197,14 @@ public class NewAutoAim {
                 (robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS)
                     + (0.5 * alphaRadPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2))));
 
-    // Calculate distance from turret to target
+    // Calculate turret position
     Pose2d turretPosition =
         estimatedPose.transformBy(
             new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    // Calculate distance from turret to target
     double turretToTargetDistance = target.getDistance(turretPosition.getTranslation());
 
+    // Calculate angle of linear velocity from angular velocity
     double turretRadiusMeters =
         Math.hypot(
             TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX(),
@@ -214,6 +216,7 @@ public class NewAutoAim {
                 TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX()));
     Rotation2d turretLinearVelAngle = turretToRobotAngleRads.minus(Rotation2d.kCCW_90deg);
 
+    // Calculate turret velocity, accounting for angular velocity
     double turretVelocityX =
         robotRelativeVelocity.vxMetersPerSecond
             + (robotRelativeVelocity.omegaRadiansPerSecond
@@ -231,15 +234,17 @@ public class NewAutoAim {
     Pose2d lookaheadPose = turretPosition;
     double lookaheadTurretToTargetDistance = turretToTargetDistance;
     for (int i = 0; i < 20; i++) {
+      // Find time of flight for a shot from the current lookahead pose
       timeOfFlight = tree.get(lookaheadTurretToTargetDistance).timeOfFlightSecs();
+      // Extrapolate velocity over time of flight of the shot
       double offsetX = turretVelocityX * timeOfFlight;
       double offsetY = turretVelocityY * timeOfFlight;
 
       Logger.recordOutput("LaunchCalculator/Offset", new Translation2d(offsetX, offsetY));
-
+      // Update lookahead pose
       lookaheadPose =
           turretPosition.transformBy(new Transform2d(offsetX, offsetY, Rotation2d.kZero));
-
+      // Update distance
       lookaheadTurretToTargetDistance = target.getDistance(lookaheadPose.getTranslation());
     }
 
