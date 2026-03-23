@@ -7,6 +7,11 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import choreo.util.ChoreoAllianceFlipUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -74,27 +79,31 @@ public class Autos {
   public enum Path {
     // OUTPOST
     RTrenchtoOutpost("RTrenchtoOutpost", Action.OUTPOST),
-    RPreTrenchtoOutpost("RPreTrenchtoOutpost", Action.OUTPOST),
+    RPreTrenchReversedtoOutpost("RPreTrenchReversedtoOutpost", Action.OUTPOST),
+
     PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
     // DEPOT
     LTrenchtoDepot("LTrenchtoDepot", Action.FLOW),
+    LBumptoDepot("LBumptoDepot", Action.INTAKE),
     // FEED
     FeedLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.FEED),
     FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
     // INTAKE
     LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
+
     EndWScoreLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.SCORE_AT_END),
     EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
 
-    RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrench", Action.INTAKE),
+    RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrenchReversed", Action.INTAKE),
+
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
     LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
 
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
     RPreTrenchReversedtoRNeutral("RPreTrenchReversedtoRNeutral", Action.INTAKE),
+
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
-    LBumptoDepot("LBumptoDepot", Action.INTAKE),
 
     // SCORE
     DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
@@ -133,6 +142,12 @@ public class Autos {
       return routine.trajectory(name);
     }
   }
+
+  // for the weird outpost paths idk
+  public static final Pose2d BLUE_OUTPOST =
+      new Pose2d(
+          new Translation2d(0.44367337226867676, 0.443471223115921), Rotation2d.fromDegrees(90));
+  public static final Pose2d RED_OUTPOST = ChoreoAllianceFlipUtil.flip(BLUE_OUTPOST);
 
   public Autos(SwerveSubsystem swerve, ClimberSubsystem climber) {
     this.swerve = swerve;
@@ -290,8 +305,25 @@ public class Autos {
         startScoring(),
         stopFlowing(),
         stopIntaking(),
-        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        swerve.stop().repeatedly().withTimeout(2));
+        // holy chopped
+        // this is here because i suspect the time based at end will cause it to stop early if it
+        // hits something and messes up the time
+        // though this may be fixed by having a better path?? idk
+        path.getTrajectory(routine)
+            .cmd()
+            .until(
+                path.getTrajectory(routine)
+                    .atPose(
+                        path.getTrajectory(routine)
+                            .getFinalPose()
+                            .orElse(
+                                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                    ? BLUE_OUTPOST
+                                    : RED_OUTPOST),
+                        0.25,
+                        Units.degreesToRadians(30))),
+        // TODO tune tolerance
+        swerve.stop().repeatedly().withTimeout(2)); // TODO tune time
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
@@ -488,7 +520,7 @@ public class Autos {
         new Path[] {
           Path.StartingRTrenchtoRNeutral,
           Path.FeedRNeutraltoRPreTrench,
-          Path.RPreTrenchtoOutpost,
+          Path.RPreTrenchReversedtoOutpost,
           Path.OutposttoRClimb
         },
         setRightClimb());
@@ -562,7 +594,7 @@ public class Autos {
         new Path[] {
           Path.StartingRTrenchtoRNeutral,
           Path.RNeutraltoRPreTrenchReversed,
-          Path.RPreTrenchtoOutpost
+          Path.RPreTrenchReversedtoOutpost
         },
         setRightClimb());
   }
