@@ -217,14 +217,17 @@ public class NewAutoAim {
     Rotation2d turretLinearVelAngle = turretToRobotAngleRads.minus(Rotation2d.kCCW_90deg);
 
     // Calculate turret velocity, accounting for angular velocity
+     // and add in velocities from the acceleration
     double turretVelocityX =
         robotRelativeVelocity.vxMetersPerSecond
-            + (robotRelativeVelocity.omegaRadiansPerSecond
+            + axMetersPerSecSq * deltaTime
+            + ((robotRelativeVelocity.omegaRadiansPerSecond + alphaRadPerSecSq * deltaTime)
                 * turretRadiusMeters
                 * turretLinearVelAngle.getSin());
     double turretVelocityY =
         robotRelativeVelocity.vyMetersPerSecond
-            + (robotRelativeVelocity.omegaRadiansPerSecond
+            + ayMetersPerSecSq * deltaTime
+            + ((robotRelativeVelocity.omegaRadiansPerSecond + alphaRadPerSecSq * deltaTime)
                 * turretRadiusMeters
                 * turretLinearVelAngle.getCos());
     Logger.recordOutput(
