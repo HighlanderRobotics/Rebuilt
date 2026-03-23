@@ -794,6 +794,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
+    autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());

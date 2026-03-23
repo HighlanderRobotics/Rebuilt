@@ -20,7 +20,7 @@ import org.littletonrobotics.junction.Logger;
 /** Spindexer = Spinning Indexer. !! COMP !! */
 public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
-  public static final double SPINNER_GEAR_RATIO = 67.0 / 12.0;
+  public static final double SPINNER_GEAR_RATIO = 67.0 / 15.0;
   public static final double KICKER_GEAR_RATIO = 24.0 / 18.0;
   // i don't really know if i should be using the sushi or the stealth wheels but the sushi wheels
   // are 1" in diameter and the stealth wheels are 3" in diameter
@@ -82,8 +82,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               Logger.recordOutput("Indexer/Kicker/Adjusted speed", kickerSpeed);
               // spinnerIO.setRollerVelocity(spinnerSpeed - 1);
               // kickerIO.setRollerVelocity(kickerSpeed - 5);
-              spinnerIO.setRollerVelocity(60);
-              kickerIO.setRollerVelocity(25);
+              // spinnerIO.setRollerVelocity(60);
+              // kickerIO.setRollerVelocity(25);
+              spinnerIO.setRollerVoltage(12);
+              kickerIO.setRollerVoltage(12);
             })
         //     .withTimeout(3),
         // this.run(
@@ -140,7 +142,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;

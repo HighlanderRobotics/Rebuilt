@@ -242,8 +242,9 @@ public class Autos {
 
   public Command scoreAtEndPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        stopIntaking(),
+        startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+        stopIntaking(),
         startScoring(),
         swerve.stop().repeatedly().withTimeout(5),
         stopScoring());
