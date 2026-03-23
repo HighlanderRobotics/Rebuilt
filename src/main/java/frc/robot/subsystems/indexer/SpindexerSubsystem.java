@@ -65,25 +65,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick(DoubleSupplier flywheelSpeedSupplier) {
+  public Command kick() {
     return Commands.sequence(
         this.run(
             () -> {
-              double surfaceSpeedInPerSec =
-                  flywheelSpeedSupplier.getAsDouble()
-                      * Math.PI
-                      * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
-              double kickerSpeed = surfaceSpeedInPerSec / (Math.PI * KICKER_DIAMETER_INCHES);
-              // arbitrarily deciding to have it match the bottom wheel although i have no clue
-              // if
-              // that's right
-              double spinnerSpeed = surfaceSpeedInPerSec / (Math.PI * SPINNER_DIAMETER_INCHES);
-              Logger.recordOutput("Indexer/Spinner/Adjusted speed", spinnerSpeed);
-              Logger.recordOutput("Indexer/Kicker/Adjusted speed", kickerSpeed);
-              // spinnerIO.setRollerVelocity(spinnerSpeed - 1);
-              // kickerIO.setRollerVelocity(kickerSpeed - 5);
-              // spinnerIO.setRollerVelocity(60);
-              // kickerIO.setRollerVelocity(25);
               spinnerIO.setRollerVoltage(12);
               kickerIO.setRollerVoltage(12);
             })

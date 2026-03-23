@@ -18,7 +18,7 @@ public interface Indexer extends Subsystem {
   public Command spit();
 
   /** Run both indexer and kicker towards the shooter */
-  public Command kick(DoubleSupplier flywheelSpeedSupplier);
+  public Command kick();
 
   /** Not running (set to 0) */
   public Command rest();

@@ -213,7 +213,7 @@ public class Autos {
                 //                 - (0.3)))),
                 path.getTrajectory(routine).done()),
         stopScoring(),
-        swerve.stop().until(() -> climber.atFullExtension()),
+        swerve.stop().repeatedly().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(
@@ -230,7 +230,7 @@ public class Autos {
         stopIntaking(),
         startPreClimb(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        swerve.stop().until(() -> climber.atFullExtension()),
+        swerve.stop().repeatedly().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(
@@ -263,7 +263,7 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         stopIntaking(),
         startScoring(),
-        swerve.stop().repeatedly().withTimeout(5),
+        swerve.stopForTime(() -> 5),
         stopScoring());
   }
 
@@ -323,7 +323,7 @@ public class Autos {
                         0.25,
                         Units.degreesToRadians(30))),
         // TODO tune tolerance
-        swerve.stop().repeatedly().withTimeout(2)); // TODO tune time
+        swerve.stopForTime(() -> 2));// TODO tune time
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
