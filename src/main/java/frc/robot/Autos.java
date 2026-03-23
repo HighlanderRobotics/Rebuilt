@@ -84,9 +84,12 @@ public class Autos {
     // INTAKE
     LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
     EndWScoreLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.SCORE_AT_END),
+    EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
 
     RNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.INTAKE),
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
+    LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
+
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
@@ -562,8 +565,8 @@ public class Autos {
         new Path[] {
           Path.StartingLTrenchtoLNeutral,
           Path.EndWScoreLNeutraltoLPreTrench,
-          Path.LPreTrenchtoLNeutral,
-          Path.EndWScoreLNeutraltoLPreTrench
+          Path.LPreTrenchtoLCleanup,
+          Path.EndWScoreLCleanuptoLPreTrench
         },
         setLeftClimb());
   }
