@@ -74,7 +74,7 @@ public class Autos {
   public enum Path {
     // OUTPOST
     RTrenchtoOutpost("RTrenchtoOutpost", Action.OUTPOST),
-    RPreTrenchtoOutpost("RPreTrenchtoOutpost", Action.OUTPOST), // TODO doesn't work
+    RPreTrenchtoOutpost("RPreTrenchtoOutpost", Action.OUTPOST),
     PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
     // DEPOT
     LTrenchtoDepot("LTrenchtoDepot", Action.FLOW),
@@ -416,12 +416,15 @@ public class Autos {
   }
 
   public Command getDoubleDipRightTrench() {
-    return createAuto("Double dip right trench auto", new Path[] {
-      Path.StartingRTrenchtoRNeutral,
-      Path.RNeutraltoRPreTrenchReversed,
-      Path.RPreTrenchReversedtoRNeutral,
-      Path.RNeutraltoRPreTrenchReversed,
-    }, setRightClimb());
+    return createAuto(
+        "Double dip right trench auto",
+        new Path[] {
+          Path.StartingRTrenchtoRNeutral,
+          Path.RNeutraltoRPreTrenchReversed,
+          Path.RPreTrenchReversedtoRNeutral,
+          Path.RNeutraltoRPreTrenchReversed,
+        },
+        setRightClimb());
   }
 
   public Command getOutpostScoreClimbAuto() {
@@ -557,7 +560,9 @@ public class Autos {
     return createAuto(
         "Right Neutral Outpost Score",
         new Path[] {
-          Path.StartingRTrenchtoRNeutral, Path.RNeutraltoRPreTrench, Path.RPreTrenchtoOutpost
+          Path.StartingRTrenchtoRNeutral,
+          Path.RNeutraltoRPreTrenchReversed,
+          Path.RPreTrenchtoOutpost
         },
         setRightClimb());
   }

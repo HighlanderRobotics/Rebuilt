@@ -800,6 +800,8 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
 
+    autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
+
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
