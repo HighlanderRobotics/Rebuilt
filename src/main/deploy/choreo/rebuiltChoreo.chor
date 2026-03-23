@@ -31,6 +31,13 @@
      "exp":"1 m / s",
      "val":1.0
     }
+   },
+   "slowish":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"2 m / s",
+     "val":2.0
+    }
    }
   },
   "poses":{
