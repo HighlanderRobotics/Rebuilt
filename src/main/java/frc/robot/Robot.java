@@ -71,6 +71,7 @@ import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
+import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
 import java.io.File;
 import java.util.Arrays;
@@ -207,6 +208,8 @@ public class Robot extends LoggedRobot {
   private Shooter shooter = null;
   private final CANdleSubsystem candle =
       new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
+
+  private FuelSim fuelSim = new FuelSim();
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -420,7 +423,8 @@ public class Robot extends LoggedRobot {
                     : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
-                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
+                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore),
+                fuelSim);
         break;
     }
     climber =
@@ -516,7 +520,7 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             superstructure::inScoringArea,
             () -> FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose()));
     swerve.setDefaultCommand(
@@ -589,6 +593,31 @@ public class Robot extends LoggedRobot {
                   "Interrputing: "
                       + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
             });
+
+    // fuelSim.spawnStartingFuel();
+
+    fuelSim.registerRobot(
+        Units.inchesToMeters(28), // from left to right in meters
+        Units.inchesToMeters(28), // from front to back in meters
+        Units.inchesToMeters(4), // from floor to top of bumpers in meters
+        swerve::getPose, // Supplier<Pose2d> of robot pose
+        swerve
+            ::getVelocityFieldRelative); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+
+    fuelSim.registerIntake(
+        Units.inchesToMeters(-14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(20), // robot-centric coordinates for bounding box in meters
+        () ->
+            Superstructure.getState()
+                .isAnIntakeState() // (optional) BooleanSupplier for whether the intake should be
+        // active at a given moment
+        ); // (optional) Runnable called whenever a fuel is intaked
+
+    fuelSim.setSubticks(5);
+
+    fuelSim.start();
   }
 
   /** Scales a joystick value for teleop driving */
@@ -698,6 +727,7 @@ public class Robot extends LoggedRobot {
     //     .and(
     new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
+        .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
         .and(() -> superstructure.inScoringArea())
         .whileTrue(
@@ -714,6 +744,7 @@ public class Robot extends LoggedRobot {
 
     new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAFeedState())
+        .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
         .and(() -> !superstructure.inScoringArea())
         .whileTrue(
@@ -762,6 +793,7 @@ public class Robot extends LoggedRobot {
         "Left Bump Depot Outpost Climb", autos.getLeftBumpDepotOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
+    autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
@@ -930,6 +962,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
+    fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
@@ -984,7 +1017,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopExit() {
     System.out.println("Saving BFG Log");
-    bfg.saveLog("");
+    if (bfg.isConnected()) bfg.saveLog("");
   }
 
   @Override
