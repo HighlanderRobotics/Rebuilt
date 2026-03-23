@@ -310,7 +310,7 @@ public class Superstructure {
             // .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
             .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
-            .and(new Trigger(AutoAim::targetInTurretDeadzone).negate());
+            .and(new Trigger(NewAutoAim::targetInTurretDeadzone).negate());
   }
 
   private void addTransitions() {

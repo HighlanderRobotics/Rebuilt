@@ -72,7 +72,7 @@ import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.FuelSim;
-import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.NewAutoAim;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
@@ -680,7 +680,7 @@ public class Robot extends LoggedRobot {
                     Commands.parallel(
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
-    new Trigger(() -> AutoAim.targetInTurretDeadzone())
+    new Trigger(() -> NewAutoAim.targetInTurretDeadzone())
         .onTrue(
             driver
                 .rumbleCmd(1, 1)
@@ -725,7 +725,7 @@ public class Robot extends LoggedRobot {
     // driver
     //     .leftBumper()
     //     .and(
-    new Trigger(AutoAim::targetInTurretDeadzone)
+    new Trigger(NewAutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
         .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
@@ -742,7 +742,7 @@ public class Robot extends LoggedRobot {
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 shooter::getTurretPosition));
 
-    new Trigger(AutoAim::targetInTurretDeadzone)
+    new Trigger(NewAutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAFeedState())
         .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
@@ -881,7 +881,7 @@ public class Robot extends LoggedRobot {
         "trench poses",
         Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
 
-    Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
+    Logger.recordOutput("Turret/out of range", NewAutoAim.targetInTurretDeadzone());
 
     noLogStickAlert.set(!directory.exists());
 
