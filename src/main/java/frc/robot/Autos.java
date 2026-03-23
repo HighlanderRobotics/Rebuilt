@@ -67,7 +67,8 @@ public class Autos {
     CLIMB_SCORE,
     OUTPOST,
     NOTHING,
-    CLIMB_ONLY;
+    CLIMB_ONLY,
+    SCORE_AT_END;
   }
 
   public enum Path {
@@ -76,14 +77,19 @@ public class Autos {
     RPreTrenchtoOutpost("RPreTrenchtoOutpost", Action.OUTPOST), // TODO doesn't work
     PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
     // DEPOT
-    LTrenchtoDepot("LTrenchtoDepot", Action.INTAKE),
+    LTrenchtoDepot("LTrenchtoDepot", Action.FLOW),
     // FEED
     FeedLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.FEED),
     FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
     // INTAKE
     LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
+    EndWScoreLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.SCORE_AT_END),
+    EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
+
     RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrench", Action.INTAKE),
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
+    LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
+
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
     RPreTrenchReversedtoRNeutral("RPreTrenchReversedtoRNeutral", Action.INTAKE),
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
@@ -155,7 +161,7 @@ public class Autos {
       case INTAKE:
         return intakePath(path, routine);
       case FEED:
-        return feedPath(path, routine);
+        return feedFlowPath(path, routine);
       case SCORE:
         return scorePath(path, routine);
       case CLIMB_SCORE:
@@ -166,6 +172,8 @@ public class Autos {
         return outpostPath(path, routine);
       case CLIMB_ONLY:
         return climbNoScorePath(path, routine);
+      case SCORE_AT_END:
+        return scoreAtEndPath(path, routine);
       case NOTHING:
         return emptyPath(path, routine);
       default: // this should never happen
@@ -175,8 +183,9 @@ public class Autos {
 
   public Command climbScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
+        startFlowing(),
         startScoring(),
-        stopIntaking(),
+        // stopIntaking(),
         startPreClimb(),
         // Commands.parallel(
         path.getTrajectory(routine)
@@ -215,11 +224,10 @@ public class Autos {
                 .andThen(startClimb())));
   }
 
-  public Command feedPath(Path path, AutoRoutine routine) {
+  public Command feedFlowPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        stopScoring(),
         stopIntaking(),
-        stopFlowing(),
+        startFlowing(),
         startFeeding(),
         // startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
@@ -232,6 +240,16 @@ public class Autos {
         stopFlowing(),
         startScoring(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
+  }
+
+  public Command scoreAtEndPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        startIntaking(),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+        stopIntaking(),
+        startScoring(),
+        swerve.stop().repeatedly().withTimeout(5),
+        stopScoring());
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
@@ -249,8 +267,9 @@ public class Autos {
 
   public Command flowScorePath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        startScoring(),
+        stopIntaking(),
         startFlowing(),
+        startScoring(),
         // setAutoIntakeReqTrue(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
@@ -272,8 +291,7 @@ public class Autos {
         stopFlowing(),
         stopIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        swerve.stop().repeatedly().withTimeout(2)
-        );
+        swerve.stop().repeatedly().withTimeout(2));
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
@@ -449,7 +467,6 @@ public class Autos {
 
   // awful names.. mb
   public Command getFillDepotScoreClimbAuto() {
-
     return createAuto(
         "Fill Depot Score Climb Auto",
         new Path[] {
@@ -534,6 +551,36 @@ public class Autos {
   public Command getCenterScoreAuto() {
     // no climb so don't need to set climb target
     return createAuto("Center Score Auto", new Path[] {Path.HubtoCenter}, Commands.none());
+  }
+
+  public Command getRightNeutralOutpostScore() {
+    return createAuto(
+        "Right Neutral Outpost Score",
+        new Path[] {
+          Path.StartingRTrenchtoRNeutral, Path.RNeutraltoRPreTrench, Path.RPreTrenchtoOutpost
+        },
+        setRightClimb());
+  }
+
+  public Command getLeftNeutralOutpostScore() {
+    return createAuto(
+        "Left Neutral Outpost Score",
+        new Path[] {
+          Path.StartingLTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoDepot
+        },
+        setLeftClimb());
+  }
+
+  public Command getLeftNeutralScoreTwice() {
+    return createAuto(
+        "Left Neutral Score Twice",
+        new Path[] {
+          Path.StartingLTrenchtoLNeutral,
+          Path.EndWScoreLNeutraltoLPreTrench,
+          Path.LPreTrenchtoLCleanup,
+          Path.EndWScoreLCleanuptoLPreTrench
+        },
+        setLeftClimb());
   }
 
   public Command getTestAuto() {
