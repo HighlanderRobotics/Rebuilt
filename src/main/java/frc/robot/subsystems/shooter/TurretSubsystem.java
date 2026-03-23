@@ -365,7 +365,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   /** sets the motor encoder to the position calculated from the encoders */
   public Command resetTurretToCalculatedPosition() {
-    return resetTurretToPosition(getCalculatedTurretRotations());
+    return Commands.print("Rezeroing turret")
+        .andThen(resetTurretToPosition(getCalculatedTurretRotations()));
   }
 
   @Override
