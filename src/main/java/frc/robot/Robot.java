@@ -576,6 +576,18 @@ public class Robot extends LoggedRobot {
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
 
+    new Trigger(() -> Superstructure.getState().isAScoreState())
+        .whileTrue(
+            swerve
+                .driveOpenLoopFieldRelative(
+                    () ->
+                        new ChassisSpeeds(
+                                modifyJoystick(driver.getLeftY()) * 5.0,
+                                modifyJoystick(driver.getLeftX()) * 5.0,
+                                modifyJoystick(driver.getRightX()) * 3.0)
+                            .times(-1))
+                .withName("default"));
+
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
 
     // Reset alert timers
