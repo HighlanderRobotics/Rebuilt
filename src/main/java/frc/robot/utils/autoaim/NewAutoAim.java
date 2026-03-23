@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
@@ -18,6 +19,11 @@ import org.littletonrobotics.junction.Logger;
 /** Add your docs here. */
 public class NewAutoAim {
   private static boolean outOfRange = false; // TODO not sure if this should be true by default
+
+  private static double lastVxMetersPerSec = 0.0;
+  private static double lastVyMetersPerSec = 0.0;
+  private static double lastOmegaRadPerSec = 0.0;
+  private static double lastRunTimeSec = 0.0;
 
   public record ShotParams(ShotData shotData, Rotation2d turretAngle) {}
 
@@ -164,20 +170,41 @@ public class NewAutoAim {
       Translation2d target,
       InterpolatingShotTree tree) {
 
-    // Calculate estimated pose while accounting for phase delay
+    double currentTimeSec = Timer.getFPGATimestamp();
+    double deltaTime = currentTimeSec - lastRunTimeSec;
+
+    double axMetersPerSecSq =
+        (robotRelativeVelocity.vxMetersPerSecond - lastVxMetersPerSec) / deltaTime;
+    double ayMetersPerSecSq =
+        (robotRelativeVelocity.vyMetersPerSecond - lastVyMetersPerSec) / deltaTime;
+    double alphaRadPerSecSq =
+        (robotRelativeVelocity.omegaRadiansPerSecond - lastOmegaRadPerSec) / deltaTime;
+
+    lastVxMetersPerSec = robotRelativeVelocity.vxMetersPerSecond;
+    lastVyMetersPerSec = robotRelativeVelocity.vyMetersPerSecond;
+    lastOmegaRadPerSec = robotRelativeVelocity.omegaRadiansPerSecond;
+
+    lastRunTimeSec = currentTimeSec;
+
+    // Calculate estimated pose while accounting movement and acceleration during phase delay
     estimatedPose =
         estimatedPose.exp(
             new Twist2d(
-                robotRelativeVelocity.vxMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS,
-                robotRelativeVelocity.vyMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS,
-                robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS));
+                (robotRelativeVelocity.vxMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS)
+                    + (0.5 * axMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
+                (robotRelativeVelocity.vyMetersPerSecond * AutoAim.LATENCY_COMPENSATION_SECS)
+                    + (0.5 * ayMetersPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2)),
+                (robotRelativeVelocity.omegaRadiansPerSecond * AutoAim.LATENCY_COMPENSATION_SECS)
+                    + (0.5 * alphaRadPerSecSq * Math.pow(AutoAim.LATENCY_COMPENSATION_SECS, 2))));
 
-    // Calculate distance from turret to target
+    // Calculate turret position
     Pose2d turretPosition =
         estimatedPose.transformBy(
             new Transform2d(TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
+    // Calculate distance from turret to target
     double turretToTargetDistance = target.getDistance(turretPosition.getTranslation());
 
+    // Calculate angle of linear velocity from angular velocity
     double turretRadiusMeters =
         Math.hypot(
             TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX(),
@@ -189,6 +216,7 @@ public class NewAutoAim {
                 TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION.getX()));
     Rotation2d turretLinearVelAngle = turretToRobotAngleRads.minus(Rotation2d.kCCW_90deg);
 
+    // Calculate turret velocity, accounting for angular velocity
     double turretVelocityX =
         robotRelativeVelocity.vxMetersPerSecond
             + (robotRelativeVelocity.omegaRadiansPerSecond
@@ -206,15 +234,17 @@ public class NewAutoAim {
     Pose2d lookaheadPose = turretPosition;
     double lookaheadTurretToTargetDistance = turretToTargetDistance;
     for (int i = 0; i < 20; i++) {
+      // Find time of flight for a shot from the current lookahead pose
       timeOfFlight = tree.get(lookaheadTurretToTargetDistance).timeOfFlightSecs();
+      // Extrapolate velocity over time of flight of the shot
       double offsetX = turretVelocityX * timeOfFlight;
       double offsetY = turretVelocityY * timeOfFlight;
 
       Logger.recordOutput("LaunchCalculator/Offset", new Translation2d(offsetX, offsetY));
-
+      // Update lookahead pose
       lookaheadPose =
           turretPosition.transformBy(new Transform2d(offsetX, offsetY, Rotation2d.kZero));
-
+      // Update distance
       lookaheadTurretToTargetDistance = target.getDistance(lookaheadPose.getTranslation());
     }
 
@@ -228,5 +258,9 @@ public class NewAutoAim {
     Logger.recordOutput("LaunchCalculator/TurretToTargetDistance", lookaheadTurretToTargetDistance);
 
     return new ShotParams(tree.get(lookaheadTurretToTargetDistance), turretAngle);
+  }
+
+  public static boolean targetInTurretDeadzone() {
+    return outOfRange;
   }
 }
