@@ -67,7 +67,8 @@ public class Autos {
     CLIMB_SCORE,
     OUTPOST,
     NOTHING,
-    CLIMB_ONLY;
+    CLIMB_ONLY,
+    SCORE_AT_END;
   }
 
   public enum Path {
@@ -82,8 +83,13 @@ public class Autos {
     FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
     // INTAKE
     LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
+    EndWScoreLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.SCORE_AT_END),
+    EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
+
     RNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.INTAKE),
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
+    LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
+
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
@@ -164,6 +170,8 @@ public class Autos {
         return outpostPath(path, routine);
       case CLIMB_ONLY:
         return climbNoScorePath(path, routine);
+      case SCORE_AT_END:
+        return scoreAtEndPath(path, routine);
       case NOTHING:
         return emptyPath(path, routine);
       default: // this should never happen
@@ -230,6 +238,16 @@ public class Autos {
         stopFlowing(),
         startScoring(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
+  }
+
+  public Command scoreAtEndPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        startIntaking(),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
+        stopIntaking(),
+        startScoring(),
+        swerve.stop().repeatedly().withTimeout(5),
+        stopScoring());
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
@@ -522,6 +540,36 @@ public class Autos {
   public Command getCenterScoreAuto() {
     // no climb so don't need to set climb target
     return createAuto("Center Score Auto", new Path[] {Path.HubtoCenter}, Commands.none());
+  }
+
+  public Command getRightNeutralOutpostScore() {
+    return createAuto(
+        "Right Neutral Outpost Score",
+        new Path[] {
+          Path.StartingRTrenchtoRNeutral, Path.RNeutraltoRPreTrench, Path.RPreTrenchtoOutpost
+        },
+        setRightClimb());
+  }
+
+  public Command getLeftNeutralOutpostScore() {
+    return createAuto(
+        "Left Neutral Outpost Score",
+        new Path[] {
+          Path.StartingLTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoDepot
+        },
+        setLeftClimb());
+  }
+
+  public Command getLeftNeutralScoreTwice() {
+    return createAuto(
+        "Left Neutral Score Twice",
+        new Path[] {
+          Path.StartingLTrenchtoLNeutral,
+          Path.EndWScoreLNeutraltoLPreTrench,
+          Path.LPreTrenchtoLCleanup,
+          Path.EndWScoreLCleanuptoLPreTrench
+        },
+        setLeftClimb());
   }
 
   public Command getTestAuto() {

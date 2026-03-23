@@ -92,22 +92,22 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command agitate() {
     return Commands.sequence(
-        this.run(
-            () -> {
-              // maybe needs to go slower but idrk how to do that rn
-              pivotIO.setMotorPositionSetpoint(PIVOT_RETRACTED_POSITION);
-              rollerIO.setRollerVelocity(10.0);
-            })
-        //         .until(atExtensionTrigger),
-        //     this.run(
-        //             () -> {
-        //               pivotIO.setMotorPositionSetpoint(
-        //                   PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
-        //               rollerIO.setRollerVelocity(10.0);
-        //             })
-        //         .until(atExtensionTrigger))
-        // .repeatedly();
-        );
+            this.run(
+                    () -> {
+                      // maybe needs to go slower but idrk how to do that rn
+                      pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+                      rollerIO.setRollerVelocity(30.0);
+                    })
+                .until(atExtensionTrigger),
+            this.run(
+                    () -> {
+                      pivotIO.setMotorPositionSetpoint(
+                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
+                      rollerIO.setRollerVelocity(30.0);
+                    })
+                .until(atExtensionTrigger))
+        .repeatedly();
+    // );
   }
 
   @Override
@@ -191,7 +191,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   }
 
   public boolean atExtension() {
-    return MathUtil.isNear(getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 5);
+    return MathUtil.isNear(getPositionSetpoint().getDegrees(), getPosition().getDegrees(), 10);
   }
 
   public static TalonFXConfiguration getPivotConfig() {
@@ -220,7 +220,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     // TODO: TUNE
-    config.MotionMagic.MotionMagicCruiseVelocity = 3;
+    config.MotionMagic.MotionMagicCruiseVelocity = .5;
     config.MotionMagic.MotionMagicAcceleration = 10;
 
     return config;

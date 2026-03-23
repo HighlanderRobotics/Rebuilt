@@ -345,7 +345,7 @@ public class Superstructure {
       bindTransition(
           SuperState.SCORE_FLOW,
           SuperState.SPIN_UP_SCORE_FLOW,
-          new Trigger(AutoAim::targetInTurretDeadzone));
+          new Trigger(NewAutoAim::targetInTurretDeadzone));
 
       bindTransition(
           SuperState.SPIN_UP_SCORE_FLOW,
