@@ -359,14 +359,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command resetTurretToPosition(Rotation2d rot) {
-    return this.runOnce(() -> turretIO.resetTurretEncoder(rot));
-  }
-
-  /** sets the motor encoder to the position calculated from the encoders */
-  public Command resetTurretToCalculatedPosition() {
-    return Commands.print("Rezeroing turret")
-        .andThen(resetTurretToPosition(getCalculatedTurretRotations()));
+  public Command resetTurretToPosition(Supplier<Rotation2d> rot) {
+    return this.runOnce(() -> turretIO.resetTurretEncoder(rot.get()));
   }
 
   // @Override
@@ -375,7 +369,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   //       .until(
   //           new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
   //               .debounce(0.25))
-  //       .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurretForwardHardstop()));
+  //       .andThen(Commands.parallel(Commands.print("Turret Zeroed"),
+  // zeroTurretForwardHardstop()));
   // }
 
   // public Command zeroTurretForwardHardstop() {

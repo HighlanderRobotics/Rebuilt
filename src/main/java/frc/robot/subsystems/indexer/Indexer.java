@@ -6,7 +6,6 @@ package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import java.util.function.DoubleSupplier;
 
 /** Add your docs here. */
 public interface Indexer extends Subsystem {

@@ -323,7 +323,7 @@ public class Autos {
                         0.25,
                         Units.degreesToRadians(30))),
         // TODO tune tolerance
-        swerve.stopForTime(() -> 2));// TODO tune time
+        swerve.stopForTime(() -> 2)); // TODO tune time
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
