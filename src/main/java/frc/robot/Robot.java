@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import com.playingwithfusion.BattFuelGauge;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -575,6 +576,20 @@ public class Robot extends LoggedRobot {
             Commands.runOnce(() -> addAutos())
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
+    new Trigger(() -> Superstructure.getState().isAScoreState())
+        .whileTrue(
+            swerve
+                .driveOpenLoopFieldRelative(
+                    () ->
+                        new ChassisSpeeds(
+                            new SlewRateLimiter(5.0).calculate(modifyJoystick(driver.getLeftY()))
+                                * (SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()),
+                            new SlewRateLimiter(5.0).calculate(modifyJoystick(driver.getLeftX()))
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                            new SlewRateLimiter(5.0).calculate(modifyJoystick(driver.getRightX()))
+                                * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                        .times(-1))
+                .withName("default"));
 
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
 
