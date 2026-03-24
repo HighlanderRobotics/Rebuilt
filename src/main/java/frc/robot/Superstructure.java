@@ -866,7 +866,7 @@ public class Superstructure {
 
   @AutoLogOutput(key = "10s Left (in off shift)")
   public boolean tenSecsLeftInOffShift() {
-    if (!isOurShift() && (10.0 <= getTimeLeftInShift() && getTimeLeftInShift() <=11.0)) {
+    if (!isOurShift() && (10.0 <= getTimeLeftInShift() && getTimeLeftInShift() <= 11.0)) {
       return true;
     } else {
       return false;
