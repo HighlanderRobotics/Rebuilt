@@ -687,6 +687,8 @@ public class Robot extends LoggedRobot {
                 .withTimeout(0.25));
               //  .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
+    new Trigger(() -> superstructure.tenSecsLeftInOffShift()).onTrue(operator.rumbleCmd(1, 1).withTimeout(0.25));
+
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
 
     driver
