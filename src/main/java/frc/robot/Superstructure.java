@@ -385,7 +385,7 @@ public class Superstructure {
       bindTransition(
           SuperState.FEED_FLOW,
           SuperState.SPIN_UP_FEED_FLOW,
-          new Trigger(AutoAim::targetInTurretDeadzone));
+          new Trigger(NewAutoAim::targetInTurretDeadzone));
 
       bindTransition(
           SuperState.SPIN_UP_FEED_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
