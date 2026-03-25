@@ -270,9 +270,7 @@ public class Autos {
             Commands.parallel(
                 path.getTrajectory(routine).cmd(),
                 Commands.sequence(
-                    Commands.waitSeconds(1.2),
-                    Commands.print("Scoring!"),
-                    startScoring())))
+                    Commands.waitSeconds(1.2), Commands.print("Scoring!"), startScoring())))
         .until(path.getTrajectory(routine).done());
   }
 
@@ -321,7 +319,8 @@ public class Autos {
 
   public Command outpostPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        startScoring(),
+        stopScoring(),
+        stopFeeding(),
         stopFlowing(),
         stopIntaking(),
         // holy chopped
@@ -341,6 +340,7 @@ public class Autos {
                                     : RED_OUTPOST),
                         0.25,
                         Units.degreesToRadians(30))),
+        startScoring(),
         // TODO tune tolerance
         swerve.stopForTime(() -> 2)); // TODO tune time
   }
