@@ -68,6 +68,7 @@ public class Autos {
     FEED,
     INTAKE,
     SCORE,
+    DELAYED_SCORE,
     FLOW,
     CLIMB_SCORE,
     OUTPOST,
@@ -105,10 +106,12 @@ public class Autos {
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
 
+    HubtoDepot("HubtoDepot", Action.INTAKE),
+
     // SCORE
     DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
     OutposttoRPreTrench("OutposttoRPreTrench", Action.NOTHING),
-    DepottoPreOutpost("DepottoPreOutpost", Action.SCORE),
+    DepottoPreOutpost("DepottoPreOutpost", Action.DELAYED_SCORE),
     OutposttoPreOutpost("OutposttoPreOutpost", Action.SCORE),
     HubtoCenter("HubtoCenter", Action.SCORE),
     // FLOW
@@ -179,6 +182,8 @@ public class Autos {
         return feedFlowPath(path, routine);
       case SCORE:
         return scorePath(path, routine);
+      case DELAYED_SCORE:
+        return delayedScorePath(path, routine);
       case CLIMB_SCORE:
         return climbScorePath(path, routine);
       case FLOW:
@@ -255,6 +260,20 @@ public class Autos {
         stopFlowing(),
         startScoring(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
+  }
+
+  public Command delayedScorePath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+            stopIntaking(),
+            stopFeeding(),
+            stopFlowing(),
+            Commands.parallel(
+                path.getTrajectory(routine).cmd(),
+                Commands.sequence(
+                    Commands.waitSeconds(1.2),
+                    Commands.print("Scoring!"),
+                    startScoring())))
+        .until(path.getTrajectory(routine).done());
   }
 
   public Command scoreAtEndPath(Path path, AutoRoutine routine) {
@@ -573,6 +592,13 @@ public class Autos {
         },
         setRightClimb(),
         shootPreload());
+  }
+
+  public Command getHubDepotOutpostAuto() {
+    return createAuto(
+        "Hub Depot Outpost Auto",
+        new Path[] {Path.HubtoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost},
+        Commands.none());
   }
 
   // this is so cursed and im not proud of it

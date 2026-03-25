@@ -616,7 +616,7 @@ public class Robot extends LoggedRobot {
 
     fuelSim.setSubticks(5);
 
-    fuelSim.start();
+    // fuelSim.start();
   }
 
   /** Scales a joystick value for teleop driving */
@@ -794,6 +794,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
+    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
@@ -964,7 +965,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
-    fuelSim.updateSim();
+    // fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
