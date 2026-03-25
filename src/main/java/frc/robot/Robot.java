@@ -691,8 +691,8 @@ public class Robot extends LoggedRobot {
     driver
         .leftBumper()
         .onTrue(
-            Commands.parallel(
-                shooter.resetTurretToCalculatedPosition(), intake.zeroPivotOffCancoder()));
+            Commands.runOnce(() ->
+                shooter.resetTurretToCalculatedPosition())); //, intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -795,6 +795,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
     autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
+    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());

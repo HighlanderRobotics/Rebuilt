@@ -171,7 +171,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public Command zeroPivotOffCancoder() {
-    return this.runOnce(() -> pivotIO.resetEncoder(cancoderIOInputs.cancoderPositionRotations));
+    return Commands.none(); //this.runOnce(() -> pivotIO.resetEncoder(cancoderIOInputs.cancoderPositionRotations));
   }
 
   @Override

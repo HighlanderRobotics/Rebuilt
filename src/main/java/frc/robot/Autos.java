@@ -72,6 +72,7 @@ public class Autos {
     FLOW,
     CLIMB_SCORE,
     OUTPOST,
+    DEPOT,
     NOTHING,
     CLIMB_ONLY,
     SCORE_AT_END;
@@ -83,6 +84,8 @@ public class Autos {
     RPreTrenchReversedtoOutpost("RPreTrenchReversedtoOutpost", Action.OUTPOST),
 
     PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
+
+    HubtoOutpost("HubtoOutpost", Action.OUTPOST),
     // DEPOT
     LTrenchtoDepot("LTrenchtoDepot", Action.FLOW),
     LBumptoDepot("LBumptoDepot", Action.INTAKE),
@@ -106,14 +109,19 @@ public class Autos {
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
 
-    HubtoDepot("HubtoDepot", Action.INTAKE),
+    HubtoDepot("HubtoDepot", Action.DEPOT),
+
+    PreDepottoDepot("PreDepottoDepot", Action.DEPOT),
 
     // SCORE
     DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
     OutposttoRPreTrench("OutposttoRPreTrench", Action.NOTHING),
     DepottoPreOutpost("DepottoPreOutpost", Action.DELAYED_SCORE),
+    OutposttoPreDepot("OutposttoPreDepot", Action.NOTHING),
     OutposttoPreOutpost("OutposttoPreOutpost", Action.SCORE),
     HubtoCenter("HubtoCenter", Action.SCORE),
+
+    DepottoPreDepot("DepottoPreDepot", Action.SCORE_AT_END),
     // FLOW
     LPreTrenchtoDepot("LPreTrenchtoDepot", Action.FLOW),
     // CLIMB
@@ -151,6 +159,10 @@ public class Autos {
       new Pose2d(
           new Translation2d(0.44367337226867676, 0.443471223115921), Rotation2d.fromDegrees(90));
   public static final Pose2d RED_OUTPOST = ChoreoAllianceFlipUtil.flip(BLUE_OUTPOST);
+
+  public static final Pose2d BLUE_DEPOT =
+      new Pose2d(0.703999767303467, 5.975247383117676, Rotation2d.fromRadians(3.141592653589793));
+  public static final Pose2d RED_DEPOT = ChoreoAllianceFlipUtil.flip(BLUE_DEPOT);
 
   public Autos(SwerveSubsystem swerve, ClimberSubsystem climber) {
     this.swerve = swerve;
@@ -190,6 +202,8 @@ public class Autos {
         return flowScorePath(path, routine);
       case OUTPOST:
         return outpostPath(path, routine);
+      case DEPOT:
+        return depotPath(path, routine);
       case CLIMB_ONLY:
         return climbNoScorePath(path, routine);
       case SCORE_AT_END:
@@ -286,6 +300,7 @@ public class Autos {
 
   public Command emptyPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
+        setAllReqsFalse(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
@@ -342,7 +357,34 @@ public class Autos {
                         Units.degreesToRadians(30))),
         startScoring(),
         // TODO tune tolerance
-        swerve.stopForTime(() -> 2)); // TODO tune time
+        swerve.stopForTime(() -> 4)); // TODO tune time
+  }
+
+  public Command depotPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        stopScoring(),
+        stopFeeding(),
+        stopFlowing(),
+        startIntaking(),
+        // holy chopped
+        // this is here because i suspect the time based at end will cause it to stop early if it
+        // hits something and messes up the time
+        // though this may be fixed by having a better path?? idk
+        path.getTrajectory(routine)
+            .cmd()
+            .until(
+                path.getTrajectory(routine)
+                    .atPose(
+                        path.getTrajectory(routine)
+                            .getFinalPose()
+                            .orElse(
+                                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                    ? BLUE_DEPOT
+                                    : RED_DEPOT),
+                        0.25,
+                        Units.degreesToRadians(30))),
+        // TODO tune tolerance
+        swerve.stopForTime(() -> 1)); // TODO tune time
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
@@ -598,6 +640,15 @@ public class Autos {
     return createAuto(
         "Hub Depot Outpost Auto",
         new Path[] {Path.HubtoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost},
+        Commands.none());
+  }
+
+  public Command getHubOutpostDepotAuto() {
+    return createAuto(
+        "Hub Outpost Depot Auto",
+        new Path[] {
+          Path.HubtoOutpost, Path.OutposttoPreDepot, Path.PreDepottoDepot, Path.DepottoPreDepot
+        },
         Commands.none());
   }
 
