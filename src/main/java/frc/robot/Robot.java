@@ -691,8 +691,10 @@ public class Robot extends LoggedRobot {
     driver
         .leftBumper()
         .onTrue(
-            Commands.runOnce(() ->
-                shooter.resetTurretToCalculatedPosition())); //, intake.zeroPivotOffCancoder()));
+            Commands.runOnce(
+                () ->
+                    shooter
+                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
