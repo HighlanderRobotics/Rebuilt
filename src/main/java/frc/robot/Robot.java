@@ -504,12 +504,11 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
 
     SmartDashboard.putData(
-        "Set Turret to 0", shooter.resetTurretToPosition(() -> Rotation2d.kZero).ignoringDisable(true));
+        "Set Turret to 0",
+        shooter.resetTurretToPosition(() -> Rotation2d.kZero).ignoringDisable(true));
     SmartDashboard.putData(
         "Rezero turret against cancoders",
-        shooter
-            .resetTurretToCalculatedPosition()
-            .ignoringDisable(true));
+        shooter.resetTurretToCalculatedPosition().ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
     candle.setDefaultCommand(candle.test().ignoringDisable(true));
@@ -693,8 +692,7 @@ public class Robot extends LoggedRobot {
         .leftBumper()
         .onTrue(
             Commands.parallel(
-                shooter.resetTurretToCalculatedPosition(),
-                intake.zeroPivotOffCancoder()));
+                shooter.resetTurretToCalculatedPosition(), intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
