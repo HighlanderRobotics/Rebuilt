@@ -12,8 +12,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.subsystems.shooter.TurretSubsystem;
-import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -65,25 +63,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick(DoubleSupplier flywheelSpeedSupplier) {
+  public Command kick() {
     return Commands.sequence(
         this.run(
             () -> {
-              double surfaceSpeedInPerSec =
-                  flywheelSpeedSupplier.getAsDouble()
-                      * Math.PI
-                      * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
-              double kickerSpeed = surfaceSpeedInPerSec / (Math.PI * KICKER_DIAMETER_INCHES);
-              // arbitrarily deciding to have it match the bottom wheel although i have no clue
-              // if
-              // that's right
-              double spinnerSpeed = surfaceSpeedInPerSec / (Math.PI * SPINNER_DIAMETER_INCHES);
-              Logger.recordOutput("Indexer/Spinner/Adjusted speed", spinnerSpeed);
-              Logger.recordOutput("Indexer/Kicker/Adjusted speed", kickerSpeed);
-              // spinnerIO.setRollerVelocity(spinnerSpeed - 1);
-              // kickerIO.setRollerVelocity(kickerSpeed - 5);
-              // spinnerIO.setRollerVelocity(60);
-              // kickerIO.setRollerVelocity(25);
               spinnerIO.setRollerVoltage(12);
               kickerIO.setRollerVoltage(12);
             })
@@ -168,7 +151,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;

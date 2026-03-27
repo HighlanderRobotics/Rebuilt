@@ -7,6 +7,11 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import choreo.util.ChoreoAllianceFlipUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -63,9 +68,11 @@ public class Autos {
     FEED,
     INTAKE,
     SCORE,
+    DELAYED_SCORE,
     FLOW,
     CLIMB_SCORE,
     OUTPOST,
+    DEPOT,
     NOTHING,
     CLIMB_ONLY,
     SCORE_AT_END;
@@ -74,32 +81,47 @@ public class Autos {
   public enum Path {
     // OUTPOST
     RTrenchtoOutpost("RTrenchtoOutpost", Action.OUTPOST),
-    RPreTrenchtoOutpost("RPreTrenchtoOutpost", Action.OUTPOST), // TODO doesn't work
+    RPreTrenchReversedtoOutpost("RPreTrenchReversedtoOutpost", Action.OUTPOST),
+
     PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
+
+    HubtoOutpost("HubtoOutpost", Action.OUTPOST),
     // DEPOT
     LTrenchtoDepot("LTrenchtoDepot", Action.FLOW),
+    LBumptoDepot("LBumptoDepot", Action.INTAKE),
     // FEED
     FeedLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.FEED),
     FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
     // INTAKE
     LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
+
     EndWScoreLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.SCORE_AT_END),
     EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
 
-    RNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.INTAKE),
+    RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrenchReversed", Action.INTAKE),
+
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
     LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
 
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
+    RPreTrenchReversedtoRNeutral("RPreTrenchReversedtoRNeutral", Action.INTAKE),
+
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
-    LBumptoDepot("LBumptoDepot", Action.INTAKE),
+
+    HubtoDepot("HubtoDepot", Action.DEPOT),
+
+    PreDepottoDepot("PreDepottoDepot", Action.DEPOT),
+
     // SCORE
     DepottoLPreTrench("DepottoLPreTrench", Action.SCORE),
     OutposttoRPreTrench("OutposttoRPreTrench", Action.NOTHING),
-    DepottoPreOutpost("DepottoPreOutpost", Action.SCORE),
+    DepottoPreOutpost("DepottoPreOutpost", Action.DELAYED_SCORE),
+    OutposttoPreDepot("OutposttoPreDepot", Action.NOTHING),
     OutposttoPreOutpost("OutposttoPreOutpost", Action.SCORE),
     HubtoCenter("HubtoCenter", Action.SCORE),
+
+    DepottoPreDepot("DepottoPreDepot", Action.SCORE_AT_END),
     // FLOW
     LPreTrenchtoDepot("LPreTrenchtoDepot", Action.FLOW),
     // CLIMB
@@ -132,6 +154,16 @@ public class Autos {
     }
   }
 
+  // for the weird outpost paths idk
+  public static final Pose2d BLUE_OUTPOST =
+      new Pose2d(
+          new Translation2d(0.44367337226867676, 0.443471223115921), Rotation2d.fromDegrees(90));
+  public static final Pose2d RED_OUTPOST = ChoreoAllianceFlipUtil.flip(BLUE_OUTPOST);
+
+  public static final Pose2d BLUE_DEPOT =
+      new Pose2d(0.703999767303467, 5.975247383117676, Rotation2d.fromRadians(3.141592653589793));
+  public static final Pose2d RED_DEPOT = ChoreoAllianceFlipUtil.flip(BLUE_DEPOT);
+
   public Autos(SwerveSubsystem swerve, ClimberSubsystem climber) {
     this.swerve = swerve;
     this.climber = climber;
@@ -162,12 +194,16 @@ public class Autos {
         return feedFlowPath(path, routine);
       case SCORE:
         return scorePath(path, routine);
+      case DELAYED_SCORE:
+        return delayedScorePath(path, routine);
       case CLIMB_SCORE:
         return climbScorePath(path, routine);
       case FLOW:
         return flowScorePath(path, routine);
       case OUTPOST:
         return outpostPath(path, routine);
+      case DEPOT:
+        return depotPath(path, routine);
       case CLIMB_ONLY:
         return climbNoScorePath(path, routine);
       case SCORE_AT_END:
@@ -196,7 +232,7 @@ public class Autos {
                 //                 - (0.3)))),
                 path.getTrajectory(routine).done()),
         stopScoring(),
-        swerve.stop().until(() -> climber.atFullExtension()),
+        swerve.stop().repeatedly().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(
@@ -213,7 +249,7 @@ public class Autos {
         stopIntaking(),
         startPreClimb(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        swerve.stop().until(() -> climber.atFullExtension()),
+        swerve.stop().repeatedly().until(() -> climber.atFullExtension()),
         Commands.parallel(
             swerve.alignToClimb(() -> getClimbAutoTarget()),
             Commands.waitUntil(
@@ -240,18 +276,31 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
+  public Command delayedScorePath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+            stopIntaking(),
+            stopFeeding(),
+            stopFlowing(),
+            Commands.parallel(
+                path.getTrajectory(routine).cmd(),
+                Commands.sequence(
+                    Commands.waitSeconds(1.2), Commands.print("Scoring!"), startScoring())))
+        .until(path.getTrajectory(routine).done());
+  }
+
   public Command scoreAtEndPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
         startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         stopIntaking(),
         startScoring(),
-        swerve.stop().repeatedly().withTimeout(5),
+        swerve.stopForTime(() -> 5),
         stopScoring());
   }
 
   public Command emptyPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
+        setAllReqsFalse(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
@@ -285,11 +334,57 @@ public class Autos {
 
   public Command outpostPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-        startScoring(),
+        stopScoring(),
+        stopFeeding(),
         stopFlowing(),
         stopIntaking(),
-        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
-        swerve.stop().repeatedly().withTimeout(2));
+        // holy chopped
+        // this is here because i suspect the time based at end will cause it to stop early if it
+        // hits something and messes up the time
+        // though this may be fixed by having a better path?? idk
+        path.getTrajectory(routine)
+            .cmd()
+            .until(
+                path.getTrajectory(routine)
+                    .atPose(
+                        path.getTrajectory(routine)
+                            .getFinalPose()
+                            .orElse(
+                                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                    ? BLUE_OUTPOST
+                                    : RED_OUTPOST),
+                        0.25,
+                        Units.degreesToRadians(30))),
+        startScoring(),
+        // TODO tune tolerance
+        swerve.stopForTime(() -> 4)); // TODO tune time
+  }
+
+  public Command depotPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        stopScoring(),
+        stopFeeding(),
+        stopFlowing(),
+        startIntaking(),
+        // holy chopped
+        // this is here because i suspect the time based at end will cause it to stop early if it
+        // hits something and messes up the time
+        // though this may be fixed by having a better path?? idk
+        path.getTrajectory(routine)
+            .cmd()
+            .until(
+                path.getTrajectory(routine)
+                    .atPose(
+                        path.getTrajectory(routine)
+                            .getFinalPose()
+                            .orElse(
+                                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                    ? BLUE_DEPOT
+                                    : RED_DEPOT),
+                        0.25,
+                        Units.degreesToRadians(30))),
+        // TODO tune tolerance
+        swerve.stopForTime(() -> 1)); // TODO tune time
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
@@ -413,6 +508,18 @@ public class Autos {
         setLeftClimb());
   }
 
+  public Command getDoubleDipRightTrench() {
+    return createAuto(
+        "Double dip right trench auto",
+        new Path[] {
+          Path.StartingRTrenchtoRNeutral,
+          Path.RNeutraltoRPreTrenchReversed,
+          Path.RPreTrenchReversedtoRNeutral,
+          Path.RNeutraltoRPreTrenchReversed,
+        },
+        setRightClimb());
+  }
+
   public Command getOutpostScoreClimbAuto() {
 
     return createAuto(
@@ -421,7 +528,7 @@ public class Autos {
           Path.RTrenchtoOutpost,
           Path.OutposttoRPreTrench,
           Path.RPreTrenchtoRNeutral,
-          Path.RNeutraltoRPreTrench,
+          Path.RNeutraltoRPreTrenchReversed,
           Path.RPreTrenchtoRClimb
         },
         setRightClimb());
@@ -460,7 +567,7 @@ public class Autos {
         "Fill Depot Score Climb Auto",
         new Path[] {
           Path.StartingLTrenchtoLNeutral,
-          Path.LNeutraltoLPreTrench,
+          Path.FeedLNeutraltoLPreTrench,
           Path.LPreTrenchtoDepot,
           Path.DepottoLClimb
         },
@@ -474,7 +581,7 @@ public class Autos {
         new Path[] {
           Path.StartingRTrenchtoRNeutral,
           Path.FeedRNeutraltoRPreTrench,
-          Path.RPreTrenchtoOutpost,
+          Path.RPreTrenchReversedtoOutpost,
           Path.OutposttoRClimb
         },
         setRightClimb());
@@ -488,7 +595,7 @@ public class Autos {
           Path.RBumptoOutpost,
           Path.OutposttoRPreTrench,
           Path.RPreTrenchtoRNeutral,
-          Path.RNeutraltoRPreTrench
+          Path.RNeutraltoRPreTrenchReversed
         },
         setRightClimb());
   }
@@ -529,6 +636,22 @@ public class Autos {
         shootPreload());
   }
 
+  public Command getHubDepotOutpostAuto() {
+    return createAuto(
+        "Hub Depot Outpost Auto",
+        new Path[] {Path.HubtoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost},
+        Commands.none());
+  }
+
+  public Command getHubOutpostDepotAuto() {
+    return createAuto(
+        "Hub Outpost Depot Auto",
+        new Path[] {
+          Path.HubtoOutpost, Path.OutposttoPreDepot, Path.PreDepottoDepot, Path.DepottoPreDepot
+        },
+        Commands.none());
+  }
+
   // this is so cursed and im not proud of it
   public Command getRightBumpOutpostClimbAuto() {
     return createAuto(
@@ -546,7 +669,9 @@ public class Autos {
     return createAuto(
         "Right Neutral Outpost Score",
         new Path[] {
-          Path.StartingRTrenchtoRNeutral, Path.RNeutraltoRPreTrench, Path.RPreTrenchtoOutpost
+          Path.StartingRTrenchtoRNeutral,
+          Path.RNeutraltoRPreTrenchReversed,
+          Path.RPreTrenchReversedtoOutpost
         },
         setRightClimb());
   }

@@ -504,12 +504,11 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
 
     SmartDashboard.putData(
-        "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
+        "Set Turret to 0",
+        shooter.resetTurretToPosition(() -> Rotation2d.kZero).ignoringDisable(true));
     SmartDashboard.putData(
         "Rezero turret against cancoders",
-        shooter
-            .resetTurretToPosition(shooter.getCalculatedTurretRotations())
-            .ignoringDisable(true));
+        shooter.resetTurretToCalculatedPosition().ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
     candle.setDefaultCommand(candle.test().ignoringDisable(true));
@@ -617,7 +616,7 @@ public class Robot extends LoggedRobot {
 
     fuelSim.setSubticks(5);
 
-    fuelSim.start();
+    // fuelSim.start();
   }
 
   /** Scales a joystick value for teleop driving */
@@ -675,7 +674,7 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             shooter
-                .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+                .resetTurretToCalculatedPosition()
                 .andThen(
                     Commands.parallel(
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
@@ -692,9 +691,10 @@ public class Robot extends LoggedRobot {
     driver
         .leftBumper()
         .onTrue(
-            Commands.parallel(
-                shooter.resetTurretToPosition(shooter.getCalculatedTurretRotations()),
-                intake.zeroPivotOffCancoder()));
+            Commands.runOnce(
+                () ->
+                    shooter
+                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -801,11 +801,16 @@ public class Robot extends LoggedRobot {
         "Left Bump Depot Outpost Climb", autos.getLeftBumpDepotOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
+    autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
+    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
+    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+
+    autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
@@ -971,7 +976,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
-    fuelSim.updateSim();
+    // fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",

@@ -484,10 +484,6 @@ public class AutoAim {
     return getSOTMShotData(compensatedPose, targetTranslation, fieldRelativeSpeeds, tree);
   }
 
-  public static boolean targetInTurretDeadzone() {
-    return outOfRange;
-  }
-
   public static ShotData getLeftFixedShotData() {
     return new ShotData(Rotation2d.fromDegrees(36), 36, 0);
   }
