@@ -712,7 +712,7 @@ public class Robot extends LoggedRobot {
             Commands.runOnce(
                 () ->
                     shooter
-                        .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
                         .ignoringDisable(true)));
 
     driver
