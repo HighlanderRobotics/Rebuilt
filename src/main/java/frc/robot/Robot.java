@@ -680,12 +680,12 @@ public class Robot extends LoggedRobot {
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> NewAutoAim.targetInTurretDeadzone())
-        .onTrue(
-            driver
-                .rumbleCmd(1, 1)
-                .withTimeout(0.25)
-                .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
+        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
+    //  .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
+    new Trigger(() -> superstructure.tenSecsLeftInOffShift())
+        .onTrue(operator.rumbleCmd(1, 1).withTimeout(0.25));
+
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
 
     driver
@@ -706,6 +706,14 @@ public class Robot extends LoggedRobot {
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
     // I HATE THIS!
     operator.leftStick().whileTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
+    operator
+        .rightStick()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    shooter
+                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
+                        .ignoringDisable(true)));
 
     driver
         .rightBumper()

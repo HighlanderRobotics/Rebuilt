@@ -823,6 +823,23 @@ public class Superstructure {
     }
   }
 
+  public boolean tenSecsLeftInOffShift() {
+    if (!isOurShift() && (10.0 <= getTimeLeftInShift() && getTimeLeftInShift() <= 11.0)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @AutoLogOutput(key = "10s Left (in off shift)")
+  public boolean lessThanTenSecsLeftInOffShift() {
+    if (!isOurShift() && (10.0 <= getTimeLeftInShift())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public boolean inScoringArea() {
     // return true;
     if (swerve == null) return false;
