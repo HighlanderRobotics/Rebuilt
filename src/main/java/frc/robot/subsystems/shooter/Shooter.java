@@ -63,8 +63,14 @@ public interface Shooter extends Subsystem {
 
   public boolean atTurretSetpoint();
 
-  public default Command resetTurretToPosition(Rotation2d rot) {
+  public default Command resetTurretToPosition(Supplier<Rotation2d> rot) {
     return Commands.none();
+  }
+
+  /** sets the motor encoder to the position calculated from the encoders */
+  public default Command resetTurretToCalculatedPosition() {
+    return Commands.print("Rezeroing turret against cancoders")
+        .andThen(resetTurretToPosition(this::getCalculatedTurretRotations));
   }
 
   public default Rotation2d getCalculatedTurretRotations() {

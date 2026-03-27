@@ -359,28 +359,23 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   }
 
   @Override
-  public Command resetTurretToPosition(Rotation2d rot) {
-    return this.runOnce(() -> turretIO.resetTurretEncoder(getCalculatedTurretRotations()));
+  public Command resetTurretToPosition(Supplier<Rotation2d> rot) {
+    return this.runOnce(() -> turretIO.resetTurretEncoder(rot.get()));
   }
 
-  /** sets the motor encoder to the position calculated from the encoders */
-  public Command resetTurretToCalculatedPosition() {
-    return Commands.print("Rezeroing turret")
-        .andThen(resetTurretToPosition(getCalculatedTurretRotations()));
-  }
+  // @Override
+  // public Command currentZeroTurretAgainstForwardHardstop() {
+  //   return this.run(() -> turretIO.setVoltage(1.0))
+  //       .until(
+  //           new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
+  //               .debounce(0.25))
+  //       .andThen(Commands.parallel(Commands.print("Turret Zeroed"),
+  // zeroTurretForwardHardstop()));
+  // }
 
-  @Override
-  public Command currentZeroTurretAgainstForwardHardstop() {
-    return this.run(() -> turretIO.setVoltage(1.0))
-        .until(
-            new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
-                .debounce(0.25))
-        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurretForwardHardstop()));
-  }
-
-  public Command zeroTurretForwardHardstop() {
-    return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
-  }
+  // public Command zeroTurretForwardHardstop() {
+  //   return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
+  // }
 
   // for defense and stuff
   @Override
