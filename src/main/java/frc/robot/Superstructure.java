@@ -608,7 +608,7 @@ public class Superstructure {
     bindCommands(
         SuperState.PRE_CLIMB,
         intake.restRetracted(),
-        indexer.rest(),
+        indexer.stop(),
         shooter.rest(
             swerve::getPose,
             swerve::getVelocityRobotRelative,
@@ -618,7 +618,7 @@ public class Superstructure {
     bindCommands(
         SuperState.CLIMB,
         intake.restRetracted(),
-        indexer.rest(),
+        indexer.stop(),
         shooter.rest(
             swerve::getPose,
             swerve::getVelocityRobotRelative,
@@ -628,7 +628,7 @@ public class Superstructure {
     bindCommands(
         SuperState.POST_CLIMB,
         intake.restRetracted(),
-        indexer.rest(),
+        indexer.stop(),
         shooter.rest(
             swerve::getPose,
             swerve::getVelocityRobotRelative,
@@ -669,7 +669,7 @@ public class Superstructure {
     bindCommands(
         SuperState.DEFENSE,
         intake.restRetracted(),
-        indexer.rest(),
+        indexer.stop(),
         shooter.stopTurret(),
         climber.retract());
   }
