@@ -31,7 +31,8 @@ public abstract class SwerveConstants {
           new AprilTagFieldLayout(
               Filesystem.getDeployDirectory()
                   .toPath()
-                  .resolve("tagmaps" + File.separator + "field_map_mar_13_18_10_19.json"));
+                  // .resolve("tagmaps" + File.separator + "field_map_mar_13_18_10_19.json"));
+                  .resolve("tagmaps" + File.separator + "field_map_mar_27_18_47_20.json"));
       System.out.println("Successfully loaded tag map");
     } catch (Exception e) {
       System.err.println("Failed to load custom tag map");
