@@ -676,14 +676,14 @@ public class Autos {
         setRightClimb());
   }
 
-  public Command getLeftNeutralOutpostScore() {
-    return createAuto(
-        "Left Neutral Outpost Score",
-        new Path[] {
-          Path.StartingLTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoDepot
-        },
-        setLeftClimb());
-  }
+  // public Command getLeftNeutralOutpostScore() {
+  //   return createAuto(
+  //       "Left Neutral Outpost Score",
+  //       new Path[] {
+  //         Path.StartingLTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoDepot
+  //       },
+  //       setLeftClimb());
+  // }
 
   public Command getLeftNeutralScoreTwice() {
     return createAuto(
