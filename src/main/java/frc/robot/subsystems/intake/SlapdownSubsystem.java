@@ -28,7 +28,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_MIN_POSITION =
       Rotation2d.fromDegrees(-26.894531); // Rotation2d.fromRotations(-0.052002);
   public static final Rotation2d PIVOT_MAX_POSITION =
-      Rotation2d.fromDegrees(122); // Not so sure abt this one...
+      Rotation2d.fromDegrees(115); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE

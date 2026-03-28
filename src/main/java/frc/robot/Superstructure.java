@@ -406,7 +406,11 @@ public class Superstructure {
     // Transition from any state to SPIT for anti jamming
     antiJamReq.onTrue(changeStateTo(SuperState.SPIT));
 
-    bindTransition(SuperState.SPIT, SuperState.IDLE, antiJamReq.negate());
+    bindTransition(
+        SuperState.SPIT,
+        SuperState.IDLE,
+        antiJamReq.negate(),
+        Commands.runOnce(() -> defense = false));
 
     defenseReq.onTrue(changeStateTo(SuperState.DEFENSE));
 
@@ -422,7 +426,10 @@ public class Superstructure {
         SuperState.CLIMB,
         climbReq); // TODO maybe add transition out of climb in case we fall
     bindTransition(
-        SuperState.PRE_CLIMB, SuperState.IDLE, preClimbReq.negate().and(climbReq.negate()));
+        SuperState.PRE_CLIMB,
+        SuperState.IDLE,
+        preClimbReq.negate().and(climbReq.negate()),
+        Commands.runOnce(() -> defense = false));
 
     bindTransition(
         SuperState.SPIN_UP_SCORE_FLOW,
