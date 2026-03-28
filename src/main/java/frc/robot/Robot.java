@@ -72,6 +72,7 @@ import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.FuelSim;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.NewAutoAim;
 import java.io.File;
 import java.util.Arrays;
@@ -766,6 +767,9 @@ public class Robot extends LoggedRobot {
                 shooter::getTurretPosition,
                 () -> Superstructure.getFeedTarget()));
 
+    operator.povRight().onTrue(Commands.runOnce(() -> AutoAim.incrementFudgeFactor()));
+    operator.povLeft().onTrue(Commands.runOnce(() -> AutoAim.decrementFudgeFactor()));
+
     // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))
         .negate()
@@ -882,6 +886,7 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
+    Logger.recordOutput("Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     // Log climb poses
     Logger.recordOutput(
