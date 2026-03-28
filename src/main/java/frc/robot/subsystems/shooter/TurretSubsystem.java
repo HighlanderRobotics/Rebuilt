@@ -253,7 +253,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   hoodIO.setHoodPosition(shotParamsSupplier.get().shotData().hoodAngle());
                   // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
                   flywheelIO.setMotionProfiledFlywheelVelocity(
-                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec() + AutoAim.getFudgeFactor());
+                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec()
+                          + AutoAim.getFudgeFactor());
                   turretIO.setTurretPosition(shotParamsSupplier.get().turretAngle());
                 }));
   }
@@ -352,7 +353,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   //   case NONE:
                   hoodIO.setHoodPosition(shotParamsSupplier.get().shotData().hoodAngle());
                   flywheelIO.setMotionProfiledFlywheelVelocity(
-                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec() + AutoAim.getFudgeFactor());
+                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec()
+                          + AutoAim.getFudgeFactor());
                   turretIO.setTurretPosition(shotParamsSupplier.get().turretAngle());
                   // }
                 }));
