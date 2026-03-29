@@ -96,7 +96,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
         });
   }
 
-    @Override
+  @Override
   public Command stop() {
     return this.run(
         () -> {
