@@ -36,6 +36,7 @@ public class Autos {
   private static boolean autoPreClimb;
   private static boolean autoClimb;
   private static boolean autoFlow;
+  private static boolean autoDefense;
   private static boolean leftClimbAuto;
 
   @AutoLogOutput(key = "Superstructure/Auto Feed Request")
@@ -64,6 +65,10 @@ public class Autos {
   public static Trigger autoLeftClimbReq =
       new Trigger(() -> leftClimbAuto).and(DriverStation::isAutonomous);
 
+  @AutoLogOutput(key = "Superstructure/Auto Defense Req")
+  public static Trigger autoDefenseReq =
+    new Trigger(() -> autoDefense).and(DriverStation::isAutonomous);
+
   public enum Action {
     FEED,
     INTAKE,
@@ -76,7 +81,8 @@ public class Autos {
     NOTHING,
     CLIMB_ONLY,
     SCORE_AT_END,
-    OUTPOST_NO_SCORE;
+    OUTPOST_NO_SCORE,
+    DISRUPT;
   }
 
   public enum Path {
@@ -135,7 +141,10 @@ public class Autos {
     DepottoLClimb("DepottoLClimb", Action.CLIMB_SCORE),
     RBumptoOutpost("RBumptoOutpost", Action.OUTPOST),
 
-    RUNtoTEST("RUNtoTEST", Action.NOTHING);
+    RUNtoTEST("RUNtoTEST", Action.NOTHING),
+    
+    // DISRUPT
+    RTrenchDisrupt("RTrenchDIsrupt", Action.DISRUPT);
 
     private final String name;
     private final Action action;
@@ -214,6 +223,8 @@ public class Autos {
         return emptyPath(path, routine);
       case OUTPOST_NO_SCORE:
         return outpostNoScorePath(path, routine);
+      case DISRUPT:
+
       default: // this should never happen
         return Commands.none();
     }
@@ -418,6 +429,14 @@ public class Autos {
         swerve.stopForTime(() -> 1)); // TODO tune time
   }
 
+  public Command disruptPath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+      setAllReqsFalse(),
+      startDefending(),
+      path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done())
+    );
+  }
+
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
     routine
         .observe(
@@ -484,6 +503,14 @@ public class Autos {
 
   public Command stopClimb() {
     return Commands.runOnce(() -> autoClimb = false);
+  }
+
+  public Command startDefending() {
+    return Commands.runOnce(() -> autoDefense = true);
+  }
+
+  public Command stopDefending() {
+    return Commands.runOnce(() -> autoDefense = false);
   }
 
   public Command setAllReqsFalse() {
