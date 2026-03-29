@@ -199,7 +199,7 @@ public class Superstructure {
   private boolean defense = false;
 
   @AutoLogOutput(key = "Superstructure/Defense Req")
-  private Trigger defenseReq = new Trigger(() -> defense);
+  private Trigger defenseReq = new Trigger(() -> defense).or(Autos.autoDefenseReq);
 
   // @AutoLogOutput(key = "Superstructure/Fixed Shot")
   // private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
