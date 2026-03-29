@@ -67,7 +67,7 @@ public class Autos {
 
   @AutoLogOutput(key = "Superstructure/Auto Defense Req")
   public static Trigger autoDefenseReq =
-    new Trigger(() -> autoDefense).and(DriverStation::isAutonomous);
+      new Trigger(() -> autoDefense).and(DriverStation::isAutonomous);
 
   public enum Action {
     FEED,
@@ -142,9 +142,9 @@ public class Autos {
     RBumptoOutpost("RBumptoOutpost", Action.OUTPOST),
 
     RUNtoTEST("RUNtoTEST", Action.NOTHING),
-    
+
     // DISRUPT
-    RTrenchDisrupt("RTrenchDIsrupt", Action.DISRUPT);
+    RTrenchDisrupt("RTrenchDisrupt", Action.DISRUPT);
 
     private final String name;
     private final Action action;
@@ -431,10 +431,9 @@ public class Autos {
 
   public Command disruptPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
-      setAllReqsFalse(),
-      startDefending(),
-      path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done())
-    );
+        setAllReqsFalse(),
+        startDefending(),
+        path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()));
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
@@ -754,6 +753,10 @@ public class Autos {
           Path.EndWScoreLCleanuptoLPreTrench
         },
         setLeftClimb());
+  }
+
+  public Command getRightDisruptAuto() {
+    return createAuto("RightDisruptAuto", new Path[] {Path.RTrenchDisrupt}, Commands.none());
   }
 
   public Command getTestAuto() {

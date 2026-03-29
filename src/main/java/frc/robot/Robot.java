@@ -814,6 +814,8 @@ public class Robot extends LoggedRobot {
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
 
+    autoChooser.addOption("Right Disrupt", autos.getRightDisruptAuto());
+
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
