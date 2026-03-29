@@ -85,6 +85,11 @@ public class PivotIO {
     motor.setControl(motorMagicVoltage.withPosition(setpoint.getMeasure()));
   }
 
+  public void setMotorPositionSetpoint(Rotation2d setpoint, double ffVolts) {
+    this.setpoint = setpoint;
+    motor.setControl(motorMagicVoltage.withPosition(setpoint.getMeasure()).withFeedForward(ffVolts));
+  }
+
   public Rotation2d getSetpoint() {
     return setpoint;
   }

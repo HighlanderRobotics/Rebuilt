@@ -114,7 +114,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public Command intake() {
     return this.run(
         () -> {
-          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION, -0.5);
           rollerIO.setRollerVelocity(80);
         })
     // .until(atExtensionTrigger)
@@ -208,13 +208,13 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Feedback.SensorToMechanismRatio = 1;
 
     config.Slot0.kS = 0.05;
-    config.Slot0.kV = 8.0; // Might suck\
+    config.Slot0.kV = 8.0; // Might suck
     config.Slot0.kA = 0.0;
-    config.Slot0.kG = 0.55;
+    config.Slot0.kG = 0.4;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.GravityArmPositionOffset = 0.0; // Maybe need this??
-    config.Slot0.kP = 15.0;
-    config.Slot0.kD = 0.3;
+    config.Slot0.kP = 40.0;
+    config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 45.0; // glup
     config.CurrentLimits.StatorCurrentLimitEnable = true;
