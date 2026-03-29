@@ -117,13 +117,14 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
               pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
               rollerIO.setRollerVelocity(80);
             })
-        .until(atExtensionTrigger)
-        .andThen(
-            this.run(
-                () -> {
-                  pivotIO.setMotorVoltage(0);
-                  rollerIO.setRollerVelocity(80);
-                }));
+        // .until(atExtensionTrigger)
+        // .andThen(
+        //     this.run(
+        //         () -> {
+        //           pivotIO.setMotorVoltage(0);
+        //           rollerIO.setRollerVelocity(80);
+        //         }));
+        ;
   }
 
   @Override
@@ -142,13 +143,14 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
               pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
               rollerIO.setRollerVoltage(0.0);
             })
-        .until(atExtensionTrigger)
-        .andThen(
-            this.run(
-                () -> {
-                  pivotIO.setMotorVoltage(0);
-                  rollerIO.setRollerVoltage(0);
-                }));
+        // .until(atExtensionTrigger)
+        // .andThen(
+        //     this.run(
+        //         () -> {
+        //           pivotIO.setMotorVoltage(0);
+        //           rollerIO.setRollerVoltage(0);
+        //         }));
+        ;
   }
 
   @Override
