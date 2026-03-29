@@ -938,6 +938,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void resetPose(Pose2d newPose) {
+    System.out.println("Resetting pose to " + newPose.toString());
     estimator.resetPose(newPose);
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
       swerveSimulation.setSimulationWorldPose(newPose);

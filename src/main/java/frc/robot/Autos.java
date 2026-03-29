@@ -224,7 +224,7 @@ public class Autos {
       case OUTPOST_NO_SCORE:
         return outpostNoScorePath(path, routine);
       case DISRUPT:
-
+        return disruptPath(path, routine);
       default: // this should never happen
         return Commands.none();
     }

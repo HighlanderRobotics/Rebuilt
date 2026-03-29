@@ -594,7 +594,7 @@ public class Robot extends LoggedRobot {
                       + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
             });
 
-    // fuelSim.spawnStartingFuel();
+    fuelSim.spawnStartingFuel();
 
     fuelSim.registerRobot(
         Units.inchesToMeters(28), // from left to right in meters
@@ -617,7 +617,7 @@ public class Robot extends LoggedRobot {
 
     fuelSim.setSubticks(5);
 
-    // fuelSim.start();
+    fuelSim.start();
   }
 
   /** Scales a joystick value for teleop driving */
@@ -981,7 +981,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
-    // fuelSim.updateSim();
+    fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
