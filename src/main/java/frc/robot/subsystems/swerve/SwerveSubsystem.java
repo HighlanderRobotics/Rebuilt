@@ -169,7 +169,7 @@ public class SwerveSubsystem extends SubsystemBase {
           .withRobotMass(SwerveSubsystem.SWERVE_CONSTANTS.getMass());
 
   private final SwerveDriveSimulation swerveSimulation =
-      new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(3, 3, Rotation2d.kZero));
+      new SwerveDriveSimulation(driveTrainSimConfig, new Pose2d(4.5, 0.72, Rotation2d.k180deg));
 
   public SwerveSubsystem(CANBus canbus) {
     if (Robot.ROBOT_MODE == RobotMode.SIM) {
