@@ -67,16 +67,15 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return Commands.sequence(
         this.run(
             () -> {
-              spinnerIO.setRollerVoltage(12);
-              kickerIO.setRollerVoltage(12);
-            })
-        //     .withTimeout(3),
-        // this.run(
-        //     () -> {
-        //       spinnerIO.setRollerVelocity(30);
-        //       kickerIO.setRollerVelocity(20);
-        //     })
-        );
+              //   spinnerIO.setRollerVoltage(12);
+              //   kickerIO.setRollerVoltage(12);
+              // })
+              //     .withTimeout(3),
+              // this.run(
+              //     () -> {
+              spinnerIO.setRollerVelocity(30);
+              kickerIO.setRollerVelocity(20);
+            }));
   }
 
   @Override
@@ -90,6 +89,15 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   @Override
   public Command rest() {
+    return this.run(
+        () -> {
+          spinnerIO.setRollerVoltage(0.0);
+          kickerIO.setRollerVoltage(-2);
+        });
+  }
+
+  @Override
+  public Command stop() {
     return this.run(
         () -> {
           spinnerIO.setRollerVoltage(0.0);

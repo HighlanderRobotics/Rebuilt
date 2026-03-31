@@ -75,13 +75,15 @@ public class Autos {
     DEPOT,
     NOTHING,
     CLIMB_ONLY,
-    SCORE_AT_END;
+    SCORE_AT_END,
+    OUTPOST_NO_SCORE;
   }
 
   public enum Path {
     // OUTPOST
     RTrenchtoOutpost("RTrenchtoOutpost", Action.OUTPOST),
     RPreTrenchReversedtoOutpost("RPreTrenchReversedtoOutpost", Action.OUTPOST),
+    NoScoreRPreTrenchReversedtoOutpost("RPreTrenchReversedtoOutpost", Action.OUTPOST_NO_SCORE),
 
     PreOutposttoOutpost("PreOutposttoOutpost", Action.OUTPOST),
 
@@ -98,7 +100,7 @@ public class Autos {
     EndWScoreLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.SCORE_AT_END),
     EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
 
-    RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrenchReversed", Action.INTAKE),
+    RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrenchReversed", Action.SCORE_AT_END),
 
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
     LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
@@ -118,7 +120,7 @@ public class Autos {
     OutposttoRPreTrench("OutposttoRPreTrench", Action.NOTHING),
     DepottoPreOutpost("DepottoPreOutpost", Action.DELAYED_SCORE),
     OutposttoPreDepot("OutposttoPreDepot", Action.NOTHING),
-    OutposttoPreOutpost("OutposttoPreOutpost", Action.SCORE),
+    OutposttoPreOutpost("OutposttoPreOutpost", Action.SCORE_AT_END),
     HubtoCenter("HubtoCenter", Action.SCORE),
 
     DepottoPreDepot("DepottoPreDepot", Action.SCORE_AT_END),
@@ -210,6 +212,8 @@ public class Autos {
         return scoreAtEndPath(path, routine);
       case NOTHING:
         return emptyPath(path, routine);
+      case OUTPOST_NO_SCORE:
+        return outpostNoScorePath(path, routine);
       default: // this should never happen
         return Commands.none();
     }
@@ -356,6 +360,33 @@ public class Autos {
                         0.25,
                         Units.degreesToRadians(30))),
         startScoring(),
+        // TODO tune tolerance
+        swerve.stopForTime(() -> 4)); // TODO tune time
+  }
+
+  public Command outpostNoScorePath(Path path, AutoRoutine routine) {
+    return Commands.sequence(
+        stopScoring(),
+        stopFeeding(),
+        stopFlowing(),
+        stopIntaking(),
+        // holy chopped
+        // this is here because i suspect the time based at end will cause it to stop early if it
+        // hits something and messes up the time
+        // though this may be fixed by having a better path?? idk
+        path.getTrajectory(routine)
+            .cmd()
+            .until(
+                path.getTrajectory(routine)
+                    .atPose(
+                        path.getTrajectory(routine)
+                            .getFinalPose()
+                            .orElse(
+                                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                    ? BLUE_OUTPOST
+                                    : RED_OUTPOST),
+                        0.25,
+                        Units.degreesToRadians(30))),
         // TODO tune tolerance
         swerve.stopForTime(() -> 4)); // TODO tune time
   }
@@ -671,19 +702,20 @@ public class Autos {
         new Path[] {
           Path.StartingRTrenchtoRNeutral,
           Path.RNeutraltoRPreTrenchReversed,
-          Path.RPreTrenchReversedtoOutpost
+          Path.NoScoreRPreTrenchReversedtoOutpost,
+          Path.OutposttoPreOutpost
         },
         setRightClimb());
   }
 
-  public Command getLeftNeutralOutpostScore() {
-    return createAuto(
-        "Left Neutral Outpost Score",
-        new Path[] {
-          Path.StartingLTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoDepot
-        },
-        setLeftClimb());
-  }
+  // public Command getLeftNeutralOutpostScore() {
+  //   return createAuto(
+  //       "Left Neutral Outpost Score",
+  //       new Path[] {
+  //         Path.StartingLTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoDepot
+  //       },
+  //       setLeftClimb());
+  // }
 
   public Command getLeftNeutralScoreTwice() {
     return createAuto(

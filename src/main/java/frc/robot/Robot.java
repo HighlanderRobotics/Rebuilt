@@ -72,6 +72,7 @@ import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.FuelSim;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.NewAutoAim;
 import java.io.File;
 import java.util.Arrays;
@@ -151,7 +152,7 @@ public class Robot extends LoggedRobot {
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
    * complete
    */
-  public static final boolean TUNING_MODE = true;
+  public static final boolean TUNING_MODE = false;
 
   public boolean hasZeroedSinceStartup = false;
 
@@ -704,8 +705,6 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .or(Autos.autoLeftClimbReq.negate())
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
-    // I HATE THIS!
-    operator.leftStick().whileTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     operator
         .rightStick()
         .onTrue(
@@ -768,6 +767,9 @@ public class Robot extends LoggedRobot {
                 shooter::getTurretPosition,
                 () -> Superstructure.getFeedTarget()));
 
+    operator.povRight().onTrue(Commands.runOnce(() -> AutoAim.incrementFudgeFactor()));
+    operator.povLeft().onTrue(Commands.runOnce(() -> AutoAim.decrementFudgeFactor()));
+
     // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))
         .negate()
@@ -803,7 +805,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
     autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
-    autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
+    // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
     autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
     autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
 
@@ -884,6 +886,7 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
+    Logger.recordOutput("Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     // Log climb poses
     Logger.recordOutput(

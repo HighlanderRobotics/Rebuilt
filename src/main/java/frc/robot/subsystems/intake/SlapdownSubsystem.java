@@ -26,9 +26,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final Rotation2d PIVOT_MIN_POSITION =
-      Rotation2d.fromDegrees(-26.894531); // Rotation2d.fromRotations(-0.052002);
+      Rotation2d.fromDegrees(-28.894531); // Rotation2d.fromRotations(-0.052002);
   public static final Rotation2d PIVOT_MAX_POSITION =
-      Rotation2d.fromDegrees(122); // Not so sure abt this one...
+      Rotation2d.fromDegrees(111.445313); // 106.523438); // 115); // Not so sure abt this one...
   public static final Rotation2d PIVOT_EXTENDED_POSITION = PIVOT_MIN_POSITION;
   public static final Rotation2d PIVOT_RETRACTED_POSITION = PIVOT_MAX_POSITION;
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
@@ -113,17 +113,18 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command intake() {
     return this.run(
-            () -> {
-              pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-              rollerIO.setRollerVelocity(80);
-            })
-        .until(atExtensionTrigger)
-        .andThen(
-            this.run(
-                () -> {
-                  pivotIO.setMotorVoltage(0);
-                  rollerIO.setRollerVelocity(80);
-                }));
+        () -> {
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION, -0.5);
+          rollerIO.setRollerVelocity(80);
+        })
+    // .until(atExtensionTrigger)
+    // .andThen(
+    //     this.run(
+    //         () -> {
+    //           pivotIO.setMotorVoltage(0);
+    //           rollerIO.setRollerVelocity(80);
+    //         }));
+    ;
   }
 
   @Override
@@ -138,17 +139,18 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   @Override
   public Command restExtended() {
     return this.run(
-            () -> {
-              pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-              rollerIO.setRollerVoltage(0.0);
-            })
-        .until(atExtensionTrigger)
-        .andThen(
-            this.run(
-                () -> {
-                  pivotIO.setMotorVoltage(0);
-                  rollerIO.setRollerVoltage(0);
-                }));
+        () -> {
+          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+          rollerIO.setRollerVoltage(0.0);
+        })
+    // .until(atExtensionTrigger)
+    // .andThen(
+    //     this.run(
+    //         () -> {
+    //           pivotIO.setMotorVoltage(0);
+    //           rollerIO.setRollerVoltage(0);
+    //         }));
+    ;
   }
 
   @Override
@@ -206,13 +208,13 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.Feedback.SensorToMechanismRatio = 1;
 
     config.Slot0.kS = 0.05;
-    config.Slot0.kV = 8.0; // Might suck\
+    config.Slot0.kV = 8.0; // Might suck
     config.Slot0.kA = 0.0;
-    config.Slot0.kG = 0.55;
+    config.Slot0.kG = 0.4;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.GravityArmPositionOffset = 0.0; // Maybe need this??
-    config.Slot0.kP = 15.0;
-    config.Slot0.kD = 0.3;
+    config.Slot0.kP = 40.0;
+    config.Slot0.kD = 0.0;
 
     config.CurrentLimits.StatorCurrentLimit = 45.0; // glup
     config.CurrentLimits.StatorCurrentLimitEnable = true;

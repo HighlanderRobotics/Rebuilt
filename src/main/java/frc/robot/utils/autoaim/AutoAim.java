@@ -30,6 +30,8 @@ public class AutoAim {
   public static final Rotation2d RIGHT_FIXED_SHOT_TURRET_ANGLE =
       Rotation2d.fromDegrees(-109.775391);
 
+  private static int fudgeFactor = 0;
+
   static { // For hub shot tree
     ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46));
@@ -63,43 +65,43 @@ public class AutoAim {
         1.716849,
         new ShotData(
             Rotation2d.fromDegrees(23 - 13.16),
-            30 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO, //   + 1,
+            30 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             0.8));
     COMP_HUB_SHOT_TREE.put(
         2.017596,
         new ShotData(
             Rotation2d.fromDegrees(23 - 13.16),
-            33 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO, //   + 1,
+            33 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             0.9));
     COMP_HUB_SHOT_TREE.put(
         2.423868,
         new ShotData(
             Rotation2d.fromDegrees(25 - 13.16),
-            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO, //   + 1,
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.1));
     COMP_HUB_SHOT_TREE.put(
         2.664198,
         new ShotData(
             Rotation2d.fromDegrees(26 - 13.16),
-            36 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO, //   + 1,
+            36 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.2));
     COMP_HUB_SHOT_TREE.put(
         2.903207,
         new ShotData(
             Rotation2d.fromDegrees(30 - 13.16),
-            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO, //   + 1,
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.2));
     COMP_HUB_SHOT_TREE.put(
         3.156802,
         new ShotData(
             Rotation2d.fromDegrees(32 - 13.16),
-            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO, //   + 1,
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.23));
     COMP_HUB_SHOT_TREE.put(
         3.437033,
         new ShotData(
             Rotation2d.fromDegrees(34 - 13.16),
-            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO, //   + 1,
+            35 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.25));
     COMP_HUB_SHOT_TREE.put(
         3.611052,
@@ -494,5 +496,17 @@ public class AutoAim {
 
   public static ShotData getMidFixedShotData() {
     return new ShotData(Rotation2d.fromDegrees(32.84), 35, 0);
+  }
+
+  public static void incrementFudgeFactor() {
+    fudgeFactor++;
+  }
+
+  public static void decrementFudgeFactor() {
+    fudgeFactor--;
+  }
+
+  public static int getFudgeFactor() {
+    return fudgeFactor;
   }
 }
