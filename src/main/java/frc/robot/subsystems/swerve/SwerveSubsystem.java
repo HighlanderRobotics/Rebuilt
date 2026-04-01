@@ -432,7 +432,11 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param openLoop boolean for if the drivetrain should run with feedforward control (open loop)
    *     or with feedback control (closed loop)
    */
-  private void drive(ChassisSpeeds speeds, boolean openLoop) {
+  private void drive(
+      ChassisSpeeds speeds,
+      boolean openLoop,
+      double[] moduleForcesXNetwon,
+      double[] moduleForcesYNewton) {
     // Converts time continuous chassis speeds to setpoints after the specified time (dtSeconds)
     speeds = ChassisSpeeds.discretize(speeds, 0.02);
 
@@ -446,6 +450,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     SwerveModuleState[] optimizedStates = new SwerveModuleState[modules.length];
 
+    // Instead of storing velocity here we store Newtons of force
+    SwerveModuleState[] forceSetpoints = new SwerveModuleState[modules.length];
+
     for (int i = 0; i < optimizedStates.length; i++) {
       if (openLoop) {
         // Heuristic to enable/disable FOC
@@ -456,12 +463,39 @@ public class SwerveSubsystem extends SubsystemBase {
                         + Math.pow(this.getVelocityRobotRelative().vyMetersPerSecond, 2))
                 < SWERVE_CONSTANTS.getMaxLinearSpeed() * 0.9; // 0.9 is 90% of drivetrain max speed
         optimizedStates[i] = modules[i].runOpenLoop(states[i], focEnable);
+
+        // Needs some value to update
+        forceSetpoints[i] = new SwerveModuleState();
       } else {
-        optimizedStates[i] = modules[i].runClosedLoop(states[i]);
+
+        double robotRelForceX =
+            moduleForcesXNetwon[i] * getRotation().unaryMinus().getCos()
+                - moduleForcesYNewton[i] * getRotation().unaryMinus().getSin();
+        double robotRelForceY =
+            moduleForcesXNetwon[i] * getRotation().unaryMinus().getSin()
+                + moduleForcesYNewton[i] * getRotation().unaryMinus().getCos();
+
+        forceSetpoints[i] =
+            new SwerveModuleState(
+                Math.hypot(robotRelForceX, robotRelForceY),
+                new Rotation2d(robotRelForceX, robotRelForceY));
+
+        optimizedStates[i] = modules[i].runClosedLoop(states[i], robotRelForceX, robotRelForceY);
       }
     }
-
+    Logger.recordOutput("SwerveStates/Force Setpoints", forceSetpoints);
     Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedStates);
+  }
+
+  /**
+   * Runs the modules to the specified ChassisSpeeds (robot velocity)
+   *
+   * @param speeds the ChassisSpeeds to run the drivetrain at
+   * @param openLoop boolean for if the drivetrain should run with feedforward control (open loop)
+   *     or with feedback control (closed loop)
+   */
+  private void drive(ChassisSpeeds speeds, boolean openLoop) {
+    drive(speeds, openLoop, new double[] {0.0, 0.0, 0.0, 0.0}, new double[] {0.0, 0.0, 0.0, 0.0});
   }
 
   /**
@@ -1008,7 +1042,11 @@ public class SwerveSubsystem extends SubsystemBase {
               sample.getChassisSpeeds().plus(feedback), getPose().getRotation());
       Logger.recordOutput("Choreo/Target Speeds Robot Relative", speeds);
 
-      this.drive(speeds, false);
+      // These are field relative i believe
+      double[] moduleForcesX = sample.moduleForcesX();
+      double[] moduleForcesY = sample.moduleForcesY();
+
+      this.drive(speeds, false, moduleForcesX, moduleForcesY);
     };
   }
 

@@ -214,7 +214,17 @@ public class ModuleIOReal {
   }
 
   public void setDriveVelocitySetpoint(double setpointMetersPerSecond) {
-    driveTalon.setControl(driveVelocityControl.withVelocity(setpointMetersPerSecond));
+    setDriveVelocitySetpoint(setpointMetersPerSecond, 0.0);
+  }
+
+  public void setDriveVelocitySetpoint(double setpointMetersPerSecond, double forceNewtons) {
+    // Convert the requested force to the current required to output that force
+    // Conversion factor: Stall torque / Stall current (aka kT)
+    double forceFFAmps = forceNewtons * 9.37 / 483;
+    // Kelpie had no conversion from force to torque. maybe we should add this?? idk? comment claims
+    // its handled in sensor to mech ratio
+    driveTalon.setControl(
+        driveVelocityControl.withVelocity(setpointMetersPerSecond).withFeedForward(forceFFAmps));
   }
 
   public void setTurnVoltage(double volts) {

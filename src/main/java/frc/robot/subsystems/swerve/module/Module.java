@@ -73,10 +73,27 @@ public class Module {
    * @return the optimized state
    */
   public SwerveModuleState runClosedLoop(SwerveModuleState state) {
+    return runClosedLoop(state, 0.0, 0.0);
+  }
+
+  public SwerveModuleState runClosedLoop(
+      SwerveModuleState state, double forceXNewtons, double forceYNewtons) {
     state.optimize(getAngle());
 
+    // Force on the motor is the total force vector projected onto the velocity vector
+    // to project a onto b take ||a||*cos(theta) where theta is the angle between the two vectors
+    // We want the magnitude of the projection, so we can ignore the direction of this later
+    final var theta = Math.atan2(forceYNewtons, forceXNewtons) - inputs.turnPosition.getRadians();
+    double forceNewtons = Math.hypot(forceXNewtons, forceYNewtons) * Math.cos(theta);
+    if (Math.signum(forceNewtons) * Math.signum(state.speedMetersPerSecond) < 0) {
+      forceNewtons = 0;
+    }
+
     io.setTurnPositionSetpoint(state.angle);
-    io.setDriveVelocitySetpoint(state.speedMetersPerSecond);
+    io.setDriveVelocitySetpoint(state.speedMetersPerSecond, forceNewtons);
+
+    Logger.recordOutput(
+        "Swerve/" + constants.prefix + " Module/Force Feedforward Newtons", forceNewtons);
 
     return state;
   }
