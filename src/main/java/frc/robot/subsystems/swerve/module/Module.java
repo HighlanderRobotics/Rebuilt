@@ -78,7 +78,9 @@ public class Module {
   }
 
   /**
-   * Runs closed loop to the specified state, with a force feedforward. Used for automated actions, like auto.
+   * Runs closed loop to the specified state, with a force feedforward. Used for automated actions,
+   * like auto.
+   *
    * @param state setpoint state
    * @param forceXNewtons the x-component of the requested force vector
    * @param forceYNewtons the y-component of the requested force vector
@@ -91,7 +93,8 @@ public class Module {
     // Force on the motor is the total force vector projected onto the velocity vector
     // to project a onto b take ||a||*cos(theta) where theta is the angle between the two vectors
     // We want the magnitude of the projection, so we can ignore the direction of this later
-    final double thetaRads = Math.atan2(forceYNewtons, forceXNewtons) - inputs.turnPosition.getRadians();
+    final double thetaRads =
+        Math.atan2(forceYNewtons, forceXNewtons) - inputs.turnPosition.getRadians();
     double forceNewtons = Math.hypot(forceXNewtons, forceYNewtons) * Math.cos(thetaRads);
     if (Math.signum(forceNewtons) * Math.signum(state.speedMetersPerSecond) < 0) {
       forceNewtons = 0;

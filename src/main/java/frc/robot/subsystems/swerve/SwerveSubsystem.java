@@ -426,13 +426,16 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Runs the modules to the specified ChassisSpeeds (robot velocity) and with the specified force feedforwards
+   * Runs the modules to the specified ChassisSpeeds (robot velocity) and with the specified force
+   * feedforwards
    *
    * @param speeds the ChassisSpeeds to run the drivetrain at
    * @param openLoop boolean for if the drivetrain should run with feedforward control (open loop)
    *     or with feedback control (closed loop)
-   * @param moduleForcesXNewton the x-components of the force feedforwards. Should be in order FL, FR, BL, BR. Should have the same length as the modules array
-   * @param moduleForcesYNewton the y-components of the force feedforwards. Same order and length as x-components
+   * @param moduleForcesXNewton the x-components of the force feedforwards. Should be in order FL,
+   *     FR, BL, BR. Should have the same length as the modules array
+   * @param moduleForcesYNewton the y-components of the force feedforwards. Same order and length as
+   *     x-components
    */
   private void drive(
       ChassisSpeeds speeds,
