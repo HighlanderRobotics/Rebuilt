@@ -22,9 +22,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.ShotTrees;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
-import frc.robot.utils.autoaim.NewAutoAim.ShotParams;
+import frc.robot.utils.autoaim.AutoAim.ShotParams;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -92,17 +92,10 @@ public class ShooterSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command feed(
-      Supplier<ShotParams> shotParamsSupplier,
-      Supplier<Pose2d> feedTarget,
-      Supplier<Pose2d> robotPoseSupplier) {
+      Supplier<ShotParams> shotParamsSupplier) {
     return this.run(
         () -> {
-          ShotData shotData =
-              AutoAim.FEED_SHOT_TREE.get(
-                  robotPoseSupplier
-                      .get()
-                      .getTranslation()
-                      .getDistance(feedTarget.get().getTranslation()));
+          ShotData shotData = shotParamsSupplier.get().shotData();
           hoodIO.setHoodPosition(shotData.hoodAngle());
           flywheelIO.setMotionProfiledFlywheelVelocity(shotData.flywheelVelocityRotPerSec());
         });

@@ -45,8 +45,9 @@ import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
-import frc.robot.utils.autoaim.NewAutoAim;
-import frc.robot.utils.autoaim.NewAutoAim.ShotParams;
+import frc.robot.utils.autoaim.AutoAim.ShotParams;
+import frc.robot.utils.autoaim.ShotTrees;
+
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -242,14 +243,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   @Override
   public Command feed(
-      Supplier<ShotParams> shotParamsSupplier,
-      Supplier<Pose2d> feedTarget,
-      Supplier<Pose2d> robotPoseSupplier) {
+      Supplier<ShotParams> shotParamsSupplier) {
     return resetTurretToCalculatedPosition()
         .andThen(
             this.run(
                 () -> {
-                  Logger.recordOutput("Robot/Feed Target", feedTarget.get());
                   hoodIO.setHoodPosition(shotParamsSupplier.get().shotData().hoodAngle());
                   // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
                   flywheelIO.setMotionProfiledFlywheelVelocity(
@@ -278,13 +276,13 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           // } else {
           if (inScoringArea.getAsBoolean()) {
             turretIO.setTurretPosition(
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                         robotPoseSupplier.get(),
                         chassisSpeedsSupplierRobotRel.get(),
                         FieldUtils.getCurrentHubTranslation(),
                         Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                            ? AutoAim.ALPHA_HUB_SHOT_TREE
-                            : AutoAim.COMP_HUB_SHOT_TREE)
+                            ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                            : ShotTrees.COMP_HUB_SHOT_TREE)
                     .turretAngle());
             // turretIO.setTurretPosition(
             //     AutoAim.getTurretHubTargetRotation(
@@ -293,10 +291,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             //         chassisSpeedsSupplier.get()));
           } else {
             turretIO.setTurretPosition(
-                AutoAim.getTurretFeedTargetRotation(
-                    feedTarget.get().getTranslation(),
-                    robotPoseSupplier.get(),
-                    chassisSpeedsSupplierRobotRel.get()));
+                AutoAim.getSOTMShotParameters(
+                        robotPoseSupplier.get(),
+                        chassisSpeedsSupplierRobotRel.get(),
+                        feedTarget.get().getTranslation(),
+                        ShotTrees.FEED_SHOT_TREE)
+                    .turretAngle());
           }
           // }
         });

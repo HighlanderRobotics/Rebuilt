@@ -68,6 +68,8 @@ import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
 import frc.robot.utils.autoaim.InterpolatingShotTree;
+import frc.robot.utils.autoaim.ShotTrees;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -701,14 +703,6 @@ public class SwerveSubsystem extends SubsystemBase {
   //   return driveWithHeadingSnap(() -> AutoAim.getSOTMYaw(getPose(), getVelocityFieldRelative()),
   // xVel, yVel);
   // }
-  public Command faceHub(DoubleSupplier xVel, DoubleSupplier yVel, InterpolatingShotTree tree) {
-    return driveWithHeadingSnap(
-        () ->
-            AutoAim.getVirtualTargetYaw(
-                getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree),
-        xVel,
-        yVel);
-  }
 
   public Command faceHubComp(
       DoubleSupplier xVel, DoubleSupplier yVel, Supplier<Rotation2d> turretRotation) {
@@ -722,11 +716,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
           // get desired rotation to point at target
           Rotation2d turretTargetRotation =
-              AutoAim.getVirtualTargetYaw(
-                  getVelocityFieldRelative(),
-                  FieldUtils.getCurrentHubTranslation(),
-                  turretPose,
-                  AutoAim.COMP_HUB_SHOT_TREE);
+              AutoAim.getSOTMShotParameters(getPose(), getVelocityRobotRelative(), FieldUtils.getCurrentHubTranslation(), ShotTrees.COMP_HUB_SHOT_TREE).turretAngle();
           // subtract that from rotation to point at target
           turretTargetRotation = turretTargetRotation.minus(getRotation());
           Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
@@ -753,14 +743,10 @@ public class SwerveSubsystem extends SubsystemBase {
                   .transformBy(
                       new Transform2d(
                           TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
-
           // get desired rotation to point at target
           Rotation2d turretTargetRotation =
-              AutoAim.getVirtualTargetYaw(
-                  getVelocityFieldRelative(),
-                  FeedTargets.getFeedTarget(feedTargetSupplier.get()).getTranslation(),
-                  turretPose,
-                  AutoAim.FEED_SHOT_TREE);
+              AutoAim.getSOTMShotParameters(getPose(), getVelocityRobotRelative(), FeedTargets.getFeedTarget(feedTargetSupplier.get()).getTranslation()
+, ShotTrees.FEED_SHOT_TREE).turretAngle();
           // subtract that from rotation to point at target
           turretTargetRotation = turretTargetRotation.minus(getRotation());
           Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
@@ -773,33 +759,6 @@ public class SwerveSubsystem extends SubsystemBase {
         },
         xVel,
         yVel);
-  }
-
-  public boolean isFacingTarget(InterpolatingShotTree tree) {
-    switch (Superstructure.getShotTarget()) { // ugh maybe this should be in robot.java
-      case SCORE:
-        return isFacingHub(tree);
-      case FEED:
-        return isFacingFeedTarget();
-      default:
-        return false;
-    }
-  }
-
-  public boolean isFacingHub(InterpolatingShotTree tree) {
-    Rotation2d target =
-        AutoAim.getVirtualTargetYaw(
-            getVelocityFieldRelative(), FieldUtils.getCurrentHubTranslation(), getPose(), tree);
-    return MathUtil.isNear(
-        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
-  }
-
-  public boolean isFacingFeedTarget() {
-    Translation2d feedTarget =
-        FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose().getTranslation();
-    Rotation2d target = AutoAim.getTargetRotation(feedTarget, getPose());
-    return MathUtil.isNear(
-        target.getRadians(), getPose().getRotation().getRadians(), 0.174533); // 10 degrees
   }
 
   // public Command bumpAlign(DoubleSupplier xVel, DoubleSupplier yVel) {

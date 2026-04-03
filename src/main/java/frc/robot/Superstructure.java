@@ -24,7 +24,8 @@ import frc.robot.utils.CommandXboxControllerSubsystem;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.autoaim.AutoAim;
-import frc.robot.utils.autoaim.NewAutoAim;
+import frc.robot.utils.autoaim.ShotTrees;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -310,7 +311,7 @@ public class Superstructure {
             // .debounce(0.05)
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
             .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
-            .and(new Trigger(NewAutoAim::targetInTurretDeadzone).negate());
+            .and(new Trigger(AutoAim::targetInTurretDeadzone).negate());
   }
 
   private void addTransitions() {
@@ -345,7 +346,7 @@ public class Superstructure {
       bindTransition(
           SuperState.SCORE_FLOW,
           SuperState.SPIN_UP_SCORE_FLOW,
-          new Trigger(NewAutoAim::targetInTurretDeadzone));
+          new Trigger(AutoAim::targetInTurretDeadzone));
 
       bindTransition(
           SuperState.SPIN_UP_SCORE_FLOW,
@@ -385,7 +386,7 @@ public class Superstructure {
       bindTransition(
           SuperState.FEED_FLOW,
           SuperState.SPIN_UP_FEED_FLOW,
-          new Trigger(NewAutoAim::targetInTurretDeadzone));
+          new Trigger(AutoAim::targetInTurretDeadzone));
 
       bindTransition(
           SuperState.SPIN_UP_FEED_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
@@ -488,13 +489,11 @@ public class Superstructure {
         indexer.rest(),
         shooter.feed(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                    AutoAim.FEED_SHOT_TREE),
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getPose),
+                    ShotTrees.FEED_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -503,13 +502,11 @@ public class Superstructure {
         indexer.kick(),
         shooter.feed(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                    AutoAim.FEED_SHOT_TREE),
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getPose),
+                    ShotTrees.FEED_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -518,13 +515,11 @@ public class Superstructure {
         indexer.index(),
         shooter.feed(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                    AutoAim.FEED_SHOT_TREE),
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getPose),
+                    ShotTrees.FEED_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -533,13 +528,11 @@ public class Superstructure {
         indexer.kick(),
         shooter.feed(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                    AutoAim.FEED_SHOT_TREE),
-            () -> FeedTargets.getFeedTarget(feedTarget).getPose(),
-            swerve::getPose),
+                    ShotTrees.FEED_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -548,13 +541,13 @@ public class Superstructure {
         indexer.rest(),
         shooter.score(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE)),
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -564,13 +557,13 @@ public class Superstructure {
         indexer.kick(),
         shooter.score(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE)),
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -579,13 +572,13 @@ public class Superstructure {
         indexer.rest(),
         shooter.score(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE)),
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -594,13 +587,13 @@ public class Superstructure {
         indexer.kick(),
         shooter.score(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE)),
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)),
         climber.retract());
 
     bindCommands(
@@ -642,13 +635,13 @@ public class Superstructure {
         indexer.rest(),
         shooter.score(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE)),
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)),
         climber.extend());
 
     bindCommands(
@@ -657,13 +650,13 @@ public class Superstructure {
         indexer.kick(),
         shooter.score(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getSOTMShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
                     Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                        ? AutoAim.ALPHA_HUB_SHOT_TREE
-                        : AutoAim.COMP_HUB_SHOT_TREE)),
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)),
         climber.extend());
 
     bindCommands(
