@@ -538,7 +538,6 @@ public class Autos {
         setRightClimb());
   }
 
-
   public Command getHubDepotOutpostAuto() {
     return createAuto(
         "Hub Depot Outpost Auto",
@@ -566,7 +565,6 @@ public class Autos {
         },
         setRightClimb());
   }
-
 
   public Command getLeftNeutralScoreTwice() {
     return createAuto(
