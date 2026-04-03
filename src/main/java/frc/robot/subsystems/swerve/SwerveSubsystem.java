@@ -712,7 +712,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
           // get desired rotation to point at target
           Rotation2d turretTargetRotation =
-              AutoAim.getSOTMShotParameters(
+              AutoAim.getShotParameters(
                       getPose(),
                       getVelocityRobotRelative(),
                       FieldUtils.getCurrentHubTranslation(),
@@ -746,7 +746,7 @@ public class SwerveSubsystem extends SubsystemBase {
                           TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
           // get desired rotation to point at target
           Rotation2d turretTargetRotation =
-              AutoAim.getSOTMShotParameters(
+              AutoAim.getShotParameters(
                       getPose(),
                       getVelocityRobotRelative(),
                       FeedTargets.getFeedTarget(feedTargetSupplier.get()).getTranslation(),

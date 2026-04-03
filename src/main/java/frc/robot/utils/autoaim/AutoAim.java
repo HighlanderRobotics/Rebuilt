@@ -32,7 +32,7 @@ public class AutoAim {
       0.0;
 
   // TODO: FIX ROTATION AND REDUCE DEFENDABLILTY
-  public static ShotParams getSOTMShotParameters(
+  public static ShotParams getShotParameters(
       Pose2d estimatedPose,
       ChassisSpeeds robotRelativeVelocity,
       Translation2d target,

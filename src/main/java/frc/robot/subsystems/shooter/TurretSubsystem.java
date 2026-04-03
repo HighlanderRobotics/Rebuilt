@@ -274,7 +274,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           // } else {
           if (inScoringArea.getAsBoolean()) {
             turretIO.setTurretPosition(
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                         robotPoseSupplier.get(),
                         chassisSpeedsSupplierRobotRel.get(),
                         FieldUtils.getCurrentHubTranslation(),
@@ -289,7 +289,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
             //         chassisSpeedsSupplier.get()));
           } else {
             turretIO.setTurretPosition(
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                         robotPoseSupplier.get(),
                         chassisSpeedsSupplierRobotRel.get(),
                         feedTarget.get().getTranslation(),

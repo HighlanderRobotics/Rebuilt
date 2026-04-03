@@ -488,7 +488,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.feed(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
@@ -501,7 +501,7 @@ public class Superstructure {
         indexer.kick(),
         shooter.feed(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
@@ -514,7 +514,7 @@ public class Superstructure {
         indexer.index(),
         shooter.feed(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
@@ -527,7 +527,7 @@ public class Superstructure {
         indexer.kick(),
         shooter.feed(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FeedTargets.getFeedTarget(feedTarget).getTranslation(),
@@ -540,7 +540,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.score(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
@@ -556,7 +556,7 @@ public class Superstructure {
         indexer.kick(),
         shooter.score(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
@@ -571,7 +571,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.score(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
@@ -586,7 +586,7 @@ public class Superstructure {
         indexer.kick(),
         shooter.score(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
@@ -634,7 +634,7 @@ public class Superstructure {
         indexer.rest(),
         shooter.score(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
@@ -649,7 +649,7 @@ public class Superstructure {
         indexer.kick(),
         shooter.score(
             () ->
-                AutoAim.getSOTMShotParameters(
+                AutoAim.getShotParameters(
                     swerve.getPose(),
                     swerve.getVelocityRobotRelative(),
                     FieldUtils.getCurrentHubTranslation(),
