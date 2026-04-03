@@ -33,11 +33,14 @@ public class AutoAim {
 
   // TODO: FIX ROTATION AND REDUCE DEFENDABLILTY
   /**
-   * Gets the required ShotParams (ShotData and turret rotation) required to fire a ball into the hub, calculating a shot based on the passed in position, velocity, and shot tree.
+   * Gets the required ShotParams (ShotData and turret rotation) required to fire a ball into the
+   * hub, calculating a shot based on the passed in position, velocity, and shot tree.
+   *
    * @param estimatedPose the robot pose estimated by the odometry and vision
    * @param robotRelativeVelocity the robot relative ChassisSpeeds the robot is driving at
    * @param target the target to shoot towards
-   * @param tree the InterpolatingShotTree used for this target (i.e. for feeding or scoring), populated with working measurements from known distances
+   * @param tree the InterpolatingShotTree used for this target (i.e. for feeding or scoring),
+   *     populated with working measurements from known distances
    * @return the ShotParams to hit the target
    */
   public static ShotParams getShotParameters(
@@ -137,10 +140,12 @@ public class AutoAim {
   }
 
   /**
-   * Calculates the required turret position to point the turret along the passed in yaw. Clamps the rotation to within the deadzone
+   * Calculates the required turret position to point the turret along the passed in yaw. Clamps the
+   * rotation to within the deadzone
+   *
    * @param targetRotation the target yaw
    * @param robotPose the robot's position and rotation
-   * @return the position the turret should go to to down the passed in rotation 
+   * @return the position the turret should go to to down the passed in rotation
    */
   public static Rotation2d getTurretTargetRotation(Rotation2d targetRotation, Pose2d robotPose) {
 
@@ -174,6 +179,7 @@ public class AutoAim {
 
   /**
    * Gets the rotation required to point at the target, given the current position
+   *
    * @param target the target to point at
    * @param robotPose the current position
    * @return the rotation required to point at the target
@@ -187,36 +193,32 @@ public class AutoAim {
 
   /**
    * Returns the absolute distance between the passed in pose and the current alliance hub
-   * @param pose 
+   *
+   * @param pose
    * @return the pose's distance to the hub
    */
   public static double distanceToHub(Pose2d pose) {
     return pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
   }
 
-  /**
-   * Increase the flywheel fudge factor by 1
-   */
+  /** Increase the flywheel fudge factor by 1 */
   public static void incrementFudgeFactor() {
     fudgeFactor++;
   }
 
-  /**
-   * Decrease the flywheel fudge factor by 1
-   */
+  /** Decrease the flywheel fudge factor by 1 */
   public static void decrementFudgeFactor() {
     fudgeFactor--;
   }
 
-  /**
-   * Get the current flywheel fudge factor
-   */
+  /** Get the current flywheel fudge factor */
   public static int getFudgeFactor() {
     return fudgeFactor;
   }
 
   /**
    * Returns whether or not the current target is in the turret deadzone
+   *
    * @return true if the target is in the deadzone, false if not
    */
   public static boolean targetInTurretDeadzone() {
