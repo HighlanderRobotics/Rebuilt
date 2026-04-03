@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -38,7 +37,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
 import frc.robot.Robot.RobotMode;
-import frc.robot.Superstructure;
 import frc.robot.Superstructure.FeedTarget;
 import frc.robot.components.camera.Camera;
 import frc.robot.components.camera.CameraIOReal;
@@ -67,9 +65,7 @@ import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.Tracer;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAlign;
-import frc.robot.utils.autoaim.InterpolatingShotTree;
 import frc.robot.utils.autoaim.ShotTrees;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -716,7 +712,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
           // get desired rotation to point at target
           Rotation2d turretTargetRotation =
-              AutoAim.getSOTMShotParameters(getPose(), getVelocityRobotRelative(), FieldUtils.getCurrentHubTranslation(), ShotTrees.COMP_HUB_SHOT_TREE).turretAngle();
+              AutoAim.getSOTMShotParameters(
+                      getPose(),
+                      getVelocityRobotRelative(),
+                      FieldUtils.getCurrentHubTranslation(),
+                      ShotTrees.COMP_HUB_SHOT_TREE)
+                  .turretAngle();
           // subtract that from rotation to point at target
           turretTargetRotation = turretTargetRotation.minus(getRotation());
           Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
@@ -745,8 +746,12 @@ public class SwerveSubsystem extends SubsystemBase {
                           TurretSubsystem.ROBOT_TO_TURRET_TRANSLATION, Rotation2d.kZero));
           // get desired rotation to point at target
           Rotation2d turretTargetRotation =
-              AutoAim.getSOTMShotParameters(getPose(), getVelocityRobotRelative(), FeedTargets.getFeedTarget(feedTargetSupplier.get()).getTranslation()
-, ShotTrees.FEED_SHOT_TREE).turretAngle();
+              AutoAim.getSOTMShotParameters(
+                      getPose(),
+                      getVelocityRobotRelative(),
+                      FeedTargets.getFeedTarget(feedTargetSupplier.get()).getTranslation(),
+                      ShotTrees.FEED_SHOT_TREE)
+                  .turretAngle();
           // subtract that from rotation to point at target
           turretTargetRotation = turretTargetRotation.minus(getRotation());
           Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);

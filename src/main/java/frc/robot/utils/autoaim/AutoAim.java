@@ -1,7 +1,5 @@
 package frc.robot.utils.autoaim;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,27 +7,26 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
 
-      public record ShotParams(ShotData shotData, Rotation2d turretAngle) {}
+  public record ShotParams(ShotData shotData, Rotation2d turretAngle) {}
 
+  private static boolean outOfRange = false;
 
-    private static boolean outOfRange = false;
+  private static int fudgeFactor = 0;
 
-      private static int fudgeFactor = 0;
-    
-    private static double lastVxMetersPerSec = 0.0;
+  private static double lastVxMetersPerSec = 0.0;
   private static double lastVyMetersPerSec = 0.0;
   private static double lastOmegaRadPerSec = 0.0;
   private static double lastRunTimeSec = 0.0;
 
-    public static double LATENCY_COMPENSATION_SECS =
+  public static double LATENCY_COMPENSATION_SECS =
       //   new LoggedTunableNumber("Latency time", 0.3).getAsDouble();
       // comp
       0.0;
@@ -135,8 +132,7 @@ public class AutoAim {
     return outOfRange;
   }
 
-  public static Rotation2d getTurretTargetRotation(
-      Rotation2d targetRotation, Pose2d robotPose) {
+  public static Rotation2d getTurretTargetRotation(Rotation2d targetRotation, Pose2d robotPose) {
 
     // subtract that from rotation to point at target
     Rotation2d turretTargetRotation = targetRotation.minus(robotPose.getRotation());
@@ -164,8 +160,9 @@ public class AutoAim {
     Logger.recordOutput("Turret/Wrapped target", Rotation2d.fromDegrees(turretTargetDegrees));
     // ship it
     return Rotation2d.fromDegrees(turretTargetDegrees);
-}
-public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
+  }
+
+  public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
     Translation2d robotToTarget = target.minus(robotPose.getTranslation());
     Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
     Logger.recordOutput("Autoaim/Target Rotation", rot);

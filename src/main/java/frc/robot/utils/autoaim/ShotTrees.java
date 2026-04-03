@@ -7,9 +7,9 @@ import frc.robot.utils.autoaim.AutoAim.ShotParams;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 
 public class ShotTrees {
-      public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
+  public static final InterpolatingShotTree ALPHA_HUB_SHOT_TREE = new InterpolatingShotTree();
 
-    static { // For hub shot tree
+  static { // For hub shot tree
     ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46));
     ALPHA_HUB_SHOT_TREE.put(
@@ -240,14 +240,17 @@ public class ShotTrees {
 
   // Not really using these but ig i'll keep them
   public static ShotParams getLeftFixedShotParams() {
-    return new ShotParams(new ShotData(Rotation2d.fromDegrees(36), 36, 0), Rotation2d.fromDegrees(-73.916016));
+    return new ShotParams(
+        new ShotData(Rotation2d.fromDegrees(36), 36, 0), Rotation2d.fromDegrees(-73.916016));
   }
 
   public static ShotParams getRightFixedShotParams() {
-    return new ShotParams(new ShotData(Rotation2d.fromDegrees(23.16), 35.7, 0), Rotation2d.fromDegrees(-82));
+    return new ShotParams(
+        new ShotData(Rotation2d.fromDegrees(23.16), 35.7, 0), Rotation2d.fromDegrees(-82));
   }
 
   public static ShotParams getMidFixedShotParams() {
-    return new ShotParams(new ShotData(Rotation2d.fromDegrees(32.84), 35, 0), Rotation2d.fromDegrees(-109.775391));
+    return new ShotParams(
+        new ShotData(Rotation2d.fromDegrees(32.84), 35, 0), Rotation2d.fromDegrees(-109.775391));
   }
 }

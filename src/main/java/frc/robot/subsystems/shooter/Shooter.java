@@ -27,8 +27,7 @@ public interface Shooter extends Subsystem {
    * Sets hood angle and flywheel velocity based on distance from hub from the feed map + current
    * pose + feed target
    */
-  public Command feed(
-      Supplier<ShotParams> shotParamsSupplier);
+  public Command feed(Supplier<ShotParams> shotParamsSupplier);
 
   /** Not running (set to 0) */
   public Command rest(

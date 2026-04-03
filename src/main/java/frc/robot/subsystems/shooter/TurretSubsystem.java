@@ -47,7 +47,6 @@ import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAim.ShotParams;
 import frc.robot.utils.autoaim.ShotTrees;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -242,8 +241,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   public void simulationPeriodic() {}
 
   @Override
-  public Command feed(
-      Supplier<ShotParams> shotParamsSupplier) {
+  public Command feed(Supplier<ShotParams> shotParamsSupplier) {
     return resetTurretToCalculatedPosition()
         .andThen(
             this.run(
