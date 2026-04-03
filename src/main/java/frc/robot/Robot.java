@@ -617,6 +617,13 @@ public class Robot extends LoggedRobot {
     fuelSim.setSubticks(5);
 
     // fuelSim.start();
+
+    // Log climb poses
+    Logger.recordOutput(
+        "AutoAlign/Climb Targets",
+        Arrays.stream(ClimbTargets.values())
+            .map(target -> target.getPose())
+            .toArray(Pose2d[]::new));
   }
 
   /** Scales a joystick value for teleop driving */
@@ -885,14 +892,7 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
-    Logger.recordOutput("Flywheel Fudge Factor", AutoAim.getFudgeFactor());
-
-    // Log climb poses
-    Logger.recordOutput(
-        "AutoAlign/Climb Targets",
-        Arrays.stream(ClimbTargets.values())
-            .map(target -> target.getPose())
-            .toArray(Pose2d[]::new));
+    Logger.recordOutput("AutoAim/Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     Logger.recordOutput(
         "trench poses",
@@ -903,11 +903,13 @@ public class Robot extends LoggedRobot {
     noLogStickAlert.set(!directory.exists());
 
     Logger.recordOutput(
-        "Distance to hub",
+        "AutoAim/Distance to hub",
         shooter
             .getTurretPose(swerve.getPose())
             .getTranslation()
             .getDistance(FieldUtils.getCurrentHubTranslation()));
+    Logger.recordOutput(
+        "AutoAim/Feed Target", FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose());
   }
 
   public void updateAlerts() {

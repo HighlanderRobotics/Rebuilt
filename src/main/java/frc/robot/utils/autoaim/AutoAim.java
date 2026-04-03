@@ -165,14 +165,12 @@ public class AutoAim {
   public static Rotation2d getTargetRotation(Translation2d target, Pose2d robotPose) {
     Translation2d robotToTarget = target.minus(robotPose.getTranslation());
     Rotation2d rot = Rotation2d.fromRadians(Math.atan2(robotToTarget.getY(), robotToTarget.getX()));
-    Logger.recordOutput("Autoaim/Target Rotation", rot);
+    Logger.recordOutput("AutoAlign/Target Rotation", rot);
     return rot;
   }
 
   public static double distanceToHub(Pose2d pose) {
-    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
-    Logger.recordOutput("Autoaim/Distance To Hub", distance);
-    return distance;
+    return pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
   }
 
   public static void incrementFudgeFactor() {

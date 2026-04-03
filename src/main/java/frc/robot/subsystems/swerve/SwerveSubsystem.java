@@ -569,8 +569,8 @@ public class SwerveSubsystem extends SubsystemBase {
                 .alongWith(
                     Commands.run(
                         () -> {
-                          Logger.recordOutput("AutoAim/Target Pose", target.get());
-                          Logger.recordOutput("AutoAim/Speeds Modifier", speedsModifier.get());
+                          Logger.recordOutput("AutoAlign/Target Pose", target.get());
+                          Logger.recordOutput("AutoAlign/Speeds Modifier", speedsModifier.get());
                         })));
   }
 
@@ -596,8 +596,8 @@ public class SwerveSubsystem extends SubsystemBase {
                 .alongWith(
                     Commands.run(
                         () -> {
-                          Logger.recordOutput("AutoAim/Target Pose", target.get());
-                          Logger.recordOutput("AutoAim/Speeds Modifier", speedsModifier.get());
+                          Logger.recordOutput("AutoAlign/Target Pose", target.get());
+                          Logger.recordOutput("AutoAlign/Speeds Modifier", speedsModifier.get());
                         })));
   }
 
@@ -882,12 +882,6 @@ public class SwerveSubsystem extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
     return estimator.getEstimatedPosition();
-  }
-
-  @AutoLogOutput(key = "Autoaim/Distance To Hub")
-  public static double distanceToHub(Pose2d pose) {
-    double distance = pose.getTranslation().getDistance(FieldUtils.getCurrentHubTranslation());
-    return distance;
   }
 
   public Pose3d getPose3d() {
