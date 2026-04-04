@@ -537,12 +537,17 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return a command stopping all the modules
    */
   public Command stop() {
+    // tbh i don't really know why this is a runonce?
     return this.runOnce(
         () -> {
           for (Module module : modules) {
             module.stop();
           }
         });
+  }
+
+  public Command stopForTime(DoubleSupplier seconds) {
+    return stop().repeatedly().withTimeout(seconds.getAsDouble());
   }
 
   public Command translateToPose(

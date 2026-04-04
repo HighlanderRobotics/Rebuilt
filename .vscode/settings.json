@@ -60,4 +60,6 @@
   "java.dependency.enableDependencyCheckup": false,
   "wpilib.selectDefaultSimulateExtension": false,
   "wpilib.skipSelectSimulateExtension": true,
-  "wpilib.autoStartRioLog": false}
+  "wpilib.autoStartRioLog": false,
+  "java.compile.nullAnalysis.mode": "disabled"
+}

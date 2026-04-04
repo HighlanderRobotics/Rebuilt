@@ -67,10 +67,13 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
+import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
+import frc.robot.utils.autoaim.NewAutoAim;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
@@ -206,6 +209,8 @@ public class Robot extends LoggedRobot {
   private Shooter shooter = null;
   private final CANdleSubsystem candle =
       new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
+
+  private FuelSim fuelSim = new FuelSim();
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -419,7 +424,8 @@ public class Robot extends LoggedRobot {
                     : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
-                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
+                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore),
+                fuelSim);
         break;
     }
     climber =
@@ -499,12 +505,11 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
 
     SmartDashboard.putData(
-        "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
+        "Set Turret to 0",
+        shooter.resetTurretToPosition(() -> Rotation2d.kZero).ignoringDisable(true));
     SmartDashboard.putData(
         "Rezero turret against cancoders",
-        shooter
-            .resetTurretToPosition(shooter.getCalculatedTurretRotations())
-            .ignoringDisable(true));
+        shooter.resetTurretToCalculatedPosition().ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
     candle.setDefaultCommand(candle.test().ignoringDisable(true));
@@ -515,7 +520,7 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(
         shooter.rest(
             swerve::getPose,
-            swerve::getVelocityFieldRelative,
+            swerve::getVelocityRobotRelative,
             superstructure::inScoringArea,
             () -> FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose()));
     swerve.setDefaultCommand(
@@ -588,6 +593,31 @@ public class Robot extends LoggedRobot {
                   "Interrputing: "
                       + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
             });
+
+    // fuelSim.spawnStartingFuel();
+
+    fuelSim.registerRobot(
+        Units.inchesToMeters(28), // from left to right in meters
+        Units.inchesToMeters(28), // from front to back in meters
+        Units.inchesToMeters(4), // from floor to top of bumpers in meters
+        swerve::getPose, // Supplier<Pose2d> of robot pose
+        swerve
+            ::getVelocityFieldRelative); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+
+    fuelSim.registerIntake(
+        Units.inchesToMeters(-14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(14),
+        Units.inchesToMeters(20), // robot-centric coordinates for bounding box in meters
+        () ->
+            Superstructure.getState()
+                .isAnIntakeState() // (optional) BooleanSupplier for whether the intake should be
+        // active at a given moment
+        ); // (optional) Runnable called whenever a fuel is intaked
+
+    fuelSim.setSubticks(5);
+
+    // fuelSim.start();
   }
 
   /** Scales a joystick value for teleop driving */
@@ -645,26 +675,27 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             shooter
-                .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+                .resetTurretToCalculatedPosition()
                 .andThen(
                     Commands.parallel(
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
-    new Trigger(() -> AutoAim.targetInTurretDeadzone())
-        .onTrue(
-            driver
-                .rumbleCmd(1, 1)
-                .withTimeout(0.25)
-                .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
+    new Trigger(() -> NewAutoAim.targetInTurretDeadzone())
+        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
+    //  .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
+    new Trigger(() -> superstructure.tenSecsLeftInOffShift())
+        .onTrue(operator.rumbleCmd(1, 1).withTimeout(0.25));
+
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
 
     driver
         .leftBumper()
         .onTrue(
-            Commands.parallel(
-                shooter.resetTurretToPosition(shooter.getCalculatedTurretRotations()),
-                intake.zeroPivotOffCancoder()));
+            Commands.runOnce(
+                () ->
+                    shooter
+                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -674,8 +705,14 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .or(Autos.autoLeftClimbReq.negate())
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
-    // I HATE THIS!
-    operator.leftStick().whileTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
+    operator
+        .rightStick()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    shooter
+                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
+                        .ignoringDisable(true)));
 
     driver
         .rightBumper()
@@ -695,8 +732,9 @@ public class Robot extends LoggedRobot {
     // driver
     //     .leftBumper()
     //     .and(
-    new Trigger(AutoAim::targetInTurretDeadzone)
+    new Trigger(NewAutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
+        .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
         .and(() -> superstructure.inScoringArea())
         .whileTrue(
@@ -711,8 +749,9 @@ public class Robot extends LoggedRobot {
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 shooter::getTurretPosition));
 
-    new Trigger(AutoAim::targetInTurretDeadzone)
+    new Trigger(NewAutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAFeedState())
+        .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
         .and(() -> !superstructure.inScoringArea())
         .whileTrue(
@@ -727,6 +766,9 @@ public class Robot extends LoggedRobot {
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 shooter::getTurretPosition,
                 () -> Superstructure.getFeedTarget()));
+
+    operator.povRight().onTrue(Commands.runOnce(() -> AutoAim.incrementFudgeFactor()));
+    operator.povLeft().onTrue(Commands.runOnce(() -> AutoAim.decrementFudgeFactor()));
 
     // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))
@@ -762,7 +804,16 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
     autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
-    autoChooser.addOption("Right Trench Auto Improved", autos.getDoubleDipRightTrenchImproved());
+    autoChooser.addOption("RIght Trench DoubleD Disrupt Auto", autos.getDoubleDisruptRightTrench());
+    autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
+    // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
+    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
+    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
+
+    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
+    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+
+    autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
@@ -836,6 +887,7 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
+    Logger.recordOutput("Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     // Log climb poses
     Logger.recordOutput(
@@ -848,9 +900,16 @@ public class Robot extends LoggedRobot {
         "trench poses",
         Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
 
-    Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
+    Logger.recordOutput("Turret/out of range", NewAutoAim.targetInTurretDeadzone());
 
     noLogStickAlert.set(!directory.exists());
+
+    Logger.recordOutput(
+        "Distance to hub",
+        shooter
+            .getTurretPose(swerve.getPose())
+            .getTranslation()
+            .getDistance(FieldUtils.getCurrentHubTranslation()));
   }
 
   public void updateAlerts() {
@@ -921,6 +980,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
+    // fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
@@ -975,7 +1035,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopExit() {
     System.out.println("Saving BFG Log");
-    bfg.saveLog("");
+    if (bfg.isConnected()) bfg.saveLog("");
   }
 
   @Override

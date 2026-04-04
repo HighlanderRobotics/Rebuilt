@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+import frc.robot.utils.autoaim.NewAutoAim.ShotParams;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -21,20 +21,16 @@ public interface Shooter extends Subsystem {
    * Sets hood angle and flywheel velocity based on distance from hub from the shot map + current
    * pose
    */
-  public Command score(
-      Supplier<Pose2d> robotPoseSupplier,
-      Supplier<ShotData> shotDataSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier);
+  public Command score(Supplier<ShotParams> shotParamsSupplier);
 
   /**
    * Sets hood angle and flywheel velocity based on distance from hub from the feed map + current
    * pose + feed target
    */
   public Command feed(
-      Supplier<Pose2d> robotPoseSupplier,
-      Supplier<ShotData> shotDataSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
-      Supplier<Pose2d> feedTarget);
+      Supplier<ShotParams> shotParamsSupplier,
+      Supplier<Pose2d> feedTarget,
+      Supplier<Pose2d> robotPoseSupplier);
 
   /** Not running (set to 0) */
   public Command rest(
@@ -67,8 +63,14 @@ public interface Shooter extends Subsystem {
 
   public boolean atTurretSetpoint();
 
-  public default Command resetTurretToPosition(Rotation2d rot) {
+  public default Command resetTurretToPosition(Supplier<Rotation2d> rot) {
     return Commands.none();
+  }
+
+  /** sets the motor encoder to the position calculated from the encoders */
+  public default Command resetTurretToCalculatedPosition() {
+    return Commands.print("Rezeroing turret against cancoders")
+        .andThen(resetTurretToPosition(this::getCalculatedTurretRotations));
   }
 
   public default Rotation2d getCalculatedTurretRotations() {
@@ -94,6 +96,19 @@ public interface Shooter extends Subsystem {
   }
 
   public default Command stopTurret() {
+    return Commands.none();
+  }
+
+  public default Command testShot(
+      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+    return Commands.none();
+  }
+
+  public default Command runFlywheelSysid() {
+    return Commands.none();
+  }
+
+  public default Command runHoodSysid() {
     return Commands.none();
   }
 }
