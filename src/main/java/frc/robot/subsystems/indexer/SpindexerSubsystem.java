@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.utils.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -48,6 +49,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
+  private LoggedTunableNumber kickerSpeed = new LoggedTunableNumber("Kicker Speed", 100);
+
+  private LoggedTunableNumber spinnerSpeed = new LoggedTunableNumber("Spinner Speed", 7);
+
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
     this.spinnerIO = indexRollerIO;
@@ -73,8 +78,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               //     .withTimeout(3),
               // this.run(
               //     () -> {
-              spinnerIO.setRollerVelocity(30);
-              kickerIO.setRollerVelocity(20);
+              spinnerIO.setRollerVelocity(spinnerSpeed.get());
+              kickerIO.setRollerVelocity(kickerSpeed.get());
             }));
   }
 
