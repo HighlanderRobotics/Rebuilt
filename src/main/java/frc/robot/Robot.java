@@ -806,6 +806,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
     autoChooser.addOption(
         "Right Trench Disrupt Outpost Auto", autos.getDisruptOutpostRightTrench());
+    autoChooser.addOption("Left Trench Disrupt Depot Auto", autos.getDisruptDepotLeftTrench());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
     autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
