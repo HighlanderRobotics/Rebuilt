@@ -553,14 +553,13 @@ public class Autos {
         setRightClimb());
   }
 
-  public Command getDoubleDisruptRightTrench() {
+  public Command getDisruptOutpostRightTrench() {
     return createAuto(
-        "Double Dip Disrupt Right Trench Auto",
+        "Disrupt Outpost Right Trench Auto",
         new Path[] {
           Path.StartingRTrenchtoDisrupt,
           Path.RDisruptToRPreTrenchReversed,
-          Path.RPreTrenchReversedtoRNeutral,
-          Path.RNeutraltoRPreTrenchReversed
+          Path.RPreTrenchReversedtoOutpost,
         },
         setRightClimb());
   }
