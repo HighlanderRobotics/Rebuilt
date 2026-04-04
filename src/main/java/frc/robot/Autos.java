@@ -126,6 +126,7 @@ public class Autos {
     PRtoIR("PR", "FR", Action.INTAKE),
     PLtoIL("PL", "FL", Action.INTAKE),
     MRRtoFRM("MRR", "FRM", Action.INTAKE),
+    iMRRtoNH("MRR", "NH", Action.INTAKE),
 
     // SCORE
     DtoRL("D", "RL", Action.SCORE),
@@ -135,6 +136,8 @@ public class Autos {
     PMtoM("PM", "M", Action.SCORE),
     FLMtoRL("FLM", "RL", Action.SCORE),
     FRMtoMRR("FRM", "MRR", Action.SCORE),
+    iFRMtoMRR("FRM", "MRR", Action.SCORE),
+    NHtoiMRR("NH", "MRR", Action.SCORE),
     // FLOW
     MLtoD("ML", "D", Action.FLOW),
     // CLIMB
@@ -500,6 +503,34 @@ public class Autos {
       Path.MRRtoFRM,
       // shoot to intake
       Path.FRMtoMRR,
+      // intake to shoot
+    };
+
+    Command autoCommand =
+        paths[0].getTrajectory(routine).resetOdometry().alongWith(setleftClimbAutoTrue());
+
+    for (Path p : paths) {
+      autoCommand = autoCommand.andThen(runPath(p, routine));
+    }
+
+    routine.active().onTrue(autoCommand);
+
+    return routine.cmd();
+  }
+
+  public Command getDoubleDipRightTrenchImproved() {
+    final AutoRoutine routine = factory.newRoutine("Double dip right trench auto improved");
+    lockHoodUnderTrench(routine, TrenchPoses.getClosestTrenchPose(swerve.getPose()), 1);
+    Path[] paths = {
+      Path.PRtoIR,
+      // start to intake
+
+      // cooked
+      Path.iFRMtoMRR,
+      // 2nd intake to shoot
+      Path.iMRRtoNH,
+      // shoot to intake
+      Path.NHtoiMRR,
       // intake to shoot
     };
 

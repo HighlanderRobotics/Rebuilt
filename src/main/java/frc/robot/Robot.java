@@ -762,6 +762,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
     autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
+    autoChooser.addOption("Right Trench Auto Improved", autos.getDoubleDipRightTrenchImproved());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
