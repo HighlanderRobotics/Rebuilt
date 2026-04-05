@@ -51,7 +51,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   private LoggedTunableNumber kickerSpeed = new LoggedTunableNumber("Kicker Speed", 100);
 
-  private LoggedTunableNumber spinnerSpeed = new LoggedTunableNumber("Spinner Speed", 7);
+  private LoggedTunableNumber spinnerSpeed = new LoggedTunableNumber("Spinner Speed", 13);
 
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
@@ -97,7 +97,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return this.run(
         () -> {
           spinnerIO.setRollerVoltage(0.0);
-          kickerIO.setRollerVoltage(-2);
+          kickerIO.setRollerVoltage(0.0);
         });
   }
 
