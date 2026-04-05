@@ -27,7 +27,7 @@ Gyro (Pigeon2) | 0
 CANivore | 0
 
 
-# Comp (total devices: 25 + canivore)
+# Comp (total devices: 26 + canivore)
 Device | CAN ID | Code
 ------ | ------ | ------
 Front Left Drive | 0 | X60-044
@@ -40,13 +40,14 @@ Back Right Drive | 6 | X60-042
 Back Right Steer | 7 | X44-015
 Intake Rollers | 8 | X44-012
 Spindexer Agitator | 9 | X60-046
-Kicker Roller | 10 | X60-051
+1st Kicker Roller | 10 | X44-004
 Shooter Hood | 11 | X44-008
 Shooter Flywheel Leader (Left) | 12 | X60-048
 Shooter Flywheel Follower (Right) | 13 | X60-050
 intake Pivot | 14 | X44-017
 Turret Pivot | 15 | X44-001
 Climber | 16 | X60-049
+2nd Kicker Roller | 17 | X60-051
 Front Left Encoder (CANcoder) | 0
 Front Right Encoder (CANcoder) | 1
 Back Left Encoder (CANcoder) | 2

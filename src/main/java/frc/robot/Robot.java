@@ -207,6 +207,8 @@ public class Robot extends LoggedRobot {
 
   private Intake intake = null;
   private Shooter shooter = null;
+
+  private Indexer indexer = null;
   private final CANdleSubsystem candle =
       new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
 
@@ -258,7 +260,6 @@ public class Robot extends LoggedRobot {
     // accounted for, it wouldn't be able to pass anything to the superstructure below and it would
     // break
     // granted this would never actually happen but
-    Indexer indexer = null;
 
     // this looks at the ROBOT_EDITION variable and decides which version of each subsystem to
     // create based on that
@@ -348,17 +349,30 @@ public class Robot extends LoggedRobot {
                         MotorType.KrakenX44,
                         canivore),
                 (ROBOT_MODE == RobotMode.REAL)
-                    ? new RollerIO(10, SpindexerSubsystem.getKickerConfig(), canivore)
+                    ? new RollerIO(10, SpindexerSubsystem.getX44KickerConfig(), canivore)
                     : new RollerIOSim(
                         10,
-                        SpindexerSubsystem.getKickerConfig(),
+                        SpindexerSubsystem.getX44KickerConfig(),
                         new DCMotorSim(
                             LinearSystemId.createDCMotorSystem(
                                 DCMotor.getKrakenX44Foc(1),
                                 0.00001,
-                                SpindexerSubsystem.KICKER_GEAR_RATIO),
+                                SpindexerSubsystem.X44_KICKER_GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
+                        canivore),
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(17, SpindexerSubsystem.getX60KickerConfig(), canivore)
+                    : new RollerIOSim(
+                        17,
+                        SpindexerSubsystem.getX60KickerConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX60Foc(1),
+                                0.00001,
+                                SpindexerSubsystem.X60_KICKER_GEAR_RATIO),
+                            DCMotor.getKrakenX60Foc(1)),
+                        MotorType.KrakenX60,
                         canivore));
         intake =
             (ROBOT_MODE == RobotMode.REAL)
@@ -717,17 +731,18 @@ public class Robot extends LoggedRobot {
     driver
         .rightBumper()
         .whileTrue(
-            swerve.alignToClimb(
-                () ->
-                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
-                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
-                        .filter(
-                            target ->
-                                target.isBlueAlliance()
-                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
-                                        == Alliance.Blue))
-                        .findFirst()
-                        .get()));
+            // swerve.alignToClimb(
+            //     () ->
+            //         ClimbTargets.CLIMB_TARGETS_LIST.stream()
+            //             .filter(target -> target.getLeftHanded() == leftClimbTarget)
+            //             .filter(
+            //                 target ->
+            //                     target.isBlueAlliance()
+            //                         == (DriverStation.getAlliance().orElse(Alliance.Blue)
+            //                             == Alliance.Blue))
+            //             .findFirst()
+            //             .get()));
+            indexer.kick());
     // turn swerve if target is in turret deadzone
     // driver
     //     .leftBumper()
@@ -811,6 +826,9 @@ public class Robot extends LoggedRobot {
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("X60 Sysid", indexer.runX60Sysid());
+
+    autoChooser.addOption("X44 Sysid", indexer.runX44Sysid());
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
 

@@ -26,4 +26,12 @@ public interface Indexer extends Subsystem {
   public default Command stop() {
     return Commands.none();
   }
+
+  public default Command runX60Sysid() {
+    return Commands.none();
+  }
+
+  public default Command runX44Sysid() {
+    return Commands.none();
+  }
 }
