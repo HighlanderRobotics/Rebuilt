@@ -498,7 +498,15 @@ public class Superstructure {
     bindCommands(
         SuperState.FEED,
         intake.agitate(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                NewAutoAim.getParametersMechA(
+                        swerve.getPose(),
+                        swerve.getVelocityRobotRelative(),
+                        FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                        AutoAim.FEED_SHOT_TREE)
+                    .shotData()
+                    .flywheelVelocityRotPerSec()),
         shooter.feed(
             () ->
                 AutoAim.getShotParameters(
@@ -524,7 +532,15 @@ public class Superstructure {
     bindCommands(
         SuperState.FEED_FLOW,
         intake.intake(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                NewAutoAim.getParametersMechA(
+                        swerve.getPose(),
+                        swerve.getVelocityRobotRelative(),
+                        FeedTargets.getFeedTarget(feedTarget).getTranslation(),
+                        AutoAim.FEED_SHOT_TREE)
+                    .shotData()
+                    .flywheelVelocityRotPerSec()),
         shooter.feed(
             () ->
                 AutoAim.getShotParameters(
@@ -553,7 +569,17 @@ public class Superstructure {
         SuperState.SCORE,
         intake.agitate(),
         // intake.restExtended(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                NewAutoAim.getParametersMechA(
+                        swerve.getPose(),
+                        swerve.getVelocityRobotRelative(),
+                        FieldUtils.getCurrentHubTranslation(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .shotData()
+                    .flywheelVelocityRotPerSec()),
         shooter.score(
             () ->
                 AutoAim.getShotParameters(
@@ -583,7 +609,17 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE_FLOW,
         intake.intake(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                NewAutoAim.getParametersMechA(
+                        swerve.getPose(),
+                        swerve.getVelocityRobotRelative(),
+                        FieldUtils.getCurrentHubTranslation(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .shotData()
+                    .flywheelVelocityRotPerSec()),
         shooter.score(
             () ->
                 AutoAim.getShotParameters(
@@ -646,7 +682,17 @@ public class Superstructure {
     bindCommands(
         SuperState.SCORE_PRE_CLIMB,
         intake.restRetracted(),
-        indexer.kick(),
+        indexer.kick(
+            () ->
+                NewAutoAim.getParametersMechA(
+                        swerve.getPose(),
+                        swerve.getVelocityRobotRelative(),
+                        FieldUtils.getCurrentHubTranslation(),
+                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                            ? AutoAim.ALPHA_HUB_SHOT_TREE
+                            : AutoAim.COMP_HUB_SHOT_TREE)
+                    .shotData()
+                    .flywheelVelocityRotPerSec()),
         shooter.score(
             () ->
                 AutoAim.getShotParameters(
