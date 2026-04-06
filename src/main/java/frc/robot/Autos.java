@@ -91,6 +91,7 @@ public class Autos {
     // DEPOT
     LTrenchtoDepot("LTrenchtoDepot", Action.FLOW),
     LBumptoDepot("LBumptoDepot", Action.INTAKE),
+
     // FEED
     FeedLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.FEED),
     FeedRNeutraltoRPreTrench("RNeutraltoRPreTrench", Action.FEED),
@@ -101,6 +102,8 @@ public class Autos {
     EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
 
     RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrenchReversed", Action.SCORE_AT_END),
+    RDisrupttoRPreTrenchReversed("RDisruptToRPreTrenchReversed", Action.SCORE_AT_END),
+    LDisrupttoLPreTrench("LDisrupttoLPreTrench", Action.SCORE_AT_END),
 
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
     LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
@@ -110,6 +113,8 @@ public class Autos {
 
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
+    StartingRTrenchtoDisrupt("StartingRTrenchtoDisruptR", Action.INTAKE),
+    StartingLTrenchtoDisrupt("StartingLTrenchtoDisruptL", Action.INTAKE),
 
     HubtoDepot("HubtoDepot", Action.DEPOT),
 
@@ -549,6 +554,26 @@ public class Autos {
           Path.RNeutraltoRPreTrenchReversed,
         },
         setRightClimb());
+  }
+
+  public Command getDisruptOutpostRightTrench() {
+    return createAuto(
+        "Disrupt Outpost Right Trench Auto",
+        new Path[] {
+          Path.StartingRTrenchtoDisrupt,
+          Path.RDisrupttoRPreTrenchReversed,
+          Path.RPreTrenchReversedtoOutpost,
+        },
+        setRightClimb());
+  }
+
+  public Command getDisruptDepotLeftTrench() {
+    return createAuto(
+        "Disrupt Depot Left Trench Auto",
+        new Path[] {
+          Path.StartingLTrenchtoDisrupt, Path.LDisrupttoLPreTrench, Path.LPreTrenchtoDepot
+        },
+        setLeftClimb());
   }
 
   public Command getOutpostScoreClimbAuto() {

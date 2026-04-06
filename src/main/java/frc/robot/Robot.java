@@ -594,6 +594,7 @@ public class Robot extends LoggedRobot {
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
     new Trigger(() -> Superstructure.getState().isAScoreState())
+        .and(() -> isTeleop())
         .whileTrue(
             swerve
                 .driveOpenLoopFieldRelative(
@@ -843,6 +844,9 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
     autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
+    autoChooser.addOption(
+        "Right Trench Disrupt Outpost Auto", autos.getDisruptOutpostRightTrench());
+    autoChooser.addOption("Left Trench Disrupt Depot Auto", autos.getDisruptDepotLeftTrench());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
     autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
