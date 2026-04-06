@@ -63,7 +63,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
-  private LoggedTunableNumber kickerSpeed = new LoggedTunableNumber("Kicker Speed", 100);
+  private LoggedTunableNumber kickerSpeed = new LoggedTunableNumber("Kicker Speed", 70);
 
   private LoggedTunableNumber spinnerSpeed = new LoggedTunableNumber("Spinner Speed", 13);
 
@@ -119,7 +119,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               spinnerIO.setRollerVelocity(spinnerSpeed.get());
               x44KickerIO.setRollerVelocity(kickerSpeed.get());
               // x60KickerIO.setRollerVelocity(x60KickSpeed.get());
-              x60KickerIO.setRollerVoltage(x60KickSpeed.get());
+              x60KickerIO.setRollerVelocity(x60KickSpeed.get());
             }));
   }
 
@@ -230,7 +230,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kS = 0.22539;
     config.Slot0.kV = 0.35529;
     config.Slot0.kA = 0.0078104;
-    config.Slot0.kP = 1;
+    config.Slot0.kP = 0.5;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
