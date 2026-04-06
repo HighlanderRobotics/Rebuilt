@@ -594,6 +594,7 @@ public class Robot extends LoggedRobot {
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
     new Trigger(() -> Superstructure.getState().isAScoreState())
+        .and(() -> isTeleop())
         .whileTrue(
             swerve
                 .driveOpenLoopFieldRelative(
@@ -730,11 +731,7 @@ public class Robot extends LoggedRobot {
 
     driver
         .leftBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
+        .onTrue(shooter.resetTurretToCalculatedPosition()); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -744,14 +741,6 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .or(Autos.autoLeftClimbReq.negate())
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
-    operator
-        .rightStick()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
-                        .ignoringDisable(true)));
 
     driver
         .rightBumper()

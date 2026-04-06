@@ -424,13 +424,22 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Runs the modules to the specified ChassisSpeeds (robot velocity)
+   * Runs the modules to the specified ChassisSpeeds (robot velocity) and with the specified force
+   * feedforwards
    *
    * @param speeds the ChassisSpeeds to run the drivetrain at
    * @param openLoop boolean for if the drivetrain should run with feedforward control (open loop)
    *     or with feedback control (closed loop)
+   * @param moduleForcesXNewton the x-components of the force feedforwards. Should be in order FL,
+   *     FR, BL, BR. Should have the same length as the modules array
+   * @param moduleForcesYNewtons the y-components of the force feedforwards. Same order and length
+   *     as x-components
    */
-  private void drive(ChassisSpeeds speeds, boolean openLoop) {
+  private void drive(
+      ChassisSpeeds speeds,
+      boolean openLoop,
+      double[] moduleForcesXNewtons,
+      double[] moduleForcesYNewtons) {
     // Converts time continuous chassis speeds to setpoints after the specified time (dtSeconds)
     speeds = ChassisSpeeds.discretize(speeds, 0.02);
 
@@ -444,6 +453,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     SwerveModuleState[] optimizedStates = new SwerveModuleState[modules.length];
 
+    // Instead of storing velocity here we store Newtons of force
+    SwerveModuleState[] forceSetpoints = new SwerveModuleState[modules.length];
+
     for (int i = 0; i < optimizedStates.length; i++) {
       if (openLoop) {
         // Heuristic to enable/disable FOC
@@ -454,12 +466,39 @@ public class SwerveSubsystem extends SubsystemBase {
                         + Math.pow(this.getVelocityRobotRelative().vyMetersPerSecond, 2))
                 < SWERVE_CONSTANTS.getMaxLinearSpeed() * 0.9; // 0.9 is 90% of drivetrain max speed
         optimizedStates[i] = modules[i].runOpenLoop(states[i], focEnable);
+
+        // Needs some value to update
+        forceSetpoints[i] = new SwerveModuleState();
       } else {
-        optimizedStates[i] = modules[i].runClosedLoop(states[i]);
+
+        double robotRelForceX =
+            moduleForcesXNewtons[i] * getRotation().unaryMinus().getCos()
+                - moduleForcesYNewtons[i] * getRotation().unaryMinus().getSin();
+        double robotRelForceY =
+            moduleForcesXNewtons[i] * getRotation().unaryMinus().getSin()
+                + moduleForcesYNewtons[i] * getRotation().unaryMinus().getCos();
+
+        forceSetpoints[i] =
+            new SwerveModuleState(
+                Math.hypot(robotRelForceX, robotRelForceY),
+                new Rotation2d(robotRelForceX, robotRelForceY));
+
+        optimizedStates[i] = modules[i].runClosedLoop(states[i], robotRelForceX, robotRelForceY);
       }
     }
-
+    Logger.recordOutput("SwerveStates/Force Setpoints", forceSetpoints);
     Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedStates);
+  }
+
+  /**
+   * Runs the modules to the specified ChassisSpeeds (robot velocity)
+   *
+   * @param speeds the ChassisSpeeds to run the drivetrain at
+   * @param openLoop boolean for if the drivetrain should run with feedforward control (open loop)
+   *     or with feedback control (closed loop)
+   */
+  private void drive(ChassisSpeeds speeds, boolean openLoop) {
+    drive(speeds, openLoop, new double[] {0.0, 0.0, 0.0, 0.0}, new double[] {0.0, 0.0, 0.0, 0.0});
   }
 
   /**
@@ -542,10 +581,6 @@ public class SwerveSubsystem extends SubsystemBase {
             module.stop();
           }
         });
-  }
-
-  public Command stopForTime(DoubleSupplier seconds) {
-    return stop().repeatedly().withTimeout(seconds.getAsDouble());
   }
 
   public Command translateToPose(
@@ -966,7 +1001,11 @@ public class SwerveSubsystem extends SubsystemBase {
               sample.getChassisSpeeds().plus(feedback), getPose().getRotation());
       Logger.recordOutput("Choreo/Target Speeds Robot Relative", speeds);
 
-      this.drive(speeds, false);
+      // These are field relative i believe
+      double[] moduleForcesX = sample.moduleForcesX();
+      double[] moduleForcesY = sample.moduleForcesY();
+
+      this.drive(speeds, false, moduleForcesX, moduleForcesY);
     };
   }
 

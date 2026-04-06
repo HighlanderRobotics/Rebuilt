@@ -62,6 +62,7 @@ public class Module {
     io.setTurnVoltage(volts);
   }
 
+  /** Stops the module */
   public void stop() {
     io.setDriveVoltage(0);
   }
@@ -73,10 +74,37 @@ public class Module {
    * @return the optimized state
    */
   public SwerveModuleState runClosedLoop(SwerveModuleState state) {
+    return runClosedLoop(state, 0.0, 0.0);
+  }
+
+  /**
+   * Runs closed loop to the specified state, with a force feedforward. Used for automated actions,
+   * like auto.
+   *
+   * @param state setpoint state
+   * @param forceXNewtons the x-component of the requested force vector
+   * @param forceYNewtons the y-component of the requested force vector
+   * @return the optimized state
+   */
+  public SwerveModuleState runClosedLoop(
+      SwerveModuleState state, double forceXNewtons, double forceYNewtons) {
     state.optimize(getAngle());
 
+    // Force on the motor is the total force vector projected onto the velocity vector
+    // to project a onto b take ||a||*cos(theta) where theta is the angle between the two vectors
+    // We want the magnitude of the projection, so we can ignore the direction of this later
+    final double thetaRads =
+        Math.atan2(forceYNewtons, forceXNewtons) - inputs.turnPosition.getRadians();
+    double forceNewtons = Math.hypot(forceXNewtons, forceYNewtons) * Math.cos(thetaRads);
+    if (Math.signum(forceNewtons) * Math.signum(state.speedMetersPerSecond) < 0) {
+      forceNewtons = 0;
+    }
+
     io.setTurnPositionSetpoint(state.angle);
-    io.setDriveVelocitySetpoint(state.speedMetersPerSecond);
+    io.setDriveVelocitySetpoint(state.speedMetersPerSecond, forceNewtons);
+
+    Logger.recordOutput(
+        "Swerve/" + constants.prefix + " Module/Force Feedforward Newtons", forceNewtons);
 
     return state;
   }
