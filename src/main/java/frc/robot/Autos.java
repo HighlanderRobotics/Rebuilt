@@ -102,7 +102,7 @@ public class Autos {
     EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
 
     RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrenchReversed", Action.SCORE_AT_END),
-    RDisrupttoRPreTrenchReversed("RDisrupttoRPreTrenchReversed", Action.SCORE_AT_END),
+    RDisrupttoRPreTrenchReversed("RDisruptToRPreTrenchReversed", Action.SCORE_AT_END),
     LDisrupttoLPreTrench("LDisrupttoLPreTrench", Action.SCORE_AT_END),
 
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
