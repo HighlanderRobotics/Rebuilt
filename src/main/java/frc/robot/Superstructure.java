@@ -170,9 +170,9 @@ public class Superstructure {
 
   @AutoLogOutput(key = "Superstructure/Score Request")
   private Trigger scoreReq =
-      new Trigger(() -> shotTarget == ShotTarget.SCORE)
-          // .and(() -> canScore())
-          .or(Autos.autoScoreReq);
+      new Trigger(() -> shotTarget == ShotTarget.SCORE).or(Autos.autoScoreReq);
+
+  // .and(() -> canScore());
 
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq = new Trigger(() -> shotTarget == ShotTarget.FEED);
@@ -289,13 +289,10 @@ public class Superstructure {
     operator.povUp().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     operator.povDown().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     shootReq =
-        driver
-            .rightTrigger()
-            .and(DriverStation::isTeleop)
-            .and(() -> canShoot())
-            .or(Autos.autoScoreReq)
-            .and(() -> canShoot()); // Maybe should include if its our turn? //TODO fix auto
-    // bindings
+        new Trigger(() -> canShoot())
+            .and(
+                (driver.rightTrigger().and(DriverStation::isTeleop))
+                    .or(Autos.autoScoreReq.and(DriverStation::isAutonomous)));
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 

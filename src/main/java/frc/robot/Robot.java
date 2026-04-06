@@ -731,11 +731,7 @@ public class Robot extends LoggedRobot {
 
     driver
         .leftBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
+        .onTrue(shooter.resetTurretToCalculatedPosition()); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -745,14 +741,6 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .or(Autos.autoLeftClimbReq.negate())
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
-    operator
-        .rightStick()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
-                        .ignoringDisable(true)));
 
     driver
         .rightBumper()

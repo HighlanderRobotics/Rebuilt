@@ -432,14 +432,14 @@ public class SwerveSubsystem extends SubsystemBase {
    *     or with feedback control (closed loop)
    * @param moduleForcesXNewton the x-components of the force feedforwards. Should be in order FL,
    *     FR, BL, BR. Should have the same length as the modules array
-   * @param moduleForcesYNewton the y-components of the force feedforwards. Same order and length as
-   *     x-components
+   * @param moduleForcesYNewtons the y-components of the force feedforwards. Same order and length
+   *     as x-components
    */
   private void drive(
       ChassisSpeeds speeds,
       boolean openLoop,
-      double[] moduleForcesXNetwon,
-      double[] moduleForcesYNewton) {
+      double[] moduleForcesXNewtons,
+      double[] moduleForcesYNewtons) {
     // Converts time continuous chassis speeds to setpoints after the specified time (dtSeconds)
     speeds = ChassisSpeeds.discretize(speeds, 0.02);
 
@@ -472,11 +472,11 @@ public class SwerveSubsystem extends SubsystemBase {
       } else {
 
         double robotRelForceX =
-            moduleForcesXNetwon[i] * getRotation().unaryMinus().getCos()
-                - moduleForcesYNewton[i] * getRotation().unaryMinus().getSin();
+            moduleForcesXNewtons[i] * getRotation().unaryMinus().getCos()
+                - moduleForcesYNewtons[i] * getRotation().unaryMinus().getSin();
         double robotRelForceY =
-            moduleForcesXNetwon[i] * getRotation().unaryMinus().getSin()
-                + moduleForcesYNewton[i] * getRotation().unaryMinus().getCos();
+            moduleForcesXNewtons[i] * getRotation().unaryMinus().getSin()
+                + moduleForcesYNewtons[i] * getRotation().unaryMinus().getCos();
 
         forceSetpoints[i] =
             new SwerveModuleState(
