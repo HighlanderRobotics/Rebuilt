@@ -15,6 +15,7 @@ import frc.robot.components.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.components.canrange.CANrangeIOReal;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 /** Lindexer = Linear Indexer. !! ALPHA !! */
@@ -61,7 +62,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick() {
+  public Command kick(DoubleSupplier flywheelRPS) {
     return this.run(
         () -> {
           // if (shooterAtSetpoint.getAsBoolean()) {

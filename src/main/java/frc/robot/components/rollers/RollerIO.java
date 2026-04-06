@@ -36,6 +36,8 @@ public class RollerIO {
   private final StatusSignal<Temperature> temperatureCelsius;
   private final StatusSignal<Angle> positionRotations;
 
+  private double setpoint;
+
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private final VelocityVoltage velocityVoltage =
       new VelocityVoltage(0.0).withEnableFOC(true).withSlot(0);
@@ -95,6 +97,11 @@ public class RollerIO {
   }
 
   public void setRollerVelocity(double velocityRPS) {
+    setpoint = velocityRPS;
     motor.setControl(velocityVoltage.withVelocity(velocityRPS));
+  }
+
+  public double getVelocitySetpoint() {
+    return setpoint;
   }
 }
