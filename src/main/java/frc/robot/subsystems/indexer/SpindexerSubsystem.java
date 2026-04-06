@@ -166,6 +166,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     x60KickerDisconnectedAlert.set(!x60kickerInputs.connected);
 
     currentFilterValue = kickerCurrentFilter.calculate(x44kickerInputs.statorCurrentAmps);
+
+    Logger.recordOutput("Indexer/Kicker X44 Velocity Setpoint", x44KickerIO.getVelocitySetpoint());
+    Logger.recordOutput("Indexer/Kicker X60 Velocity Setpoint", x60KickerIO.getVelocitySetpoint());
+    Logger.recordOutput("Indexer/Spinner Velocity Setpoint", spinnerIO.getVelocitySetpoint());
   }
 
   public static TalonFXConfiguration getIndexerConfig() {
