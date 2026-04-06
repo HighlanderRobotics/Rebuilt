@@ -74,7 +74,6 @@ import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
-import frc.robot.utils.autoaim.NewAutoAim;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
@@ -186,7 +185,7 @@ public class Robot extends LoggedRobot {
 
   private final SlewRateLimiter xAccelLimiter = new SlewRateLimiter(1);
   private final SlewRateLimiter yAccelLimiter = new SlewRateLimiter(1);
-  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(3.0);
+  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(0.5);
 
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
@@ -651,6 +650,13 @@ public class Robot extends LoggedRobot {
     fuelSim.setSubticks(5);
 
     // fuelSim.start();
+
+    // Log climb poses
+    Logger.recordOutput(
+        "AutoAlign/Climb Targets",
+        Arrays.stream(ClimbTargets.values())
+            .map(target -> target.getPose())
+            .toArray(Pose2d[]::new));
   }
 
   /** Scales a joystick value for teleop driving */
@@ -713,7 +719,7 @@ public class Robot extends LoggedRobot {
                     Commands.parallel(
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
-    new Trigger(() -> NewAutoAim.targetInTurretDeadzone())
+    new Trigger(() -> AutoAim.targetInTurretDeadzone())
         .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
     //  .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
@@ -765,7 +771,7 @@ public class Robot extends LoggedRobot {
     // driver
     //     .leftBumper()
     //     .and(
-    new Trigger(NewAutoAim::targetInTurretDeadzone)
+    new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
         .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
@@ -782,7 +788,7 @@ public class Robot extends LoggedRobot {
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 shooter::getTurretPosition));
 
-    new Trigger(NewAutoAim::targetInTurretDeadzone)
+    new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAFeedState())
         .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
@@ -922,29 +928,24 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
-    Logger.recordOutput("Flywheel Fudge Factor", AutoAim.getFudgeFactor());
-
-    // Log climb poses
-    Logger.recordOutput(
-        "AutoAlign/Climb Targets",
-        Arrays.stream(ClimbTargets.values())
-            .map(target -> target.getPose())
-            .toArray(Pose2d[]::new));
+    Logger.recordOutput("AutoAim/Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     Logger.recordOutput(
         "trench poses",
         Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
 
-    Logger.recordOutput("Turret/out of range", NewAutoAim.targetInTurretDeadzone());
+    Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
 
     noLogStickAlert.set(!directory.exists());
 
     Logger.recordOutput(
-        "Distance to hub",
+        "AutoAim/Distance to hub",
         shooter
             .getTurretPose(swerve.getPose())
             .getTranslation()
             .getDistance(FieldUtils.getCurrentHubTranslation()));
+    Logger.recordOutput(
+        "AutoAim/Feed Target", FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose());
   }
 
   public void updateAlerts() {
