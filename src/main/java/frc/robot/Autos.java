@@ -362,7 +362,6 @@ public class Autos {
         startScoring(),
         // TODO tune tolerance
         swerve.stop().repeatedly().withTimeout(4));
-
   }
 
   public Command outpostNoScorePath(Path path, AutoRoutine routine) {

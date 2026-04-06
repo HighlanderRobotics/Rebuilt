@@ -594,6 +594,7 @@ public class Robot extends LoggedRobot {
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
     new Trigger(() -> Superstructure.getState().isAScoreState())
+        .and(() -> isTeleop())
         .whileTrue(
             swerve
                 .driveOpenLoopFieldRelative(
