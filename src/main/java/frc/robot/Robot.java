@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import com.playingwithfusion.BattFuelGauge;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -182,6 +183,10 @@ public class Robot extends LoggedRobot {
   private final Timer disabledTimer = new Timer();
   private static final double CAN_ERROR_TIME_THRESHOLD = 0.5; // Seconds to disable alert
   private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
+
+  private final SlewRateLimiter xAccelLimiter = new SlewRateLimiter(1);
+  private final SlewRateLimiter yAccelLimiter = new SlewRateLimiter(1);
+  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(3.0);
 
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
@@ -589,6 +594,20 @@ public class Robot extends LoggedRobot {
             Commands.runOnce(() -> addAutos())
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
+    new Trigger(() -> Superstructure.getState().isAScoreState())
+        .whileTrue(
+            swerve
+                .driveOpenLoopFieldRelative(
+                    () ->
+                        new ChassisSpeeds(
+                                yAccelLimiter.calculate(modifyJoystick(driver.getLeftY()))
+                                    * (SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()),
+                                xAccelLimiter.calculate(modifyJoystick(driver.getLeftX()))
+                                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                                rAccelLimiter.calculate(modifyJoystick(driver.getRightX()))
+                                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                            .times(-1))
+                .withName("default"));
 
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
 
