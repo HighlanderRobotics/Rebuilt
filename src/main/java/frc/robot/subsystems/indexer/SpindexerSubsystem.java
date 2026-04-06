@@ -116,9 +116,9 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               double flywheelLinearSpeed =
                   flywheelRPS.getAsDouble() * Math.PI * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
               double x44Speed = flywheelLinearSpeed * 1 / (Math.PI * X44_KICKER_DIAMETER_INCHES);
-
-              double x60Speed = flywheelLinearSpeed * 0.95 / (Math.PI * X60_KICKER_DIAMETER_INCHES);
-              double spinnerSpeed = flywheelLinearSpeed * 0.9 / (Math.PI * SPINNER_DIAMETER_INCHES);
+              double x60Speed = flywheelLinearSpeed * 0.9 / (Math.PI * X60_KICKER_DIAMETER_INCHES);
+              double spinnerSpeed =
+                  flywheelLinearSpeed * 0.85 / (Math.PI * SPINNER_DIAMETER_INCHES);
               spinnerIO.setRollerVelocity(spinnerSpeed);
               x44KickerIO.setRollerVelocity(x44Speed);
               x60KickerIO.setRollerVelocity(x60Speed);
