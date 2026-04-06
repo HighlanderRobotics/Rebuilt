@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.utils.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -48,6 +49,10 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
+  private LoggedTunableNumber kickerSpeed = new LoggedTunableNumber("Kicker Speed", 100);
+
+  private LoggedTunableNumber spinnerSpeed = new LoggedTunableNumber("Spinner Speed", 13);
+
   public SpindexerSubsystem(CANBus canbus, RollerIO indexRollerIO, RollerIO kickerIO) {
     this.kickerIO = kickerIO;
     this.spinnerIO = indexRollerIO;
@@ -73,8 +78,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               //     .withTimeout(3),
               // this.run(
               //     () -> {
-              spinnerIO.setRollerVelocity(30);
-              kickerIO.setRollerVelocity(20);
+              spinnerIO.setRollerVelocity(spinnerSpeed.get());
+              kickerIO.setRollerVelocity(kickerSpeed.get());
             }));
   }
 
@@ -92,7 +97,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return this.run(
         () -> {
           spinnerIO.setRollerVoltage(0.0);
-          kickerIO.setRollerVoltage(-2);
+          kickerIO.setRollerVoltage(0.0);
         });
   }
 
@@ -155,7 +160,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     config.Slot0.kS = 0.22251;
     config.Slot0.kV = 0.17199;
     config.Slot0.kA = 0.024802;
-    config.Slot0.kP = 7;
+    config.Slot0.kP = 21;
     config.Slot0.kD = 0;
 
     config.CurrentLimits.StatorCurrentLimit = 80.0;
