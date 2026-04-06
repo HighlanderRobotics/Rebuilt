@@ -130,7 +130,7 @@ public class AutoAim {
     // Calculate parameters accounted for imparted velocity
     // Rotation2d turretAngle = target.minus(lookaheadPose.getTranslation()).getAngle();\
     Rotation2d turretAngle = getTargetRotation(target, lookaheadPose);
-    turretAngle = getTurretTargetRotation(turretAngle, estimatedPose);
+    turretAngle = getTurretTargetRotation(turretAngle, lookaheadPose);
 
     // Log calculated values
     Logger.recordOutput("LaunchCalculator/LookaheadPose", lookaheadPose);

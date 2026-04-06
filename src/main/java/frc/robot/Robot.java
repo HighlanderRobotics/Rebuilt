@@ -185,7 +185,7 @@ public class Robot extends LoggedRobot {
 
   private final SlewRateLimiter xAccelLimiter = new SlewRateLimiter(1);
   private final SlewRateLimiter yAccelLimiter = new SlewRateLimiter(1);
-  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(3.0);
+  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(0.5);
 
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
