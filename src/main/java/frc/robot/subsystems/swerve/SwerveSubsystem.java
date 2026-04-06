@@ -583,10 +583,6 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
-  public Command stopForTime(DoubleSupplier seconds) {
-    return stop().repeatedly().withTimeout(seconds.getAsDouble());
-  }
-
   public Command translateToPose(
       Supplier<Pose2d> target,
       Supplier<ChassisSpeeds> speedsModifier,

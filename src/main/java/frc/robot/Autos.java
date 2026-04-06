@@ -298,7 +298,7 @@ public class Autos {
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         stopIntaking(),
         startScoring(),
-        swerve.stopForTime(() -> 5),
+        swerve.stop().repeatedly().withTimeout(5),
         stopScoring());
   }
 
@@ -361,7 +361,8 @@ public class Autos {
                         Units.degreesToRadians(30))),
         startScoring(),
         // TODO tune tolerance
-        swerve.stopForTime(() -> 4)); // TODO tune time
+        swerve.stop().repeatedly().withTimeout(4));
+
   }
 
   public Command outpostNoScorePath(Path path, AutoRoutine routine) {
@@ -388,7 +389,7 @@ public class Autos {
                         0.25,
                         Units.degreesToRadians(30))),
         // TODO tune tolerance
-        swerve.stopForTime(() -> 4)); // TODO tune time
+        swerve.stop().repeatedly().withTimeout(4));
   }
 
   public Command depotPath(Path path, AutoRoutine routine) {
@@ -415,7 +416,7 @@ public class Autos {
                         0.25,
                         Units.degreesToRadians(30))),
         // TODO tune tolerance
-        swerve.stopForTime(() -> 1)); // TODO tune time
+        swerve.stop().repeatedly().withTimeout(1));
   }
 
   public void lockHoodUnderTrench(AutoRoutine routine, double toleranceMeters) {
