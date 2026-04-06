@@ -801,22 +801,10 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
-    autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
-    autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
-    autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
-    autoChooser.addOption("Outpost Score Climb", autos.getOutpostScoreClimbAuto());
-    autoChooser.addOption("Fill Depot Score Climb", autos.getFillDepotScoreClimbAuto());
-    autoChooser.addOption("Fill Outpost Score Climb", autos.getFillOutpostScoreClimbAuto());
-    autoChooser.addOption("Depot Climb", autos.getDepotClimbAuto());
-    autoChooser.addOption("Depot Outpost Climb", autos.getDepotOutpostClimbAuto());
-    autoChooser.addOption("Outpost Climb", autos.getOutpostClimbAuto());
-    autoChooser.addOption("Score in Center", autos.getCenterScoreAuto());
+
     autoChooser.addOption("Test Auto", autos.getTestAuto());
     autoChooser.addOption("Just Score", autos.getJustScoreAuto());
-    autoChooser.addOption(
-        "Left Bump Depot Outpost Climb", autos.getLeftBumpDepotOutpostClimbAuto());
-    autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
-    autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
+
     autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());

@@ -526,19 +526,6 @@ public class Autos {
     return routine.cmd();
   }
 
-  public Command getDepotScoreClimbAuto() {
-    return createAuto(
-        "Depot Score Climb Auto",
-        new Path[] {
-          Path.LTrenchtoDepot,
-          Path.DepottoLPreTrench,
-          Path.LPreTrenchtoLNeutral,
-          Path.LNeutraltoLPreTrench,
-          Path.LPreTrenchtoLClimb
-        },
-        setLeftClimb());
-  }
-
   public Command getDoubleDipRightTrench() {
     return createAuto(
         "Double dip right trench auto",
@@ -549,122 +536,6 @@ public class Autos {
           Path.RNeutraltoRPreTrenchReversed,
         },
         setRightClimb());
-  }
-
-  public Command getOutpostScoreClimbAuto() {
-
-    return createAuto(
-        "Outpost Score Climb Auto",
-        new Path[] {
-          Path.RTrenchtoOutpost,
-          Path.OutposttoRPreTrench,
-          Path.RPreTrenchtoRNeutral,
-          Path.RNeutraltoRPreTrenchReversed,
-          Path.RPreTrenchtoRClimb
-        },
-        setRightClimb());
-  }
-
-  public Command getDepotFeedClimbAuto() {
-    return createAuto(
-        "Depot Feed Climb Auto",
-        new Path[] {
-          Path.LTrenchtoDepot,
-          Path.DepottoLPreTrench,
-          Path.LPreTrenchtoLNeutral,
-          Path.FeedLNeutraltoLPreTrench,
-          Path.LPreTrenchtoLClimb
-        },
-        setLeftClimb());
-  }
-
-  public Command getOutpostFeedClimbAuto() {
-
-    return createAuto(
-        "Outpost Feed Climb Auto",
-        new Path[] {
-          Path.RTrenchtoOutpost,
-          Path.OutposttoRPreTrench,
-          Path.RPreTrenchtoRNeutral,
-          Path.FeedRNeutraltoRPreTrench,
-          Path.RPreTrenchtoRClimb
-        },
-        setRightClimb());
-  }
-
-  // awful names.. mb
-  public Command getFillDepotScoreClimbAuto() {
-    return createAuto(
-        "Fill Depot Score Climb Auto",
-        new Path[] {
-          Path.StartingLTrenchtoLNeutral,
-          Path.FeedLNeutraltoLPreTrench,
-          Path.LPreTrenchtoDepot,
-          Path.DepottoLClimb
-        },
-        setLeftClimb());
-  }
-
-  public Command getFillOutpostScoreClimbAuto() {
-
-    return createAuto(
-        "Fill Outpost Score Climb Auto",
-        new Path[] {
-          Path.StartingRTrenchtoRNeutral,
-          Path.FeedRNeutraltoRPreTrench,
-          Path.RPreTrenchReversedtoOutpost,
-          Path.OutposttoRClimb
-        },
-        setRightClimb());
-  }
-
-  public Command getRightBumpOutpostCenterAuto() {
-
-    return createAuto(
-        "Right Bump Outpost Center Auto",
-        new Path[] {
-          Path.RBumptoOutpost,
-          Path.OutposttoRPreTrench,
-          Path.RPreTrenchtoRNeutral,
-          Path.RNeutraltoRPreTrenchReversed
-        },
-        setRightClimb());
-  }
-
-  public Command getDepotClimbAuto() {
-
-    return createAuto(
-        "Depot Climb Auto", new Path[] {Path.LTrenchtoDepot, Path.DepottoLClimb}, setLeftClimb());
-  }
-
-  public Command getOutpostClimbAuto() {
-
-    return createAuto(
-        "Outpost Climb Auto",
-        new Path[] {Path.RTrenchtoOutpost, Path.OutposttoPreOutpost, Path.PreOutposttoRClimb},
-        setRightClimb());
-  }
-
-  public Command getDepotOutpostClimbAuto() {
-    return createAuto(
-        "Depot Outpost Climb Auto",
-        new Path[] {
-          Path.LTrenchtoDepot,
-          Path.DepottoPreOutpost,
-          Path.PreOutposttoOutpost,
-          Path.OutposttoRClimb
-        },
-        setRightClimb());
-  }
-
-  public Command getLeftBumpDepotOutpostClimbAuto() {
-    return createAuto(
-        "Left Bump Outpost Climb Auto",
-        new Path[] {
-          Path.LBumptoDepot, Path.DepottoPreOutpost, Path.PreOutposttoOutpost, Path.OutposttoRClimb
-        },
-        setRightClimb(),
-        shootPreload());
   }
 
   public Command getHubDepotOutpostAuto() {
@@ -683,19 +554,6 @@ public class Autos {
         Commands.none());
   }
 
-  // this is so cursed and im not proud of it
-  public Command getRightBumpOutpostClimbAuto() {
-    return createAuto(
-        "Right Bump Outpost Climb Auto",
-        new Path[] {Path.RBumptoOutpost, Path.noScoreOutposttoRClimb},
-        setRightClimb());
-  }
-
-  public Command getCenterScoreAuto() {
-    // no climb so don't need to set climb target
-    return createAuto("Center Score Auto", new Path[] {Path.HubtoCenter}, Commands.none());
-  }
-
   public Command getRightNeutralOutpostScore() {
     return createAuto(
         "Right Neutral Outpost Score",
@@ -707,15 +565,6 @@ public class Autos {
         },
         setRightClimb());
   }
-
-  // public Command getLeftNeutralOutpostScore() {
-  //   return createAuto(
-  //       "Left Neutral Outpost Score",
-  //       new Path[] {
-  //         Path.StartingLTrenchtoLNeutral, Path.LNeutraltoLPreTrench, Path.LPreTrenchtoDepot
-  //       },
-  //       setLeftClimb());
-  // }
 
   public Command getLeftNeutralScoreTwice() {
     return createAuto(
