@@ -62,7 +62,7 @@ public class LindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick(DoubleSupplier flywheelSpeedSupplier) {
+  public Command kick(DoubleSupplier flywheelRPS) {
     return this.run(
         () -> {
           // if (shooterAtSetpoint.getAsBoolean()) {

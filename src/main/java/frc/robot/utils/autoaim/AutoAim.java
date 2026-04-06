@@ -30,6 +30,8 @@ public class AutoAim {
   public static final Rotation2d RIGHT_FIXED_SHOT_TURRET_ANGLE =
       Rotation2d.fromDegrees(-109.775391);
 
+  private static int fudgeFactor = 0;
+
   static { // For hub shot tree
     ALPHA_HUB_SHOT_TREE.put(
         Units.inchesToMeters(24 + 17), new ShotData(Rotation2d.fromDegrees(8), 27.5, 1.46));
@@ -484,10 +486,6 @@ public class AutoAim {
     return getSOTMShotData(compensatedPose, targetTranslation, fieldRelativeSpeeds, tree);
   }
 
-  public static boolean targetInTurretDeadzone() {
-    return outOfRange;
-  }
-
   public static ShotData getLeftFixedShotData() {
     return new ShotData(Rotation2d.fromDegrees(36), 36, 0);
   }
@@ -498,5 +496,17 @@ public class AutoAim {
 
   public static ShotData getMidFixedShotData() {
     return new ShotData(Rotation2d.fromDegrees(32.84), 35, 0);
+  }
+
+  public static void incrementFudgeFactor() {
+    fudgeFactor++;
+  }
+
+  public static void decrementFudgeFactor() {
+    fudgeFactor--;
+  }
+
+  public static int getFudgeFactor() {
+    return fudgeFactor;
   }
 }

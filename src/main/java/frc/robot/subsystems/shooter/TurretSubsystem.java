@@ -252,8 +252,10 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   Logger.recordOutput("Robot/Feed Target", feedTarget.get());
                   hoodIO.setHoodPosition(shotParamsSupplier.get().shotData().hoodAngle());
                   // flywheelIO.setTorqueCurrentVel(shotDataSupplier.get().flywheelVelocityRotPerSec());
-                  flywheelIO.setMotionProfiledFlywheelVelocity(
-                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec());
+                  // flywheelIO.setMotionProfiledFlywheelVelocity(
+                  flywheelIO.setFlywheelVelocity(
+                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec()
+                          + AutoAim.getFudgeFactor());
                   turretIO.setTurretPosition(shotParamsSupplier.get().turretAngle());
                 }));
   }
@@ -306,7 +308,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     return this.run(
         () -> {
           hoodIO.setHoodPosition(HOOD_MIN_ANGLE);
-          flywheelIO.setMotionProfiledFlywheelVelocity(30);
+          // flywheelIO.setMotionProfiledFlywheelVelocity(
+          flywheelIO.setFlywheelVelocity(30);
           // i think we want it to eject as far out from the robot as possible
           turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
         }); // TODO: TUNE HOOD POS AND FLYWHEEL VELOCITY
@@ -351,36 +354,33 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   //     turretIO.setTurretPosition(AutoAim.RIGHT_FIXED_SHOT_TURRET_ANGLE);
                   //   case NONE:
                   hoodIO.setHoodPosition(shotParamsSupplier.get().shotData().hoodAngle());
-                  flywheelIO.setMotionProfiledFlywheelVelocity(
-                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec());
+                  // flywheelIO.setMotionProfiledFlywheelVelocity(
+                  flywheelIO.setFlywheelVelocity(
+                      shotParamsSupplier.get().shotData().flywheelVelocityRotPerSec()
+                          + AutoAim.getFudgeFactor());
                   turretIO.setTurretPosition(shotParamsSupplier.get().turretAngle());
                   // }
                 }));
   }
 
   @Override
-  public Command resetTurretToPosition(Rotation2d rot) {
-    return this.runOnce(() -> turretIO.resetTurretEncoder(getCalculatedTurretRotations()));
+  public Command resetTurretToPosition(Supplier<Rotation2d> rot) {
+    return this.runOnce(() -> turretIO.resetTurretEncoder(rot.get()));
   }
 
-  /** sets the motor encoder to the position calculated from the encoders */
-  public Command resetTurretToCalculatedPosition() {
-    return Commands.print("Rezeroing turret")
-        .andThen(resetTurretToPosition(getCalculatedTurretRotations()));
-  }
+  // @Override
+  // public Command currentZeroTurretAgainstForwardHardstop() {
+  //   return this.run(() -> turretIO.setVoltage(1.0))
+  //       .until(
+  //           new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
+  //               .debounce(0.25))
+  //       .andThen(Commands.parallel(Commands.print("Turret Zeroed"),
+  // zeroTurretForwardHardstop()));
+  // }
 
-  @Override
-  public Command currentZeroTurretAgainstForwardHardstop() {
-    return this.run(() -> turretIO.setVoltage(1.0))
-        .until(
-            new Trigger(() -> Math.abs(turretCurrentFilterValue) > TURRET_CURRENT_ZERO_THRESHOLD)
-                .debounce(0.25))
-        .andThen(Commands.parallel(Commands.print("Turret Zeroed"), zeroTurretForwardHardstop()));
-  }
-
-  public Command zeroTurretForwardHardstop() {
-    return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
-  }
+  // public Command zeroTurretForwardHardstop() {
+  //   return this.runOnce(() -> turretIO.resetTurretEncoder(TURRET_FORWARD_HARDSTOP_ANGLE));
+  // }
 
   // for defense and stuff
   @Override
@@ -508,11 +508,11 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
     config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
 
-    // slot 0 is for motion profiled velocity
+    // slot 0 is for velocity
     config.Slot0.kS = 0.33706; // 0.63933;
     config.Slot0.kV = 0.13893; // 0.11582;
     config.Slot0.kA = 0.030026; // 0.020809;
-    config.Slot0.kP = 0.4;
+    config.Slot0.kP = 0.67;
     config.Slot0.kD = 0;
 
     // slot 1 is for torque current

@@ -73,6 +73,7 @@ import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.FuelSim;
+import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.NewAutoAim;
 import java.io.File;
 import java.util.Arrays;
@@ -211,6 +212,8 @@ public class Robot extends LoggedRobot {
 
   private Intake intake = null;
   private Shooter shooter = null;
+
+  private Indexer indexer = null;
   private final CANdleSubsystem candle =
       new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
 
@@ -262,7 +265,6 @@ public class Robot extends LoggedRobot {
     // accounted for, it wouldn't be able to pass anything to the superstructure below and it would
     // break
     // granted this would never actually happen but
-    Indexer indexer = null;
 
     // this looks at the ROBOT_EDITION variable and decides which version of each subsystem to
     // create based on that
@@ -352,17 +354,30 @@ public class Robot extends LoggedRobot {
                         MotorType.KrakenX44,
                         canivore),
                 (ROBOT_MODE == RobotMode.REAL)
-                    ? new RollerIO(10, SpindexerSubsystem.getKickerConfig(), canivore)
+                    ? new RollerIO(10, SpindexerSubsystem.getX44KickerConfig(), canivore)
                     : new RollerIOSim(
                         10,
-                        SpindexerSubsystem.getKickerConfig(),
+                        SpindexerSubsystem.getX44KickerConfig(),
                         new DCMotorSim(
                             LinearSystemId.createDCMotorSystem(
                                 DCMotor.getKrakenX44Foc(1),
                                 0.00001,
-                                SpindexerSubsystem.KICKER_GEAR_RATIO),
+                                SpindexerSubsystem.X44_KICKER_GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
+                        canivore),
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(17, SpindexerSubsystem.getX60KickerConfig(), canivore)
+                    : new RollerIOSim(
+                        17,
+                        SpindexerSubsystem.getX60KickerConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX60Foc(1),
+                                0.00001,
+                                SpindexerSubsystem.X60_KICKER_GEAR_RATIO),
+                            DCMotor.getKrakenX60Foc(1)),
+                        MotorType.KrakenX60,
                         canivore));
         intake =
             (ROBOT_MODE == RobotMode.REAL)
@@ -509,12 +524,11 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Zero Hood", shooter.zeroHood().ignoringDisable(true));
 
     SmartDashboard.putData(
-        "Set Turret to 0", shooter.resetTurretToPosition(Rotation2d.kZero).ignoringDisable(true));
+        "Set Turret to 0",
+        shooter.resetTurretToPosition(() -> Rotation2d.kZero).ignoringDisable(true));
     SmartDashboard.putData(
         "Rezero turret against cancoders",
-        shooter
-            .resetTurretToPosition(shooter.getCalculatedTurretRotations())
-            .ignoringDisable(true));
+        shooter.resetTurretToCalculatedPosition().ignoringDisable(true));
 
     leds = new LEDSubsystem(new LEDIOReal()); // TODO sim
     candle.setDefaultCommand(candle.test().ignoringDisable(true));
@@ -636,7 +650,7 @@ public class Robot extends LoggedRobot {
 
     fuelSim.setSubticks(5);
 
-    fuelSim.start();
+    // fuelSim.start();
   }
 
   /** Scales a joystick value for teleop driving */
@@ -694,26 +708,27 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             shooter
-                .resetTurretToPosition(shooter.getCalculatedTurretRotations())
+                .resetTurretToCalculatedPosition()
                 .andThen(
                     Commands.parallel(
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
     new Trigger(() -> NewAutoAim.targetInTurretDeadzone())
-        .onTrue(
-            driver
-                .rumbleCmd(1, 1)
-                .withTimeout(0.25)
-                .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
+        .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
+    //  .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
+    new Trigger(() -> superstructure.tenSecsLeftInOffShift())
+        .onTrue(operator.rumbleCmd(1, 1).withTimeout(0.25));
+
     driver.povUp().whileTrue(shooter.currentZeroTurretAgainstForwardHardstop());
 
     driver
         .leftBumper()
         .onTrue(
-            Commands.parallel(
-                shooter.resetTurretToPosition(shooter.getCalculatedTurretRotations()),
-                intake.zeroPivotOffCancoder()));
+            Commands.runOnce(
+                () ->
+                    shooter
+                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -723,8 +738,14 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .or(Autos.autoLeftClimbReq.negate())
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
-    // I HATE THIS!
-    operator.leftStick().whileTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
+    operator
+        .rightStick()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    shooter
+                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
+                        .ignoringDisable(true)));
 
     driver
         .rightBumper()
@@ -779,6 +800,9 @@ public class Robot extends LoggedRobot {
                 shooter::getTurretPosition,
                 () -> Superstructure.getFeedTarget()));
 
+    operator.povRight().onTrue(Commands.runOnce(() -> AutoAim.incrementFudgeFactor()));
+    operator.povLeft().onTrue(Commands.runOnce(() -> AutoAim.decrementFudgeFactor()));
+
     // create triggers for joystick disconnect alerts
     new Trigger(() -> DriverStation.isJoystickConnected(0))
         .negate()
@@ -812,11 +836,19 @@ public class Robot extends LoggedRobot {
         "Left Bump Depot Outpost Climb", autos.getLeftBumpDepotOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
+    autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
     autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
-    autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
+    // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
+    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
+    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("X60 Sysid", indexer.runX60Sysid());
+
+    autoChooser.addOption("X44 Sysid", indexer.runX44Sysid());
+
+    autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
@@ -890,6 +922,7 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
+    Logger.recordOutput("Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     // Log climb poses
     Logger.recordOutput(
@@ -982,7 +1015,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
-    fuelSim.updateSim();
+    // fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
