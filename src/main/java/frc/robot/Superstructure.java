@@ -500,11 +500,11 @@ public class Superstructure {
         intake.agitate(),
         indexer.kick(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getShotParameters(
                         swerve.getPose(),
                         swerve.getVelocityRobotRelative(),
                         FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                        AutoAim.FEED_SHOT_TREE)
+                        ShotTrees.FEED_SHOT_TREE)
                     .shotData()
                     .flywheelVelocityRotPerSec()),
         shooter.feed(
@@ -534,11 +534,11 @@ public class Superstructure {
         intake.intake(),
         indexer.kick(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getShotParameters(
                         swerve.getPose(),
                         swerve.getVelocityRobotRelative(),
                         FeedTargets.getFeedTarget(feedTarget).getTranslation(),
-                        AutoAim.FEED_SHOT_TREE)
+                        ShotTrees.FEED_SHOT_TREE)
                     .shotData()
                     .flywheelVelocityRotPerSec()),
         shooter.feed(
@@ -571,13 +571,13 @@ public class Superstructure {
         // intake.restExtended(),
         indexer.kick(
             () ->
-                NewAutoAim.getParametersMechA(
+                AutoAim.getShotParameters(
                         swerve.getPose(),
                         swerve.getVelocityRobotRelative(),
                         FieldUtils.getCurrentHubTranslation(),
                         Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                            ? AutoAim.ALPHA_HUB_SHOT_TREE
-                            : AutoAim.COMP_HUB_SHOT_TREE)
+                            ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                            : ShotTrees.COMP_HUB_SHOT_TREE)
                     .shotData()
                     .flywheelVelocityRotPerSec()),
         shooter.score(
@@ -611,13 +611,13 @@ public class Superstructure {
         intake.intake(),
         indexer.kick(
             () ->
-                NewAutoAim.getParametersMechA(
-                        swerve.getPose(),
-                        swerve.getVelocityRobotRelative(),
-                        FieldUtils.getCurrentHubTranslation(),
-                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                            ? AutoAim.ALPHA_HUB_SHOT_TREE
-                            : AutoAim.COMP_HUB_SHOT_TREE)
+                AutoAim.getShotParameters(
+                    swerve.getPose(),
+                    swerve.getVelocityRobotRelative(),
+                    FieldUtils.getCurrentHubTranslation(),
+                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)
                     .shotData()
                     .flywheelVelocityRotPerSec()),
         shooter.score(
@@ -684,13 +684,13 @@ public class Superstructure {
         intake.restRetracted(),
         indexer.kick(
             () ->
-                NewAutoAim.getParametersMechA(
-                        swerve.getPose(),
-                        swerve.getVelocityRobotRelative(),
-                        FieldUtils.getCurrentHubTranslation(),
-                        Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                            ? AutoAim.ALPHA_HUB_SHOT_TREE
-                            : AutoAim.COMP_HUB_SHOT_TREE)
+                AutoAim.getShotParameters(
+                    swerve.getPose(),
+                    swerve.getVelocityRobotRelative(),
+                    FieldUtils.getCurrentHubTranslation(),
+                    Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                        ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                        : ShotTrees.COMP_HUB_SHOT_TREE)
                     .shotData()
                     .flywheelVelocityRotPerSec()),
         shooter.score(
