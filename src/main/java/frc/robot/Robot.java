@@ -731,18 +731,17 @@ public class Robot extends LoggedRobot {
     driver
         .rightBumper()
         .whileTrue(
-            // swerve.alignToClimb(
-            //     () ->
-            //         ClimbTargets.CLIMB_TARGETS_LIST.stream()
-            //             .filter(target -> target.getLeftHanded() == leftClimbTarget)
-            //             .filter(
-            //                 target ->
-            //                     target.isBlueAlliance()
-            //                         == (DriverStation.getAlliance().orElse(Alliance.Blue)
-            //                             == Alliance.Blue))
-            //             .findFirst()
-            //             .get()));
-            indexer.kick());
+            swerve.alignToClimb(
+                () ->
+                    ClimbTargets.CLIMB_TARGETS_LIST.stream()
+                        .filter(target -> target.getLeftHanded() == leftClimbTarget)
+                        .filter(
+                            target ->
+                                target.isBlueAlliance()
+                                    == (DriverStation.getAlliance().orElse(Alliance.Blue)
+                                        == Alliance.Blue))
+                        .findFirst()
+                        .get()));
     // turn swerve if target is in turret deadzone
     // driver
     //     .leftBumper()

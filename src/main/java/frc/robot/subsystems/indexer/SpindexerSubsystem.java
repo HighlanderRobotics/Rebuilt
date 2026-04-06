@@ -18,7 +18,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
+import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.LoggedTunableNumber;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -32,8 +34,9 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   // i don't really know if i should be using the sushi or the stealth wheels but the sushi wheels
   // are 1" in diameter and the stealth wheels are 3" in diameter
   public static final double X44_KICKER_DIAMETER_INCHES = 3;
+  public static final double X60_KICKER_DIAMETER_INCHES = 1;
   // biggest wheel (smallest wheel is 2")
-  public static final double SPINNER_DIAMETER_INCHES = 8;
+  public static final double SPINNER_DIAMETER_INCHES = 13.875;
 
   private RollerIO spinnerIO;
 
@@ -106,20 +109,20 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
   }
 
   @Override
-  public Command kick() {
+  public Command kick(DoubleSupplier flywheelRPS) {
     return Commands.sequence(
         this.run(
             () -> {
-              //   spinnerIO.setRollerVoltage(12);
-              //   kickerIO.setRollerVoltage(12);
-              // })
-              //     .withTimeout(3),
-              // this.run(
-              //     () -> {
-              spinnerIO.setRollerVelocity(spinnerSpeed.get());
-              x44KickerIO.setRollerVelocity(kickerSpeed.get());
-              // x60KickerIO.setRollerVelocity(x60KickSpeed.get());
-              x60KickerIO.setRollerVelocity(x60KickSpeed.get());
+              double flywheelLinearSpeed =
+                  flywheelRPS.getAsDouble() * Math.PI * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
+              double x44Speed = flywheelLinearSpeed * 1 / (Math.PI * X44_KICKER_DIAMETER_INCHES);
+
+              double x60Speed = flywheelLinearSpeed * 0.9 / (Math.PI * X60_KICKER_DIAMETER_INCHES);
+              double spinnerSpeed =
+                  flywheelLinearSpeed * 0.85 / (Math.PI * SPINNER_DIAMETER_INCHES);
+              spinnerIO.setRollerVelocity(spinnerSpeed);
+              x44KickerIO.setRollerVelocity(x44Speed);
+              x60KickerIO.setRollerVelocity(x60Speed);
             }));
   }
 
