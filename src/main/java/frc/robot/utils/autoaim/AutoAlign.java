@@ -72,7 +72,7 @@ public class AutoAlign {
         HEADING_CONTROLLER.calculate(robotHeading.getRadians(), targetHeading.getRadians())
             + HEADING_CONTROLLER.getSetpoint().velocity;
     Logger.recordOutput(
-        "AutoAim/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
+        "AutoAlign/Target Speeds Robot Relative", new ChassisSpeeds(0.0, 0.0, omegaRadsPerSec));
     return omegaRadsPerSec;
   }
 
@@ -112,7 +112,7 @@ public class AutoAlign {
                   + HEADING_CONTROLLER.getSetpoint().velocity);
     }
     Logger.recordOutput(
-        "AutoAim/Target Speeds Robot Relative",
+        "AutoAlign/Target Speeds Robot Relative",
         ChassisSpeeds.fromFieldRelativeSpeeds(speeds, robotPose.getRotation()));
 
     return speeds;

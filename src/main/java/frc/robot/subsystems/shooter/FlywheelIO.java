@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -66,6 +67,8 @@ public class FlywheelIO {
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
   private VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
       new VelocityTorqueCurrentFOC(0.0).withSlot(1);
+  private VelocityVoltage velocityVoltage =
+      new VelocityVoltage(0.0).withEnableFOC(true).withSlot(0);
 
   private double velocitySetpointRotPerSec = 100.0; // TODO can't start w 0
 
@@ -139,6 +142,11 @@ public class FlywheelIO {
   public void setTorqueCurrentVel(double flywheelVel) {
     velocitySetpointRotPerSec = flywheelVel;
     flywheelLeader.setControl(velocityTorqueCurrentFOC.withVelocity(flywheelVel));
+  }
+
+  public void setFlywheelVelocity(double flywheelVelocity) {
+    velocitySetpointRotPerSec = flywheelVelocity;
+    flywheelLeader.setControl(velocityVoltage.withVelocity(flywheelVelocity));
   }
 
   public void stop() { // thought i should add a stop command, dont think i had to though

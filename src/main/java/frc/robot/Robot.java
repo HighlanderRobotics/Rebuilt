@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import com.playingwithfusion.BattFuelGauge;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -73,7 +74,6 @@ import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
-import frc.robot.utils.autoaim.NewAutoAim;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
@@ -152,7 +152,7 @@ public class Robot extends LoggedRobot {
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
    * complete
    */
-  public static final boolean TUNING_MODE = false;
+  public static final boolean TUNING_MODE = true;
 
   public boolean hasZeroedSinceStartup = false;
 
@@ -183,6 +183,10 @@ public class Robot extends LoggedRobot {
   private static final double CAN_ERROR_TIME_THRESHOLD = 0.5; // Seconds to disable alert
   private static final double CANIVORE_ERROR_TIME_THRESHOLD = 0.5;
 
+  private final SlewRateLimiter xAccelLimiter = new SlewRateLimiter(1);
+  private final SlewRateLimiter yAccelLimiter = new SlewRateLimiter(1);
+  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(0.5);
+
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
       12.1; // TODO 11.8 for practice batteries and 12.2 for comp batteries. maybe also do leds?
@@ -207,6 +211,8 @@ public class Robot extends LoggedRobot {
 
   private Intake intake = null;
   private Shooter shooter = null;
+
+  private Indexer indexer = null;
   private final CANdleSubsystem candle =
       new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
 
@@ -258,7 +264,6 @@ public class Robot extends LoggedRobot {
     // accounted for, it wouldn't be able to pass anything to the superstructure below and it would
     // break
     // granted this would never actually happen but
-    Indexer indexer = null;
 
     // this looks at the ROBOT_EDITION variable and decides which version of each subsystem to
     // create based on that
@@ -348,17 +353,30 @@ public class Robot extends LoggedRobot {
                         MotorType.KrakenX44,
                         canivore),
                 (ROBOT_MODE == RobotMode.REAL)
-                    ? new RollerIO(10, SpindexerSubsystem.getKickerConfig(), canivore)
+                    ? new RollerIO(10, SpindexerSubsystem.getX44KickerConfig(), canivore)
                     : new RollerIOSim(
                         10,
-                        SpindexerSubsystem.getKickerConfig(),
+                        SpindexerSubsystem.getX44KickerConfig(),
                         new DCMotorSim(
                             LinearSystemId.createDCMotorSystem(
                                 DCMotor.getKrakenX44Foc(1),
                                 0.00001,
-                                SpindexerSubsystem.KICKER_GEAR_RATIO),
+                                SpindexerSubsystem.X44_KICKER_GEAR_RATIO),
                             DCMotor.getKrakenX44Foc(1)),
                         MotorType.KrakenX44,
+                        canivore),
+                (ROBOT_MODE == RobotMode.REAL)
+                    ? new RollerIO(17, SpindexerSubsystem.getX60KickerConfig(), canivore)
+                    : new RollerIOSim(
+                        17,
+                        SpindexerSubsystem.getX60KickerConfig(),
+                        new DCMotorSim(
+                            LinearSystemId.createDCMotorSystem(
+                                DCMotor.getKrakenX60Foc(1),
+                                0.00001,
+                                SpindexerSubsystem.X60_KICKER_GEAR_RATIO),
+                            DCMotor.getKrakenX60Foc(1)),
+                        MotorType.KrakenX60,
                         canivore));
         intake =
             (ROBOT_MODE == RobotMode.REAL)
@@ -575,6 +593,20 @@ public class Robot extends LoggedRobot {
             Commands.runOnce(() -> addAutos())
                 .alongWith(leds.blinkCmd(Color.kWhite, Color.kBlack, 20.0).withTimeout(1.0))
                 .ignoringDisable(true));
+    new Trigger(() -> Superstructure.getState().isAScoreState())
+        .whileTrue(
+            swerve
+                .driveOpenLoopFieldRelative(
+                    () ->
+                        new ChassisSpeeds(
+                                yAccelLimiter.calculate(modifyJoystick(driver.getLeftY()))
+                                    * (SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()),
+                                xAccelLimiter.calculate(modifyJoystick(driver.getLeftX()))
+                                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+                                rAccelLimiter.calculate(modifyJoystick(driver.getRightX()))
+                                    * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
+                            .times(-1))
+                .withName("default"));
 
     SmartDashboard.putData("Add autos", Commands.runOnce(this::addAutos).ignoringDisable(true));
 
@@ -618,6 +650,13 @@ public class Robot extends LoggedRobot {
     fuelSim.setSubticks(5);
 
     // fuelSim.start();
+
+    // Log climb poses
+    Logger.recordOutput(
+        "AutoAlign/Climb Targets",
+        Arrays.stream(ClimbTargets.values())
+            .map(target -> target.getPose())
+            .toArray(Pose2d[]::new));
   }
 
   /** Scales a joystick value for teleop driving */
@@ -680,7 +719,7 @@ public class Robot extends LoggedRobot {
                     Commands.parallel(
                         shooter.runHoodCurrentZeroing(), intake.runCurrentZeroing())));
 
-    new Trigger(() -> NewAutoAim.targetInTurretDeadzone())
+    new Trigger(() -> AutoAim.targetInTurretDeadzone())
         .onTrue(driver.rumbleCmd(1, 1).withTimeout(0.25));
     //  .alongWith(operator.rumbleCmd(1, 1).withTimeout(0.25)));
     // ---zeroing stuff---
@@ -732,7 +771,7 @@ public class Robot extends LoggedRobot {
     // driver
     //     .leftBumper()
     //     .and(
-    new Trigger(NewAutoAim::targetInTurretDeadzone)
+    new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAScoreState())
         .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
@@ -749,7 +788,7 @@ public class Robot extends LoggedRobot {
                         * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
                 shooter::getTurretPosition));
 
-    new Trigger(NewAutoAim::targetInTurretDeadzone)
+    new Trigger(AutoAim::targetInTurretDeadzone)
         .and(() -> Superstructure.getState().isAFeedState())
         .and(() -> !Superstructure.getState().isAFlowState())
         .and(() -> !Superstructure.getPoseOverride())
@@ -811,6 +850,9 @@ public class Robot extends LoggedRobot {
 
     autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
     autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
+    autoChooser.addOption("X60 Sysid", indexer.runX60Sysid());
+
+    autoChooser.addOption("X44 Sysid", indexer.runX44Sysid());
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
 
@@ -886,29 +928,24 @@ public class Robot extends LoggedRobot {
         });
 
     updateAlerts();
-    Logger.recordOutput("Flywheel Fudge Factor", AutoAim.getFudgeFactor());
-
-    // Log climb poses
-    Logger.recordOutput(
-        "AutoAlign/Climb Targets",
-        Arrays.stream(ClimbTargets.values())
-            .map(target -> target.getPose())
-            .toArray(Pose2d[]::new));
+    Logger.recordOutput("AutoAim/Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     Logger.recordOutput(
         "trench poses",
         Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
 
-    Logger.recordOutput("Turret/out of range", NewAutoAim.targetInTurretDeadzone());
+    Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
 
     noLogStickAlert.set(!directory.exists());
 
     Logger.recordOutput(
-        "Distance to hub",
+        "AutoAim/Distance to hub",
         shooter
             .getTurretPose(swerve.getPose())
             .getTranslation()
             .getDistance(FieldUtils.getCurrentHubTranslation()));
+    Logger.recordOutput(
+        "AutoAim/Feed Target", FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose());
   }
 
   public void updateAlerts() {
