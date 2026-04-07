@@ -169,27 +169,24 @@ public class R1WispSwerveConstants extends SwerveConstants {
     return Pound.of(145.8); // 136.185702);
   }
 
-  // TODO: CANCODER OFFSETS
   @Override
   public ModuleConstants getFrontLeftModuleConstants() {
-    return new ModuleConstants(
-        0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(-0.22656).plus(Rotation2d.k180deg));
+    return new ModuleConstants(0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(0.272217));
   }
 
   @Override
   public ModuleConstants getFrontRightModuleConstants() {
-    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(-0.388));
+    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(0.11377 - 0.5));
   }
 
   @Override
   public ModuleConstants getBackLeftModuleConstants() {
-    return new ModuleConstants(
-        2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(-0.3).plus(Rotation2d.k180deg));
+    return new ModuleConstants(2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.199463));
   }
 
   @Override
   public ModuleConstants getBackRightModuleConstants() {
-    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(0.3303));
+    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(-0.168945 - 0.5));
   }
 
   @Override
