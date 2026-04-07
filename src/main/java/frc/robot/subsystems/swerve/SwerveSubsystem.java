@@ -907,6 +907,10 @@ public class SwerveSubsystem extends SubsystemBase {
     resetPose(new Pose2d(getPose().getTranslation(), newYaw));
   }
 
+  public void setGyroYaw(Rotation2d yaw) {
+    gyroIO.setYaw(yaw);
+  }
+
   @AutoLogOutput(key = "Odometry/Velocity Robot Relative")
   public ChassisSpeeds getVelocityRobotRelative() {
     ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());

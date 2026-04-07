@@ -153,7 +153,8 @@ public class AutoAim {
     Rotation2d turretTargetRotation = targetRotation.minus(robotPose.getRotation());
     Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
     // -5 is some insane fudge factor i forgot where it's from
-    double turretTargetDegrees = turretTargetRotation.getDegrees() - 5 - 2.5; //fudge factor of doom and despair
+    double turretTargetDegrees =
+        turretTargetRotation.getDegrees() - 5 - 2.5; // fudge factor of doom and despair
     // If its in the deadzone, clamp to nearest hardstop
     outOfRange =
         turretTargetDegrees > TurretSubsystem.TURRET_FORWARD_HARDSTOP_ANGLE.getDegrees()
