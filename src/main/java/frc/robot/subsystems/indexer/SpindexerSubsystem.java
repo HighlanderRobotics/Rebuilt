@@ -66,11 +66,11 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
-  private LoggedTunableNumber kickerSpeed = new LoggedTunableNumber("Kicker Speed", 70);
+  private LoggedTunableNumber x44KickerSpeedLTN = new LoggedTunableNumber("Kicker Speed", 50);
 
-  private LoggedTunableNumber spinnerSpeed = new LoggedTunableNumber("Spinner Speed", 13);
+  private LoggedTunableNumber spinnerSpeedLTN = new LoggedTunableNumber("Spinner Speed", 10);
 
-  private LoggedTunableNumber x60KickSpeed = new LoggedTunableNumber("X60 Kick Speed", 20);
+  private LoggedTunableNumber x60KickSpeedLTN = new LoggedTunableNumber("X60 Kick Speed", 40);
 
   private SysIdRoutine x60Sysid =
       new SysIdRoutine(
@@ -119,9 +119,13 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               double x60Speed = flywheelLinearSpeed * 0.9 / (Math.PI * X60_KICKER_DIAMETER_INCHES);
               double spinnerSpeed =
                   flywheelLinearSpeed * 0.85 / (Math.PI * SPINNER_DIAMETER_INCHES);
-              spinnerIO.setRollerVelocity(spinnerSpeed);
-              x44KickerIO.setRollerVelocity(x44Speed);
-              x60KickerIO.setRollerVelocity(x60Speed);
+              // spinnerIO.setRollerVelocity(spinnerSpeed);
+              // x44KickerIO.setRollerVelocity(x44Speed);
+              // x60KickerIO.setRollerVelocity(x60Speed);
+
+              spinnerIO.setRollerVelocity(spinnerSpeedLTN.get());
+              x44KickerIO.setRollerVelocity(x44KickerSpeedLTN.get());
+              x60KickerIO.setRollerVelocity(x60KickSpeedLTN.get());
             }));
   }
 

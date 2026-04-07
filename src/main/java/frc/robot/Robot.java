@@ -731,11 +731,7 @@ public class Robot extends LoggedRobot {
 
     driver
         .leftBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
+        .onTrue(shooter.resetTurretToCalculatedPosition()); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -748,11 +744,9 @@ public class Robot extends LoggedRobot {
     operator
         .rightStick()
         .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
-                        .ignoringDisable(true)));
+            shooter
+                .resetTurretToPosition(shooter::getCalculatedTurretRotations)
+                .ignoringDisable(true));
 
     driver
         .rightBumper()
