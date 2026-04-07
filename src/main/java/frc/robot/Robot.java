@@ -673,11 +673,14 @@ public class Robot extends LoggedRobot {
         .onTrue(
             Commands.runOnce(
                 () ->
-                    // swerve.setGyroYaw(
-                    swerve.setYaw(
-                        DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-                            ? Rotation2d.kZero
-                            : Rotation2d.k180deg)));
+                    swerve.setGyroYaw(
+                        // swerve.setYaw(
+                        //
+                        // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                        // ?
+                        Rotation2d.kZero
+                        // : Rotation2d.k180deg
+                        )));
 
     // autoaim (alpha)
     // autoAimReq
@@ -767,40 +770,40 @@ public class Robot extends LoggedRobot {
     // driver
     //     .leftBumper()
     //     .and(
-    new Trigger(AutoAim::targetInTurretDeadzone)
-        .and(() -> Superstructure.getState().isAScoreState())
-        .and(() -> !Superstructure.getState().isAFlowState())
-        .and(() -> !Superstructure.getPoseOverride())
-        .and(() -> superstructure.inScoringArea())
-        .whileTrue(
-            swerve.faceHubComp(
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                shooter::getTurretPosition));
+    // new Trigger(AutoAim::targetInTurretDeadzone)
+    //     .and(() -> Superstructure.getState().isAScoreState())
+    //     .and(() -> !Superstructure.getState().isAFlowState())
+    //     .and(() -> !Superstructure.getPoseOverride())
+    //     .and(() -> superstructure.inScoringArea())
+    //     .whileTrue(
+    //         swerve.faceHubComp(
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftY())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftX())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             shooter::getTurretPosition));
 
-    new Trigger(AutoAim::targetInTurretDeadzone)
-        .and(() -> Superstructure.getState().isAFeedState())
-        .and(() -> !Superstructure.getState().isAFlowState())
-        .and(() -> !Superstructure.getPoseOverride())
-        .and(() -> !superstructure.inScoringArea())
-        .whileTrue(
-            swerve.faceFeedComp(
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                shooter::getTurretPosition,
-                () -> Superstructure.getFeedTarget()));
+    // new Trigger(AutoAim::targetInTurretDeadzone)
+    //     .and(() -> Superstructure.getState().isAFeedState())
+    //     .and(() -> !Superstructure.getState().isAFlowState())
+    //     .and(() -> !Superstructure.getPoseOverride())
+    //     .and(() -> !superstructure.inScoringArea())
+    //     .whileTrue(
+    //         swerve.faceFeedComp(
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftY())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftX())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             shooter::getTurretPosition,
+    //             () -> Superstructure.getFeedTarget()));
 
     operator.povRight().onTrue(Commands.runOnce(() -> AutoAim.incrementFudgeFactor()));
     operator.povLeft().onTrue(Commands.runOnce(() -> AutoAim.decrementFudgeFactor()));
