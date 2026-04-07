@@ -859,6 +859,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("X44 Sysid", indexer.runX44Sysid());
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
+    autoChooser.addOption("Left Double Dip Bump", autos.getLeftBumpDoubleDipAuto());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");

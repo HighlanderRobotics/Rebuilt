@@ -116,6 +116,10 @@ public class Autos {
     StartingRTrenchtoDisrupt("StartingRTrenchtoDisruptR", Action.INTAKE),
     StartingLTrenchtoDisrupt("StartingLTrenchtoDisruptL", Action.INTAKE),
 
+    LNeutralToLBump("LNeutralToLBump", Action.SCORE_AT_END),
+    LBumptoLCleanup("LBumpToLCleanup", Action.INTAKE),
+    LCleanupToLBump("LCleanupToLBump", Action.SCORE_AT_END),
+
     HubtoDepot("HubtoDepot", Action.DEPOT),
 
     PreDepottoDepot("PreDepottoDepot", Action.DEPOT),
@@ -752,6 +756,18 @@ public class Autos {
           Path.EndWScoreLCleanuptoLPreTrench
         },
         setLeftClimb());
+  }
+
+  public Command getLeftBumpDoubleDipAuto() {
+    return createAuto(
+        "Left Double Dip Bump",
+        new Path[] {
+          Path.StartingLTrenchtoLNeutral,
+          Path.LNeutralToLBump,
+          Path.LBumptoLCleanup,
+          Path.LCleanupToLBump
+        },
+        Commands.none());
   }
 
   public Command getTestAuto() {
