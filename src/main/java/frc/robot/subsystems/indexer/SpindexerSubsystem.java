@@ -66,11 +66,11 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
-  private LoggedTunableNumber x44KickerSpeedLTN = new LoggedTunableNumber("Kicker Speed", 50);
+  private LoggedTunableNumber x44KickerSpeedLTN = new LoggedTunableNumber("Kicker Speed", 70);
 
-  private LoggedTunableNumber spinnerSpeedLTN = new LoggedTunableNumber("Spinner Speed", 10);
+  private LoggedTunableNumber spinnerSpeedLTN = new LoggedTunableNumber("Spinner Speed", 11);
 
-  private LoggedTunableNumber x60KickSpeedLTN = new LoggedTunableNumber("X60 Kick Speed", 40);
+  private LoggedTunableNumber x60KickSpeedLTN = new LoggedTunableNumber("X60 Kick Speed", 50);
 
   private SysIdRoutine x60Sysid =
       new SysIdRoutine(
