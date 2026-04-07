@@ -25,6 +25,7 @@ import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.ShotTrees;
+import java.text.DecimalFormat;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -127,8 +128,8 @@ public class Superstructure {
   }
 
   @AutoLogOutput(key = "Superstructure/Shift Timer")
-  private double getTimeStampLeftInShift() {
-    return getTimeLeftInShift();
+  private String getTimeStampLeftInShift() {
+    return new DecimalFormat("#.#").format(getTimeLeftInShift());
   }
 
   @AutoLogOutput(key = "Superstructure/Current Shift")
