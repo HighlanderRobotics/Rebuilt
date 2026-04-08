@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
 import org.littletonrobotics.junction.Logger;
 
@@ -21,7 +22,9 @@ public class AutoAim {
 
   private static int fudgeFactor = 0;
 
-  public static double forceFeedForward = 0;
+  //public static double forceFeedForward = 0.0;
+
+    public static LoggedTunableNumber forceFeedForward = new LoggedTunableNumber("force feed forward value", 1.0);
 
   private static double lastVxMetersPerSec = 0.0;
   private static double lastVyMetersPerSec = 0.0;
@@ -32,6 +35,8 @@ public class AutoAim {
       //   new LoggedTunableNumber("Latency time", 0.3).getAsDouble();
       // comp
       0.0;
+
+  
 
   // TODO: FIX ROTATION AND REDUCE DEFENDABLILTY
   /**
@@ -220,13 +225,13 @@ public class AutoAim {
   }
 
   /** Get the force flywheel feed forward */
-  public static double getForceFeedForward() {
-    return forceFeedForward;
-  }
+  // public static double getForceFeedForward() {
+  //   return forceFeedForward;
+  // }
 
-  public static void ForceFeedForward(double fff) {
-    forceFeedForward = fff;
-  }
+  // public static void ForceFeedForward(double fff) {
+  //   forceFeedForward = fff;
+  // }
 
   /**
    * Returns whether or not the current target is in the turret deadzone
