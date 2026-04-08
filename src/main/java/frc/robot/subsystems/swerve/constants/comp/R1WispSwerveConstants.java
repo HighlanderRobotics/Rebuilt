@@ -198,10 +198,13 @@ public class R1WispSwerveConstants extends SwerveConstants {
   public Pigeon2Configuration getGyroConfig() {
     Pigeon2Configuration config = new Pigeon2Configuration();
     config.MountPose.MountPosePitch =
-        0.3399254083633423; // -0.20375922322273254; // -0.420589417219162;
-    config.MountPose.MountPoseRoll = 179.3086395263672; // -179.13818359375; // -179.8539581298828;
+        1.2711083889007568; // 0.3399254083633423; // -0.20375922322273254; // -0.420589417219162;
+    config.MountPose.MountPoseRoll =
+        178.1570281982422; // 179.3086395263672; // -179.13818359375; // -179.8539581298828;
     config.MountPose.MountPoseYaw =
-        -90.44647216796875; // -90.93168640136719; // -86.66709899902344;
+        -175.72914123535156; // -90.44647216796875; // -90.93168640136719; // -86.66709899902344;
+
+    config.GyroTrim.GyroScalarZ = -2.5;
     return config;
   }
 

@@ -673,14 +673,11 @@ public class Robot extends LoggedRobot {
         .onTrue(
             Commands.runOnce(
                 () ->
-                    swerve.setGyroYaw(
-                        // swerve.setYaw(
-                        //
-                        // DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
-                        // ?
-                        Rotation2d.kZero
-                        // : Rotation2d.k180deg
-                        )));
+                    // swerve.setGyroYaw(
+                    swerve.setYaw(
+                        DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
+                            ? Rotation2d.kZero
+                            : Rotation2d.k180deg)));
 
     // autoaim (alpha)
     // autoAimReq
