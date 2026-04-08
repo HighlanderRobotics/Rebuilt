@@ -106,11 +106,11 @@ public class ShotTrees {
             1.13));
 
     // budget shots
-    COMP_HUB_SHOT_TREE.put(4.172776, new ShotData(Rotation2d.fromDegrees(36), 25.5, 1.13));
+    // COMP_HUB_SHOT_TREE.put(4.172776, new ShotData(Rotation2d.fromDegrees(36), 25.5, 1.13));
 
-    COMP_HUB_SHOT_TREE.put(4.512483, new ShotData(Rotation2d.fromDegrees(34), 25.5, 1.2));
+    // COMP_HUB_SHOT_TREE.put(4.512483, new ShotData(Rotation2d.fromDegrees(34), 25.5, 1.2));
 
-    COMP_HUB_SHOT_TREE.put(4.974656, new ShotData(Rotation2d.fromDegrees(39), 27, 1.2));
+    // COMP_HUB_SHOT_TREE.put(4.974656, new ShotData(Rotation2d.fromDegrees(39), 27, 1.2));
 
     COMP_HUB_SHOT_TREE.put(
         4.602258,
@@ -134,7 +134,7 @@ public class ShotTrees {
         5.584793,
         new ShotData(
             Rotation2d.fromDegrees(49 - 13.16),
-            35.5 * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
+            35  * 0.84615384615 / TurretSubsystem.FLYWHEEL_GEAR_RATIO + 1,
             1.17));
   }
 

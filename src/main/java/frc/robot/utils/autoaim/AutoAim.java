@@ -22,7 +22,8 @@ public class AutoAim {
 
   private static int fudgeFactor = 0;
 
-  public static LoggedTunableNumber forceFeedForwardTN = new LoggedTunableNumber("force feed forward value", 1.0);
+  public static LoggedTunableNumber forceFeedForwardTN =
+      new LoggedTunableNumber("force feed forward value", 1.0);
 
   public static double forceFeedForward = forceFeedForwardTN.getAsDouble();
 

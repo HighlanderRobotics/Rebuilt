@@ -231,7 +231,7 @@ public class Superstructure {
 
   private void addTriggers() {
 
-    new Trigger(() -> AutoAim.distanceToHub(swerve.getPose()) > 3.0)
+    new Trigger(() -> AutoAim.distanceToHub(swerve.getPose()) > 4.0)
         .onTrue(Commands.runOnce(() -> AutoAim.ForceFeedForward(1.0)))
         .onFalse(Commands.runOnce(() -> AutoAim.ForceFeedForward(0.0)));
 
