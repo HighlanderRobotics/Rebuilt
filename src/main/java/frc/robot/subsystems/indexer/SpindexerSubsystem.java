@@ -185,8 +185,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
     config.Feedback.SensorToMechanismRatio = SPINNER_GEAR_RATIO;
 
-    config.Slot0.kS = 0.25181;
-    config.Slot0.kV = 0.66739;
+    config.Slot0.kS = 0.15181;
+    config.Slot0.kV = 0.587389988899231;
     config.Slot0.kA = 0.038125;
     config.Slot0.kP = 0.1;
     config.Slot0.kD = 0;
