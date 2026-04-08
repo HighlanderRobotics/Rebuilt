@@ -70,7 +70,7 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   private LoggedTunableNumber spinnerSpeedLTN = new LoggedTunableNumber("Spinner Speed", 10);
 
-  private LoggedTunableNumber x60KickSpeedLTN = new LoggedTunableNumber("X60 Kick Speed", 40);
+  private LoggedTunableNumber x60KickSpeedLTN = new LoggedTunableNumber("X60 Kick Speed", 30);
 
   private SysIdRoutine x60Sysid =
       new SysIdRoutine(
