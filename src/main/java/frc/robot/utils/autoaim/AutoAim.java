@@ -21,6 +21,8 @@ public class AutoAim {
 
   private static int fudgeFactor = 0;
 
+  public static double forceFeedForward = 0;
+
   private static double lastVxMetersPerSec = 0.0;
   private static double lastVyMetersPerSec = 0.0;
   private static double lastOmegaRadPerSec = 0.0;
@@ -215,6 +217,15 @@ public class AutoAim {
   /** Get the current flywheel fudge factor */
   public static int getFudgeFactor() {
     return fudgeFactor;
+  }
+
+  /** Get the force flywheel feed forward */
+  public static double getForceFeedForward() {
+    return forceFeedForward;
+  }
+
+  public static void ForceFeedForward(double fff) {
+    forceFeedForward = fff;
   }
 
   /**

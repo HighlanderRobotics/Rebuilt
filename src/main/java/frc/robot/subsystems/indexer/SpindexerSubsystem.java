@@ -138,7 +138,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
             }));
   }
 
-
   @Override
   public Command spit() {
     return this.run(

@@ -230,6 +230,11 @@ public class Superstructure {
   }
 
   private void addTriggers() {
+
+    new Trigger(() -> AutoAim.distanceToHub(swerve.getPose()) > 3.0)
+        .onTrue(Commands.runOnce(() -> AutoAim.ForceFeedForward(2.0)))
+        .onFalse(Commands.runOnce(() -> AutoAim.ForceFeedForward(0.0)));
+
     // Toggles for feeding
     operator.x().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.SCORE));
     operator.y().onTrue(Commands.runOnce(() -> shotTarget = ShotTarget.FEED));
@@ -557,18 +562,18 @@ public class Superstructure {
         indexer.rest(),
         shooter
             .resetTurretToCalculatedPosition()
-            // .andThen(
-            //     shooter.score(
-            //         () ->
-            //             AutoAim.getShotParameters(
-            //                 swerve.getPose(),
-            //                 swerve.getVelocityRobotRelative(),
-            //                 FieldUtils.getCurrentHubTranslation(),
-            //                 Robot.ROBOT_EDITION == RobotEdition.ALPHA
-            //                     ? ShotTrees.ALPHA_HUB_SHOT_TREE
-            //                     : ShotTrees.COMP_HUB_SHOT_TREE))),
             .andThen(
-                shooter.testShot(() -> swerve.getPose(), () -> swerve.getVelocityFieldRelative())),
+                shooter.score(
+                    () ->
+                        AutoAim.getShotParameters(
+                            swerve.getPose(),
+                            swerve.getVelocityRobotRelative(),
+                            FieldUtils.getCurrentHubTranslation(),
+                            Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                                ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                                : ShotTrees.COMP_HUB_SHOT_TREE))),
+        // .andThen(
+        //     shooter.testShot(() -> swerve.getPose(), () -> swerve.getVelocityFieldRelative())),
         climber.retract());
 
     bindCommands(
@@ -588,18 +593,18 @@ public class Superstructure {
                     .flywheelVelocityRotPerSec()),
         shooter
             .resetTurretToCalculatedPosition()
-            // .andThen(
-            //     shooter.score(
-            //         () ->
-            //             AutoAim.getShotParameters(
-            //                 swerve.getPose(),
-            //                 swerve.getVelocityRobotRelative(),
-            //                 FieldUtils.getCurrentHubTranslation(),
-            //                 Robot.ROBOT_EDITION == RobotEdition.ALPHA
-            //                     ? ShotTrees.ALPHA_HUB_SHOT_TREE
-            //                     : ShotTrees.COMP_HUB_SHOT_TREE))),
             .andThen(
-                shooter.testShot(() -> swerve.getPose(), () -> swerve.getVelocityFieldRelative())),
+                shooter.score(
+                    () ->
+                        AutoAim.getShotParameters(
+                            swerve.getPose(),
+                            swerve.getVelocityRobotRelative(),
+                            FieldUtils.getCurrentHubTranslation(),
+                            Robot.ROBOT_EDITION == RobotEdition.ALPHA
+                                ? ShotTrees.ALPHA_HUB_SHOT_TREE
+                                : ShotTrees.COMP_HUB_SHOT_TREE))),
+        // .andThen(
+        //     shooter.testShot(() -> swerve.getPose(), () -> swerve.getVelocityFieldRelative())),
         climber.retract());
 
     bindCommands(

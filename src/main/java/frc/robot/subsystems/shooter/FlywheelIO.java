@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.utils.autoaim.AutoAim;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -146,7 +147,8 @@ public class FlywheelIO {
 
   public void setFlywheelVelocity(double flywheelVelocity) {
     velocitySetpointRotPerSec = flywheelVelocity;
-    flywheelLeader.setControl(velocityVoltage.withVelocity(flywheelVelocity));
+    flywheelLeader.setControl(
+        velocityVoltage.withVelocity(flywheelVelocity).withFeedForward(AutoAim.forceFeedForward));
   }
 
   public void stop() { // thought i should add a stop command, dont think i had to though
