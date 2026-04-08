@@ -22,9 +22,9 @@ public class AutoAim {
 
   private static int fudgeFactor = 0;
 
-  //public static double forceFeedForward = 0.0;
+  public static LoggedTunableNumber forceFeedForwardTN = new LoggedTunableNumber("force feed forward value", 1.0);
 
-    public static LoggedTunableNumber forceFeedForward = new LoggedTunableNumber("force feed forward value", 1.0);
+  public static double forceFeedForward = forceFeedForwardTN.getAsDouble();
 
   private static double lastVxMetersPerSec = 0.0;
   private static double lastVyMetersPerSec = 0.0;
@@ -35,8 +35,6 @@ public class AutoAim {
       //   new LoggedTunableNumber("Latency time", 0.3).getAsDouble();
       // comp
       0.0;
-
-  
 
   // TODO: FIX ROTATION AND REDUCE DEFENDABLILTY
   /**
@@ -225,13 +223,13 @@ public class AutoAim {
   }
 
   /** Get the force flywheel feed forward */
-  // public static double getForceFeedForward() {
-  //   return forceFeedForward;
-  // }
+  public static double getForceFeedForward() {
+    return forceFeedForward;
+  }
 
-  // public static void ForceFeedForward(double fff) {
-  //   forceFeedForward = fff;
-  // }
+  public static void ForceFeedForward(double fff) {
+    forceFeedForward = fff;
+  }
 
   /**
    * Returns whether or not the current target is in the turret deadzone
