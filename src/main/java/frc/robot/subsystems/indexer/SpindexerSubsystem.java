@@ -124,19 +124,20 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
               // 49 x44
               // 12 spinner
               // 30 x60
-              double spinnerSpeed = flywheelRPS.getAsDouble() * 12.0 / 27.0;
-              double x44Speed = flywheelRPS.getAsDouble() * 49.0 / 27.0;
-              double x60Speed = flywheelRPS.getAsDouble() * 30.0 / 27.0;
+              // double spinnerSpeed = flywheelRPS.getAsDouble() * 12.0 / 27.0;
+              // double x44Speed = flywheelRPS.getAsDouble() * 49.0 / 27.0;
+              // double x60Speed = flywheelRPS.getAsDouble() * 30.0 / 27.0;
 
-              spinnerIO.setRollerVelocity(spinnerSpeed);
-              x44KickerIO.setRollerVelocity(x44Speed);
-              x60KickerIO.setRollerVelocity(x60Speed);
+              // spinnerIO.setRollerVelocity(spinnerSpeed);
+              // x44KickerIO.setRollerVelocity(x44Speed);
+              // x60KickerIO.setRollerVelocity(x60Speed);
 
-              // spinnerIO.setRollerVelocity(spinnerSpeedLTN.get());
-              // x44KickerIO.setRollerVelocity(x44KickerSpeedLTN.get());
-              // x60KickerIO.setRollerVelocity(x60KickSpeedLTN.get());
+              spinnerIO.setRollerVelocity(spinnerSpeedLTN.get());
+              x44KickerIO.setRollerVelocity(x44KickerSpeedLTN.get());
+              x60KickerIO.setRollerVelocity(x60KickSpeedLTN.get());
             }));
   }
+
 
   @Override
   public Command spit() {
