@@ -307,6 +307,7 @@ public class Autos {
 
   public Command scoreAtEndPath(Path path, AutoRoutine routine) {
     return Commands.sequence(
+        stopFlowing(),
         startIntaking(),
         path.getTrajectory(routine).cmd().until(path.getTrajectory(routine).done()),
         stopIntaking(),

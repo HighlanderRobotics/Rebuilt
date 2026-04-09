@@ -573,7 +573,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Slot0.kS = 0.45;
     config.Slot0.kV = 5.7;
     config.Slot0.kP = 240.0;
-    //kd was added once we switched to position voltage
+    // kd was added once we switched to position voltage
     config.Slot0.kD = 0.04;
 
     config.MotionMagic.MotionMagicAcceleration = 10; // 2.064;
