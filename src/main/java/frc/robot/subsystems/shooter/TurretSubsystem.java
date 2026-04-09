@@ -661,4 +661,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                   .turretAngle());
         });
   }
+
+  @Override
+  public double getTestVel() {
+    return testVelocity.get();
+  }
 }
