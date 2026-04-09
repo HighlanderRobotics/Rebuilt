@@ -946,6 +946,13 @@ public class Robot extends LoggedRobot {
             .getTurretPose(swerve.getPose())
             .getTranslation()
             .getDistance(FieldUtils.getCurrentHubTranslation()));
+
+                Logger.recordOutput(
+        "AutoAim/Distance to feed target",
+        shooter
+            .getTurretPose(swerve.getPose())
+            .getTranslation()
+            .getDistance(FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getTranslation()));
     Logger.recordOutput(
         "AutoAim/Feed Target", FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose());
 
