@@ -120,6 +120,10 @@ public class Autos {
     LBumptoLCleanup("LBumpToLCleanup", Action.INTAKE),
     LCleanupToLBump("LCleanupToLBump", Action.SCORE_AT_END),
 
+    RNeutralToRBump("RNeutralToRBump", Action.SCORE_AT_END),
+    RBumptoRCleanup("RBumpToRCleanup", Action.INTAKE),
+    RCleanupToRBump("RCleanupToRBump", Action.SCORE_AT_END),
+
     HubtoDepot("HubtoDepot", Action.DEPOT),
 
     PreDepottoDepot("PreDepottoDepot", Action.DEPOT),
@@ -766,6 +770,19 @@ public class Autos {
           Path.LNeutralToLBump,
           Path.LBumptoLCleanup,
           Path.LCleanupToLBump
+          // Path.EndWScoreLCleanuptoLPreTrench
+        },
+        Commands.none());
+  }
+
+  public Command getRightBumpDoubleDipAuto() {
+    return createAuto(
+        "Right Double Dip Bump",
+        new Path[] {
+          Path.StartingRTrenchtoRNeutral,
+          Path.RNeutralToRBump,
+          Path.RBumptoRCleanup,
+          Path.RCleanupToRBump
           // Path.EndWScoreLCleanuptoLPreTrench
         },
         Commands.none());

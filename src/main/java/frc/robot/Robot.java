@@ -855,6 +855,7 @@ public class Robot extends LoggedRobot {
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
     autoChooser.addOption("Left Double Dip Bump", autos.getLeftBumpDoubleDipAuto());
+    autoChooser.addOption("Right Double Dip Bump", autos.getRightBumpDoubleDipAuto());
 
     autoChooser.addOption("spin", spinTest());
 
