@@ -422,7 +422,7 @@ public class Robot extends LoggedRobot {
                     : new FlywheelIOSim(
                         TurretSubsystem.getFlywheelConfig(),
                         canivore,
-                        TurretSubsystem.FLYWHEEL_GEAR_RATIO,
+                        TurretSubsystem.NEW_FLYWHEEL_GEAR_RATIO,
                         11,
                         12),
                 ROBOT_MODE == RobotMode.REAL
