@@ -5,6 +5,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -38,6 +39,7 @@ public class TurretIO {
   private final StatusSignal<Temperature> tempC;
 
   private MotionMagicVoltage motionMagic = new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private PositionVoltage positionVoltage = new PositionVoltage(0.0).withEnableFOC(true);
 
   // todo
   private Rotation2d turretSetpoint = Rotation2d.kZero;
@@ -91,7 +93,8 @@ public class TurretIO {
 
   public void setTurretPosition(Rotation2d positionAngle) {
     turretSetpoint = positionAngle;
-    motor.setControl(motionMagic.withPosition(positionAngle.getRotations()));
+    // motor.setControl(motionMagic.withPosition(positionAngle.getRotations()));
+    motor.setControl(positionVoltage.withPosition(positionAngle.getRotations()));
   }
 
   public void resetTurretEncoder(Rotation2d turretRotation) {
