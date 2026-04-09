@@ -513,9 +513,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.Feedback.SensorToMechanismRatio = TurretSubsystem.NEW_FLYWHEEL_GEAR_RATIO;
 
     // slot 0 is for velocity
-    config.Slot0.kS = 0.33706; // 0.63933;
-    config.Slot0.kV = 0.13893; // 0.11582;
-    config.Slot0.kA = 0.030026; // 0.020809;
+    config.Slot0.kS = 0.17257; // 0.33706; // 0.63933;
+    config.Slot0.kV = 0.25853; // 0.13893; // 0.11582;
+    config.Slot0.kA = 0.031279; // 0.030026; // 0.020809;
     config.Slot0.kP = 0.67;
     config.Slot0.kD = 0;
 
