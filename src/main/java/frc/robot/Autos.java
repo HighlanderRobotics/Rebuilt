@@ -765,8 +765,8 @@ public class Autos {
           Path.StartingLTrenchtoLNeutral,
           Path.LNeutralToLBump,
           Path.LBumptoLCleanup,
-          // Path.LCleanupToLBump
-          Path.EndWScoreLCleanuptoLPreTrench
+          Path.LCleanupToLBump
+          // Path.EndWScoreLCleanuptoLPreTrench
         },
         Commands.none());
   }
