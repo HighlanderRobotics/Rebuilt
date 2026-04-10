@@ -204,7 +204,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
     config.MountPose.MountPoseYaw =
         -175.72914123535156; // -90.44647216796875; // -90.93168640136719; // -86.66709899902344;
 
-    config.GyroTrim.GyroScalarZ = -4;//-2.5;
+    config.GyroTrim.GyroScalarZ = -4; // -2.5;
     return config;
   }
 

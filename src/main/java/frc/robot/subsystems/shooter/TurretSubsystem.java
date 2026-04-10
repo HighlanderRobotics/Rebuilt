@@ -59,7 +59,9 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   /** Creates a new TurretSubsystem. */
   public static final double HOOD_GEAR_RATIO = 33.8671875; // 58.96875;
 
-  public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 18.0; // 0.84615384615;
+  public static final double OLD_FLYWHEEL_GEAR_RATIO = 20.0 / 18.0; // 0.84615384615;
+
+  public static final double NEW_FLYWHEEL_GEAR_RATIO = 25.0 / 12.0;
 
   public static final Rotation2d HOOD_MAX_ANGLE = Rotation2d.fromDegrees(56);
   public static final Rotation2d HOOD_MIN_ANGLE = Rotation2d.fromDegrees(11.33);
@@ -508,12 +510,12 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = TurretSubsystem.FLYWHEEL_GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = TurretSubsystem.NEW_FLYWHEEL_GEAR_RATIO;
 
     // slot 0 is for velocity
-    config.Slot0.kS = 0.33706; // 0.63933;
-    config.Slot0.kV = 0.13893; // 0.11582;
-    config.Slot0.kA = 0.030026; // 0.020809;
+    config.Slot0.kS = 0.17257; // 0.33706; // 0.63933;
+    config.Slot0.kV = 0.25853; // 0.13893; // 0.11582;
+    config.Slot0.kA = 0.031279; // 0.030026; // 0.020809;
     config.Slot0.kP = 0.67;
     config.Slot0.kD = 0;
 
