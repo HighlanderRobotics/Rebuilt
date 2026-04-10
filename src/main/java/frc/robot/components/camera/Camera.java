@@ -141,6 +141,11 @@ public class Camera {
     if (Math.abs(estimation.estimatedPose.getZ()) > 0.125) {
       return infiniteDevs;
     }
+
+    //reject if pose thinks we're out of the field
+    if (estimation.estimatedPose.getX() < 0 || estimation.estimatedPose.getX() > 16.2 || estimation.estimatedPose.getY() < 0 || estimation.estimatedPose.getY() > 7.7) {
+      return infiniteDevs;
+    }
     // TAG_COUNT_DEVIATION_PARAMS
     //     .get(
     //         MathUtil.clamp(
