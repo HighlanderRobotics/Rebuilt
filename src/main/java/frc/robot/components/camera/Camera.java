@@ -179,7 +179,10 @@ public class Camera {
               swerveEstimator.addVisionMeasurement(
                   visionPose.toPose2d(),
                   inputs.result.metadata.captureTimestampMicros / 1.0e6,
-                  deviations.times(DriverStation.isAutonomous() ? 2.0 : 1.0));
+                  //trust vision less in auto because the odo reset should be very accurate
+                  deviations.times(DriverStation.isAutonomous() ? 2.0 : 1.0)
+                  //trust vision more if odo tells us we're outside the field
+                  .times((swerveEstimator.getEstimatedPosition().getX() < 0 || swerveEstimator.getEstimatedPosition().getX() > 16.2 || swerveEstimator.getEstimatedPosition().getY() < 0 || swerveEstimator.getEstimatedPosition().getY() > 7.7) ? 0.25 : 1));
               // the sussifier
             });
 
