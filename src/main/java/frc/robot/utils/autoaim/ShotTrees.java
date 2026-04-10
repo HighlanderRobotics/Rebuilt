@@ -106,17 +106,17 @@ public class ShotTrees {
             1.13));
 
     // budget shots
-    COMP_HUB_SHOT_TREE.put(4.172776, new ShotData(Rotation2d.fromDegrees(36), 0.95 * 25.5, 1.13));
+    COMP_HUB_SHOT_TREE.put(4.172776, new ShotData(Rotation2d.fromDegrees(36), 0.97 * 25.5, 1.13));
 
-    COMP_HUB_SHOT_TREE.put(4.512483, new ShotData(Rotation2d.fromDegrees(34), 0.95 * 25.5, 1.2));
+    COMP_HUB_SHOT_TREE.put(4.512483, new ShotData(Rotation2d.fromDegrees(34), 0.97 * 25.5, 1.2));
 
-    COMP_HUB_SHOT_TREE.put(4.974656, new ShotData(Rotation2d.fromDegrees(39), 0.95 * 27, 1.2));
+    COMP_HUB_SHOT_TREE.put(4.974656, new ShotData(Rotation2d.fromDegrees(39), 0.97 * 27, 1.2));
 
-    COMP_HUB_SHOT_TREE.put(5.116029, new ShotData(Rotation2d.fromDegrees(39.5), 0.95 * 27.5, 1.1));
+    COMP_HUB_SHOT_TREE.put(5.116029, new ShotData(Rotation2d.fromDegrees(39.5), 0.97 * 27.5, 1.1));
 
-    COMP_HUB_SHOT_TREE.put(5.509574, new ShotData(Rotation2d.fromDegrees(40), 0.95 * 28, 1.12));
+    COMP_HUB_SHOT_TREE.put(5.509574, new ShotData(Rotation2d.fromDegrees(40), 0.97 * 28, 1.12));
 
-    COMP_HUB_SHOT_TREE.put(5.63499, new ShotData(Rotation2d.fromDegrees(40), 0.95 * 28, 1.12));
+    COMP_HUB_SHOT_TREE.put(5.63499, new ShotData(Rotation2d.fromDegrees(40), 0.97 * 28, 1.12));
 
     // COMP_HUB_SHOT_TREE.put(
     //     4.602258,
@@ -148,40 +148,16 @@ public class ShotTrees {
 
   static { // For feed shot tree
     FEED_SHOT_TREE.put(
-        Units.feetToMeters(2), new ShotData(Rotation2d.fromDegrees(23.16), 20 - 2, 0)); // - 2, 0));
-    FEED_SHOT_TREE.put(
-        Units.feetToMeters(4),
-        new ShotData(Rotation2d.fromDegrees(30), 40 - 2, 0.0)); // - 2, 0.0));
-    FEED_SHOT_TREE.put(
-        Units.feetToMeters(6),
-        new ShotData(Rotation2d.fromDegrees(40), 30 - 2, 0.0)); // - 2, 0.0));
-    FEED_SHOT_TREE.put(
-        Units.feetToMeters(8),
-        new ShotData(Rotation2d.fromDegrees(40), 32 - 2, 0.0)); // - 2, 0.0));
-    FEED_SHOT_TREE.put(
-        Units.feetToMeters(10),
-        new ShotData(Rotation2d.fromDegrees(40), 35 - 2, 0.0)); // - 2, 0.0));
-    FEED_SHOT_TREE.put(
-        Units.feetToMeters(12),
-        new ShotData(Rotation2d.fromDegrees(40), 40 - 2, 0.0)); // - 2, 0.0));
-    FEED_SHOT_TREE.put(
-        Units.feetToMeters(14),
-        new ShotData(Rotation2d.fromDegrees(45), 38 - 2, 0.0)); // - 2, 0.0));
-    FEED_SHOT_TREE.put(
-        Units.feetToMeters(16),
-        new ShotData(Rotation2d.fromDegrees(45), 40 - 2, 0.0)); // - 2, 0.0));
-
-    FEED_SHOT_TREE.put(
         Units.feetToMeters(18),
         new ShotData(
             Rotation2d.fromDegrees(40 - 13.16),
-            36 * 0.84615384615 / TurretSubsystem.OLD_FLYWHEEL_GEAR_RATIO + 1,
+            0.9 * (36 * 0.84615384615 / TurretSubsystem.OLD_FLYWHEEL_GEAR_RATIO + 1),
             1.42)); // - 2, 1.42));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(20),
         new ShotData(
             Rotation2d.fromDegrees(43 - 13.16),
-            38 * 0.84615384615 / TurretSubsystem.OLD_FLYWHEEL_GEAR_RATIO + 1,
+            0.9 * (38 * 0.84615384615 / TurretSubsystem.OLD_FLYWHEEL_GEAR_RATIO + 1),
             1.36)); // - 2, 1.36));
     FEED_SHOT_TREE.put(
         Units.feetToMeters(22),
