@@ -106,10 +106,10 @@ public class Camera {
     if (result.getTargets().size() < 1) {
       return Optional.empty();
     }
-    if (Robot.ROBOT_MODE != RobotMode.REAL)
-      Logger.recordOutput(
-          "Vision/" + io.getName() + "/Best Distance",
-          result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
+    // if (Robot.ROBOT_MODE != RobotMode.REAL)
+    //   Logger.recordOutput(
+    //       "Vision/" + io.getName() + "/Best Distance",
+    //       result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
     Optional<EstimatedRobotPose> estPose = estimator.update(result);
     return estPose;
   }
@@ -163,12 +163,12 @@ public class Camera {
         setSimPose(estPose, !inputs.stale);
 
         // if (Robot.ROBOT_TYPE != RobotType.REAL)
-        Logger.recordOutput("Vision/" + getName() + "/Pose3d", visionPose);
+        // Logger.recordOutput("Vision/" + getName() + "/Pose3d", visionPose);
         // if (Robot.ROBOT_TYPE != RobotType.REAL)
-        Logger.recordOutput("Vision/" + getName() + "/Pose2d", visionPose.toPose2d());
+        // Logger.recordOutput("Vision/" + getName() + "/Pose2d", visionPose.toPose2d());
         final Matrix<N3, N1> deviations = findVisionMeasurementStdDevs(estPose.get());
         // if (Robot.ROBOT_TYPE != RobotType.REAL)
-        Logger.recordOutput("Vision/" + getName() + "/Deviations", deviations.getData());
+        // Logger.recordOutput("Vision/" + getName() + "/Deviations", deviations.getData());
 
         Tracer.trace(
             "Add Measurement From " + getName(),
@@ -182,7 +182,7 @@ public class Camera {
 
         hasFutureData |= inputs.result.metadata.captureTimestampMicros > RobotController.getTime();
         // if (Robot.ROBOT_TYPE != RobotType.REAL)
-        Logger.recordOutput("Vision/" + getName() + "/Invalid Pose Result", "Good Update");
+        // Logger.recordOutput("Vision/" + getName() + "/Invalid Pose Result", "Good Update");
 
         Tracer.trace(
             "Log Tag Poses",
@@ -196,16 +196,16 @@ public class Camera {
                         .get();
               }
               // if (Robot.ROBOT_TYPE != RobotType.REAL)
-              Logger.recordOutput("Vision/" + getName() + "/Target Poses", targetPose3ds);
+              // Logger.recordOutput("Vision/" + getName() + "/Target Poses", targetPose3ds);
             });
 
       } else {
         // if (Robot.ROBOT_TYPE != RobotType.REAL)
-        Logger.recordOutput("Vision/" + getName() + "/Invalid Pose Result", "Stale");
+        // Logger.recordOutput("Vision/" + getName() + "/Invalid Pose Result", "Stale");
       }
     } catch (NoSuchElementException e) {
       // if (Robot.ROBOT_TYPE != RobotType.REAL)
-      Logger.recordOutput("Vision/" + getName() + "/Invalid Pose Result", "Bad Estimate");
+      // Logger.recordOutput("Vision/" + getName() + "/Invalid Pose Result", "Bad Estimate");
     }
     futureVisionData.set(hasFutureData);
   }

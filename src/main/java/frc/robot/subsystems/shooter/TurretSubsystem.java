@@ -39,11 +39,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotEdition;
-import frc.robot.Superstructure;
 import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAim.ShotParams;
 import frc.robot.utils.autoaim.ShotTrees;
@@ -154,21 +152,19 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   private final Alert turretDriftAlert =
       new Alert("Turret drifting detected (>10 deg)", AlertType.kWarning);
-  private FuelSim fuelSim;
+
 
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
       TurretIO turretIO,
       CANcoderIO cancoder24t,
-      CANcoderIO cancoder26t,
-      FuelSim fuelSim) {
+      CANcoderIO cancoder26t) {
     this.flywheelIO = flywheelIO;
     this.hoodIO = hoodIO;
     this.turretIO = turretIO;
     this.cancoder24t = cancoder24t;
     this.cancoder26t = cancoder26t;
-    this.fuelSim = fuelSim;
 
     // assume we start up at min angle and not 0
     hoodIO.resetEncoder(HOOD_MIN_ANGLE);
@@ -227,20 +223,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                     - turretInputs.positionRotations.getDegrees())
             > 10);
 
-    if (Superstructure.getState().isAScoreState() && Robot.isSimulation()) {
-      System.out.println("launching fuel");
-      fuelSim.launchFuel(
-          // there are few things i despise more than the units library\
-          // InchesPerSecond.of(
-          //     flywheelIO.getSetpointRotPerSec() * FLYWHEEL_DIAMETER_INCHES * Math.PI),
-          // InchesPerSecond.of(200),
-          angularToLinearVelocity(
-              RotationsPerSecond.of(flywheelIO.getSetpointRotPerSec()),
-              Inches.of(FLYWHEEL_DIAMETER_INCHES / 2)),
-          Rotation2d.fromDegrees(90).minus(hoodIO.getHoodSetpoint()).getMeasure(),
-          turretIO.getTurretSetpoint().getMeasure(),
-          Inches.of(13.75));
-    }
+    
   }
 
   public static LinearVelocity angularToLinearVelocity(AngularVelocity vel, Distance radius) {

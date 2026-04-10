@@ -319,7 +319,7 @@ public class SwerveSubsystem extends SubsystemBase {
           Tracer.trace("Update odometry", this::updateOdometry);
           Tracer.trace("Update vision", this::updateVision);
 
-          Logger.recordOutput("Current Hub Pose", FieldUtils.getCurrentHubPose());
+          // Logger.recordOutput("Current Hub Pose", FieldUtils.getCurrentHubPose());
         });
   }
 
@@ -406,7 +406,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     // only do all this logging stuff if we're not irl for performance
 
-    Logger.recordOutput("Vision/Camera Poses", cameraPoses);
+    // Logger.recordOutput("Vision/Camera Poses", cameraPoses);
     Pose3d[] arr = new Pose3d[cameras.length];
     for (int k = 0; k < cameras.length; k++) {
       // honetsly not sure if this distinction is the way to go but
@@ -420,7 +420,7 @@ public class SwerveSubsystem extends SubsystemBase {
         arr[k] = getPose3d().transformBy(cameras[k].getCameraConstants().robotToCamera());
       }
     }
-    Logger.recordOutput("Vision/Camera Poses on Robot", arr);
+    // Logger.recordOutput("Vision/Camera Poses on Robot", arr);
   }
 
   /**
@@ -756,7 +756,7 @@ public class SwerveSubsystem extends SubsystemBase {
           turretTargetRotation = turretTargetRotation.minus(getRotation());
           Logger.recordOutput("Turret/Unclamped target", turretTargetRotation);
           Rotation2d diff = turretTargetRotation.minus(turretRotation.get());
-          Logger.recordOutput("Turret/diff", diff);
+          // Logger.recordOutput("Turret/diff", diff);
           // if (diff.getDegrees() > 0) {
           //   diff = Rotation2d.fromDegrees(-diff.getDegrees());
           // }
@@ -983,7 +983,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // Update maple simulation
     SimulatedArena.getInstance().simulationPeriodic();
     // Log simulated pose
-    Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
+    // Logger.recordOutput("MapleSim/Pose", swerveSimulation.getSimulatedDriveTrainPose());
   }
 
   public Command runTurnSysid() {
