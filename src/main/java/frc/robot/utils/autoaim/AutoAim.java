@@ -204,10 +204,9 @@ public class AutoAim {
 
   /** Increase the flywheel fudge factor by 1 */
   public static void incrementFudgeFactor() {
-    
+
     fudgeFactor++;
     Logger.recordOutput("AutoAim/Flywheel Fudge Factor", fudgeFactor);
-
   }
 
   /** Decrease the flywheel fudge factor by 1 */

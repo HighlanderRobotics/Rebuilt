@@ -13,9 +13,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -68,10 +65,8 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.odometry.PhoenixOdometryThread;
 import frc.robot.utils.CommandXboxControllerSubsystem;
-import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
-import frc.robot.utils.FieldUtils.TrenchPoses;
 import frc.robot.utils.autoaim.AutoAim;
 import java.io.File;
 import java.util.Arrays;
@@ -899,7 +894,8 @@ public class Robot extends LoggedRobot {
 
     // Logger.recordOutput(
     //     "trench poses",
-    //     Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
+    //     Arrays.stream(TrenchPoses.values()).map(target ->
+    // target.getPose()).toArray(Pose2d[]::new));
 
     Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
 
@@ -944,7 +940,8 @@ public class Robot extends LoggedRobot {
     // Log CANivore status
     // if (Robot.isReal()) {
     //   var canivoreStatus =
-    //       Optional.of(canivore.getStatus()); // TODO i don't know if i'm doing the optionaling right
+    //       Optional.of(canivore.getStatus()); // TODO i don't know if i'm doing the optionaling
+    // right
     //   if (canivoreStatus.isPresent()) {
     //     Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.get().Status.getName());
     //     Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.get().BusUtilization);
@@ -1061,23 +1058,23 @@ public class Robot extends LoggedRobot {
   @Override
   public void testExit() {}
 
-//   public Command spinTest() {
-//     return Commands.sequence(
-//         Commands.runOnce(() -> swerve.setGyroYaw(Rotation2d.kZero)),
-//         swerve
-//             .driveOpenLoopFieldRelative(
-//                 () ->
-//                     new ChassisSpeeds(
-//                         0, 0, SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed() / 4.0))
-//             .withTimeout(20)
-//         // .until()
-//         //     ,
-//         // // swerve
-//         // //     .driveOpenLoopFieldRelative(
-//         // //         () ->
-//         // //             new ChassisSpeeds(0, 0,
-//         // -SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed()))
-//         // //     .withTimeout(10)
-//         );
-//   }
+  //   public Command spinTest() {
+  //     return Commands.sequence(
+  //         Commands.runOnce(() -> swerve.setGyroYaw(Rotation2d.kZero)),
+  //         swerve
+  //             .driveOpenLoopFieldRelative(
+  //                 () ->
+  //                     new ChassisSpeeds(
+  //                         0, 0, SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed() / 4.0))
+  //             .withTimeout(20)
+  //         // .until()
+  //         //     ,
+  //         // // swerve
+  //         // //     .driveOpenLoopFieldRelative(
+  //         // //         () ->
+  //         // //             new ChassisSpeeds(0, 0,
+  //         // -SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed()))
+  //         // //     .withTimeout(10)
+  //         );
+  //   }
 }

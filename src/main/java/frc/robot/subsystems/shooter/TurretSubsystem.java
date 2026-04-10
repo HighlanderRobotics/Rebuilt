@@ -4,11 +4,9 @@
 
 package frc.robot.subsystems.shooter;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -153,7 +151,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
   private final Alert turretDriftAlert =
       new Alert("Turret drifting detected (>10 deg)", AlertType.kWarning);
 
-
   public TurretSubsystem(
       FlywheelIO flywheelIO,
       HoodIO hoodIO,
@@ -222,8 +219,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
                 getCalculatedTurretRotations().getDegrees()
                     - turretInputs.positionRotations.getDegrees())
             > 10);
-
-    
   }
 
   public static LinearVelocity angularToLinearVelocity(AngularVelocity vel, Distance radius) {
@@ -397,15 +392,15 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         cancoder24t.getRotations() > cancoder26t.getRotations()
             ? cancoder24t.getRotations() - cancoder26t.getRotations()
             : cancoder24t.getRotations() + 1 - cancoder26t.getRotations();
-    Logger.recordOutput(
-        "Turret/Uncorrected diff rotations",
-        cancoder24t.getRotations() - cancoder26t.getRotations());
-    Logger.recordOutput("Turret/Diff Rotations", diffRotations);
+    // Logger.recordOutput(
+    //     "Turret/Uncorrected diff rotations",
+    //     cancoder24t.getRotations() - cancoder26t.getRotations());
+    // Logger.recordOutput("Turret/Diff Rotations", diffRotations);
     // TODO java seems to not know how mod works
     // keeping track of how many total rots can1 is doing using the diff with can2
     // 26/2 because gear difference of 2
     double absoluteRotationsCan1 = diffRotations * (13.0);
-    Logger.recordOutput("Turret/Absolute Rotations Can 24t", absoluteRotationsCan1);
+    // Logger.recordOutput("Turret/Absolute Rotations Can 24t", absoluteRotationsCan1);
 
     // turret maxes out at less then 1 rotation which is like 11 can1 rotations anyways and it
     // should work up to there

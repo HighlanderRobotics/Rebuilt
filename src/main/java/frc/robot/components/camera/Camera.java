@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Robot;
-import frc.robot.Robot.RobotMode;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.Tracer;
 import java.util.NoSuchElementException;
