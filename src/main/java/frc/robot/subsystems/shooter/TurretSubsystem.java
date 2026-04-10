@@ -151,6 +151,7 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
           "Turret may have gone past hardstop!! Reoffset cancoders + min/max position",
           AlertType.kError);
 
+          private final Alert turretDriftAlert = new Alert("Turret drifting detected (>10 deg)", AlertType.kWarning);
   private FuelSim fuelSim;
 
   public TurretSubsystem(
@@ -217,6 +218,8 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
     //             && (getCalculatedTurretRotations().getDegrees()
     //                 < TurretSubsystem.TURRET_REAR_HARDSTOP_ANGLE.getDegrees()));
     // if (pastHardstop) turretPastHardstopAlert.set(pastHardstop); // sticky alert
+
+    turretDriftAlert.set(Math.abs(getCalculatedTurretRotations().getDegrees() - turretInputs.positionRotations.getDegrees()) > 10);
 
     if (Superstructure.getState().isAScoreState() && Robot.isSimulation()) {
       System.out.println("launching fuel");
