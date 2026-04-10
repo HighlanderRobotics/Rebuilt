@@ -64,7 +64,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
-
   private SysIdRoutine x60Sysid =
       new SysIdRoutine(
           new Config(
