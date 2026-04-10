@@ -44,7 +44,6 @@ import frc.robot.components.cancoder.CANcoderIO;
 import frc.robot.components.cancoder.CANcoderIOInputsAutoLogged;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FuelSim;
-import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.AutoAim.ShotParams;
 import frc.robot.utils.autoaim.ShotTrees;
@@ -78,10 +77,6 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
 
   public static final double CANCODER_24T_TO_TURRET_GEAR_RATIO = (24.0 / 32.0) * (10.0 / 85.0);
   public static final double CANCODER_26T_TO_TURRET_GEAR_RATIO = (26.0 / 32.0) * (10.0 / 85.0);
-
-  private LoggedTunableNumber testDegrees = new LoggedTunableNumber("Hood Degrees", 40);
-  private LoggedTunableNumber testVelocity = new LoggedTunableNumber("Flywheel RPS", 40);
-
   // TODO: REDO THIS HARDSTOP WHEN FIXED??
   // logged for ease of graph viewing
   @AutoLogOutput(key = "Shooter/Turret/Left Hardstop")
@@ -646,28 +641,4 @@ public class TurretSubsystem extends SubsystemBase implements Shooter {
         flywheelSysid.dynamic(Direction.kReverse));
   }
 
-  @Override
-  public Command testShot(
-      Supplier<Pose2d> robotPoseSupplier, Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
-    return this.run(
-        () -> {
-          hoodIO.setHoodPosition(Rotation2d.fromDegrees(testDegrees.get()));
-          flywheelIO.setMotionProfiledFlywheelVelocity(testVelocity.get());
-          // turretIO.setTurretPosition(Rotation2d.fromRotations(-0.5));
-          turretIO.setTurretPosition(
-              AutoAim.getShotParameters(
-                      robotPoseSupplier.get(),
-                      chassisSpeedsSupplier.get(),
-                      FieldUtils.getCurrentHubTranslation(),
-                      Robot.ROBOT_EDITION == RobotEdition.ALPHA
-                          ? ShotTrees.ALPHA_HUB_SHOT_TREE
-                          : ShotTrees.COMP_HUB_SHOT_TREE)
-                  .turretAngle());
-        });
-  }
-
-  @Override
-  public double getTestVel() {
-    return testVelocity.get();
-  }
 }

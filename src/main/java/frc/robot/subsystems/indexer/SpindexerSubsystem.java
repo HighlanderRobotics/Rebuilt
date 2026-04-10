@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.utils.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -65,11 +64,6 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
-  private LoggedTunableNumber x44KickerSpeedLTN = new LoggedTunableNumber("Kicker Speed", 49);
-
-  private LoggedTunableNumber spinnerSpeedLTN = new LoggedTunableNumber("Spinner Speed", 12);
-
-  private LoggedTunableNumber x60KickSpeedLTN = new LoggedTunableNumber("X60 Kick Speed", 30);
 
   private SysIdRoutine x60Sysid =
       new SysIdRoutine(
