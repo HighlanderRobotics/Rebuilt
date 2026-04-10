@@ -819,6 +819,16 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
+
+    autoChooser.addOption("Right Trench Double Dip", autos.getDoubleDipRightTrench());
+    autoChooser.addOption("Left Trench Double Dip", autos.getLeftNeutralScoreTwice());
+
+    autoChooser.addOption("Left Bump Double Dip", autos.getLeftBumpDoubleDipAuto());
+    autoChooser.addOption("Right Bump Double Dip", autos.getRightBumpDoubleDipAuto());
+
+    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
+    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
+
     autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
     autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
@@ -835,27 +845,13 @@ public class Robot extends LoggedRobot {
         "Left Bump Depot Outpost Climb", autos.getLeftBumpDepotOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
-    autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
+
     autoChooser.addOption(
         "Right Trench Disrupt Outpost Auto", autos.getDisruptOutpostRightTrench());
     autoChooser.addOption("Left Trench Disrupt Depot Auto", autos.getDisruptDepotLeftTrench());
-    autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
-    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
-    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
-
-    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-    autoChooser.addOption("X60 Sysid", indexer.runX60Sysid());
-
-    autoChooser.addOption("X44 Sysid", indexer.runX44Sysid());
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
-    autoChooser.addOption("Left Double Dip Bump", autos.getLeftBumpDoubleDipAuto());
-    autoChooser.addOption("Right Double Dip Bump", autos.getRightBumpDoubleDipAuto());
-
-    autoChooser.addOption("spin", spinTest());
-
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
