@@ -171,9 +171,7 @@ public class Superstructure {
 
   @AutoLogOutput(key = "Superstructure/Score Request")
   private Trigger scoreReq =
-      new Trigger(() -> shotTarget == ShotTarget.SCORE)
-          // .and(() -> canScore())
-          .or(Autos.autoScoreReq);
+      new Trigger(() -> shotTarget == ShotTarget.SCORE).or(Autos.autoScoreReq);
 
   @AutoLogOutput(key = "Superstructure/Feed Request")
   private Trigger feedReq = new Trigger(() -> shotTarget == ShotTarget.FEED);
@@ -192,9 +190,6 @@ public class Superstructure {
   // spun up + hood at setpoint + pointing at target
   @AutoLogOutput(key = "Superstructure/Ready?")
   private Trigger readyTrigger;
-
-  @AutoLogOutput(key = "Superstructure/Operator Pose Override?")
-  private static boolean poseOverride = false;
 
   @AutoLogOutput(key = "Superstructure/Defense?")
   private boolean defense = false;
@@ -290,13 +285,8 @@ public class Superstructure {
     operator.povUp().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     operator.povDown().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     shootReq =
-        driver
-            .rightTrigger()
-            .and(DriverStation::isTeleop)
-            .and(() -> canShoot())
-            .or(Autos.autoScoreReq)
-            .and(() -> canShoot()); // Maybe should include if its our turn? //TODO fix auto
-    // bindings
+        new Trigger(() -> awayFromTrench())
+            .and((driver.rightTrigger().and(DriverStation::isTeleop)).or(Autos.autoScoreReq));
 
     intakeReq = driver.leftTrigger().and(DriverStation::isTeleop).or(Autos.autoIntakeReq);
 
@@ -337,9 +327,7 @@ public class Superstructure {
     // SCORE_FLOW transitions
     {
       bindTransition(
-          SuperState.IDLE,
-          SuperState.SPIN_UP_SCORE_FLOW,
-          scoreReq.and(flowReq).and(shootReq.or(intakeReq)));
+          SuperState.IDLE, SuperState.SPIN_UP_SCORE_FLOW, scoreReq.and(flowReq).and(shootReq));
 
       bindTransition(SuperState.SPIN_UP_SCORE_FLOW, SuperState.SCORE_FLOW, readyTrigger);
 
@@ -348,17 +336,13 @@ public class Superstructure {
           SuperState.SPIN_UP_SCORE_FLOW,
           new Trigger(AutoAim::targetInTurretDeadzone));
 
-      bindTransition(
-          SuperState.SPIN_UP_SCORE_FLOW,
-          SuperState.IDLE,
-          intakeReq.negate().and(shootReq.negate()));
+      bindTransition(SuperState.SPIN_UP_SCORE_FLOW, SuperState.IDLE, shootReq.negate());
 
       bindTransition(SuperState.SCORE, SuperState.SCORE_FLOW, flowReq);
 
       bindTransition(SuperState.SCORE_FLOW, SuperState.SCORE, flowReq.negate());
 
-      bindTransition(
-          SuperState.SCORE_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
+      bindTransition(SuperState.SCORE_FLOW, SuperState.IDLE, shootReq.negate());
     }
 
     // --------------------------------------------------------------------------
@@ -377,9 +361,7 @@ public class Superstructure {
     // FEED_FLOW transitions
     {
       bindTransition(
-          SuperState.IDLE,
-          SuperState.SPIN_UP_FEED_FLOW,
-          feedReq.and(flowReq).and(shootReq.or(intakeReq)));
+          SuperState.IDLE, SuperState.SPIN_UP_FEED_FLOW, feedReq.and(flowReq).and(shootReq));
 
       bindTransition(SuperState.SPIN_UP_FEED_FLOW, SuperState.FEED_FLOW, readyTrigger);
 
@@ -388,15 +370,13 @@ public class Superstructure {
           SuperState.SPIN_UP_FEED_FLOW,
           new Trigger(AutoAim::targetInTurretDeadzone));
 
-      bindTransition(
-          SuperState.SPIN_UP_FEED_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
+      bindTransition(SuperState.SPIN_UP_FEED_FLOW, SuperState.IDLE, shootReq.negate());
 
       bindTransition(SuperState.FEED, SuperState.FEED_FLOW, flowReq);
 
       bindTransition(SuperState.FEED_FLOW, SuperState.FEED, flowReq.negate());
 
-      bindTransition(
-          SuperState.FEED_FLOW, SuperState.IDLE, intakeReq.negate().and(shootReq.negate()));
+      bindTransition(SuperState.FEED_FLOW, SuperState.IDLE, shootReq.negate());
     }
 
     bindTransition(SuperState.SCORE, SuperState.FEED, feedReq);
@@ -912,16 +892,10 @@ public class Superstructure {
   }
 
   public boolean canScore() {
-    return
-    // (isOurShift() || !DriverStation.isFMSAttached())
-    //     &&
-    (inScoringArea() || poseOverride)
-        && (!swerve.isNearTrench() || poseOverride
-        // || fixedShotTarget != FixedShotTarget.NONE
-        );
+    return inScoringArea() && !swerve.isNearTrench();
   }
 
-  public boolean canShoot() {
+  public boolean awayFromTrench() {
     return !swerve.isNearTrenchForHood();
   }
 
@@ -931,13 +905,5 @@ public class Superstructure {
 
   public static FeedTarget getFeedTarget() {
     return feedTarget;
-  }
-
-  // public static FixedShotTarget getFixedShotTarget() {
-  //   return fixedShotTarget;
-  // }
-
-  public static boolean getPoseOverride() {
-    return poseOverride;
   }
 }
