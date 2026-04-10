@@ -185,7 +185,7 @@ public class Robot extends LoggedRobot {
 
   private final SlewRateLimiter xAccelLimiter = new SlewRateLimiter(1);
   private final SlewRateLimiter yAccelLimiter = new SlewRateLimiter(1);
-  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(0.5);
+  //   private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(0.5);
 
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
@@ -604,7 +604,9 @@ public class Robot extends LoggedRobot {
                                     * (SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()),
                                 xAccelLimiter.calculate(modifyJoystick(driver.getLeftX()))
                                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                                rAccelLimiter.calculate(modifyJoystick(driver.getRightX()))
+                                // rAccelLimiter.calculate(
+                                modifyJoystick(driver.getRightX())
+                                    // )
                                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                             .times(-1))
                 .withName("default"));
