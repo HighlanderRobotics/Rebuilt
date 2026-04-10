@@ -108,4 +108,8 @@ public interface Shooter extends Subsystem {
   public default Command runHoodSysid() {
     return Commands.none();
   }
+
+  public default double getTestVel() {
+    return 0;
+  }
 }

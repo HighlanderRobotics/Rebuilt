@@ -169,27 +169,24 @@ public class R1WispSwerveConstants extends SwerveConstants {
     return Pound.of(145.8); // 136.185702);
   }
 
-  // TODO: CANCODER OFFSETS
   @Override
   public ModuleConstants getFrontLeftModuleConstants() {
-    return new ModuleConstants(
-        0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(-0.22656).plus(Rotation2d.k180deg));
+    return new ModuleConstants(0, "Front Left", 0, 1, 0, Rotation2d.fromRotations(0.272217));
   }
 
   @Override
   public ModuleConstants getFrontRightModuleConstants() {
-    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(-0.388));
+    return new ModuleConstants(1, "Front Right", 2, 3, 1, Rotation2d.fromRotations(0.11377 - 0.5));
   }
 
   @Override
   public ModuleConstants getBackLeftModuleConstants() {
-    return new ModuleConstants(
-        2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(-0.3).plus(Rotation2d.k180deg));
+    return new ModuleConstants(2, "Back Left", 4, 5, 2, Rotation2d.fromRotations(0.199463));
   }
 
   @Override
   public ModuleConstants getBackRightModuleConstants() {
-    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(0.3303));
+    return new ModuleConstants(3, "Back Right", 6, 7, 3, Rotation2d.fromRotations(-0.168945 - 0.5));
   }
 
   @Override
@@ -201,10 +198,13 @@ public class R1WispSwerveConstants extends SwerveConstants {
   public Pigeon2Configuration getGyroConfig() {
     Pigeon2Configuration config = new Pigeon2Configuration();
     config.MountPose.MountPosePitch =
-        0.3399254083633423; // -0.20375922322273254; // -0.420589417219162;
-    config.MountPose.MountPoseRoll = 179.3086395263672; // -179.13818359375; // -179.8539581298828;
+        1.2711083889007568; // 0.3399254083633423; // -0.20375922322273254; // -0.420589417219162;
+    config.MountPose.MountPoseRoll =
+        178.1570281982422; // 179.3086395263672; // -179.13818359375; // -179.8539581298828;
     config.MountPose.MountPoseYaw =
-        -90.44647216796875; // -90.93168640136719; // -86.66709899902344;
+        -175.72914123535156; // -90.44647216796875; // -90.93168640136719; // -86.66709899902344;
+
+    config.GyroTrim.GyroScalarZ = -4;//-2.5;
     return config;
   }
 
@@ -214,7 +214,7 @@ public class R1WispSwerveConstants extends SwerveConstants {
     // Current limits
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    driveConfig.CurrentLimits.StatorCurrentLimit = 120.0;
+    driveConfig.CurrentLimits.StatorCurrentLimit = 90.0;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     // Inverts
     driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

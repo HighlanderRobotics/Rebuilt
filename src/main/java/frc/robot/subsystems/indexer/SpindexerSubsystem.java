@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.components.rollers.RollerIO;
 import frc.robot.components.rollers.RollerIOInputsAutoLogged;
-import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -66,11 +65,11 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
   public static final double KICKER_CURRENT_THRESHOLD = 20; // TODO
 
-  private LoggedTunableNumber kickerSpeed = new LoggedTunableNumber("Kicker Speed", 70);
+  private LoggedTunableNumber x44KickerSpeedLTN = new LoggedTunableNumber("Kicker Speed", 49);
 
-  private LoggedTunableNumber spinnerSpeed = new LoggedTunableNumber("Spinner Speed", 13);
+  private LoggedTunableNumber spinnerSpeedLTN = new LoggedTunableNumber("Spinner Speed", 12);
 
-  private LoggedTunableNumber x60KickSpeed = new LoggedTunableNumber("X60 Kick Speed", 20);
+  private LoggedTunableNumber x60KickSpeedLTN = new LoggedTunableNumber("X60 Kick Speed", 30);
 
   private SysIdRoutine x60Sysid =
       new SysIdRoutine(
@@ -113,15 +112,29 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
     return Commands.sequence(
         this.run(
             () -> {
-              double flywheelLinearSpeed =
-                  flywheelRPS.getAsDouble() * Math.PI * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
-              double x44Speed = flywheelLinearSpeed * 1 / (Math.PI * X44_KICKER_DIAMETER_INCHES);
-              double x60Speed = flywheelLinearSpeed * 0.9 / (Math.PI * X60_KICKER_DIAMETER_INCHES);
-              double spinnerSpeed =
-                  flywheelLinearSpeed * 0.85 / (Math.PI * SPINNER_DIAMETER_INCHES);
+              // double flywheelLinearSpeed =
+              //     flywheelRPS.getAsDouble() * Math.PI * TurretSubsystem.FLYWHEEL_DIAMETER_INCHES;
+              // double x44Speed = flywheelLinearSpeed * 1 / (Math.PI * X44_KICKER_DIAMETER_INCHES);
+              // double x60Speed = flywheelLinearSpeed * 0.9 / (Math.PI *
+              // X60_KICKER_DIAMETER_INCHES);
+              // double spinnerSpeed =
+              //     flywheelLinearSpeed * 0.85 / (Math.PI * SPINNER_DIAMETER_INCHES);
+
+              // 27 rps of flywheel
+              // 49 x44
+              // 12 spinner
+              // 30 x60
+              double spinnerSpeed = flywheelRPS.getAsDouble() * 12.0 / 27.0;
+              double x44Speed = flywheelRPS.getAsDouble() * 49.0 / 27.0;
+              double x60Speed = flywheelRPS.getAsDouble() * 30.0 / 27.0;
+
               spinnerIO.setRollerVelocity(spinnerSpeed);
               x44KickerIO.setRollerVelocity(x44Speed);
               x60KickerIO.setRollerVelocity(x60Speed);
+
+              // spinnerIO.setRollerVelocity(spinnerSpeedLTN.get());
+              // x44KickerIO.setRollerVelocity(x44KickerSpeedLTN.get());
+              // x60KickerIO.setRollerVelocity(x60KickSpeedLTN.get());
             }));
   }
 
@@ -181,8 +194,8 @@ public class SpindexerSubsystem extends SubsystemBase implements Indexer {
 
     config.Feedback.SensorToMechanismRatio = SPINNER_GEAR_RATIO;
 
-    config.Slot0.kS = 0.25181;
-    config.Slot0.kV = 0.66739;
+    config.Slot0.kS = 0.15181;
+    config.Slot0.kV = 0.587389988899231;
     config.Slot0.kA = 0.038125;
     config.Slot0.kP = 0.1;
     config.Slot0.kD = 0;

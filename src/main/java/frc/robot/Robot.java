@@ -673,6 +673,7 @@ public class Robot extends LoggedRobot {
         .onTrue(
             Commands.runOnce(
                 () ->
+                    // swerve.setGyroYaw(
                     swerve.setYaw(
                         DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue)
                             ? Rotation2d.kZero
@@ -731,11 +732,7 @@ public class Robot extends LoggedRobot {
 
     driver
         .leftBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToCalculatedPosition())); // , intake.zeroPivotOffCancoder()));
+        .onTrue(shooter.resetTurretToCalculatedPosition()); // , intake.zeroPivotOffCancoder()));
 
     operator
         .leftBumper()
@@ -748,11 +745,9 @@ public class Robot extends LoggedRobot {
     operator
         .rightStick()
         .onTrue(
-            Commands.runOnce(
-                () ->
-                    shooter
-                        .resetTurretToPosition(shooter::getCalculatedTurretRotations)
-                        .ignoringDisable(true)));
+            shooter
+                .resetTurretToPosition(shooter::getCalculatedTurretRotations)
+                .ignoringDisable(true));
 
     driver
         .rightBumper()
@@ -772,40 +767,40 @@ public class Robot extends LoggedRobot {
     // driver
     //     .leftBumper()
     //     .and(
-    new Trigger(AutoAim::targetInTurretDeadzone)
-        .and(() -> Superstructure.getState().isAScoreState())
-        .and(() -> !Superstructure.getState().isAFlowState())
-        .and(() -> !Superstructure.getPoseOverride())
-        .and(() -> superstructure.inScoringArea())
-        .whileTrue(
-            swerve.faceHubComp(
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                shooter::getTurretPosition));
+    // new Trigger(AutoAim::targetInTurretDeadzone)
+    //     .and(() -> Superstructure.getState().isAScoreState())
+    //     .and(() -> !Superstructure.getState().isAFlowState())
+    //     .and(() -> !Superstructure.getPoseOverride())
+    //     .and(() -> superstructure.inScoringArea())
+    //     .whileTrue(
+    //         swerve.faceHubComp(
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftY())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftX())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             shooter::getTurretPosition));
 
-    new Trigger(AutoAim::targetInTurretDeadzone)
-        .and(() -> Superstructure.getState().isAFeedState())
-        .and(() -> !Superstructure.getState().isAFlowState())
-        .and(() -> !Superstructure.getPoseOverride())
-        .and(() -> !superstructure.inScoringArea())
-        .whileTrue(
-            swerve.faceFeedComp(
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftY())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                () ->
-                    -1
-                        * modifyJoystick(driver.getLeftX())
-                        * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                shooter::getTurretPosition,
-                () -> Superstructure.getFeedTarget()));
+    // new Trigger(AutoAim::targetInTurretDeadzone)
+    //     .and(() -> Superstructure.getState().isAFeedState())
+    //     .and(() -> !Superstructure.getState().isAFlowState())
+    //     .and(() -> !Superstructure.getPoseOverride())
+    //     .and(() -> !superstructure.inScoringArea())
+    //     .whileTrue(
+    //         swerve.faceFeedComp(
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftY())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             () ->
+    //                 -1
+    //                     * modifyJoystick(driver.getLeftX())
+    //                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
+    //             shooter::getTurretPosition,
+    //             () -> Superstructure.getFeedTarget()));
 
     operator.povRight().onTrue(Commands.runOnce(() -> AutoAim.incrementFudgeFactor()));
     operator.povLeft().onTrue(Commands.runOnce(() -> AutoAim.decrementFudgeFactor()));
@@ -859,6 +854,9 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("X44 Sysid", indexer.runX44Sysid());
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
+    autoChooser.addOption("Left Double Dip Bump", autos.getLeftBumpDoubleDipAuto());
+
+    autoChooser.addOption("spin", spinTest());
 
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
@@ -950,6 +948,8 @@ public class Robot extends LoggedRobot {
             .getDistance(FieldUtils.getCurrentHubTranslation()));
     Logger.recordOutput(
         "AutoAim/Feed Target", FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose());
+
+    Logger.recordOutput("Wrapped gyro yaw", swerve.getRotation());
   }
 
   public void updateAlerts() {
@@ -1088,4 +1088,24 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testExit() {}
+
+  public Command spinTest() {
+    return Commands.sequence(
+        Commands.runOnce(() -> swerve.setGyroYaw(Rotation2d.kZero)),
+        swerve
+            .driveOpenLoopFieldRelative(
+                () ->
+                    new ChassisSpeeds(
+                        0, 0, SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed() / 4.0))
+            .withTimeout(20)
+        // .until()
+        //     ,
+        // // swerve
+        // //     .driveOpenLoopFieldRelative(
+        // //         () ->
+        // //             new ChassisSpeeds(0, 0,
+        // -SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed()))
+        // //     .withTimeout(10)
+        );
+  }
 }
