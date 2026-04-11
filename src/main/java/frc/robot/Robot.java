@@ -72,7 +72,6 @@ import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.ClimbTargets;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.FieldUtils.TrenchPoses;
-import frc.robot.utils.FuelSim;
 import frc.robot.utils.autoaim.AutoAim;
 import java.io.File;
 import java.util.Arrays;
@@ -152,7 +151,7 @@ public class Robot extends LoggedRobot {
    * This is for when we're testing shot and extension numbers and should be FALSE once bring up is
    * complete
    */
-  public static final boolean TUNING_MODE = true;
+  public static final boolean TUNING_MODE = false;
 
   public boolean hasZeroedSinceStartup = false;
 
@@ -185,7 +184,7 @@ public class Robot extends LoggedRobot {
 
   private final SlewRateLimiter xAccelLimiter = new SlewRateLimiter(1);
   private final SlewRateLimiter yAccelLimiter = new SlewRateLimiter(1);
-  private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(0.5);
+  //   private final SlewRateLimiter rAccelLimiter = new SlewRateLimiter(0.5);
 
   private static int lowBatteryCycleCount = 0;
   private static final double lowBatteryVoltage =
@@ -215,8 +214,6 @@ public class Robot extends LoggedRobot {
   private Indexer indexer = null;
   private final CANdleSubsystem candle =
       new CANdleSubsystem(new CANdleIOReal(0, CANdleSubsystem.getCandleConfig(), canivore));
-
-  private FuelSim fuelSim = new FuelSim();
 
   // climber only exists for the comp bot - this is accounted for later
 
@@ -442,8 +439,7 @@ public class Robot extends LoggedRobot {
                     : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
-                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore),
-                fuelSim);
+                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
         break;
     }
     climber =
@@ -604,7 +600,9 @@ public class Robot extends LoggedRobot {
                                     * (SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed()),
                                 xAccelLimiter.calculate(modifyJoystick(driver.getLeftX()))
                                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxLinearSpeed(),
-                                rAccelLimiter.calculate(modifyJoystick(driver.getRightX()))
+                                // rAccelLimiter.calculate(
+                                modifyJoystick(driver.getRightX())
+                                    // )
                                     * SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed())
                             .times(-1))
                 .withName("default"));
@@ -626,31 +624,6 @@ public class Robot extends LoggedRobot {
                   "Interrputing: "
                       + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
             });
-
-    // fuelSim.spawnStartingFuel();
-
-    fuelSim.registerRobot(
-        Units.inchesToMeters(28), // from left to right in meters
-        Units.inchesToMeters(28), // from front to back in meters
-        Units.inchesToMeters(4), // from floor to top of bumpers in meters
-        swerve::getPose, // Supplier<Pose2d> of robot pose
-        swerve
-            ::getVelocityFieldRelative); // Supplier<ChassisSpeeds> of field-centric chassis speeds
-
-    fuelSim.registerIntake(
-        Units.inchesToMeters(-14),
-        Units.inchesToMeters(14),
-        Units.inchesToMeters(14),
-        Units.inchesToMeters(20), // robot-centric coordinates for bounding box in meters
-        () ->
-            Superstructure.getState()
-                .isAnIntakeState() // (optional) BooleanSupplier for whether the intake should be
-        // active at a given moment
-        ); // (optional) Runnable called whenever a fuel is intaked
-
-    fuelSim.setSubticks(5);
-
-    // fuelSim.start();
 
     // Log climb poses
     Logger.recordOutput(
@@ -742,12 +715,7 @@ public class Robot extends LoggedRobot {
         .rightBumper()
         .or(Autos.autoLeftClimbReq.negate())
         .onTrue(Commands.runOnce(() -> leftClimbTarget = false));
-    operator
-        .rightStick()
-        .onTrue(
-            shooter
-                .resetTurretToPosition(shooter::getCalculatedTurretRotations)
-                .ignoringDisable(true));
+    operator.rightStick().onTrue(shooter.resetTurretToCalculatedPosition().ignoringDisable(true));
 
     driver
         .rightBumper()
@@ -822,6 +790,16 @@ public class Robot extends LoggedRobot {
     System.out.println("------- Regenerating Autos");
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
+
+    autoChooser.addOption("Right Trench Double Dip", autos.getDoubleDipRightTrench());
+    autoChooser.addOption("Left Trench Double Dip", autos.getLeftNeutralScoreTwice());
+
+    autoChooser.addOption("Left Bump Double Dip", autos.getLeftBumpDoubleDipAuto());
+    autoChooser.addOption("Right Bump Double Dip", autos.getRightBumpDoubleDipAuto());
+
+    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
+    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
+
     autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
     autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
@@ -838,27 +816,13 @@ public class Robot extends LoggedRobot {
         "Left Bump Depot Outpost Climb", autos.getLeftBumpDepotOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Climb", autos.getRightBumpOutpostClimbAuto());
     autoChooser.addOption("Right Bump Outpost Center", autos.getRightBumpOutpostCenterAuto());
-    autoChooser.addOption("Right Trench Double Dip Auto", autos.getDoubleDipRightTrench());
+
     autoChooser.addOption(
         "Right Trench Disrupt Outpost Auto", autos.getDisruptOutpostRightTrench());
     autoChooser.addOption("Left Trench Disrupt Depot Auto", autos.getDisruptDepotLeftTrench());
-    autoChooser.addOption("Left Neutral Score Twice", autos.getLeftNeutralScoreTwice());
     // autoChooser.addOption("Left Neutral Outpost Score", autos.getLeftNeutralOutpostScore());
-    autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
-    autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
-
-    autoChooser.addOption("Flywheel Sysid", shooter.runFlywheelSysid());
-    autoChooser.addOption("Hood Sysid", shooter.runHoodSysid());
-    autoChooser.addOption("X60 Sysid", indexer.runX60Sysid());
-
-    autoChooser.addOption("X44 Sysid", indexer.runX44Sysid());
 
     autoChooser.addOption("Right Neutral Outpost Score", autos.getRightNeutralOutpostScore());
-    autoChooser.addOption("Left Double Dip Bump", autos.getLeftBumpDoubleDipAuto());
-    autoChooser.addOption("Right Double Dip Bump", autos.getRightBumpDoubleDipAuto());
-
-    autoChooser.addOption("spin", spinTest());
-
     haveAutosGenerated = true;
     System.out.println("Done generating autos");
   }
@@ -869,96 +833,96 @@ public class Robot extends LoggedRobot {
 
     superstructure.periodic();
 
-    Pose3d turretPose =
-        new Pose3d(
-            new Translation3d(-0.177413, -0.111702, 0.350341),
-            new Rotation3d(0, 0, shooter.getTurretPosition().getRadians()));
-    Logger.recordOutput(
-        "Robot/Mechanism Poses",
-        new Pose3d[] {
-          // Turret
-          turretPose,
-          // Hood
-          turretPose
-              // First transform the hood out to the hood pivot, and rotate by the amount needed
-              .transformBy(
-                  new Transform3d(
-                      new Translation3d(-0.095638, 0, 0.095123),
-                      new Rotation3d(0, shooter.getHoodPosition().getRadians() * 1, 0)))
-              // Then, transform the hood back to the correct location relative to the turret
-              .transformBy(
-                  new Transform3d(
-                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
-          // Intake
-          //   new Pose3d(
-          //       intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
-          //       0,
-          //       -(intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
-          //       Rotation3d.kZero),
-          // Climber
-          new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
-        });
+    // Pose3d turretPose =
+    //     new Pose3d(
+    //         new Translation3d(-0.177413, -0.111702, 0.350341),
+    //         new Rotation3d(0, 0, shooter.getTurretPosition().getRadians()));
+    // Logger.recordOutput(
+    //     "Robot/Mechanism Poses",
+    //     new Pose3d[] {
+    //       // Turret
+    //       turretPose,
+    //       // Hood
+    //       turretPose
+    //           // First transform the hood out to the hood pivot, and rotate by the amount needed
+    //           .transformBy(
+    //               new Transform3d(
+    //                   new Translation3d(-0.095638, 0, 0.095123),
+    //                   new Rotation3d(0, shooter.getHoodPosition().getRadians() * 1, 0)))
+    //           // Then, transform the hood back to the correct location relative to the turret
+    //           .transformBy(
+    //               new Transform3d(
+    //                   new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
+    //       // Intake
+    //       //   new Pose3d(
+    //       //       intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
+    //       //       0,
+    //       //       -(intake.getPosition() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
+    //       //       Rotation3d.kZero),
+    //       // Climber
+    //       new Pose3d(0, 0, climber.getClimberExtensionMeters(), Rotation3d.kZero)
+    //     });
 
-    Pose3d turretSetpoint =
-        new Pose3d(
-            new Translation3d(-0.177413, -0.111702, 0.350341),
-            new Rotation3d(0, 0, shooter.getTurretSetpoint().getRadians()));
+    // Pose3d turretSetpoint =
+    //     new Pose3d(
+    //         new Translation3d(-0.177413, -0.111702, 0.350341),
+    //         new Rotation3d(0, 0, shooter.getTurretSetpoint().getRadians()));
 
-    Logger.recordOutput(
-        "Robot/Mechanism Setpoints",
-        new Pose3d[] {
-          // Turret
-          turretSetpoint,
-          // Hood
-          turretSetpoint
-              // First transform the hood out to the hood pivot, and rotate by the amount needed
-              .transformBy(
-                  new Transform3d(
-                      new Translation3d(-0.095638, 0, 0.095123),
-                      new Rotation3d(0, shooter.getHoodSetpoint().getRadians() * -1, 0)))
-              // Then, transform the hood back to the correct location relative to the turret
-              .transformBy(
-                  new Transform3d(
-                      new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
-          // Intake
-          //   new Pose3d(
-          //       intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
-          //       0,
-          //       -(intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
-          //       Rotation3d.kZero),
-          // Climber
-          new Pose3d(0, 0, climber.getClimberSetpointMeters(), Rotation3d.kZero)
-        });
+    // Logger.recordOutput(
+    //     "Robot/Mechanism Setpoints",
+    //     new Pose3d[] {
+    //       // Turret
+    //       turretSetpoint,
+    //       // Hood
+    //       turretSetpoint
+    //           // First transform the hood out to the hood pivot, and rotate by the amount needed
+    //           .transformBy(
+    //               new Transform3d(
+    //                   new Translation3d(-0.095638, 0, 0.095123),
+    //                   new Rotation3d(0, shooter.getHoodSetpoint().getRadians() * -1, 0)))
+    //           // Then, transform the hood back to the correct location relative to the turret
+    //           .transformBy(
+    //               new Transform3d(
+    //                   new Translation3d(-0.095638, 0, 0.095123).times(-1), Rotation3d.kZero)),
+    //       // Intake
+    //       //   new Pose3d(
+    //       //       intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getCos(),
+    //       //       0,
+    //       //       -(intake.getPositionSetpoint() * LintakeSubsystem.INTAKE_ROTATION.getSin()),
+    //       //       Rotation3d.kZero),
+    //       // Climber
+    //       new Pose3d(0, 0, climber.getClimberSetpointMeters(), Rotation3d.kZero)
+    //     });
 
     updateAlerts();
-    Logger.recordOutput("AutoAim/Flywheel Fudge Factor", AutoAim.getFudgeFactor());
+    // Logger.recordOutput("AutoAim/Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
-    Logger.recordOutput(
-        "trench poses",
-        Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
+    // Logger.recordOutput(
+    //     "trench poses",
+    //     Arrays.stream(TrenchPoses.values()).map(target -> target.getPose()).toArray(Pose2d[]::new));
 
     Logger.recordOutput("Turret/out of range", AutoAim.targetInTurretDeadzone());
 
     noLogStickAlert.set(!directory.exists());
 
-    Logger.recordOutput(
-        "AutoAim/Distance to hub",
-        shooter
-            .getTurretPose(swerve.getPose())
-            .getTranslation()
-            .getDistance(FieldUtils.getCurrentHubTranslation()));
+    // Logger.recordOutput(
+    //     "AutoAim/Distance to hub",
+    //     shooter
+    //         .getTurretPose(swerve.getPose())
+    //         .getTranslation()
+    //         .getDistance(FieldUtils.getCurrentHubTranslation()));
 
-    Logger.recordOutput(
-        "AutoAim/Distance to feed target",
-        shooter
-            .getTurretPose(swerve.getPose())
-            .getTranslation()
-            .getDistance(
-                FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getTranslation()));
+    // Logger.recordOutput(
+    //     "AutoAim/Distance to feed target",
+    //     shooter
+    //         .getTurretPose(swerve.getPose())
+    //         .getTranslation()
+    //         .getDistance(
+    //             FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getTranslation()));
     Logger.recordOutput(
         "AutoAim/Feed Target", FeedTargets.getFeedTarget(Superstructure.getFeedTarget()).getPose());
 
-    Logger.recordOutput("Wrapped gyro yaw", swerve.getRotation());
+    // Logger.recordOutput("Wrapped gyro yaw", swerve.getRotation());
   }
 
   public void updateAlerts() {
@@ -978,28 +942,28 @@ public class Robot extends LoggedRobot {
             && !canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
 
     // Log CANivore status
-    if (Robot.isReal()) {
-      var canivoreStatus =
-          Optional.of(canivore.getStatus()); // TODO i don't know if i'm doing the optionaling right
-      if (canivoreStatus.isPresent()) {
-        Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.get().Status.getName());
-        Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.get().BusUtilization);
-        Logger.recordOutput("CANivoreStatus/OffCount", canivoreStatus.get().BusOffCount);
-        Logger.recordOutput("CANivoreStatus/TxFullCount", canivoreStatus.get().TxFullCount);
-        Logger.recordOutput("CANivoreStatus/ReceiveErrorCount", canivoreStatus.get().REC);
-        Logger.recordOutput("CANivoreStatus/TransmitErrorCount", canivoreStatus.get().TEC);
+    // if (Robot.isReal()) {
+    //   var canivoreStatus =
+    //       Optional.of(canivore.getStatus()); // TODO i don't know if i'm doing the optionaling right
+    //   if (canivoreStatus.isPresent()) {
+    //     Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.get().Status.getName());
+    //     Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.get().BusUtilization);
+    //     Logger.recordOutput("CANivoreStatus/OffCount", canivoreStatus.get().BusOffCount);
+    //     Logger.recordOutput("CANivoreStatus/TxFullCount", canivoreStatus.get().TxFullCount);
+    //     Logger.recordOutput("CANivoreStatus/ReceiveErrorCount", canivoreStatus.get().REC);
+    //     Logger.recordOutput("CANivoreStatus/TransmitErrorCount", canivoreStatus.get().TEC);
 
-        if (!canivoreStatus.get().Status.isOK()
-            || canStatus.transmitErrorCount > 0
-            || canStatus.receiveErrorCount > 0) {
-          canivoreErrorTimer.restart();
-        }
-      }
-      // TODO i don't really like how this doesn't seem to be sticky
-      canivoreErrorAlert.set(
-          !canivoreErrorTimer.hasElapsed(CANIVORE_ERROR_TIME_THRESHOLD)
-              && !canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
-    }
+    //     if (!canivoreStatus.get().Status.isOK()
+    //         || canStatus.transmitErrorCount > 0
+    //         || canStatus.receiveErrorCount > 0) {
+    //       canivoreErrorTimer.restart();
+    //     }
+    //   }
+    //   // TODO i don't really like how this doesn't seem to be sticky
+    //   canivoreErrorAlert.set(
+    //       !canivoreErrorTimer.hasElapsed(CANIVORE_ERROR_TIME_THRESHOLD)
+    //           && !canInitialErrorTimer.hasElapsed(CAN_ERROR_TIME_THRESHOLD));
+    // }
 
     // Low battery alert
     lowBatteryCycleCount += 1;
@@ -1011,7 +975,7 @@ public class Robot extends LoggedRobot {
         && lowBatteryCycleCount >= lowBatteryMinCycleCount) {
       lowBatteryAlert.set(true);
     }
-    logBFG();
+    // logBFG();
   }
 
   private void logBFG() {
@@ -1029,7 +993,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
-    // fuelSim.updateSim();
     // Log zeroed poses for mechs and robot for debugging in sim
     Logger.recordOutput(
         "Robot/Zeroed Mechanism Poses",
@@ -1098,23 +1061,23 @@ public class Robot extends LoggedRobot {
   @Override
   public void testExit() {}
 
-  public Command spinTest() {
-    return Commands.sequence(
-        Commands.runOnce(() -> swerve.setGyroYaw(Rotation2d.kZero)),
-        swerve
-            .driveOpenLoopFieldRelative(
-                () ->
-                    new ChassisSpeeds(
-                        0, 0, SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed() / 4.0))
-            .withTimeout(20)
-        // .until()
-        //     ,
-        // // swerve
-        // //     .driveOpenLoopFieldRelative(
-        // //         () ->
-        // //             new ChassisSpeeds(0, 0,
-        // -SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed()))
-        // //     .withTimeout(10)
-        );
-  }
+//   public Command spinTest() {
+//     return Commands.sequence(
+//         Commands.runOnce(() -> swerve.setGyroYaw(Rotation2d.kZero)),
+//         swerve
+//             .driveOpenLoopFieldRelative(
+//                 () ->
+//                     new ChassisSpeeds(
+//                         0, 0, SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed() / 4.0))
+//             .withTimeout(20)
+//         // .until()
+//         //     ,
+//         // // swerve
+//         // //     .driveOpenLoopFieldRelative(
+//         // //         () ->
+//         // //             new ChassisSpeeds(0, 0,
+//         // -SwerveSubsystem.SWERVE_CONSTANTS.getMaxAngularSpeed()))
+//         // //     .withTimeout(10)
+//         );
+//   }
 }
