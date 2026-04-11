@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.text.DecimalFormat;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -21,9 +26,6 @@ import frc.robot.utils.FieldUtils;
 import frc.robot.utils.FieldUtils.FeedTargets;
 import frc.robot.utils.autoaim.AutoAim;
 import frc.robot.utils.autoaim.ShotTrees;
-import java.text.DecimalFormat;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Superstructure {
 
@@ -45,7 +47,9 @@ public class Superstructure {
     POST_CLIMB,
     SPIN_UP_SCORE_PRE_CLIMB,
     SCORE_PRE_CLIMB,
-    DEFENSE;
+    DEFENSE,
+    SPIN_UP_FIXED_SCORE,
+    FIXED_SCORE;
     public final Trigger trigger;
 
     private SuperState() {
@@ -61,6 +65,9 @@ public class Superstructure {
           || this == SPIN_UP_SCORE
           || this == SPIN_UP_SCORE_FLOW
           || this == SCORE_FLOW;
+          //fixed shots are score states but like we're not moving during those
+          // || this == SPIN_UP_FIXED_SCORE
+          // || this == FIXED_SCORE;
     }
 
     public boolean isAFeedState() {
@@ -92,13 +99,6 @@ public class Superstructure {
   public enum FeedTarget {
     LEFT,
     RIGHT
-  }
-
-  public enum FixedShotTarget {
-    LEFT,
-    MID,
-    RIGHT,
-    NONE
   }
 
   @AutoLogOutput(key = "Superstructure/State")
@@ -183,7 +183,7 @@ public class Superstructure {
   @AutoLogOutput(key = "Superstructure/Feed Target")
   private static FeedTarget feedTarget = FeedTarget.RIGHT;
 
-  // spun up + hood at setpoint + pointing at target
+  // spun up + hood at setpoint + pointing at target + target not in deadzone
   @AutoLogOutput(key = "Superstructure/Ready?")
   private Trigger readyTrigger;
 
@@ -192,6 +192,16 @@ public class Superstructure {
 
   @AutoLogOutput(key = "Superstructure/Defense Req")
   private Trigger defenseReq = new Trigger(() -> defense);
+
+  @AutoLogOutput(key = "Superstructure/Fixed Shot")
+  private boolean fixedShot = false;
+
+  @AutoLogOutput(key = "Superstructure/Fixed Shot Req")
+  private Trigger fixedShotReq = new Trigger(() -> fixedShot);
+
+    // spun up + hood at setpoint + pointing at target ONLY FOR FIXED SHOT
+  @AutoLogOutput(key = "Superstructure/Shooter Ready?")
+  private Trigger shooterReadyTrigger;
 
   // @AutoLogOutput(key = "Superstructure/Fixed Shot")
   // private static FixedShotTarget fixedShotTarget = FixedShotTarget.NONE;
@@ -227,6 +237,9 @@ public class Superstructure {
 
     operator.povUp().onTrue(Commands.runOnce(() -> defense = true));
     operator.povDown().onTrue(Commands.runOnce(() -> defense = false));
+
+    operator.leftTrigger().onTrue(Commands.runOnce(() -> fixedShot = false));
+    operator.rightTrigger().onTrue(Commands.runOnce(() -> fixedShot = true));
 
     // toggle for flow state
     operator
@@ -278,8 +291,8 @@ public class Superstructure {
     //               fixedShotTarget = FixedShotTarget.NONE;
     //             }));
 
-    operator.povUp().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
-    operator.povDown().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
+    // operator.povUp().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
+    // operator.povDown().onTrue(Commands.parallel(intake.restRetracted(), shooter.stopTurret()));
     shootReq =
         new Trigger(() -> awayFromTrench())
             .and((driver.rightTrigger().and(DriverStation::isTeleop)).or(Autos.autoScoreReq));
@@ -298,6 +311,12 @@ public class Superstructure {
             .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
             .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05))
             .and(new Trigger(AutoAim::targetInTurretDeadzone).negate());
+
+    shooterReadyTrigger =
+        new Trigger(shooter::atFlywheelVelocitySetpoint)
+            // .debounce(0.05)
+            .and(new Trigger(shooter::atHoodSetpoint).debounce(0.05))
+            .and(new Trigger(shooter::atTurretSetpoint).debounce(0.05));;
   }
 
   private void addTransitions() {
@@ -310,7 +329,7 @@ public class Superstructure {
     // anyway that's why we don't have a ready state anymore
 
     bindTransition(
-        SuperState.IDLE, SuperState.SPIN_UP_SCORE, shootReq.and(scoreReq).and(flowReq.negate()));
+        SuperState.IDLE, SuperState.SPIN_UP_SCORE, shootReq.and(scoreReq).and(flowReq.negate()).and(fixedShotReq.negate()));
 
     bindTransition(SuperState.SPIN_UP_SCORE, SuperState.SCORE, readyTrigger);
 
@@ -320,10 +339,22 @@ public class Superstructure {
 
     bindTransition(SuperState.SCORE, SuperState.IDLE, shootReq.negate());
 
+//fixed shot
+    bindTransition(
+        SuperState.IDLE, SuperState.SPIN_UP_FIXED_SCORE, shootReq.and(scoreReq).and(flowReq.negate()).and(fixedShotReq));
+
+    bindTransition(SuperState.SPIN_UP_FIXED_SCORE, SuperState.FIXED_SCORE, shooterReadyTrigger);
+
+    // bindTransition(SuperState.SCORE, SuperState.SPIN_UP_SCORE, readyTrigger.negate());
+
+    bindTransition(SuperState.SPIN_UP_FIXED_SCORE, SuperState.IDLE, shootReq.negate());
+
+    bindTransition(SuperState.FIXED_SCORE, SuperState.IDLE, shootReq.negate());
+
     // SCORE_FLOW transitions
     {
       bindTransition(
-          SuperState.IDLE, SuperState.SPIN_UP_SCORE_FLOW, scoreReq.and(flowReq).and(shootReq));
+          SuperState.IDLE, SuperState.SPIN_UP_SCORE_FLOW, scoreReq.and(flowReq).and(shootReq).and(fixedShotReq.negate()));
 
       bindTransition(SuperState.SPIN_UP_SCORE_FLOW, SuperState.SCORE_FLOW, readyTrigger);
 
@@ -579,6 +610,28 @@ public class Superstructure {
                         ? ShotTrees.ALPHA_HUB_SHOT_TREE
                         : ShotTrees.COMP_HUB_SHOT_TREE)),
         // shooter.testShot(() -> swerve.getPose(), () -> swerve.getVelocityFieldRelative())),
+        climber.retract());
+
+    bindCommands(
+        SuperState.SPIN_UP_FIXED_SCORE,
+        intake.restExtended(),
+        indexer.rest(),
+        shooter
+            .resetTurretToCalculatedPosition()
+            .andThen(
+                shooter.score(
+                    () ->
+                        AutoAim.getFixedShotParams())));
+
+      bindCommands(
+        SuperState.FIXED_SCORE,
+        intake.restExtended(),
+        indexer.kick(() -> AutoAim.getFixedShotParams().shotData().flywheelVelocityRotPerSec()),
+        shooter
+            .resetTurretToCalculatedPosition()
+            .andThen(
+                shooter.score(
+                    () -> AutoAim.getFixedShotParams())),
         climber.retract());
 
     bindCommands(

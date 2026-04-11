@@ -228,4 +228,12 @@ public class AutoAim {
   public static boolean targetInTurretDeadzone() {
     return outOfRange;
   }
+
+  public static ShotParams getFixedShotParams() {
+    // return new ShotParams(new ShotData(
+    //         Rotation2d.fromDegrees(30 - 13.16),
+    //         0.95 * (35 * 0.84615384615 / TurretSubsystem.OLD_FLYWHEEL_GEAR_RATIO + 1),
+    //         1.2), Rotation2d.fromDegrees(-90));
+    return new ShotParams(ShotTrees.COMP_HUB_SHOT_TREE.get(3.1), Rotation2d.fromDegrees(-90));
+  }
 }
