@@ -791,6 +791,8 @@ public class Robot extends LoggedRobot {
 
     autoChooser.addOption("Left Bump Double Dip", autos.getLeftBumpDoubleDipAuto());
     autoChooser.addOption("Right Bump Double Dip", autos.getRightBumpDoubleDipAuto());
+    autoChooser.addOption(
+        "Right Half Cleanup Bump Double Dip", autos.getRightHalfBumpDoubleDipAuto());
 
     autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
     autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
