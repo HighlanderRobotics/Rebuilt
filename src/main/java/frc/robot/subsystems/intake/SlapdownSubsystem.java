@@ -105,7 +105,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
                           PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
                       rollerIO.setRollerVelocity(30.0);
                     })
-                .until(atExtensionTrigger))
+                .until(atExtensionTrigger)) 
         .repeatedly();
     // );
   }
