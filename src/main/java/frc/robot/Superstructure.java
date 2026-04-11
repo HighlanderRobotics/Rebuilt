@@ -765,7 +765,7 @@ public class Superstructure {
   private Command changeStateTo(SuperState nextState) {
     return Commands.runOnce(
             () -> {
-              System.out.println("Changing state from " + state + " to " + nextState);
+              // System.out.println("Changing state from " + state + " to " + nextState);
               stateTimer.reset();
               this.prevState = state;
               state = nextState;

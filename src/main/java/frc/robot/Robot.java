@@ -35,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.components.cancoder.CANcoderIO;
-import frc.robot.components.cancoder.CANcoderIOSim;
 import frc.robot.components.candle.CANdleIOReal;
 import frc.robot.components.pivot.PivotIO;
 import frc.robot.components.pivot.PivotIOSim;
@@ -97,13 +96,13 @@ public class Robot extends LoggedRobot {
   }
 
   @AutoLogOutput(key = "Robot/Climb Target")
-  private boolean leftClimbTarget = false; // TODO change to be operator controller
+  private boolean leftClimbTarget = false; // TODO change to be operator controller$
 
-  public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.SIM;
+  public static final RobotMode ROBOT_MODE = Robot.isReal() ? RobotMode.REAL : RobotMode.REPLAY;
   // public static final RobotEdition ROBOT_EDITION = RobotEdition.COMP;
   public static final RobotEdition ROBOT_EDITION;
   public static final RobotEdition SIM_ROBOT_EDITION = RobotEdition.COMP;
-  public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.ALPHA;
+  public static final RobotEdition REPLAY_ROBOT_EDITION = RobotEdition.COMP;
   private static final Alert unknownRioAlert =
       new Alert("!! Unknown Rio detected. Defaulting to comp", AlertType.kError);
   private static final Alert noLogStickAlert =
@@ -395,7 +394,7 @@ public class Robot extends LoggedRobot {
                             SlapdownSubsystem.PIVOT_MIN_POSITION.getRadians()),
                         MotorType.KrakenX44,
                         SlapdownSubsystem.PIVOT_GEAR_RATIO),
-                    new CANcoderIOSim(6, SlapdownSubsystem.getCancoderConfig(), canivore),
+                    new CANcoderIO(6, SlapdownSubsystem.getCancoderConfig(), canivore),
                     new RollerIOSim(
                         8,
                         SlapdownSubsystem.getRollerConfig(),
@@ -431,10 +430,10 @@ public class Robot extends LoggedRobot {
                     : new TurretIOSim(canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore)
-                    : new CANcoderIOSim(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
+                    : new CANcoderIO(5, TurretSubsystem.getCancoder24tConfigs(), canivore),
                 ROBOT_MODE == RobotMode.REAL
                     ? new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore)
-                    : new CANcoderIOSim(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
+                    : new CANcoderIO(4, TurretSubsystem.getCancoder26tConfigs(), canivore));
         break;
     }
     climber =
@@ -611,14 +610,14 @@ public class Robot extends LoggedRobot {
     disabledTimer.restart();
 
     // log when commands get interrupted
-    CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            (interrupted, interrupting) -> {
-              System.out.println("Interrupted: " + interrupted);
-              System.out.println(
-                  "Interrputing: "
-                      + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
-            });
+    // CommandScheduler.getInstance()
+    //     .onCommandInterrupt(
+    //         (interrupted, interrupting) -> {
+    //           System.out.println("Interrupted: " + interrupted);
+    //           System.out.println(
+    //               "Interrputing: "
+    //                   + (interrupting.isPresent() ? interrupting.get().getName() : "none"));
+    //         });
 
     // Log climb poses
     Logger.recordOutput(
@@ -893,7 +892,7 @@ public class Robot extends LoggedRobot {
     //     });
 
     updateAlerts();
-    // Logger.recordOutput("AutoAim/Flywheel Fudge Factor", AutoAim.getFudgeFactor());
+    Logger.recordOutput("AutoAim/Flywheel Fudge Factor", AutoAim.getFudgeFactor());
 
     // Logger.recordOutput(
     //     "trench poses",
