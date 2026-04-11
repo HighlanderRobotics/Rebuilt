@@ -1,5 +1,5 @@
 {
- "name":"RCleanuptoRPreTrenchReversed",
+ "name":"RHalfCleanuptoRPreTrenchReversed",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -23,7 +23,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RCleanup.x", "val":5.877985000610352}, "y":{"exp":"RCleanup.y", "val":2.8118300437927246}, "heading":{"exp":"RCleanup.heading", "val":1.5707963267948966}, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RHalfCleanup.x", "val":5.877985000610352}, "y":{"exp":"RHalfCleanup.y", "val":2.8118300437927246}, "heading":{"exp":"RHalfCleanup.heading", "val":1.5707963267948966}, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.613850116729736 m", "val":6.613850116729736}, "y":{"exp":"1.745917558670044 m", "val":1.745917558670044}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":16, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"6.418950080871582 m", "val":6.418950080871582}, "y":{"exp":"0.6934576034545898 m", "val":0.6934576034545898}, "heading":{"exp":"3.141592653589793 rad", "val":3.141592653589793}, "intervals":31, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"RPreTrenchReversed.x", "val":3.32966947555542}, "y":{"exp":"RPreTrenchReversed.y", "val":0.688210129737854}, "heading":{"exp":"RPreTrenchReversed.heading", "val":3.141592653589793}, "intervals":82, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],

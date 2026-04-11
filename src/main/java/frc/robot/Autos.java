@@ -99,20 +99,21 @@ public class Autos {
     LNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.INTAKE),
 
     EndWScoreLNeutraltoLPreTrench("LNeutraltoLPreTrench", Action.SCORE_AT_END),
-    EndWScoreLCleanuptoLPreTrench("LCleanuptoLPreTrench", Action.SCORE_AT_END),
+    EndWScoreLHalfCleanuptoLPreTrench("LHalfCleanuptoLPreTrench", Action.SCORE_AT_END),
 
     RNeutraltoRPreTrenchReversed("RNeutraltoRPreTrenchReversed", Action.SCORE_AT_END),
     RDisrupttoRPreTrenchReversed("RDisruptToRPreTrenchReversed", Action.SCORE_AT_END),
     LDisrupttoLPreTrench("LDisrupttoLPreTrench", Action.SCORE_AT_END),
 
     LPreTrenchtoLNeutral("LPreTrenchtoLNeutral", Action.INTAKE),
-    LPreTrenchtoLCleanup("LPreTrenchtoLCleanup", Action.INTAKE),
+    LPreTrenchtoLHalfCleanup("LPreTrenchtoLHalfCleanup", Action.INTAKE),
 
     RPreTrenchtoRNeutral("RPreTrenchtoRNeutral", Action.INTAKE),
     RPreTrenchReversedtoRNeutral("RPreTrenchReversedtoRNeutral", Action.INTAKE),
 
-    RPreTrenchReversedtoRCleanup("RPreTrenchReversedtoRCleanup", Action.INTAKE),
-    EndWScoreRCleanuptoRPreTrenchReversed("RCleanuptoRPreTrenchReversed", Action.SCORE_AT_END),
+    RPreTrenchReversedtoRHalfCleanup("RPreTrenchReversedtoRHalfCleanup", Action.INTAKE),
+    EndWScoreRHalfCleanuptoRPreTrenchReversed(
+        "RHalfCleanuptoRPreTrenchReversed", Action.SCORE_AT_END),
 
     StartingRTrenchtoRNeutral("StartingRTrenchtoRNeutral", Action.INTAKE),
     StartingLTrenchtoLNeutral("StartingLTrenchtoLNeutral", Action.INTAKE),
@@ -556,14 +557,14 @@ public class Autos {
         setLeftClimb());
   }
 
-  public Command getDoubleDipRightTrench() {
+  public Command getRightTrenchDoubleDipAuto() {
     return createAuto(
-        "Double dip right trench auto",
+        "Right Trench Double Dip",
         new Path[] {
           Path.StartingRTrenchtoRNeutral,
           Path.RNeutraltoRPreTrenchReversed,
-          Path.RPreTrenchReversedtoRCleanup,
-          Path.EndWScoreRCleanuptoRPreTrenchReversed
+          Path.RPreTrenchReversedtoRHalfCleanup,
+          Path.EndWScoreRHalfCleanuptoRPreTrenchReversed
           // Path.RPreTrenchReversedtoRNeutral,
           // Path.RNeutraltoRPreTrenchReversed,
         },
@@ -756,21 +757,21 @@ public class Autos {
   //       setLeftClimb());
   // }
 
-  public Command getLeftNeutralScoreTwice() {
+  public Command getLeftTrenchDoubleDipAuto() {
     return createAuto(
-        "Left Neutral Score Twice",
+        "Left Trench Double Dip",
         new Path[] {
           Path.StartingLTrenchtoLNeutral,
           Path.EndWScoreLNeutraltoLPreTrench,
-          Path.LPreTrenchtoLCleanup,
-          Path.EndWScoreLCleanuptoLPreTrench
+          Path.LPreTrenchtoLHalfCleanup,
+          Path.EndWScoreLHalfCleanuptoLPreTrench
         },
         setLeftClimb());
   }
 
   public Command getLeftBumpDoubleDipAuto() {
     return createAuto(
-        "Left Double Dip Bump",
+        "Left Bump Double Dip",
         new Path[] {
           Path.StartingLTrenchtoLNeutral,
           Path.LNeutralToLBump,
@@ -783,7 +784,7 @@ public class Autos {
 
   public Command getRightBumpDoubleDipAuto() {
     return createAuto(
-        "Right Double Dip Bump",
+        "Right Bump Double Dip",
         new Path[] {
           Path.StartingRTrenchtoRNeutral,
           Path.RNeutralToRBump,

@@ -786,8 +786,8 @@ public class Robot extends LoggedRobot {
     System.out.println(
         "Regenerating Autos on " + DriverStation.getAlliance().map((a) -> a.toString()));
 
-    autoChooser.addOption("Right Trench Double Dip", autos.getDoubleDipRightTrench());
-    autoChooser.addOption("Left Trench Double Dip", autos.getLeftNeutralScoreTwice());
+    autoChooser.addOption("Right Trench Double Dip", autos.getRightTrenchDoubleDipAuto());
+    autoChooser.addOption("Left Trench Double Dip", autos.getLeftTrenchDoubleDipAuto());
 
     autoChooser.addOption("Left Bump Double Dip", autos.getLeftBumpDoubleDipAuto());
     autoChooser.addOption("Right Bump Double Dip", autos.getRightBumpDoubleDipAuto());
@@ -795,6 +795,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Hub Depot Outpost", autos.getHubDepotOutpostAuto());
     autoChooser.addOption("Hub Outpost Depot", autos.getHubOutpostDepotAuto());
 
+    // not used
     autoChooser.addOption("Depot Feed Climb", autos.getDepotFeedClimbAuto());
     autoChooser.addOption("Depot Score Climb", autos.getDepotScoreClimbAuto());
     autoChooser.addOption("Outpost Feed Climb", autos.getOutpostFeedClimbAuto());
