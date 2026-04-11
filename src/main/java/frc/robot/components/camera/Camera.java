@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Robot;
-import frc.robot.Robot.RobotMode;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.utils.Tracer;
 import java.util.NoSuchElementException;
@@ -171,9 +169,9 @@ public class Camera {
         setSimPose(estPose, !inputs.stale);
 
         // if (Robot.ROBOT_MODE != RobotMode.REAL)
-          Logger.recordOutput("Vision/" + getName() + "/Pose3d", visionPose);
+        Logger.recordOutput("Vision/" + getName() + "/Pose3d", visionPose);
         // if (Robot.ROBOT_MODE != RobotMode.REAL)
-          Logger.recordOutput("Vision/" + getName() + "/Pose2d", visionPose.toPose2d());
+        Logger.recordOutput("Vision/" + getName() + "/Pose2d", visionPose.toPose2d());
         final Matrix<N3, N1> deviations = findVisionMeasurementStdDevs(estPose.get());
         // if (Robot.ROBOT_TYPE != RobotType.REAL)
         // Logger.recordOutput("Vision/" + getName() + "/Deviations", deviations.getData());
