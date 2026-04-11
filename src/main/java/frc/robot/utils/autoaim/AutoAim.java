@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.autoaim.InterpolatingShotTree.ShotData;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoAim {
@@ -19,6 +21,7 @@ public class AutoAim {
 
   private static boolean outOfRange = false;
 
+  @AutoLogOutput(key = "Fudge Factor")
   private static int fudgeFactor = 0;
 
   private static double lastVxMetersPerSec = 0.0;
@@ -206,13 +209,11 @@ public class AutoAim {
   public static void incrementFudgeFactor() {
 
     fudgeFactor++;
-    Logger.recordOutput("AutoAim/Flywheel Fudge Factor", fudgeFactor);
   }
 
   /** Decrease the flywheel fudge factor by 1 */
   public static void decrementFudgeFactor() {
     fudgeFactor--;
-    Logger.recordOutput("AutoAim/Flywheel Fudge Factor", fudgeFactor);
   }
 
   /** Get the current flywheel fudge factor */
