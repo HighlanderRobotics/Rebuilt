@@ -34,6 +34,7 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
   public static final double CURRENT_ZEROING_THRESHOLD = 30.0; // TODO: TUNE
   public static final double ROLLER_GEAR_RATIO = 60.0 / 29.0;
   public static final double PIVOT_GEAR_RATIO = 36.17578125; // 39.375;
+  public static final double SLOW_INTAKE_VEL = 0.1; // TODO tune slow vel
 
   private final PivotIO pivotIO;
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
@@ -91,30 +92,37 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
 
   @Override
   public Command agitate() {
-    return Commands.sequence(
-            this.run(
-                    () -> {
-                      // maybe needs to go slower but idrk how to do that rn
-                      pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
-                      rollerIO.setRollerVelocity(30.0);
-                    })
-                .until(atExtensionTrigger),
-            this.run(
-                    () -> {
-                      pivotIO.setMotorPositionSetpoint(
-                          PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
-                      rollerIO.setRollerVelocity(30.0);
-                    })
-                .until(atExtensionTrigger))
-        .repeatedly();
-    // );
+    // return Commands.sequence(
+    //         this.run(
+    //                 () -> {
+    //                   // maybe needs to go slower but idrk how to do that rn
+    //                   pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION);
+    //                   rollerIO.setRollerVelocity(30.0);
+    //                 })
+    //             .until(atExtensionTrigger),
+    //         this.run(
+    //                 () -> {
+    //                   pivotIO.setMotorPositionSetpoint(
+    //                       PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(40)));
+    //                   rollerIO.setRollerVelocity(30.0);
+    //                 })
+    //             .until(atExtensionTrigger))
+    //     .repeatedly();
+    // // );
+
+    return this.run(
+        () -> {
+          pivotIO.setMotorPositionSetpointWithVel(
+              PIVOT_EXTENDED_POSITION.plus(Rotation2d.fromDegrees(70)), SLOW_INTAKE_VEL);
+          rollerIO.setRollerVelocity(30.0);
+        });
   }
 
   @Override
   public Command intake() {
     return this.run(
         () -> {
-          pivotIO.setMotorPositionSetpoint(PIVOT_EXTENDED_POSITION, -0.5);
+          pivotIO.setMotorPositionSetpointWithFF(PIVOT_EXTENDED_POSITION, -0.5);
           rollerIO.setRollerVelocity(80);
         })
     // .until(atExtensionTrigger)
@@ -221,9 +229,8 @@ public class SlapdownSubsystem extends SubsystemBase implements Intake {
     config.CurrentLimits.SupplyCurrentLimit = 40.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    // TODO: TUNE
-    config.MotionMagic.MotionMagicCruiseVelocity = .5;
-    config.MotionMagic.MotionMagicAcceleration = 10;
+    // config.MotionMagic.MotionMagicCruiseVelocity = .5;
+    // config.MotionMagic.MotionMagicAcceleration = 10;
 
     return config;
   }

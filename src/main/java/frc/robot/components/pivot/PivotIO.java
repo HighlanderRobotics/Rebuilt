@@ -6,7 +6,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -39,8 +39,13 @@ public class PivotIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Temperature> temp;
 
+  public static final double DEFAULT_PIVOT_VEL = 0.5;
+  public static final double DEFAULT_PIVOT_ACCEL = 10.0;
+
   private VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
-  private MotionMagicVoltage motorMagicVoltage = new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private DynamicMotionMagicVoltage dynamicMotionMagicVoltage =
+      new DynamicMotionMagicVoltage(0.0, DEFAULT_PIVOT_VEL, DEFAULT_PIVOT_ACCEL)
+          .withEnableFOC(true);
 
   private Rotation2d setpoint = Rotation2d.kZero;
 
@@ -80,15 +85,28 @@ public class PivotIO {
     motor.setControl(voltageOut.withOutput(voltage));
   }
 
+  /** Set intake pivot position with default velocity + acceleration and no feedforward */
   public void setMotorPositionSetpoint(Rotation2d setpoint) {
-    this.setpoint = setpoint;
-    motor.setControl(motorMagicVoltage.withPosition(setpoint.getMeasure()).withFeedForward(0.0));
+    setMotorPositionSetpoint(setpoint, DEFAULT_PIVOT_VEL, 0.0);
   }
 
-  public void setMotorPositionSetpoint(Rotation2d setpoint, double ffVolts) {
+  /** Set intake pivot position with default velocity + acceleration and a feedforward */
+  public void setMotorPositionSetpointWithFF(Rotation2d setpoint, double ffVolts) {
+    setMotorPositionSetpoint(setpoint, DEFAULT_PIVOT_VEL, ffVolts);
+  }
+
+  /** Set intake pivot position with default velocity + acceleration and no feedforward */
+  public void setMotorPositionSetpointWithVel(Rotation2d setpoint, double velocity) {
+    setMotorPositionSetpoint(setpoint, velocity, 0.0);
+  }
+
+  public void setMotorPositionSetpoint(Rotation2d setpoint, double velocity, double ffVolts) {
     this.setpoint = setpoint;
     motor.setControl(
-        motorMagicVoltage.withPosition(setpoint.getMeasure()).withFeedForward(ffVolts));
+        dynamicMotionMagicVoltage
+            .withPosition(setpoint.getMeasure())
+            .withVelocity(velocity)
+            .withFeedForward(ffVolts));
   }
 
   public Rotation2d getSetpoint() {
