@@ -126,8 +126,10 @@ public class SwerveSubsystem extends SubsystemBase {
     new SignalID(SignalType.TURN, 3)
   };
   private Alert usingSyncOdoAlert = new Alert("Using Sync Odometry", AlertType.kInfo);
-  private Alert missingModuleData = new Alert("Missing Module Data", AlertType.kError);
-  private Alert missingGyroData = new Alert("Missing Gyro Data", AlertType.kWarning);
+  private Alert missingModuleData = new Alert("Missing Module Odo Data", AlertType.kError);
+  private Alert missingGyroData = new Alert("Missing Gyro Odo Data", AlertType.kWarning);
+  private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro!", AlertType.kError);
+
 
   private final SysIdRoutine turnSysid;
 
@@ -319,6 +321,8 @@ public class SwerveSubsystem extends SubsystemBase {
           Tracer.trace("Update odometry", this::updateOdometry);
           Tracer.trace("Update vision", this::updateVision);
 
+          gyroDisconnectedAlert.set(!gyroInputs.isConnected);
+ 
           // Logger.recordOutput("Current Hub Pose", FieldUtils.getCurrentHubPose());
         });
   }
