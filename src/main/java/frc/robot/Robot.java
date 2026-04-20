@@ -192,6 +192,12 @@ public class Robot extends LoggedRobot {
   private static final double lowBatteryDisabledTime = 1.5;
   private static final double lowBatteryMinCycleCount = 10;
 
+  private final PowerDistribution pd = new PowerDistribution();
+  private final Timer timer = new Timer();
+  private double lastTimeStamp = 0.0;
+  private double totalCurrent = 0.0;
+  private double accumulatedCurrentAmps = 0.0;
+
   /**
    * As per the 2026+ ctre api we should be passing in the actual canbus object to any ctre device
    * constructors, NOT the name as a string
@@ -784,6 +790,18 @@ public class Robot extends LoggedRobot {
         .or(() -> DriverStation.getStickButton(1, 3))
         .onTrue(Commands.runOnce(() -> operatorJoystickDisconnectedAlert.set(true)))
         .onFalse(Commands.runOnce(() -> operatorJoystickDisconnectedAlert.set(false)));
+  }
+
+  @AutoLogOutput(key = "Robot/Accumulated Current Amp")
+  private double AccumulatedCurrentAmp() {
+    double timeStamp = timer.getFPGATimestamp();
+    double dt = timeStamp - lastTimeStamp;
+    lastTimeStamp = timeStamp;
+    totalCurrent = pd.getTotalCurrent();
+
+    // integrate!
+    accumulatedCurrentAmps += totalCurrent * dt;
+    return accumulatedCurrentAmps;
   }
 
   private void addAutos() {
